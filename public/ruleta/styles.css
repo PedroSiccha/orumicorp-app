@@ -1,0 +1,192 @@
+*{  box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    
+}
+
+
+.mainbox{
+    position: relative;
+    width: 500px;
+    height: 500px;
+    
+}
+.mainbox:after{
+    position: absolute;
+    content: '';
+    width: 40px;
+    height: 42px;
+    /*border: 2px solid black;*/
+    /*background: url('arrow2.png') no-repeat;*/
+    background-size: 42px;
+    right: 225px;
+    top:-40px;
+    transform: translateY(-50%);
+    transform: rotate(-90deg);
+}
+.box{
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 50%;
+    border: 10px solid #138DED;
+    overflow: hidden;
+    transition: all ease 5s;
+}
+span{
+    width: 50%;
+    height: 50%;
+    display: inline-block;
+    position: absolute;
+}
+.span1{
+    clip-path: polygon(0 92%, 100% 50%, 0 8%);
+    background-color:#138DED;
+    top: 120px;
+    left: 0;
+}
+.span2{
+    clip-path: polygon(100% 92%, 0 50%, 100% 8%);
+    background-color: #138DED;
+    top: 120px;
+    right: 0;
+}
+.span3{
+    clip-path: polygon(50% 0%, 8% 100%, 92% 100%);
+    background-color: #138DED;
+    bottom: 0;
+    left: 120px;
+}
+.span4{
+    clip-path: polygon(50% 100%, 92% 0, 8% 0);
+    background-color: #138DED;
+    top: 0;
+    left: 120px;
+}
+.span5{
+    clip-path: polygon(0 92%, 100% 50%, 0 8%);
+    background-color: white;
+    top: 120px;
+    left: 0;
+}
+.span6{
+    clip-path: polygon(100% 92%, 0 50%, 100% 8%);
+    background-color: white;
+    top: 120px;
+    right: 0;
+}
+.span7{
+    clip-path: polygon(50% 0%, 8% 100%, 92% 100%);
+    background-color: white;
+    bottom: 0;
+    left: 120px;
+}
+.span8{
+    clip-path: polygon(50% 100%, 92% 0, 8% 0);
+    background-color: white;
+    top: 0;
+    left: 120px;
+}
+.box2{
+    width: 100%;
+    height: 100%;
+    transform: rotate(-135deg);
+}
+
+span b{
+    width: 65px;
+    height: 65px;
+    color: #138DED;   
+    font-size: 18px;
+    text-align: center;
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+}
+
+.span5 b {
+    
+        width: 65px;
+        height: 65px;
+        color: #138DED;   
+        font-size: 18px;
+        text-align: center;
+        position: absolute;
+        top: 55%;
+        left: 35%;
+        transform: translate(-50%, -50%);
+        
+    
+}
+
+
+span .white{
+    color: white;
+}
+img {
+    vertical-align: middle;
+    border-style: none;
+}
+
+.spin{
+    position: absolute;
+    top:50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 95px;
+    width: 95px;
+
+
+    cursor: pointer;
+}
+
+.spin:active{
+    width: 75px;
+    height: 75px;
+    font-size: 20px;
+}
+
+.mainbox.animate:after{
+    animation: animateArrow 0.7s ease infinite;
+
+}
+@keyframes animateArrow{
+    50%{
+        top: -70px;
+    }
+}
+
+
+
+.span1 b{
+    transform: rotate(-90deg);
+    top: 37%;
+    left: 37%;
+   
+}
+
+.span7 b{
+    transform: rotate(-180deg); 
+    top: 45%;
+    left: 37%;
+}
+
+.span8 b{
+    top:45%;
+}
+
+.span2 b{
+    transform: rotate(90deg); 
+    top: 37%;
+    left: 37%;
+}
+
+.span3 b{
+    transform: rotate(180deg); 
+    top: 37%;
+    left: 37%;
+}
+
