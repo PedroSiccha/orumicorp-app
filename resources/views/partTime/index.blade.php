@@ -83,6 +83,27 @@
           </div>
           </div>
 
+          <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+            <div class="ibox-content m-b-sm border-bottom">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h3>Filtrar Fechas</h3>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group date">
+                            
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
+                        </div>
+                    </div>
+                    <div class="col-sm-4 text-right">
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
           
           <div class="row">
             <div class="col-lg-12">
@@ -115,7 +136,7 @@
                             <td>Entrada</td>
                             <td> - </td>
                             <td>08:15:31 AM</td>
-                            <td></td>
+                            <td>07/02/2024</td>
                         </tr>
                         </thead>
                         <tbody>
@@ -123,7 +144,7 @@
                             <td>Break</td>
                             <td> - </td>
                             <td>13:07:22 PM</td>
-                            <td></td>
+                            <td>07/02/2024</td>
                         </tr>
                         <tr>
                             <td>Observación</td>

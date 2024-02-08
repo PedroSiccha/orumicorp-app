@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-      Clientes
+      Áreas
 @endsection
 
 @section('content')
@@ -9,8 +9,8 @@
       <div class="col-lg-12">
           <div class="ibox ">
               <div class="ibox-title">
-                  <h5>Tabla Clientes </h5>
-                  <button type="button" class="btn btn-default" type="button" onclick="nuevoCliente()"><i class="fa fa-plus"></i> Nuevo Cliente</button>
+                  <h5>Tabla Áreas </h5>
+                  <button type="button" class="btn btn-default" type="button" onclick="nuevaArea()"><i class="fa fa-plus"></i> Nueva Área</button>
                   <div class="ibox-tools">
                       <a class="collapse-link">
                           <i class="fa fa-chevron-up"></i>
@@ -29,22 +29,22 @@
                       </a>
                   </div>
               </div>
-              <div class="ibox-content" id="tabClient">
+              <div class="ibox-content" id="tabArea">
                   <table class="table table-striped">
                       <thead>
-                      <tr>
-                          <th>Fecha de Ingreso</th>
-                          <th>ID de Cliente</th>
-                          <th>Nombre del Cliente</th>
-                          <th>Acción</th>
-                      </tr>
+                        <tr>
+                              <th>ID de Área</th>
+                              <th>Nombre del Área</th>
+                              <th>Descripción</th>
+                              <th>Acción</th>
+                        </tr>
                       </thead>
                       <tbody>
-                        @foreach ($customers as $customer)
+                        @foreach ($areas as $area)
                             <tr>
-                                <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
-                                <td>{{ $customer->id }}</td>
-                                <td>{{ $customer->name }} {{ $customer->lastname }}</td>
+                                <td>{{ $area->id }}</td>
+                                <td>{{ $area->name }}</td>
+                                <td>{{ $area->description }}</td>
                                 <td>
                                     <button class="btn btn-info " type="button"><i class="fa fa-check"></i></button>
                                     <button class="btn btn-warning " type="button"><i class="fa fa-pencil"></i></button>
@@ -59,13 +59,13 @@
       </div>
   </div>
 
-  <div class="modal inmodal fade" id="modalCliente" tabindex="-1" role="dialog"  aria-hidden="true">
+  <div class="modal inmodal fade" id="modalArea" tabindex="-1" role="dialog"  aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Nuevo Cliente</h4>
-                <small class="font-bold">Registre su nuevo cliente</small>
+                <h4 class="modal-title">Nueva Área</h4>
+                <small class="font-bold">Registre su nueva área</small>
             </div>
             <div class="modal-body">
                 <table class="table m-b-xs">
@@ -75,31 +75,15 @@
                                 <strong>Nombre</strong>
                             </td>
                             <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su nombre" id='name'>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su área" id='name'>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <strong>Apellidos</strong>
+                                <strong>Descripción</strong>
                             </td>
                             <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su apellido" id='lastname'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>DNI</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su dni" id='dni'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Correo</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su correo" id='email'>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese una descripción" id='description'>
                             </td>
                         </tr>
                     </tbody>
@@ -107,7 +91,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="guardarNuevoCliente()"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="guardarNuevaArea()"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -118,33 +102,31 @@
     
     <script>
 
-        function nuevoCliente() {
-            $('#modalCliente').modal('show');
+        function nuevaArea() {
+            $('#modalArea').modal('show');
         }
 
-        function guardarNuevoCliente() {
+        function guardarNuevaArea() {
             var name = $("#name").val();
-            var lastname = $("#lastname").val();
-            var dni = $("#dni").val();
-            var email = $("#email").val();
+            var description = $("#description").val();
 
-            $.post("{{ Route('saveCustomer') }}", {name: name, lastname: lastname, dni: dni, email: email, _token: '{{ csrf_token() }}'}).done(function(data) {
-                $('#modalCliente').modal('hide');
-                $("#tabClient").empty();
-                $("#tabClient").html(data.view);
+            $.post("{{ Route('saveArea') }}", {name: name, description: description, _token: '{{ csrf_token() }}'}).done(function(data) {
+                $('#modalArea').modal('hide');
+                $("#tabArea").empty();
+                $("#tabArea").html(data.view);
                 if (data.resp == 1) {
 
                     Swal.fire({
-                        title: "Guardado",
-                        text: "El cliente se guardó correctamente",
+                        title: "Correcto",
+                        text: "El área se guardó correctamente",
                         icon: "success"
                     });
                     
                 } else {
 
                     Swal.fire({
-                        title: "Guardado",
-                        text: "El cliente se guardó correctamente",
+                        title: "Error",
+                        text: "El área no pudo ser guardada",
                         icon: "error"
                     });
                     

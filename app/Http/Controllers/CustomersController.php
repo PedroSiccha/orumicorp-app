@@ -2,26 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sales;
+use App\Models\Customers;
+use App\Http\Requests\StoreCustomersRequest;
+use App\Http\Requests\UpdateCustomersRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class StatisticsTodayController extends Controller
+class CustomersController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                      ->selectRaw('a.name, a.lastname, DATE(sales.date_admission) AS day, MONTH(sales.date_admission) AS month, SUM(sales.amount) AS total_amount_day, SUM(sales.amount) AS total_amount_month')
-                      ->groupBy('a.name', 'a.lastname', 'day', 'month')
-                      ->get();
-
-        return view('todayStatistics.index', compact('sales'));
-    }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -36,10 +29,10 @@ class StatisticsTodayController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\StoreCustomersRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreCustomersRequest $request)
     {
         //
     }
@@ -47,10 +40,10 @@ class StatisticsTodayController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Customers  $customers
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Customers $customers)
     {
         //
     }
@@ -58,10 +51,10 @@ class StatisticsTodayController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Customers  $customers
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Customers $customers)
     {
         //
     }
@@ -69,11 +62,11 @@ class StatisticsTodayController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Http\Requests\UpdateCustomersRequest  $request
+     * @param  \App\Models\Customers  $customers
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateCustomersRequest $request, Customers $customers)
     {
         //
     }
@@ -81,10 +74,10 @@ class StatisticsTodayController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Models\Customers  $customers
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Customers $customers)
     {
         //
     }

@@ -38,6 +38,12 @@
                     <a href="{{ route('dashboard') }}"><i class="fa fa-home"></i> <span class="nav-label">Tablero</span> </a>
                 </li>
                 <li>
+                    <a href="{{ route('agents') }}"><i class="fa fa-user-o"></i> <span class="nav-label">Agentes</span></a>
+                </li>
+                <li>
+                    <a href="{{ route('areas') }}"><i class="fa fa-user-o"></i> <span class="nav-label">Áreas</span></a>
+                </li>
+                <li>
                     <a href="{{ route('clients') }}"><i class="fa fa-user-o"></i> <span class="nav-label">Clientes</span></a>
                 </li>
                 <li>
@@ -670,7 +676,9 @@
     <!-- FooTable -->
     <script src="{{asset('js/plugins/footable/footable.all.min.js')}}"></script>
     <script src="{{asset('js/ruleta.js')}}"></script>
-
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @yield('script')
     <script>
         $(document).ready(function() {
             $('#date_added').datepicker({

@@ -10,7 +10,7 @@
           <div class="ibox ">
               <div class="ibox-title">
                   <h5>Tabla Clientes </h5>
-                  <button type="button" class="btn btn-default" type="button" onclick="nuevoCliente()"><i class="fa fa-plus"></i> Nuevo Cliente</button>
+                  <button type="button" class="btn btn-default" type="button" onclick="nuevoAgente()"><i class="fa fa-plus"></i> Nuevo Agente</button>
                   <div class="ibox-tools">
                       <a class="collapse-link">
                           <i class="fa fa-chevron-up"></i>
@@ -29,22 +29,26 @@
                       </a>
                   </div>
               </div>
-              <div class="ibox-content" id="tabClient">
+              <div class="ibox-content" id="tabAgente">
                   <table class="table table-striped">
                       <thead>
-                      <tr>
-                          <th>Fecha de Ingreso</th>
-                          <th>ID de Cliente</th>
-                          <th>Nombre del Cliente</th>
-                          <th>Acción</th>
-                      </tr>
+                        <tr>
+                              <th>ID de Agente</th>
+                              <th>Nombre del Agente</th>
+                              <th>DNI</th>
+                              <th>Área</th>
+                              <th>Correo</th>
+                              <th>Acción</th>
+                        </tr>
                       </thead>
                       <tbody>
-                        @foreach ($customers as $customer)
+                        @foreach ($agents as $agent)
                             <tr>
-                                <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
-                                <td>{{ $customer->id }}</td>
-                                <td>{{ $customer->name }} {{ $customer->lastname }}</td>
+                                <td>{{ $agent->id }}</td>
+                                <td>{{ $agent->name }} {{ $agent->lastname }}</td>
+                                <td>{{ $agent->dni }}</td>
+                                <td>{{ $agent->area->name }}</td>
+                                <td>{{ $agent->user->email }}</td>
                                 <td>
                                     <button class="btn btn-info " type="button"><i class="fa fa-check"></i></button>
                                     <button class="btn btn-warning " type="button"><i class="fa fa-pencil"></i></button>
@@ -59,13 +63,13 @@
       </div>
   </div>
 
-  <div class="modal inmodal fade" id="modalCliente" tabindex="-1" role="dialog"  aria-hidden="true">
+  <div class="modal inmodal fade" id="modalAgente" tabindex="-1" role="dialog"  aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Nuevo Cliente</h4>
-                <small class="font-bold">Registre su nuevo cliente</small>
+                <h4 class="modal-title">Nuevo Agente</h4>
+                <small class="font-bold">Registre su nuevo agente</small>
             </div>
             <div class="modal-body">
                 <table class="table m-b-xs">
@@ -102,12 +106,25 @@
                                 <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su correo" id='email'>
                             </td>
                         </tr>
+                        <tr>
+                              <td>
+                                    <strong>Área</strong>
+                              </td>
+                              <td>
+                                    <select class="form-control m-b" name="account" id="area_id">
+                                          <option>Seleccione su Área</option>
+                                          @foreach($areas as $area)
+                                          <option value = "{{ $area->id }}">{{ $area->name }}</option>
+                                          @endforeach
+                                      </select>
+                              </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="guardarNuevoCliente()"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="guardarNuevoAgente()"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -118,25 +135,26 @@
     
     <script>
 
-        function nuevoCliente() {
-            $('#modalCliente').modal('show');
+        function nuevoAgente() {
+            $('#modalAgente').modal('show');
         }
 
-        function guardarNuevoCliente() {
+        function guardarNuevoAgente() {
             var name = $("#name").val();
             var lastname = $("#lastname").val();
             var dni = $("#dni").val();
             var email = $("#email").val();
+            var area_id = $("#area_id").val();
 
-            $.post("{{ Route('saveCustomer') }}", {name: name, lastname: lastname, dni: dni, email: email, _token: '{{ csrf_token() }}'}).done(function(data) {
-                $('#modalCliente').modal('hide');
-                $("#tabClient").empty();
-                $("#tabClient").html(data.view);
+            $.post("{{ Route('saveAgent') }}", {name: name, lastname: lastname, dni: dni, email: email, area_id: area_id, _token: '{{ csrf_token() }}'}).done(function(data) {
+                $('#modalAgente').modal('hide');
+                $("#tabAgente").empty();
+                $("#tabAgente").html(data.view);
                 if (data.resp == 1) {
 
                     Swal.fire({
                         title: "Guardado",
-                        text: "El cliente se guardó correctamente",
+                        text: "El agente se guardó correctamente",
                         icon: "success"
                     });
                     
@@ -144,7 +162,7 @@
 
                     Swal.fire({
                         title: "Guardado",
-                        text: "El cliente se guardó correctamente",
+                        text: "El agente no pudo ser guardado",
                         icon: "error"
                     });
                     

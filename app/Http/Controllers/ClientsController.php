@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customers;
+use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class ClientsController extends Controller
 {
@@ -13,7 +17,34 @@ class ClientsController extends Controller
      */
     public function index()
     {
-        return view('cliente.index');
+        $customers = Customers::where('status', true)->orderBy('date_admission')->take(10)->get();
+        return view('cliente.index', compact('customers'));
+    }
+
+    public function saveCustomer(Request $request)
+    {
+        $resp = 0;
+
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->dni);
+        if ($user->save()) {
+            $client = new Customers();
+            $client->name = $request->name;
+            $client->lastname = $request->lastname;
+            $client->dni = $request->dni;
+            $client->date_admission = Carbon::now();
+            $client->status = true;
+            $client->user_id = $user->id;
+            if ($client->save()) {
+                $resp = 1;
+            }
+        }
+
+        $customers = Customers::where('status', true)->orderBy('date_admission')->take(10)->get();
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "resp"=>$resp]);
     }
 
     /**

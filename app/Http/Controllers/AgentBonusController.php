@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Sales;
 use Illuminate\Http\Request;
 
 class AgentBonusController extends Controller
@@ -13,7 +14,8 @@ class AgentBonusController extends Controller
      */
     public function index()
     {
-        return view('bonusAgente.index');
+        $sales = Sales::where('status', true)->orderBy('date_admission')->get();
+        return view('bonusAgente.index', compact('sales'));
     }
 
     /**

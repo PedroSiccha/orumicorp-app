@@ -24,9 +24,18 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
+Route::get('agents', [\App\Http\Controllers\AgentController::class, 'index'])->name('agents');
+Route::post('/saveAgent', [App\Http\Controllers\AgentController::class, 'saveAgent'])->name('saveAgent');
+
+Route::get('areas', [\App\Http\Controllers\AreaController::class, 'index'])->name('areas');
+Route::post('/saveArea', [App\Http\Controllers\AreaController::class, 'saveArea'])->name('saveArea');
+
 Route::get('/clients', [App\Http\Controllers\ClientsController::class, 'index'])->name('clients');
+Route::post('/saveCustomer', [App\Http\Controllers\ClientsController::class, 'saveCustomer'])->name('saveCustomer');
 
 Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
+Route::post('/searchCustomer', [App\Http\Controllers\SalesController::class, 'searchCustomer'])->name('searchCustomer');
+Route::post('/saveSale', [App\Http\Controllers\SalesController::class, 'saveSale'])->name('saveSale');
 
 Route::get('/agentbonus', [App\Http\Controllers\AgentBonusController::class, 'index'])->name('agentBonus');
 

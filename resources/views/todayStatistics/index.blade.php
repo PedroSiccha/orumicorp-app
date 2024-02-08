@@ -7,24 +7,27 @@
 @section('content')
 
 <div class="wrapper wrapper-content animated fadeInRight ecommerce">
-
-
-      <div class="ibox-content m-b-sm border-bottom">
-          <div class="row">
-              <div class="col-sm-4">
-                  <button class="btn btn-primary " type="button"><i class="fa fa-area-chart"></i> TODAY STATISTICS</button>
-              </div>
-              <div class="col-sm-4">
-                  <div class="input-group date">
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
-                  </div>
-              </div>
-              <div class="col-sm-4 text-right">
-                  <button class="btn btn-primary " type="button"><i class="fa fa-check"></i> RETENCIÓN</button>
-              </div>
-          </div>
-      </div>
-  </div>
+    <div class="ibox-content m-b-sm border-bottom">
+        <div class="row">
+            <div class="col-sm-2">
+                <button class="btn btn-primary " type="button"><i class="fa fa-area-chart"></i> TODAY STATISTICS</button>
+            </div>
+            <div class="col-sm-4">
+                <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
+                </div>
+            </div>
+            <div class="col-sm-2 text-right">
+                <button class="btn btn-primary " type="button"><i class="fa fa-check"></i> RETENCIÓN</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="row">
       <div class="col-lg-12">
@@ -65,26 +68,20 @@
                       </tr>
                       </thead>
                       <tbody>
-                      <tr>
-                          <td>1</td>
-                          <td>Renato Garcia</td>
-                          <td>$ 15000.00</td>
-                          <td>$ 34000.00</td>
-                          <td>8 (01:02:24)</td>
-                          <td>107 (01:33:12)</td>
-                          <td>$ 3500.00</td>
-                          <td>$ 2000.00</td>
-                      </tr>
-                      <tr>
-                        <td>2</td>
-                        <td>Juan Cruz</td>
-                        <td>$ 37000.00</td>
-                        <td>$ 18000.00</td>
-                        <td>9 (01:02:24)</td>
-                        <td>98 (01:33:12)</td>
-                        <td>$ 1500.00</td>
-                        <td></td>
-                      </tr>
+                        @foreach ($sales as $sale)
+
+                            <tr>
+                                <td>{{ $sale->id }}</td>
+                                <td>{{ $sale->name }} {{ $sale->lastname }}</td>
+                                <td>S/. {{ number_format($sale->total_amount_day, 2) }}</td>
+                                <td>S/. {{ number_format($sale->total_amount_month, 2) }}</td>
+                                <td>8 (01:02:24)</td>
+                                <td>107 (01:33:12)</td>
+                                <td>$ 3500.00</td>
+                                <td>$ 2000.00</td>
+                            </tr>
+                            
+                        @endforeach
                       </tbody>
                   </table>
               </div>

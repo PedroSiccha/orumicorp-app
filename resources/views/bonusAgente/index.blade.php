@@ -47,32 +47,24 @@
                       </tr>
                       </thead>
                       <tbody>
-                      <tr>
-                          <td>21-07-2023</td>
-                          <td>18372</td>
-                          <td>Jose Pelaez Cruz</td>
-                          <td> $ 2000.00 </td>
-                          <td>5%</td>
-                          <td>$ 100.00</td>
-                          <td>S/. 3.50</td>
-                          <td> S/. 350.00 </td>
-                          <td>Pepe Ruiz</td>
-                          <td>Retención</td>
-                          <td></td>
-                      </tr>
-                      <tr>
-                          <td>21-07-2023</td>
-                          <td>18372</td>
-                          <td>Jose Pelaez Cruz</td>
-                          <td> $ -2000.00 </td>
-                          <td>5%</td>
-                          <td>$ 100.00</td>
-                          <td>S/. 3.50</td>
-                          <td> S/. 350.00 </td>
-                          <td>Pepe Ruiz</td>
-                          <td>Retención</td>
-                          <td>Descuento por chargeback</td>
-                      </tr>
+                        @foreach ($sales as $sale)
+
+                            <tr>
+                                <td>{{ date("d/m/Y", strtotime($sale->date_admission)) }}</td>
+                                <td>{{ $sale->customer->id }}</td>
+                                <td>{{ $sale->customer->name }} {{ $sale->customer->lastname }}</td>
+                                <td> $ {{ number_format($sale->amount / $sale->exchangeRate->amount, 2) }} </td>
+                                <td>{{ $sale->percent->description }}</td>
+                                <td> $ {{ number_format($sale->commission->amount / $sale->exchangeRate->amount, 2) }}</td>
+                                <td>{{ $sale->exchangeRate->name }}</td>
+                                <td>{{ $sale->commission->name }}</td>
+                                <td>{{ $sale->agent->name }} {{ $sale->agent->lastname }}</td>
+                                <td>{{ $sale->agent->area->name }}</td>
+                                <td>{{ $sale->obsercation }}</td>
+                            </tr>
+                            
+                        @endforeach
+                      
                       </tbody>
                   </table>
               </div>

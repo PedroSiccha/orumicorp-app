@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sales;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Action;
+use App\Http\Requests\StoreActionRequest;
+use App\Http\Requests\UpdateActionRequest;
 
-class StatisticsTodayController extends Controller
+class ActionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,12 +15,7 @@ class StatisticsTodayController extends Controller
      */
     public function index()
     {
-        $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                      ->selectRaw('a.name, a.lastname, DATE(sales.date_admission) AS day, MONTH(sales.date_admission) AS month, SUM(sales.amount) AS total_amount_day, SUM(sales.amount) AS total_amount_month')
-                      ->groupBy('a.name', 'a.lastname', 'day', 'month')
-                      ->get();
-
-        return view('todayStatistics.index', compact('sales'));
+        //
     }
 
     /**
@@ -36,10 +31,10 @@ class StatisticsTodayController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\StoreActionRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreActionRequest $request)
     {
         //
     }
@@ -47,10 +42,10 @@ class StatisticsTodayController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Action  $action
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Action $action)
     {
         //
     }
@@ -58,10 +53,10 @@ class StatisticsTodayController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Action  $action
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Action $action)
     {
         //
     }
@@ -69,11 +64,11 @@ class StatisticsTodayController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Http\Requests\UpdateActionRequest  $request
+     * @param  \App\Models\Action  $action
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateActionRequest $request, Action $action)
     {
         //
     }
@@ -81,10 +76,10 @@ class StatisticsTodayController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Models\Action  $action
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Action $action)
     {
         //
     }
