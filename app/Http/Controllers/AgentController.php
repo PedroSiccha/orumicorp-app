@@ -32,8 +32,10 @@ class AgentController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->dni);
+        $user->rol = "AGENTE";
         if ($user->save()) {
             $agent = new Agent();
+            $agent->code = $request->code;
             $agent->name = $request->name;
             $agent->lastname = $request->lastname;
             $agent->dni = $request->dni;

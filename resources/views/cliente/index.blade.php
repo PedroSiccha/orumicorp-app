@@ -8,25 +8,10 @@
 <div class="row">
       <div class="col-lg-12">
           <div class="ibox ">
-              <div class="ibox-title">
+              <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Clientes </h5>
-                  <button type="button" class="btn btn-default" type="button" onclick="nuevoCliente()"><i class="fa fa-plus"></i> Nuevo Cliente</button>
-                  <div class="ibox-tools">
-                      <a class="collapse-link">
-                          <i class="fa fa-chevron-up"></i>
-                      </a>
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                          <i class="fa fa-wrench"></i>
-                      </a>
-                      <ul class="dropdown-menu dropdown-user">
-                          <li><a href="#" class="dropdown-item">Config option 1</a>
-                          </li>
-                          <li><a href="#" class="dropdown-item">Config option 2</a>
-                          </li>
-                      </ul>
-                      <a class="close-link">
-                          <i class="fa fa-times"></i>
-                      </a>
+                  <div>
+                    <button type="button" class="btn btn-default" type="button" onclick="nuevoCliente()"><i class="fa fa-plus"></i> Nuevo Cliente</button>
                   </div>
               </div>
               <div class="ibox-content" id="tabClient">
@@ -43,7 +28,7 @@
                         @foreach ($customers as $customer)
                             <tr>
                                 <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
-                                <td>{{ $customer->id }}</td>
+                                <td>{{ $customer->code }}</td>
                                 <td>{{ $customer->name }} {{ $customer->lastname }}</td>
                                 <td>
                                     <button class="btn btn-info " type="button"><i class="fa fa-check"></i></button>
@@ -70,6 +55,14 @@
             <div class="modal-body">
                 <table class="table m-b-xs">
                     <tbody>
+                        <tr>
+                            <td>
+                                <strong>Código</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su código" id='code'>
+                            </td>
+                        </tr>
                         <tr>
                             <td>
                                 <strong>Nombre</strong>
@@ -115,7 +108,7 @@
 </div>
 @endsection
 @section('script')
-    
+
     <script>
 
         function nuevoCliente() {
@@ -127,8 +120,9 @@
             var lastname = $("#lastname").val();
             var dni = $("#dni").val();
             var email = $("#email").val();
+            var code = $("#code").val();
 
-            $.post("{{ Route('saveCustomer') }}", {name: name, lastname: lastname, dni: dni, email: email, _token: '{{ csrf_token() }}'}).done(function(data) {
+            $.post("{{ Route('saveCustomer') }}", {code: code, name: name, lastname: lastname, dni: dni, email: email, _token: '{{ csrf_token() }}'}).done(function(data) {
                 $('#modalCliente').modal('hide');
                 $("#tabClient").empty();
                 $("#tabClient").html(data.view);
@@ -139,7 +133,7 @@
                         text: "El cliente se guardó correctamente",
                         icon: "success"
                     });
-                    
+
                 } else {
 
                     Swal.fire({
@@ -147,7 +141,7 @@
                         text: "El cliente se guardó correctamente",
                         icon: "error"
                     });
-                    
+
                 }
 
             });

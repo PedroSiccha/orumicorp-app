@@ -35,7 +35,10 @@ class SalesController extends Controller
      */
     public function searchCustomer(Request $request)
     {
-        $client = Customers::where('dni', $request->dni)->first();
+        $client = Customers::where('dni', $request->dni)
+                  ->orWhere('code', $request->dni)
+                  ->first();
+
         $name = $client->name . " " . $client->lastname;
         return response()->json(["name"=>$name]);
     }

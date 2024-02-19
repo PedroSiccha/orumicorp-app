@@ -27,35 +27,37 @@
                             <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
                             <li><a class="dropdown-item" href="mailbox.html">Mailbox</a></li>
                             <li class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="login.html">Logout</a></li>
                         </ul>
                     </div>
                     <div class="logo-element">
                         <img alt="image" class="rounded-circle" src="{{asset('img/logo/basic_logo.png')}}" width="50%" height="50%"/>
                     </div>
                 </li>
-                <li class="active">
+                <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
                     <a href="{{ route('dashboard') }}"><i class="fa fa-home"></i> <span class="nav-label">Tablero</span> </a>
                 </li>
-                <li>
+                <li class="{{ Request::is('agents') ? 'active' : '' }}">
                     <a href="{{ route('agents') }}"><i class="fa fa-user-o"></i> <span class="nav-label">Agentes</span></a>
                 </li>
-                <li>
+                <li class="{{ Request::is('areas') ? 'active' : '' }}">
                     <a href="{{ route('areas') }}"><i class="fa fa-user-o"></i> <span class="nav-label">Áreas</span></a>
                 </li>
-                <li>
+                <li class="{{ Request::is('clients') ? 'active' : '' }}">
                     <a href="{{ route('clients') }}"><i class="fa fa-user-o"></i> <span class="nav-label">Clientes</span></a>
                 </li>
-                <li>
+                <li class="{{ Request::is('sales') ? 'active' : '' }}">
                     <a href="{{ route('sales') }}"><i class="fa fa-file-text-o"></i> <span class="nav-label">Ventas</span></a>
                 </li>
-                <li>
+                <li class="{{ Request::is('agentbonus') ? 'active' : '' }}">
                     <a href="{{ route('agentBonus') }}"><i class="fa fa-dot-circle-o"></i> <span class="nav-label">Bonus agente </span></a>
                 </li>
-                <li>
+                <li class="{{ Request::is('statisticstoday') ? 'active' : '' }}">
                     <a href="{{ route('statisticsToday') }}"><i class="fa fa-bar-chart"></i> <span class="nav-label">Today Statistic</span></a>
                 </li>
-                <li>
+                <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('statisticsToday') }}"><i class="fa fa-bar-chart"></i> <span class="nav-label">Gestión de Ruleta</span></a>
+                </li>
+                <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
                     <a href="{{ route('partTime') }}"><i class="fa fa-clock-o"></i> <span class="nav-label">Part Time</span></a>
                 </li>
             </ul>
@@ -79,12 +81,12 @@
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-share-alt"></i>  
+                        <i class="fa fa-share-alt"></i>
                     </a>
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-check"></i>  
+                        <i class="fa fa-check"></i>
                     </a>
                 </li>
                 <li>
@@ -145,7 +147,7 @@
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-bell"></i> 
+                        <i class="fa fa-bell"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-alerts">
                         <li>
@@ -191,7 +193,7 @@
         <div class="wrapper wrapper-content">
             @yield('content')
         </div>
-        
+
         <div class="footer">
             <div class="float-right">
                 10GB of <strong>250GB</strong> Free.
@@ -226,19 +228,19 @@
                                         <span class="span7"><b>Tire otra vez</b></span>
                                         <span class="span8"><b>Tire otra vez</b></span>
                                     </div>
-                                    
+
                                 </div>
                                 <img class="spin" src="{{asset('ruleta/es_wheel-spin.png')}}" onclick="giro()" alt="">
                             </div>
-                            
+
                             <div>
                                 <div id="sonido" style="display: none;">
                                   <iframe src="{{asset('ruleta/sonido/ruleta.mp3')}}" id="audio"></iframe>
-                            
+
                                 </div>
-                             
+
                               </div>
-                        
+
                         <div>
                             <div id="sonido" style="display: none;">
                               <iframe src="sonido/ruleta.mp3" id="audio"></iframe>
@@ -626,7 +628,7 @@
 
             </div>
 
-            
+
 
 
         </div>
@@ -681,6 +683,9 @@
     @yield('script')
     <script>
         $(document).ready(function() {
+
+
+
             $('#date_added').datepicker({
                 todayBtn: "linked",
                 keyboardNavigation: false,

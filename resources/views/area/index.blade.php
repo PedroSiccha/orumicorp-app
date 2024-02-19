@@ -8,25 +8,10 @@
 <div class="row">
       <div class="col-lg-12">
           <div class="ibox ">
-              <div class="ibox-title">
+              <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Áreas </h5>
-                  <button type="button" class="btn btn-default" type="button" onclick="nuevaArea()"><i class="fa fa-plus"></i> Nueva Área</button>
-                  <div class="ibox-tools">
-                      <a class="collapse-link">
-                          <i class="fa fa-chevron-up"></i>
-                      </a>
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                          <i class="fa fa-wrench"></i>
-                      </a>
-                      <ul class="dropdown-menu dropdown-user">
-                          <li><a href="#" class="dropdown-item">Config option 1</a>
-                          </li>
-                          <li><a href="#" class="dropdown-item">Config option 2</a>
-                          </li>
-                      </ul>
-                      <a class="close-link">
-                          <i class="fa fa-times"></i>
-                      </a>
+                  <div>
+                    <button type="button" class="btn btn-default" type="button" onclick="nuevaArea()"><i class="fa fa-plus"></i> Nueva Área</button>
                   </div>
               </div>
               <div class="ibox-content" id="tabArea">
@@ -99,7 +84,7 @@
 </div>
 @endsection
 @section('script')
-    
+
     <script>
 
         function nuevaArea() {
@@ -121,7 +106,7 @@
                         text: "El área se guardó correctamente",
                         icon: "success"
                     });
-                    
+
                 } else {
 
                     Swal.fire({
@@ -129,7 +114,7 @@
                         text: "El área no pudo ser guardada",
                         icon: "error"
                     });
-                    
+
                 }
 
             });

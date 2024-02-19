@@ -29,8 +29,10 @@ class ClientsController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->dni);
+        $user->rol = "CLIENTE";
         if ($user->save()) {
             $client = new Customers();
+            $client->code = $request->code;
             $client->name = $request->name;
             $client->lastname = $request->lastname;
             $client->dni = $request->dni;

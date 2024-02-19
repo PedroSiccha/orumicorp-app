@@ -12,7 +12,7 @@
       <tbody>
         @foreach ($agents as $agent)
             <tr>
-                <td>{{ $agent->id }}</td>
+                <td>{{ $agent->code }}</td>
                 <td>{{ $agent->name }} {{ $agent->lastname }}</td>
                 <td>{{ $agent->dni }}</td>
                 <td>{{ $agent->area->name }}</td>

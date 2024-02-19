@@ -8,25 +8,10 @@
 <div class="row">
       <div class="col-lg-12">
           <div class="ibox ">
-              <div class="ibox-title">
+              <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Clientes </h5>
-                  <button type="button" class="btn btn-default" type="button" onclick="nuevoAgente()"><i class="fa fa-plus"></i> Nuevo Agente</button>
-                  <div class="ibox-tools">
-                      <a class="collapse-link">
-                          <i class="fa fa-chevron-up"></i>
-                      </a>
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                          <i class="fa fa-wrench"></i>
-                      </a>
-                      <ul class="dropdown-menu dropdown-user">
-                          <li><a href="#" class="dropdown-item">Config option 1</a>
-                          </li>
-                          <li><a href="#" class="dropdown-item">Config option 2</a>
-                          </li>
-                      </ul>
-                      <a class="close-link">
-                          <i class="fa fa-times"></i>
-                      </a>
+                  <div>
+                    <button type="button" class="btn btn-default" type="button" onclick="nuevoAgente()"><i class="fa fa-plus"></i> Nuevo Agente</button>
                   </div>
               </div>
               <div class="ibox-content" id="tabAgente">
@@ -44,7 +29,7 @@
                       <tbody>
                         @foreach ($agents as $agent)
                             <tr>
-                                <td>{{ $agent->id }}</td>
+                                <td>{{ $agent->code }}</td>
                                 <td>{{ $agent->name }} {{ $agent->lastname }}</td>
                                 <td>{{ $agent->dni }}</td>
                                 <td>{{ $agent->area->name }}</td>
@@ -74,6 +59,14 @@
             <div class="modal-body">
                 <table class="table m-b-xs">
                     <tbody>
+                        <tr>
+                            <td>
+                                <strong>Código</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su código" id='code'>
+                            </td>
+                        </tr>
                         <tr>
                             <td>
                                 <strong>Nombre</strong>
@@ -132,7 +125,7 @@
 </div>
 @endsection
 @section('script')
-    
+
     <script>
 
         function nuevoAgente() {
@@ -145,8 +138,9 @@
             var dni = $("#dni").val();
             var email = $("#email").val();
             var area_id = $("#area_id").val();
+            var code = $("#code").val();
 
-            $.post("{{ Route('saveAgent') }}", {name: name, lastname: lastname, dni: dni, email: email, area_id: area_id, _token: '{{ csrf_token() }}'}).done(function(data) {
+            $.post("{{ Route('saveAgent') }}", {code:code, name: name, lastname: lastname, dni: dni, email: email, area_id: area_id, _token: '{{ csrf_token() }}'}).done(function(data) {
                 $('#modalAgente').modal('hide');
                 $("#tabAgente").empty();
                 $("#tabAgente").html(data.view);
@@ -157,7 +151,7 @@
                         text: "El agente se guardó correctamente",
                         icon: "success"
                     });
-                    
+
                 } else {
 
                     Swal.fire({
@@ -165,7 +159,7 @@
                         text: "El agente no pudo ser guardado",
                         icon: "error"
                     });
-                    
+
                 }
 
             });

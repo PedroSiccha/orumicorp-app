@@ -12,7 +12,7 @@
             @foreach ($customers as $customer)
                 <tr>
                     <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
-                    <td>{{ $customer->id }}</td>
+                    <td>{{ $customer->code }}</td>
                     <td>{{ $customer->name }} {{ $customer->lastname }}</td>
                     <td>
                         <button class="btn btn-info " type="button"><i class="fa fa-check"></i></button>

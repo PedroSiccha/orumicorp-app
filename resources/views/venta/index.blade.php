@@ -8,29 +8,14 @@
 <div class="row">
       <div class="col-lg-12">
           <div class="ibox ">
-              <div class="ibox-title">
+              <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Ventas </h5>
-                  <button type="button" class="btn btn-default" type="button" onclick="nuevaVenta()"><i class="fa fa-plus"></i> Registrar Venta</button>
-                  <div class="ibox-tools">
-                      <a class="collapse-link">
-                          <i class="fa fa-chevron-up"></i>
-                      </a>
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                          <i class="fa fa-wrench"></i>
-                      </a>
-                      <ul class="dropdown-menu dropdown-user">
-                          <li><a href="#" class="dropdown-item">Config option 1</a>
-                          </li>
-                          <li><a href="#" class="dropdown-item">Config option 2</a>
-                          </li>
-                      </ul>
-                      <a class="close-link">
-                          <i class="fa fa-times"></i>
-                      </a>
+                  <div>
+                    <button type="button" class="btn btn-default" type="button" onclick="nuevaVenta()"><i class="fa fa-plus"></i> Registrar Venta</button>
                   </div>
               </div>
               <div class="ibox-content" id="tabVenta">
-  
+
                   <table class="table table-striped">
                       <thead>
                       <tr>
@@ -63,7 +48,7 @@
                                 <td>{{ $sale->agent->area->name }}</td>
                                 <td>{{ $sale->obsercation }}</td>
                             </tr>
-                            
+
                         @endforeach
                       </tbody>
                   </table>
@@ -85,20 +70,20 @@
                     <tbody>
                         <tr>
                             <td>
-                                <strong>DNI de Cliente</strong>
+                                <strong>Cliente</strong>
                             </td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="dniCustomer"> 
-                                    <div class="input-group-append"> 
-                                        <button type="button" class="btn btn-primary" onclick="searchCustomer()"><i class="fa fa-search"></i></button> 
+                                    <input type="text" class="form-control" id="dniCustomer" placeholder="Ingrese el DNI o Código del cliente">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-primary" onclick="searchCustomer()"><i class="fa fa-search"></i></button>
                                     </div>
                                 </div>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <strong>Cliente</strong>
+                                <strong>Datos del Cliente</strong>
                             </td>
                             <td>
                                 <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Nombre del cliente" id='nameCustomer' readonly>
@@ -204,7 +189,7 @@
                         text: "La venta se registró correctamente",
                         icon: "success"
                     });
-                    
+
                 } else {
 
                     Swal.fire({
@@ -212,12 +197,12 @@
                         text: "La venta no se pudo registrar",
                         icon: "error"
                     });
-                    
+
                 }
 
             });
         }
 
     </script>
-    
+
 @endsection
