@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customers;
+use App\Models\Premio;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
@@ -18,7 +19,9 @@ class ClientsController extends Controller
     public function index()
     {
         $customers = Customers::where('status', true)->orderBy('date_admission')->take(10)->get();
-        return view('cliente.index', compact('customers'));
+        $premios1 = Premio::where('status', true)->where('type', 1)->get();
+        $premios2 = Premio::where('status', true)->where('type', 2)->get();
+        return view('cliente.index', compact('customers', 'premios1', 'premios2'));
     }
 
     public function saveCustomer(Request $request)

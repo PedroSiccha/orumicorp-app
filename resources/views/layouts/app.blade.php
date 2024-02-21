@@ -54,8 +54,8 @@
                 <li class="{{ Request::is('statisticstoday') ? 'active' : '' }}">
                     <a href="{{ route('statisticsToday') }}"><i class="fa fa-bar-chart"></i> <span class="nav-label">Today Statistic</span></a>
                 </li>
-                <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
-                    <a href="{{ route('statisticsToday') }}"><i class="fa fa-bar-chart"></i> <span class="nav-label">Gestión de Ruleta</span></a>
+                <li class="{{ Request::is('gestionRuleta') ? 'active' : '' }}">
+                    <a href="{{ route('gestionRuleta') }}"><i class="fa fa-bar-chart"></i> <span class="nav-label">Gestión de Ruleta</span></a>
                 </li>
                 <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
                     <a href="{{ route('partTime') }}"><i class="fa fa-clock-o"></i> <span class="nav-label">Part Time</span></a>
@@ -217,16 +217,14 @@
                             <div id="mainbox" class="mainbox">
                                 <div id="box" class="box">
                                     <div class="box1">
-                                        <span class="span1"><b class="white">Premio</b></span>
-                                        <span class="span2"><b  class="white">Premio</b></span>
-                                        <span class="span3"><b  class="white">Premio</b></span>
-                                        <span class="span4"><b  class="white">Premio</b></span>
+                                        @foreach ($premios1 as $premio)
+                                            <span class="span{{ $premio->order }}"><b class="white">{{ $premio->name }}</b></span>
+                                        @endforeach
                                     </div>
                                     <div class="box2">
-                                        <span class="span5"><b>Siga Participando</b></span>
-                                        <span class="span6"><b>Siga Participando</b></span>
-                                        <span class="span7"><b>Tire otra vez</b></span>
-                                        <span class="span8"><b>Tire otra vez</b></span>
+                                        @foreach ($premios2 as $premio)
+                                            <span class="span{{ $premio->order }}"><b>{{ $premio->name }}</b></span>
+                                        @endforeach
                                     </div>
 
                                 </div>
@@ -678,13 +676,12 @@
     <!-- FooTable -->
     <script src="{{asset('js/plugins/footable/footable.all.min.js')}}"></script>
     <script src="{{asset('js/ruleta.js')}}"></script>
+    <script src="{{ asset('js/plugins/jasny/jasny-bootstrap.min.js') }}"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @yield('script')
     <script>
         $(document).ready(function() {
-
-
 
             $('#date_added').datepicker({
                 todayBtn: "linked",

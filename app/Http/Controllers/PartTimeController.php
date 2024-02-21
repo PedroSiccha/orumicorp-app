@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Premio;
 use Illuminate\Http\Request;
 
 class PartTimeController extends Controller
@@ -13,7 +14,9 @@ class PartTimeController extends Controller
      */
     public function index()
     {
-        return view('partTime.index');
+        $premios1 = Premio::where('status', true)->where('type', 1)->get();
+        $premios2 = Premio::where('status', true)->where('type', 2)->get();
+        return view('partTime.index', compact('premios1', 'premios2'));
     }
 
     /**

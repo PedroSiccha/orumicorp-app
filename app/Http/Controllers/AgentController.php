@@ -6,6 +6,7 @@ use App\Models\Agent;
 use App\Http\Requests\StoreAgentRequest;
 use App\Http\Requests\UpdateAgentRequest;
 use App\Models\Area;
+use App\Models\Premio;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -21,7 +22,19 @@ class AgentController extends Controller
     {
         $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
         $areas = Area::where('status', true)->get();
-        return view('agent.index', compact('agents', 'areas'));
+        $premios1 = Premio::where('status', true)->where('type', 1)->get();
+        $premios2 = Premio::where('status', true)->where('type', 2)->get();
+        return view('agent.index', compact('agents', 'areas', 'premios1', 'premios2'));
+    }
+
+    public function searchAgent(Request $request)
+    {
+        $agent = Agent::where('dni', $request->dni)
+                  ->orWhere('code', $request->dni)
+                  ->first();
+
+        $name = $agent->name . " " . $agent->lastname;
+        return response()->json(["name"=>$name]);
     }
 
     public function saveAgent(Request $request)

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Area;
 use App\Http\Requests\StoreareaRequest;
 use App\Http\Requests\UpdateareaRequest;
+use App\Models\Premio;
 use Illuminate\Http\Request;
 
 class AreaController extends Controller
@@ -16,8 +17,10 @@ class AreaController extends Controller
      */
     public function index()
     {
+        $premios1 = Premio::where('status', true)->where('type', 1)->get();
+        $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $areas = Area::where('status', true)->get();
-        return view('area.index', compact('areas'));
+        return view('area.index', compact('areas', 'premios1', 'premios2'));
     }
 
     public function saveArea(Request $request)

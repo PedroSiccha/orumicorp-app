@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Premio;
-use App\Models\Sales;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class StatisticsTodayController extends Controller
+class GestionRuletaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,14 +14,10 @@ class StatisticsTodayController extends Controller
      */
     public function index()
     {
-        $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                      ->selectRaw('a.name, a.lastname, DATE(sales.date_admission) AS day, MONTH(sales.date_admission) AS month, SUM(sales.amount) AS total_amount_day, SUM(sales.amount) AS total_amount_month')
-                      ->groupBy('a.name', 'a.lastname', 'day', 'month')
-                      ->get();
+        $premios = Premio::where('status', true)->get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
-
-        return view('todayStatistics.index', compact('sales', 'premios1', 'premios2'));
+        return view('gestionRuleta.index', compact('premios', 'premios1', 'premios2'));
     }
 
     /**
@@ -31,9 +25,22 @@ class StatisticsTodayController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function savePremio(Request $request)
     {
-        //
+        $resp = 0;
+
+        $premios = new Premio();
+        $premios->name = $request->nombre;
+        $premios->description = $request->descripcion;
+        $premios->value = $request->valor;
+        $premios->status = 1;
+        if ($premios->save()) {
+            $resp = 1;
+        }
+
+        $premios = Premio::where('status', true)->get();
+
+        return response()->json(["view"=>view('gestionRuleta.components.tabPremio', compact('premios'))->render(), "resp"=>$resp]);
     }
 
     /**

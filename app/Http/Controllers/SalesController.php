@@ -7,6 +7,7 @@ use App\Models\Commission;
 use App\Models\Customers;
 use App\Models\ExchangeRate;
 use App\Models\Percent;
+use App\Models\Premio;
 use App\Models\Sales;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -25,7 +26,9 @@ class SalesController extends Controller
         $commissions = Commission::where('status', true)->get();
         $exchange_rates = ExchangeRate::where('status', true)->get();
         $sales = Sales::where('status', true)->orderBy('date_admission')->take(10)->get();
-        return view('venta.index', compact('percents', 'commissions', 'exchange_rates', 'sales'));
+        $premios1 = Premio::where('status', true)->where('type', 1)->get();
+        $premios2 = Premio::where('status', true)->where('type', 2)->get();
+        return view('venta.index', compact('percents', 'commissions', 'exchange_rates', 'sales', 'premios1', 'premios2'));
     }
 
     /**
@@ -51,7 +54,10 @@ class SalesController extends Controller
      */
     public function saveSale(Request $request)
     {
-        $client = Customers::where('dni', $request->dniCustomer)->first();
+        $client = Customers::where('dni', $request->dniCustomer)
+                  ->orWhere('code', $request->dniCustomer)
+                  ->first();
+
         $agent = Agent::where('user_id', Auth::id())->first();
 
         $sale = new Sales();
