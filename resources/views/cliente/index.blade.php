@@ -11,7 +11,9 @@
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Clientes </h5>
                   <div>
+                    @can('Crear Cliente')
                     <button type="button" class="btn btn-default" type="button" onclick="nuevoCliente()"><i class="fa fa-plus"></i> Nuevo Cliente</button>
+                    @endcan
                   </div>
               </div>
               <div class="ibox-content" id="tabClient">
@@ -31,9 +33,15 @@
                                 <td>{{ $customer->code }}</td>
                                 <td>{{ $customer->name }} {{ $customer->lastname }}</td>
                                 <td>
+                                    @can('Estado Cliente')
                                     <button class="btn btn-info " type="button"><i class="fa fa-check"></i></button>
+                                    @endcan
+                                    @can('Editar Cliente')
                                     <button class="btn btn-warning " type="button"><i class="fa fa-pencil"></i></button>
+                                    @endcan
+                                    @can('Eliminar Cliente')
                                     <button class="btn btn-danger " type="button"><i class="fa fa-trash"></i></button>
+                                    @endcan
                                 </td>
                             </tr>
                         @endforeach
@@ -95,6 +103,19 @@
                                 <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su correo" id='email'>
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                  <strong>Asignar un Rol</strong>
+                            </td>
+                            <td>
+                                  <select class="form-control m-b" name="account" id="rol_id">
+                                        <option>Seleccione su Rol</option>
+                                        @foreach($roles as $rol)
+                                        <option value = "{{ $rol->id }}">{{ $rol->name }}</option>
+                                        @endforeach
+                                    </select>
+                            </td>
+                      </tr>
                     </tbody>
                 </table>
             </div>
@@ -121,8 +142,9 @@
             var dni = $("#dni").val();
             var email = $("#email").val();
             var code = $("#code").val();
+            var rol_id = $("#rol_id").val();
 
-            $.post("{{ Route('saveCustomer') }}", {code: code, name: name, lastname: lastname, dni: dni, email: email, _token: '{{ csrf_token() }}'}).done(function(data) {
+            $.post("{{ Route('saveCustomer') }}", {code: code, name: name, lastname: lastname, dni: dni, email: email, rol_id: rol_id, _token: '{{ csrf_token() }}'}).done(function(data) {
                 $('#modalCliente').modal('hide');
                 $("#tabClient").empty();
                 $("#tabClient").html(data.view);

@@ -9,6 +9,7 @@
     <link href="{{asset('css/animate.css')}}" rel="stylesheet">
     <link href="{{asset('css/style.css')}}" rel="stylesheet">
     <link href="{{asset('css/plugins/datapicker/datepicker3.css')}}" rel="stylesheet">
+    <link href="{{asset('css/plugins/iCheck/custom.css')}}" rel="stylesheet">
 
     <link href="{{asset('ruleta/styles.css')}}" rel="stylesheet">
 </head>
@@ -33,33 +34,56 @@
                         <img alt="image" class="rounded-circle" src="{{asset('img/logo/basic_logo.png')}}" width="50%" height="50%"/>
                     </div>
                 </li>
+
                 <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
                     <a href="{{ route('dashboard') }}"><i class="fa fa-home"></i> <span class="nav-label">Tablero</span> </a>
                 </li>
+
+                @can('Ver Agentes')
                 <li class="{{ Request::is('agents') ? 'active' : '' }}">
                     <a href="{{ route('agents') }}"><i class="fa fa-user-o"></i> <span class="nav-label">Agentes</span></a>
                 </li>
+                @endcan
+                @can('Ver Area')
                 <li class="{{ Request::is('areas') ? 'active' : '' }}">
                     <a href="{{ route('areas') }}"><i class="fa fa-user-o"></i> <span class="nav-label">Áreas</span></a>
                 </li>
+                @endcan
+                @can('Ver Cliente')
                 <li class="{{ Request::is('clients') ? 'active' : '' }}">
                     <a href="{{ route('clients') }}"><i class="fa fa-user-o"></i> <span class="nav-label">Clientes</span></a>
                 </li>
+                @endcan
+                @can('Ver Ventas')
                 <li class="{{ Request::is('sales') ? 'active' : '' }}">
                     <a href="{{ route('sales') }}"><i class="fa fa-file-text-o"></i> <span class="nav-label">Ventas</span></a>
                 </li>
+                @endcan
+                @can('Ver Bonus')
                 <li class="{{ Request::is('agentbonus') ? 'active' : '' }}">
                     <a href="{{ route('agentBonus') }}"><i class="fa fa-dot-circle-o"></i> <span class="nav-label">Bonus agente </span></a>
                 </li>
+                @endcan
+                @can('Ver Today')
                 <li class="{{ Request::is('statisticstoday') ? 'active' : '' }}">
                     <a href="{{ route('statisticsToday') }}"><i class="fa fa-bar-chart"></i> <span class="nav-label">Today Statistic</span></a>
                 </li>
+                @endcan
+                @can('Ver Gestión Ruleta')
                 <li class="{{ Request::is('gestionRuleta') ? 'active' : '' }}">
                     <a href="{{ route('gestionRuleta') }}"><i class="fa fa-bar-chart"></i> <span class="nav-label">Gestión de Ruleta</span></a>
                 </li>
-                <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
+                @endcan
+                @can('Ver Part Time')
+                <li class="{{ Request::is('partTime') ? 'active' : '' }}">
                     <a href="{{ route('partTime') }}"><i class="fa fa-clock-o"></i> <span class="nav-label">Part Time</span></a>
                 </li>
+                @endcan
+                @can('Ver Seguridad')
+                <li class="{{ Request::is('security') ? 'active' : '' }}">
+                    <a href="{{ route('security') }}"><i class="fa fa-lock"></i> <span class="nav-label">Seguridad</span></a>
+                </li>
+                @endcan
             </ul>
         </div>
     </nav>
@@ -89,8 +113,20 @@
                         <i class="fa fa-check"></i>
                     </a>
                 </li>
-                <li>
-                    <img alt="image" class="rounded-circle" src="img/profile_small.jpg"/>
+                <li class="dropdown">
+                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                        <img alt="image" class="rounded-circle" src="img/profile_small.jpg"/>
+                    </a>
+                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="">Perfil</a></li>
+                            <li><a class="dropdown-item" href="">Manuales</a></li>
+                            <li><a class="dropdown-item" href="">Correos</a></li>
+                        <li class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ Route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Salir</a></li>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            {{ csrf_field() }}
+                        </form>
+                    </ul>
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
@@ -679,6 +715,8 @@
     <script src="{{ asset('js/plugins/jasny/jasny-bootstrap.min.js') }}"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="{{asset('js/plugins/iCheck/icheck.min.js')}}"></script>
     @yield('script')
     <script>
         $(document).ready(function() {

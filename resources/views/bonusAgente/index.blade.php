@@ -11,11 +11,15 @@
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Bonus </h5>
                   <div>
+                    @can('Registrar Descuento')
+                    <button type="button" class="btn btn-danger" type="button" onclick="registrarBonus()"><i class="fa fa-plus"></i> Registrar Descuento</button>
+                    @endcan
+                    @can('Registrar Bonus')
                     <button type="button" class="btn btn-default" type="button" onclick="registrarBonus()"><i class="fa fa-plus"></i> Registrar Bonus</button>
+                    @endcan
                   </div>
               </div>
               <div class="ibox-content" id="tabBonus">
-
                   <table class="table table-striped">
                       <thead>
                       <tr>
@@ -34,7 +38,6 @@
                       </thead>
                       <tbody>
                         @foreach ($bonusAgent as $ba)
-
                             <tr>
                                 <td>{{ date("d/m/Y", strtotime($ba->date_admission)) }}</td>
                                 <td>{{ $ba->customer->id }}</td>
@@ -48,9 +51,7 @@
                                 <td>{{ $ba->agent->area->name }}</td>
                                 <td>{{ $ba->observation }}</td>
                             </tr>
-
                         @endforeach
-
                       </tbody>
                   </table>
               </div>
@@ -70,51 +71,54 @@
                       <i class="fa fa-wrench"></i>
                   </a>
                   <ul class="dropdown-menu dropdown-user">
-                      <li><a href="#" class="dropdown-item" onclick="registrarTarget()">Registrar Target</a>
-                      </li>
-                      <li><a href="#" class="dropdown-item" onclick="registrarRetiro()">Registrar Retiro</a>
-                      </li>
+                    @can('Registrar Target')
+                    <li><a href="#" class="dropdown-item" onclick="registrarTarget()">Registrar Target</a></li>
+                    @endcan
+                    @can('Registrar Retiro')
+                    <li><a href="#" class="dropdown-item" onclick="registrarRetiro()">Registrar Retiro</a></li>
+                    @endcan
                   </ul>
               </div>
           </div>
           <div class="ibox-content">
-
-              <table class="table table-hover">
-                  <thead>
-                  </thead>
-                  <tbody>
-                  <tr style="background-color: #4ef34e;" id="tabTarget">
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;">TARGET MENSUAL</td>
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;">$ {{ number_format($target->amount, 2, '.', ','); }}</td>
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;">$ {{ number_format($target->amount/30, 2, '.', ','); }}</td>
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;"> S/. {{ number_format($target->amount*3.5, 2, '.', ','); }} </td>
-                  </tr>
-                  <tr>
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;">INGRESOS ACTUALES</td>
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;">$ {{ number_format($amount, 2, '.', ','); }}</td>
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;"></td>
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;"> S/. {{ number_format($amount*3.5, 2, '.', ','); }} </td>
-                  </tr>
-                  <tr style="background-color: #f54738;">
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;">RETIROS ACTUALES</td>
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;">$ {{ number_format($amountRetiro, 2, '.', ','); }}</td>
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;"></td>
-                      <td style="color: rgb(0, 0, 0); font-weight: bold;"> S/. {{ number_format($amountRetiro*3.5, 2, '.', ','); }}</td>
-                  </tr>
-                  <tr style="background-color: #3922e9;">
-                      <td style="color: rgb(255, 255, 255); font-weight: bold;">CUOTA PENDIENTE</td>
-                      <td style="color: rgb(255, 255, 255); font-weight: bold;">$ {{ number_format($target->amount - $amount + $amountRetiro, 2, '.', ','); }}</td>
-                      <td style="color: rgb(255, 255, 255); font-weight: bold;"></td>
-                      <td style="color: rgb(255, 255, 255); font-weight: bold;"> S/. {{ number_format($target->amount*3.5 - $amount*3.5 + $amountRetiro*3.5, 2, '.', ','); }} </td>
-                  </tr>
-                  <tr style="background-color: #000000;">
-                      <td style="color: rgb(255, 255, 255); font-weight: bold;">PAGO EN EFECTIVO</td>
-                      <td></td>
-                      <td></td>
-                      <td style="color: rgb(255, 255, 255); font-weight: bold;"> S/. 0.00 </td>
-                  </tr>
-                  </tbody>
-              </table>
+            @can('Ver Totales')
+            <table class="table table-hover">
+                <thead>
+                </thead>
+                <tbody>
+                <tr style="background-color: #4ef34e;" id="tabTarget">
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;">TARGET MENSUAL</td>
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;">$ {{ number_format($target->amount, 2, '.', ','); }}</td>
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;">$ {{ number_format($target->amount/30, 2, '.', ','); }}</td>
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;"> S/. {{ number_format($target->amount*3.5, 2, '.', ','); }} </td>
+                </tr>
+                <tr>
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;">INGRESOS ACTUALES</td>
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;">$ {{ number_format($amount, 2, '.', ','); }}</td>
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;"></td>
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;"> S/. {{ number_format($amount*3.5, 2, '.', ','); }} </td>
+                </tr>
+                <tr style="background-color: #f54738;">
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;">RETIROS ACTUALES</td>
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;">$ {{ number_format($amountRetiro, 2, '.', ','); }}</td>
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;"></td>
+                    <td style="color: rgb(0, 0, 0); font-weight: bold;"> S/. {{ number_format($amountRetiro*3.5, 2, '.', ','); }}</td>
+                </tr>
+                <tr style="background-color: #3922e9;">
+                    <td style="color: rgb(255, 255, 255); font-weight: bold;">CUOTA PENDIENTE</td>
+                    <td style="color: rgb(255, 255, 255); font-weight: bold;">$ {{ number_format($target->amount - $amount + $amountRetiro, 2, '.', ','); }}</td>
+                    <td style="color: rgb(255, 255, 255); font-weight: bold;"></td>
+                    <td style="color: rgb(255, 255, 255); font-weight: bold;"> S/. {{ number_format($target->amount*3.5 - $amount*3.5 + $amountRetiro*3.5, 2, '.', ','); }} </td>
+                </tr>
+                <tr style="background-color: #000000;">
+                    <td style="color: rgb(255, 255, 255); font-weight: bold;">PAGO EN EFECTIVO</td>
+                    <td></td>
+                    <td></td>
+                    <td style="color: rgb(255, 255, 255); font-weight: bold;"> S/. 0.00 </td>
+                </tr>
+                </tbody>
+            </table>
+            @endcan
           </div>
       </div>
   </div>

@@ -10,6 +10,7 @@ use App\Models\Premio;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class AgentController extends Controller
 {
@@ -24,7 +25,8 @@ class AgentController extends Controller
         $areas = Area::where('status', true)->get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        return view('agent.index', compact('agents', 'areas', 'premios1', 'premios2'));
+        $roles = Role::get();
+        return view('agent.index', compact('agents', 'areas', 'premios1', 'premios2', 'roles'));
     }
 
     public function searchAgent(Request $request)
@@ -41,12 +43,15 @@ class AgentController extends Controller
     {
         $resp = 0;
 
+        $role = Role::find($request->rol_id);
+
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->dni);
-        $user->rol = "AGENTE";
+
         if ($user->save()) {
+            $user->assignRole($role);
             $agent = new Agent();
             $agent->code = $request->code;
             $agent->name = $request->name;

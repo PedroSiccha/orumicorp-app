@@ -30,40 +30,42 @@
                   </div>
               </div>
               <div class="ibox-content">
-                  <h3>
-                      Data picker
-                  </h3>
-                  <p>
-                      Simple and easy select a time for a text input using your mouse.
-                  </p>
+                @can('Registrar Asistencia')
+                <h3>
+                    Data picker
+                </h3>
+                <p>
+                    Simple and easy select a time for a text input using your mouse.
+                </p>
 
-                  <div class="form-group" id="data_1">
-                      <label class="font-normal">Simple data input format</label>
-                      <div class="input-group date">
-                          <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" value="03/04/2014">
+                <div class="form-group" id="data_1">
+                    <label class="font-normal">Simple data input format</label>
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" value="03/04/2014">
+                    </div>
+                </div>
+
+                <div class="form-group" id="data_2">
+                    <label class="font-normal">Entrada</label>
+                    <input type="text" placeholder="Entrada" class="form-control">
+                </div>
+
+                <div class="form-group" id="data_3">
+                    <label class="font-normal">Break</label>
+                    <input type="text" placeholder="Break" class="form-control">
+                </div>
+
+                <div class="form-group" id="data_4">
+                    <label class="font-normal">Salida</label>
+                    <input type="text" placeholder="Salida" class="form-control">
+                </div>
+
+                <div class="form-group row"><label class="col-lg-2 col-form-label">Comentarios</label>
+                      <div class="col-lg-10">
+                            <input type="text" placeholder="Comentarios" class="form-control">
                       </div>
                   </div>
-
-                  <div class="form-group" id="data_2">
-                      <label class="font-normal">Entrada</label>
-                      <input type="text" placeholder="Entrada" class="form-control">
-                  </div>
-
-                  <div class="form-group" id="data_3">
-                      <label class="font-normal">Break</label>
-                      <input type="text" placeholder="Break" class="form-control">
-                  </div>
-
-                  <div class="form-group" id="data_4">
-                      <label class="font-normal">Salida</label>
-                      <input type="text" placeholder="Salida" class="form-control">
-                  </div>
-
-                  <div class="form-group row"><label class="col-lg-2 col-form-label">Comentarios</label>
-                        <div class="col-lg-10">
-                              <input type="text" placeholder="Comentarios" class="form-control">
-                        </div>
-                    </div>
+                @endcan
               </div>
           </div>
       </div>
@@ -84,6 +86,7 @@
           </div>
 
           <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+            @can('Filtrar Historial de Asistencias')
             <div class="ibox-content m-b-sm border-bottom">
                 <div class="row">
                     <div class="col-sm-4">
@@ -91,7 +94,7 @@
                     </div>
                     <div class="col-sm-4">
                         <div class="input-group date">
-                            
+
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
                         </div>
                     </div>
@@ -102,12 +105,14 @@
                     </div>
                 </div>
             </div>
+            @endcan
         </div>
 
-          
+
           <div class="row">
             <div class="col-lg-12">
             <div class="ibox ">
+                @can('Ver Historial de Asistencias')
                 <div class="ibox-title">
                     <h5>Historial</h5>
                     <div class="ibox-tools">
@@ -154,11 +159,10 @@
                         </tr>
                         </tbody>
                     </table>
-
                 </div>
+                @endcan
             </div>
         </div>
-        
       </div>
 
       <style>
@@ -177,14 +181,14 @@
                 const hours = now.getHours().toString().padStart(2, '0');
                 const minutes = now.getMinutes().toString().padStart(2, '0');
                 const seconds = now.getSeconds().toString().padStart(2, '0');
-    
+
                 const timeString = `${hours}:${minutes}:${seconds}`;
                 document.getElementById('clock').innerText = timeString;
             }
-    
+
             // Actualiza el reloj cada segundo
             setInterval(updateClock, 1000);
-    
+
             // Llama a updateClock para mostrar la hora actual inmediatamente
             updateClock();
         </script>

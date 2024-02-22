@@ -11,11 +11,12 @@
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Ventas </h5>
                   <div>
+                    @can('Registrar Ventas')
                     <button type="button" class="btn btn-default" type="button" onclick="nuevaVenta()"><i class="fa fa-plus"></i> Registrar Venta</button>
+                    @endcan
                   </div>
               </div>
               <div class="ibox-content" id="tabVenta">
-
                   <table class="table table-striped">
                       <thead>
                       <tr>
@@ -34,7 +35,6 @@
                       </thead>
                       <tbody>
                         @foreach ($sales as $sale)
-
                             <tr>
                                 <td>{{ date("d/m/Y", strtotime($sale->date_admission)) }}</td>
                                 <td>{{ $sale->customer->id }}</td>
@@ -48,7 +48,6 @@
                                 <td>{{ $sale->agent->area->name }}</td>
                                 <td>{{ $sale->obsercation }}</td>
                             </tr>
-
                         @endforeach
                       </tbody>
                   </table>
