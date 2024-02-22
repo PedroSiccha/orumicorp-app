@@ -11,7 +11,9 @@
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Clientes </h5>
                   <div>
+                    @can('Crear Agente')
                     <button type="button" class="btn btn-default" type="button" onclick="nuevoAgente()"><i class="fa fa-plus"></i> Nuevo Agente</button>
+                    @endcan
                   </div>
               </div>
               <div class="ibox-content" id="tabAgente">
@@ -35,9 +37,16 @@
                                 <td>{{ $agent->area->name }}</td>
                                 <td>{{ $agent->user->email }}</td>
                                 <td>
+                                    @can('Estado Agente')
                                     <button class="btn btn-info " type="button"><i class="fa fa-check"></i></button>
+                                    @endcan
+                                    @can('Editar Agente')
                                     <button class="btn btn-warning " type="button"><i class="fa fa-pencil"></i></button>
+                                    @endcan
+                                    @can('Eliminar Agente')
                                     <button class="btn btn-danger " type="button"><i class="fa fa-trash"></i></button>
+                                    @endcan
+
                                 </td>
                             </tr>
                         @endforeach
@@ -112,6 +121,19 @@
                                       </select>
                               </td>
                         </tr>
+                        <tr>
+                            <td>
+                                  <strong>Asignar un Rol</strong>
+                            </td>
+                            <td>
+                                  <select class="form-control m-b" name="account" id="rol_id">
+                                        <option>Seleccione su Rol</option>
+                                        @foreach($roles as $rol)
+                                        <option value = "{{ $rol->id }}">{{ $rol->name }}</option>
+                                        @endforeach
+                                    </select>
+                            </td>
+                      </tr>
                     </tbody>
                 </table>
             </div>
@@ -139,8 +161,9 @@
             var email = $("#email").val();
             var area_id = $("#area_id").val();
             var code = $("#code").val();
+            var rol_id = $("#rol_id").val();
 
-            $.post("{{ Route('saveAgent') }}", {code:code, name: name, lastname: lastname, dni: dni, email: email, area_id: area_id, _token: '{{ csrf_token() }}'}).done(function(data) {
+            $.post("{{ Route('saveAgent') }}", {code:code, name: name, lastname: lastname, dni: dni, email: email, area_id: area_id, rol_id: rol_id, _token: '{{ csrf_token() }}'}).done(function(data) {
                 $('#modalAgente').modal('hide');
                 $("#tabAgente").empty();
                 $("#tabAgente").html(data.view);

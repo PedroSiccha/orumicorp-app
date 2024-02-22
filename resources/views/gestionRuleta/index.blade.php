@@ -11,11 +11,12 @@
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Datos de Premios </h5>
                   <div>
+                    @can('Registrar Premio Ruleta')
                     <button type="button" class="btn btn-default" type="button" onclick="nuevoPremio()"><i class="fa fa-plus"></i> Registrar Premio</button>
+                    @endcan
                   </div>
               </div>
               <div class="ibox-content" id="tabPremio">
-
                   <table class="table table-striped">
                       <thead>
                       <tr>

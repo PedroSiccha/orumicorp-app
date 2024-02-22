@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class ClientsController extends Controller
 {
@@ -21,19 +22,21 @@ class ClientsController extends Controller
         $customers = Customers::where('status', true)->orderBy('date_admission')->take(10)->get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        return view('cliente.index', compact('customers', 'premios1', 'premios2'));
+        $roles = Role::get();
+        return view('cliente.index', compact('customers', 'premios1', 'premios2', 'roles'));
     }
 
     public function saveCustomer(Request $request)
     {
         $resp = 0;
+        $role = Role::find($request->rol_id);
 
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->dni);
-        $user->rol = "CLIENTE";
         if ($user->save()) {
+            $user->assignRole($role);
             $client = new Customers();
             $client->code = $request->code;
             $client->name = $request->name;

@@ -11,7 +11,9 @@
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Áreas </h5>
                   <div>
+                    @can('Crear Area')
                     <button type="button" class="btn btn-default" type="button" onclick="nuevaArea()"><i class="fa fa-plus"></i> Nueva Área</button>
+                    @endcan
                   </div>
               </div>
               <div class="ibox-content" id="tabArea">
@@ -31,9 +33,15 @@
                                 <td>{{ $area->name }}</td>
                                 <td>{{ $area->description }}</td>
                                 <td>
+                                    @can('Estado Area')
                                     <button class="btn btn-info " type="button"><i class="fa fa-check"></i></button>
+                                    @endcan
+                                    @can('Editar Area')
                                     <button class="btn btn-warning " type="button"><i class="fa fa-pencil"></i></button>
+                                    @endcan
+                                    @can('Eliminar Area')
                                     <button class="btn btn-danger " type="button"><i class="fa fa-trash"></i></button>
+                                    @endcan
                                 </td>
                             </tr>
                         @endforeach
