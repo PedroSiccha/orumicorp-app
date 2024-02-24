@@ -2,23 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\Premio;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
-class DashboardController extends Controller
+class PerfilController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function perfilUsuario($id)
     {
         $user_id = Auth::user()->id;
 
@@ -35,11 +33,11 @@ class DashboardController extends Controller
             $dataUser = $client;
         }
 
-        //$role = Role::create(['name' => 'AGENTE']); => Crear roles
-        //$permission = ModelsPermission::create(['name' => 'Ver Agentes']); => Crear Permisos
+        //dd($dataUser);
+
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        return view('tablero.index', compact('premios1', 'premios2', 'dataUser'));
+        return view('profile.index', compact('premios1', 'premios2', 'dataUser'));
     }
 
     /**

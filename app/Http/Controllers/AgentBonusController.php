@@ -25,6 +25,21 @@ class AgentBonusController extends Controller
      */
     public function index()
     {
+        $user_id = Auth::user()->id;
+
+        $agent = Agent::where('user_id', $user_id)->first();
+        $client = Customers::where('user_id', $user_id)->first();
+
+        $dataUser = null;
+
+        if ($agent) {
+            $dataUser = $agent;
+        }
+
+        if ($client) {
+            $dataUser = $client;
+        }
+
         $percents = Percent::where('status', true)->get();
         $commissions = Commission::where('status', true)->get();
         $exchange_rates = ExchangeRate::where('status', true)->get();
@@ -51,7 +66,7 @@ class AgentBonusController extends Controller
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
 
-        return view('bonusAgente.index', compact('bonusAgent', 'percents', 'commissions', 'exchange_rates', 'target', 'amount', 'amountRetiro', 'premios1', 'premios2'));
+        return view('bonusAgente.index', compact('bonusAgent', 'percents', 'commissions', 'exchange_rates', 'target', 'amount', 'amountRetiro', 'premios1', 'premios2', 'dataUser'));
     }
 
     /**
