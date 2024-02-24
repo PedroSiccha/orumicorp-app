@@ -22,13 +22,28 @@ class SalesController extends Controller
      */
     public function index()
     {
+        $user_id = Auth::user()->id;
+
+        $agent = Agent::where('user_id', $user_id)->first();
+        $client = Customers::where('user_id', $user_id)->first();
+
+        $dataUser = null;
+
+        if ($agent) {
+            $dataUser = $agent;
+        }
+
+        if ($client) {
+            $dataUser = $client;
+        }
+
         $percents = Percent::where('status', true)->get();
         $commissions = Commission::where('status', true)->get();
         $exchange_rates = ExchangeRate::where('status', true)->get();
         $sales = Sales::where('status', true)->orderBy('date_admission')->take(10)->get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        return view('venta.index', compact('percents', 'commissions', 'exchange_rates', 'sales', 'premios1', 'premios2'));
+        return view('venta.index', compact('percents', 'commissions', 'exchange_rates', 'sales', 'premios1', 'premios2', 'dataUser'));
     }
 
     /**

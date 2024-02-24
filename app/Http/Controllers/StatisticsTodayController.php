@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agent;
+use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\Sales;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class StatisticsTodayController extends Controller
@@ -16,6 +19,20 @@ class StatisticsTodayController extends Controller
      */
     public function index()
     {
+        $user_id = Auth::user()->id;
+
+        $agent = Agent::where('user_id', $user_id)->first();
+        $client = Customers::where('user_id', $user_id)->first();
+
+        $dataUser = null;
+
+        if ($agent) {
+            $dataUser = $agent;
+        }
+
+        if ($client) {
+            $dataUser = $client;
+        }
         $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
                       ->selectRaw('a.name, a.lastname, DATE(sales.date_admission) AS day, MONTH(sales.date_admission) AS month, SUM(sales.amount) AS total_amount_day, SUM(sales.amount) AS total_amount_month')
                       ->groupBy('a.name', 'a.lastname', 'day', 'month')
@@ -23,7 +40,7 @@ class StatisticsTodayController extends Controller
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
 
-        return view('todayStatistics.index', compact('sales', 'premios1', 'premios2'));
+        return view('todayStatistics.index', compact('sales', 'premios1', 'premios2', 'dataUser'));
     }
 
     /**

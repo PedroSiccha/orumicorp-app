@@ -23,12 +23,6 @@
                         <a data-toggle="dropdown" class="dropdown-toggle" href="{{ route('home') }}">
                             <img alt="image" class="rounded" src="{{asset('img/logo/logo_horizontal_ab.png')}}" width="90%" height="90%"/>
                         </a>
-                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                            <li><a class="dropdown-item" href="profile.html">Profile</a></li>
-                            <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
-                            <li><a class="dropdown-item" href="mailbox.html">Mailbox</a></li>
-                            <li class="dropdown-divider"></li>
-                        </ul>
                     </div>
                     <div class="logo-element">
                         <img alt="image" class="rounded-circle" src="{{asset('img/logo/basic_logo.png')}}" width="50%" height="50%"/>
@@ -75,7 +69,7 @@
                 </li>
                 @endcan
                 @can('Ver Part Time')
-                <li class="{{ Request::is('partTime') ? 'active' : '' }}">
+                <li class="{{ Request::is('parttime') ? 'active' : '' }}">
                     <a href="{{ route('partTime') }}"><i class="fa fa-clock-o"></i> <span class="nav-label">Part Time</span></a>
                 </li>
                 @endcan
@@ -115,10 +109,10 @@
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <img alt="image" class="rounded-circle" src="img/profile_small.jpg"/>
+                        <img alt="image" class="rounded-circle" src="{{  $dataUser->img ?: asset('img/logo/basic_logo.png') }}" style="width: 40px; height: auto; max-width: 100%;"/>
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                            <li><a class="dropdown-item" href="">Perfil</a></li>
+                            <li><a class="dropdown-item" href="{{ route('perfilUsuario', ['id' => Auth::user()->id]) }}">Perfil</a></li>
                             <li><a class="dropdown-item" href="">Manuales</a></li>
                             <li><a class="dropdown-item" href="">Correos</a></li>
                         <li class="dropdown-divider"></li>

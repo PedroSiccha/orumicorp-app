@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
@@ -19,11 +21,26 @@ class ClientsController extends Controller
      */
     public function index()
     {
+        $user_id = Auth::user()->id;
+
+        $agent = Agent::where('user_id', $user_id)->first();
+        $client = Customers::where('user_id', $user_id)->first();
+
+        $dataUser = null;
+
+        if ($agent) {
+            $dataUser = $agent;
+        }
+
+        if ($client) {
+            $dataUser = $client;
+        }
+
         $customers = Customers::where('status', true)->orderBy('date_admission')->take(10)->get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $roles = Role::get();
-        return view('cliente.index', compact('customers', 'premios1', 'premios2', 'roles'));
+        return view('cliente.index', compact('customers', 'premios1', 'premios2', 'roles', 'dataUser'));
     }
 
     public function saveCustomer(Request $request)
