@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Agent;
+use App\Models\Customers;
 use App\Models\Premio;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -22,11 +25,26 @@ class SecurityController extends Controller
         //$permission = Permission::create(['name' => 'Ver Permisos de Roles']);
         //$permission = Permission::create(['name' => 'Asignar Permisos']);
         //$permission = Permission::create(['name' => 'Estado Cliente']);
+        $user_id = Auth::user()->id;
+
+        $agent = Agent::where('user_id', $user_id)->first();
+        $client = Customers::where('user_id', $user_id)->first();
+
+        $dataUser = null;
+
+        if ($agent) {
+            $dataUser = $agent;
+        }
+
+        if ($client) {
+            $dataUser = $client;
+        }
+
         $roles = Role::get();
         $permisos = Permission::get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        return view('security.index', compact('premios1', 'premios2', 'roles', 'permisos'));
+        return view('security.index', compact('premios1', 'premios2', 'roles', 'permisos', 'dataUser'));
     }
 
     /**

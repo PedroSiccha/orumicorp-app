@@ -6,9 +6,11 @@ use App\Models\Agent;
 use App\Http\Requests\StoreAgentRequest;
 use App\Http\Requests\UpdateAgentRequest;
 use App\Models\Area;
+use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
@@ -21,12 +23,27 @@ class AgentController extends Controller
      */
     public function index()
     {
+        $user_id = Auth::user()->id;
+
+        $agent = Agent::where('user_id', $user_id)->first();
+        $client = Customers::where('user_id', $user_id)->first();
+
+        $dataUser = null;
+
+        if ($agent) {
+            $dataUser = $agent;
+        }
+
+        if ($client) {
+            $dataUser = $client;
+        }
+
         $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
         $areas = Area::where('status', true)->get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $roles = Role::get();
-        return view('agent.index', compact('agents', 'areas', 'premios1', 'premios2', 'roles'));
+        return view('agent.index', compact('agents', 'areas', 'premios1', 'premios2', 'roles', 'dataUser'));
     }
 
     public function searchAgent(Request $request)
@@ -75,7 +92,7 @@ class AgentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function updateAgent(Request $request)
     {
         //
     }
@@ -86,7 +103,7 @@ class AgentController extends Controller
      * @param  \App\Http\Requests\StoreAgentRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreAgentRequest $request)
+    public function cambiarEstadoAgente(Request $request)
     {
         //
     }
@@ -97,7 +114,7 @@ class AgentController extends Controller
      * @param  \App\Models\Agent  $agent
      * @return \Illuminate\Http\Response
      */
-    public function show(Agent $agent)
+    public function eliminarAgente(Request $request)
     {
         //
     }
