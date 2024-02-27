@@ -94,7 +94,28 @@ class AgentController extends Controller
      */
     public function updateAgent(Request $request)
     {
-        //
+        $resp = 0;
+
+        $agent = Agent::find($request->id);
+        $agent->code = $request->code;
+        $agent->name = $request->name;
+        $agent->lastname = $request->lastname;
+        $agent->area_id = $request->area_id;
+        if ($agent->save()) {
+            $user = User::find($agent->user_id);
+            $user->name = $request->name;
+            if ($user->save()) {
+                if ($request->rol_id) {
+                    $role = Role::find($request->rol_id);
+                    $user->assignRole($role);
+                }
+                $resp = 1;
+            }
+        }
+
+        $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
+
+        return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
     }
 
     /**
@@ -105,7 +126,15 @@ class AgentController extends Controller
      */
     public function cambiarEstadoAgente(Request $request)
     {
-        //
+        $resp = 0;
+        $agent = Agent::find($request->id);
+        $agent->status = false;
+        if ($agent->save()) {
+            $resp = 1;
+        }
+        $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
+
+        return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
     }
 
     /**
@@ -116,7 +145,19 @@ class AgentController extends Controller
      */
     public function eliminarAgente(Request $request)
     {
-        //
+        $resp = 0;
+        $agent = Agent::find($request->id);
+        $user = User::find($agent->user_id);
+        if ($agent->delete()) {
+            if ($user->delete()) {
+                $resp = 1;
+            }
+        }
+
+        $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
+
+        return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
+
     }
 
     /**
@@ -125,7 +166,7 @@ class AgentController extends Controller
      * @param  \App\Models\Agent  $agent
      * @return \Illuminate\Http\Response
      */
-    public function edit(Agent $agent)
+    public function saveNumberTurns(Request $request)
     {
         //
     }

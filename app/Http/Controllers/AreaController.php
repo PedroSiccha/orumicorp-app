@@ -63,9 +63,20 @@ class AreaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function updateArea(Request $request)
     {
-        //
+        $resp = 0;
+
+        $area = Area::find($request->id);
+        $area->name = $request->name;
+        $area->description = $request->description;
+        if ($area->save()) {
+            $resp = 1;
+        }
+
+        $areas = Area::where('status', true)->get();
+
+        return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
     }
 
     /**
@@ -74,9 +85,19 @@ class AreaController extends Controller
      * @param  \App\Http\Requests\StoreareaRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreareaRequest $request)
+    public function changeStatusArea(Request $request)
     {
-        //
+        $resp = 0;
+
+        $area = Area::find($request->id);
+        $area->status = false;
+        if ($area->save()) {
+            $resp = 1;
+        }
+
+        $areas = Area::where('status', true)->get();
+
+        return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
     }
 
     /**
@@ -85,9 +106,18 @@ class AreaController extends Controller
      * @param  \App\Models\area  $area
      * @return \Illuminate\Http\Response
      */
-    public function show(area $area)
+    public function deleteArea(Request $request)
     {
-        //
+        $resp = 0;
+
+        $area = Area::find($request->id);
+        if ($area->delete()) {
+            $resp = 1;
+        }
+
+        $areas = Area::where('status', true)->get();
+
+        return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
     }
 
     /**

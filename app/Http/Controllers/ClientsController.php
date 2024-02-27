@@ -36,7 +36,7 @@ class ClientsController extends Controller
             $dataUser = $client;
         }
 
-        $customers = Customers::where('status', true)->orderBy('date_admission')->take(10)->get();
+        $customers = Customers::where('status', true)->orderBy('date_admission')->paginate(10);
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $roles = Role::get();
@@ -67,7 +67,7 @@ class ClientsController extends Controller
             }
         }
 
-        $customers = Customers::where('status', true)->orderBy('date_admission')->take(10)->get();
+        $customers = Customers::where('status', true)->orderBy('date_admission')->paginate(10);
 
         return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "resp"=>$resp]);
     }
@@ -77,7 +77,7 @@ class ClientsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function asignAgent(Request $request)
     {
         //
     }
@@ -88,9 +88,33 @@ class ClientsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function changeStatusClient(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $idClient = $request->id;
+        $client = Customers::find($idClient);
+        if ($client == null) {
+            $title = "Error";
+            $mensaje = "Hubo un error con el cliente";
+            $status = "error";
+        }
+        $client->status = false;
+        if ($client->save()) {
+            $title = "Correcto";
+            $mensaje = "Se cambió el estado del cliente";
+            $status = "success";
+        } else {
+            $title = "Error";
+            $mensaje = "No se pudo cambiar el estado del cliente";
+            $status = "error";
+        }
+        $customers = Customers::where('status', true)->orderBy('date_admission')->paginate(10);
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+
     }
 
     /**
@@ -99,9 +123,45 @@ class ClientsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function updateClient(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $client = Customers::find($request->id);
+        if ($client == null) {
+            $title = "Error";
+            $mensaje = "Hubo un error con el cliente";
+            $status = "error";
+        }
+        $client->code = $request->code;
+        $client->name = $request->name;
+        $client->lastname = $request->lastname;
+        $client->dni = $request->phone;
+
+        $user = User::find($client->user_id);
+        $user->name = $request->name;
+
+        if ($client->save()) {
+            if ($user->save()) {
+                $title = "Correcto";
+                $mensaje = "Se actualizó el cliente correctamente";
+                $status = "success";
+            } else {
+                $title = "Error";
+                $mensaje = "Hubo un error al actualizar el usuario del cliente";
+                $status = "error";
+            }
+        } else {
+            $title = "Error";
+            $mensaje = "Hubo un error al actualizar el cliente";
+            $status = "error";
+        }
+
+        $customers = Customers::where('status', true)->orderBy('date_admission')->paginate(10);
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
     /**
@@ -110,9 +170,31 @@ class ClientsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function deleteClient(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+        $client = Customers::find($request->id);
+        if ($client == null) {
+            $title = "Error";
+            $mensaje = "Hubo un error con el cliente";
+            $status = "error";
+        }
+        if ($client->delete()) {
+            $title = "Correcto";
+            $mensaje = "El cliente se elimninó correctamente";
+            $status = "success";
+        } else {
+            $title = "Error";
+            $mensaje = "No se pudo eliminar el cliente";
+            $status = "error";
+        }
+
+        $customers = Customers::where('status', true)->orderBy('date_admission')->paginate(10);
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+
     }
 
     /**

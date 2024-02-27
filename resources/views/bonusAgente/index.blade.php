@@ -12,10 +12,10 @@
                   <h5>Tabla Bonus </h5>
                   <div>
                     @can('Registrar Descuento')
-                    <button type="button" class="btn btn-danger" type="button" onclick="registrarBonus()"><i class="fa fa-plus"></i> Registrar Descuento</button>
+                    <button type="button" class="btn btn-danger" type="button" onclick="mostrarNuevoModal('#modalDescuento')"><i class="fa fa-plus"></i> Registrar Descuento</button>
                     @endcan
                     @can('Registrar Bonus')
-                    <button type="button" class="btn btn-default" type="button" onclick="registrarBonus()"><i class="fa fa-plus"></i> Registrar Bonus</button>
+                    <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalBonus')"><i class="fa fa-plus"></i> Registrar Bonus</button>
                     @endcan
                   </div>
               </div>
@@ -71,12 +71,11 @@
                       <i class="fa fa-wrench"></i>
                   </a>
                   <ul class="dropdown-menu dropdown-user">
-                    @can('Registrar Target')
-                    <li><a href="#" class="dropdown-item" onclick="registrarTarget()">Registrar Target</a></li>
-                    @endcan
-                    @can('Registrar Retiro')
-                    <li><a href="#" class="dropdown-item" onclick="registrarRetiro()">Registrar Retiro</a></li>
-                    @endcan
+
+                    <li><a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalRegistrarTarget')">Registrar Target</a></li>
+
+                    <li><a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalRegistrarRetiro')">Registrar Retiro</a></li>
+
                   </ul>
               </div>
           </div>
@@ -136,7 +135,7 @@
                     <div class="input-group col-lg-9">
                         <input type="text" class="form-control" id="dniCustomer" placeholder="Ingrese el DNI o Código del cliente">
                         <div class="input-group-append">
-                            <button type="button" class="btn btn-primary" onclick="searchCustomer()"><i class="fa fa-search"></i></button>
+                            <button type="button" class="btn btn-primary" onclick="searchClient('#dniCustomer', '#nameCustomer')"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
                 </div>
@@ -187,7 +186,48 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="guardarRegistroBonus()"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="createBonus('#dniCustomer', '#amount', '#observation', '#percent_id', '#exchange_rate_id', '#commission_id', '#modalBonus', '#tabBonus')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal inmodal fade" id="modalDescuento" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Registrar Descuento</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Agente</label>
+                    <div class="input-group col-lg-9">
+                        <input type="text" class="form-control" id="dniDiscountAgent" placeholder="Ingrese el DNI o Código del agente">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-primary" onclick="searchAgent('#dniDiscountAgent', '#nameDiscountAgent')"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Datos del Agente</label>
+                    <div class="col-lg-9">
+                        <input type="text" placeholder="Nombre del agente" class="form-control" id='nameDiscountAgent' readonly>
+                    </div>
+                </div>
+                <div class="form-group row"><label class="col-lg-3 col-form-label">Monto</label>
+                    <div class="col-lg-9">
+                        <input type="number" placeholder="Ingrese un monto" class="form-control" id="amountDiscount">
+                    </div>
+                </div>
+                <div class="form-group row"><label class="col-lg-3 col-form-label">Comentario</label>
+                    <div class="col-lg-9"><textarea class="form-control" placeholder="Ingrese su comentario" id="observationDiscount"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info " type="button" onclick="createDiscount('#amountDiscount', '#observationDiscount', '#dniDiscountAgent', '#modalDescuento', '#tabBonus')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -203,6 +243,21 @@
                 <small>{{ date("F") }}</small>
             </div>
             <div class="modal-body">
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Agente</label>
+                    <div class="input-group col-lg-9">
+                        <input type="text" class="form-control" id="dniTargetAgent" placeholder="Ingrese el DNI o Código del agente">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-primary" onclick="searchAgent('#dniTargetAgent', '#nameTargetAgent')"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Datos del Agente</label>
+                    <div class="col-lg-9">
+                        <input type="text" placeholder="Nombre del agente" class="form-control" id='nameTargetAgent' readonly>
+                    </div>
+                </div>
                 <div class="form-group row"><label class="col-lg-3 col-form-label">Monto</label>
                     <div class="col-lg-9">
                         <input type="number" placeholder="Ingrese un moneto" class="form-control" id="amountTarget">
@@ -210,7 +265,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="guardarTarget()"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="createTarget('#amountTarget', '#dniTargetAgent', '#modalRegistrarTarget', '#tabTarget')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -230,7 +285,7 @@
                     <div class="input-group col-lg-9">
                         <input type="text" class="form-control" id="dniAgent" placeholder="Ingrese el DNI o Código del agente">
                         <div class="input-group-append">
-                            <button type="button" class="btn btn-primary" onclick="searchAgent()"><i class="fa fa-search"></i></button>
+                            <button type="button" class="btn btn-primary" onclick="searchAgent('#dniAgent', '#nameAgent')"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
                 </div>
@@ -257,7 +312,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="guardarRetiro()"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="createRetirement('#dniAgent', '#amountRetiro', '#modalRegistrarRetiro', '#tabRetiroEfectivo')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -265,104 +320,20 @@
 </div>
 @endsection
 @section('script')
-
 <script>
-    function registrarBonus() {
-        $('#modalBonus').modal('show');
-    }
-
-    function registrarTarget() {
-        $('#modalRegistrarTarget').modal('show');
-    }
-
-    function guardarTarget() {
-        var amount = $("#amountTarget").val();
-        $.post("{{ Route('saveTarget') }}", {amount: amount, _token: '{{ csrf_token() }}'}).done(function(data) {
-            $('#modalRegistrarTarget').modal('hide');
-            $("#tabTarget").empty();
-            $("#tabTarget").html(data.view);
-            if (data.resp == 1) {
-                Swal.fire({
-                    title: "Correcto",
-                    text: "Target registrado exitosamente",
-                    icon: "success"
-                });
-            } else {
-                Swal.fire({
-                    title: "Error",
-                    text: "Target no se pudo registrar",
-                    icon: "error"
-                });
-            }
-        });
-    }
-
-    function registrarRetiro() {
-        $('#modalRegistrarRetiro').modal('show');
-    }
-
-    function guardarRetiro() {
-        var dni = $("#dniAgent").val();
-        var amount = $("#amountRetiro").val();
-        $.post("{{ Route('saveRetiro') }}", {amount: amount, dni: dni, _token: '{{ csrf_token() }}'}).done(function(data) {
-            $('#modalRegistrarRetiro').modal('hide');
-            $("#tabRetiroEfectivo").empty();
-            $("#tabRetiroEfectivo").html(data.view);
-            if (data.resp == 1) {
-                Swal.fire({
-                    title: "Correcto",
-                    text: "Retiro registrado exitosamente",
-                    icon: "success"
-                });
-            } else {
-                Swal.fire({
-                    title: "Error",
-                    text: "Retiro no se pudo registrar",
-                    icon: "error"
-                });
-            }
-        });
-    }
-
-    function searchCustomer() {
-        var dni = $("#dniCustomer").val();
-        $.post("{{ Route('searchCustomer') }}", {dni: dni, _token: '{{ csrf_token() }}'}).done(function(data) {
-            $('#nameCustomer').val(data.name);
-        });
-    }
-
-    function searchAgent() {
-        var dni = $("#dniAgent").val();
-        $.post("{{ Route('searchAgent') }}", {dni: dni, _token: '{{ csrf_token() }}'}).done(function(data) {
-            $('#nameAgent').val(data.name);
-        });
-    }
-
-    function guardarRegistroBonus() {
-        var dniCustomer = $("#dniCustomer").val();
-        var amount = $("#amount").val();
-        var observation = $("#observation").val();
-        var percent_id = $("#percent_id").val();
-        var commission_id = $("#commission_id").val();
-        var exchange_rate_id = $("#exchange_rate_id").val();
-        $.post("{{ Route('saveBonus') }}", {dniCustomer: dniCustomer, amount: amount, observation: observation, percent_id: percent_id, commission_id: commission_id, exchange_rate_id: exchange_rate_id, _token: '{{ csrf_token() }}'}).done(function(data) {
-            $('#modalBonus').modal('hide');
-            $("#tabBonus").empty();
-            $("#tabBonus").html(data.view);
-            if (data.resp == 1) {
-                Swal.fire({
-                    title: "Correcto",
-                    text: "El registro de bonus se guardó correctamente",
-                    icon: "success"
-                });
-            } else {
-                Swal.fire({
-                    title: "Error",
-                    text: "El registro no se pudo guardar",
-                    icon: "error"
-                });
-            }
-        });
-    }
+    var saveTargetRoute = '{{ route("saveTarget") }}';
+    var searchAgentRoute = '{{ route("searchAgent") }}';
+    var saveRetiroRoute = '{{ route("saveRetiro") }}';
+    var searchClientRoute = '{{ Route("searchCustomer") }}';
+    var saveBonusRoute = '{{ Route("saveBonus") }}';
+    var token = '{{ csrf_token() }}';
 </script>
+<script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
+<script src="{{ asset('js/agent/searchAgent.js') }}"></script>
+<script src="{{ asset('js/customer/searchClient.js') }}"></script>
+<script src="{{ asset('js/bonusAgent/createTarget.js') }}"></script>
+<script src="{{ asset('js/bonusAgent/createRetirement.js') }}"></script>
+<script src="{{ asset('js/bonusAgent/createBonus.js') }}"></script>
+<script src="{{ asset('js/bonusAgent/createDiscount.js') }}"></script>
+
 @endsection

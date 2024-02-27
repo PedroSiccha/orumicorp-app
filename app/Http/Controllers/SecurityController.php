@@ -40,8 +40,8 @@ class SecurityController extends Controller
             $dataUser = $client;
         }
 
-        $roles = Role::get();
-        $permisos = Permission::get();
+        $roles = Role::paginate(10)->withQueryString();
+        $permisos = Permission::paginate(10)->withQueryString();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         return view('security.index', compact('premios1', 'premios2', 'roles', 'permisos', 'dataUser'));

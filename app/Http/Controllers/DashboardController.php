@@ -6,6 +6,7 @@ use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\User;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
@@ -20,6 +21,8 @@ class DashboardController extends Controller
      */
     public function index()
     {
+
+
         $user_id = Auth::user()->id;
 
         $agent = Agent::where('user_id', $user_id)->first();

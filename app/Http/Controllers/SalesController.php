@@ -9,6 +9,7 @@ use App\Models\ExchangeRate;
 use App\Models\Percent;
 use App\Models\Premio;
 use App\Models\Sales;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -69,30 +70,61 @@ class SalesController extends Controller
      */
     public function saveSale(Request $request)
     {
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
         $client = Customers::where('dni', $request->dniCustomer)
                   ->orWhere('code', $request->dniCustomer)
                   ->first();
 
-        $agent = Agent::where('user_id', Auth::id())->first();
+        if ($client == null) {
+            $title = "Error";
+            $mensaje = "Hubo un problema con el cliente";
+            $status = "error";
+        }
 
-        $sale = new Sales();
-        $sale->date_admission = Carbon::now();
-        $sale->amount = $request->amount;
-        $sale->observation = $request->observation;
-        $sale->status = true;
-        $sale->customer_id = $client->id;
-        $sale->percent_id = $request->percent_id;
-        $sale->commission_id = $request->commission_id;
-        $sale->exchange_rate_id = $request->exchange_rate_id;
-        $sale->agent_id = 1;
-        $sale->action_id = 1;
-        if ($sale->save()) {
-            $resp = 1;
+        $agent = Agent::where('dni', $request->dniAgent)
+                 ->orWhere('code', $request->dniAgent)
+                 ->first();
+
+        if ($agent == null) {
+            $title = "Error";
+            $mensaje = "Hubo un error con el agente";
+            $status = "error";
+        }
+
+        try {
+            $sale = new Sales();
+            $sale->date_admission = Carbon::now();
+            $sale->amount = $request->amount;
+            $sale->observation = $request->observation;
+            $sale->status = true;
+            $sale->customer_id = $client->id;
+            $sale->percent = $request->percent;
+            $sale->commission = $request->commission;
+            $sale->exchange_rate = $request->exchange_rate;
+            $sale->agent_id = $agent->id;
+            $sale->action_id = 1;
+            if ($sale->save()) {
+                $title = "Correcto";
+                $mensaje = "La venta se registró correctamente";
+                $status = "success";
+            } else {
+                $title = "Error";
+                $mensaje = "Hubo un error al guardar la venta";
+                $status = "error";
+            }
+
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Error: ".$e;
+            $status = "error";
         }
 
         $sales = Sales::where('status', true)->orderBy('date_admission')->take(10)->get();
 
-        return response()->json(["view"=>view('venta.list.listSale', compact('sales'))->render(), "resp"=>$resp]);
+        return response()->json(["view"=>view('venta.list.listSale', compact('sales'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
     /**

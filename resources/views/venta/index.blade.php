@@ -12,7 +12,7 @@
                   <h5>Tabla Ventas </h5>
                   <div>
                     @can('Registrar Ventas')
-                    <button type="button" class="btn btn-default" type="button" onclick="nuevaVenta()"><i class="fa fa-plus"></i> Registrar Venta</button>
+                    <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalVenta')"><i class="fa fa-plus"></i> Registrar Venta</button>
                     @endcan
                   </div>
               </div>
@@ -75,7 +75,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="dniCustomer" placeholder="Ingrese el DNI o Código del cliente">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-primary" onclick="searchCustomer()"><i class="fa fa-search"></i></button>
+                                        <button type="button" class="btn btn-primary" onclick="searchClient('#dniCustomer', '#nameCustomer')"><i class="fa fa-search"></i></button>
                                     </div>
                                 </div>
                             </td>
@@ -90,10 +90,61 @@
                         </tr>
                         <tr>
                             <td>
+                                <strong>Agente</strong>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="dniAgent" placeholder="Ingrese el DNI o Código del agente">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-primary" onclick="searchAgent('#dniAgent', '#nameAgent')"><i class="fa fa-search"></i></button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Datos del Agente</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Nombre del agente" id='nameAgent' readonly>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
                                 <strong>Monto</strong>
                             </td>
                             <td>
                                 <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese el monto" id='amount'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Porcentaje</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese el porcentaje" id='percent'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Tipo de Cambio</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese el tipo de cambio" id='typeChange'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                  <strong>Comisión</strong>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Calculo de comisión" id='commission' readonly>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-primary" onclick="calculateCommission('#amount', '#percent', '#typeChange', '#commission')"><i class="fa fa-calculator"></i></button>
+                                    </div>
+                                </div>
+
                             </td>
                         </tr>
                         <tr>
@@ -104,51 +155,14 @@
                                 <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese una observación" id='observation'>
                             </td>
                         </tr>
-                        <tr>
-                            <td>
-                                <strong>Porcentaje</strong>
-                            </td>
-                            <td>
-                                <select class="form-control m-b" name="percent_id" id="percent_id">
-                                    <option>Seleccione un porcentaje</option>
-                                    @foreach($percents as $percent)
-                                    <option value = "{{ $percent->id }}">{{ $percent->description }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                              <td>
-                                    <strong>Comisión</strong>
-                              </td>
-                              <td>
-                                    <select class="form-control m-b" name="commission_id" id="commission_id">
-                                          <option>Seleccione una comisión</option>
-                                          @foreach($commissions as $commission)
-                                          <option value = "{{ $commission->id }}">{{ $commission->name }}</option>
-                                          @endforeach
-                                      </select>
-                              </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Tipo de Cambio</strong>
-                            </td>
-                            <td>
-                                <select class="form-control m-b" name="exchange_rate_id" id="exchange_rate_id">
-                                    <option>Seleccione un tipo de cambio</option>
-                                    @foreach($exchange_rates as $exchange_rate)
-                                    <option value = "{{ $exchange_rate->id }}">{{ $exchange_rate->name }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
-                        </tr>
+
+
                     </tbody>
                 </table>
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="guardarNuevoAgente()"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="createSales('#dniCustomer', '#dniCustomer', '#amount', '#percent', '#typeChange', '#commission', '#observation', '#modalVenta', '#tabVenta')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -156,52 +170,18 @@
 </div>
 @endsection
 @section('script')
-
     <script>
-
-        function nuevaVenta() {
-            $('#modalVenta').modal('show');
-        }
-
-        function searchCustomer() {
-            var dni = $("#dniCustomer").val();
-            $.post("{{ Route('searchCustomer') }}", {dni: dni, _token: '{{ csrf_token() }}'}).done(function(data) {
-                $('#nameCustomer').val(data.name);
-            });
-        }
-
-        function guardarNuevoAgente() {
-            var dniCustomer = $("#dniCustomer").val();
-            var amount = $("#amount").val();
-            var observation = $("#observation").val();
-            var percent_id = $("#percent_id").val();
-            var commission_id = $("#commission_id").val();
-            var exchange_rate_id = $("#exchange_rate_id").val();
-            $.post("{{ Route('saveSale') }}", {dniCustomer: dniCustomer, amount: amount, observation: observation, percent_id: percent_id, commission_id: commission_id, exchange_rate_id: exchange_rate_id, _token: '{{ csrf_token() }}'}).done(function(data) {
-                $('#modalVenta').modal('hide');
-                $("#tabVenta").empty();
-                $("#tabVenta").html(data.view);
-                if (data.resp == 1) {
-
-                    Swal.fire({
-                        title: "Correcto",
-                        text: "La venta se registró correctamente",
-                        icon: "success"
-                    });
-
-                } else {
-
-                    Swal.fire({
-                        title: "Error",
-                        text: "La venta no se pudo registrar",
-                        icon: "error"
-                    });
-
-                }
-
-            });
-        }
-
+        var searchClientRoute = '{{ route("searchCustomer") }}';
+        var saveSaleRoute = '{{ Route("saveSale") }}';
+        var searchAgentRoute = '{{ route("searchAgent") }}';
+        var token = '{{ csrf_token() }}';
     </script>
+
+    <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
+    <script src="{{ asset('js/customer/searchClient.js') }}"></script>
+    <script src="{{ asset('js/sales/createSales.js') }}"></script>
+    <script src="{{ asset('js/sales/calculateCommission.js') }}"></script>
+    <script src="{{ asset('js/agent/searchAgent.js') }}"></script>
+
 
 @endsection

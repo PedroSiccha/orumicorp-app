@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agent;
+use App\Models\Area;
 use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\Sales;
@@ -35,12 +36,14 @@ class StatisticsTodayController extends Controller
         }
         $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
                       ->selectRaw('a.name, a.lastname, DATE(sales.date_admission) AS day, MONTH(sales.date_admission) AS month, SUM(sales.amount) AS total_amount_day, SUM(sales.amount) AS total_amount_month')
-                      ->groupBy('a.name', 'a.lastname', 'day', 'month')
+                      ->groupBy('a.id', 'day', 'month')
                       ->get();
+
+        $areas = Area::where('status', 1)->get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
 
-        return view('todayStatistics.index', compact('sales', 'premios1', 'premios2', 'dataUser'));
+        return view('todayStatistics.index', compact('sales', 'premios1', 'premios2', 'dataUser', 'areas'));
     }
 
     /**

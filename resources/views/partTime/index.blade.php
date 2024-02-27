@@ -29,40 +29,51 @@
                       </a>
                   </div>
               </div>
-              <div class="ibox-content">
+              <div class="ibox-content" id="panelButton">
                 @can('Registrar Asistencia')
                 <h3>
-                    Data picker
+                    Registro de Asistencia
                 </h3>
-                <p>
-                    Simple and easy select a time for a text input using your mouse.
-                </p>
-
-                <div class="form-group" id="data_1">
-                    <label class="font-normal">Simple data input format</label>
-                    <div class="input-group date">
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" value="03/04/2014">
-                    </div>
-                </div>
 
                 <div class="form-group" id="data_2">
                     <label class="font-normal">Entrada</label>
-                    <input type="text" placeholder="Entrada" class="form-control">
+                    @if ( $dateIn )
+                        <button class="btn btn-outline btn-success  dim form-control" type="button"><i class="fa fa-address-card-o"></i> {{ $dateIn->hour }}</button>
+                    @else
+                    <button class="btn btn-outline btn-success  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN', '#panelButton', '#tabAssistance')"><i class="fa fa-address-card-o"></i> Marcar Entrada</button>
+                    @endif
                 </div>
 
                 <div class="form-group" id="data_3">
                     <label class="font-normal">Break</label>
-                    <input type="text" placeholder="Break" class="form-control">
+                    @if ( $dateBreakIn )
+                        <button class="btn btn-outline btn-warning  dim form-control" type="button"><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-left"></i> {{ $dateBreakIn->hour }}</button>
+                    @else
+                        <button class="btn btn-outline btn-warning  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN-BREAK', '#panelButton', '#tabAssistance')"><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-left"></i> Marcar Salia Break</button>
+                    @endif
+                </div>
+
+                <div class="form-group" id="data_3">
+                    <label class="font-normal">Break</label>
+                    @if ( $dateBreakOut )
+                        <button class="btn btn-outline btn-primary  dim form-control" type="button"><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-right"></i> {{ $dateBreakOut->hour }}</button>
+                    @else
+                        <button class="btn btn-outline btn-primary  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'OUT-BREAK', '#panelButton', '#tabAssistance')"><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-right"></i> Marcar Vuelta Break</button>
+                    @endif
                 </div>
 
                 <div class="form-group" id="data_4">
                     <label class="font-normal">Salida</label>
-                    <input type="text" placeholder="Salida" class="form-control">
+                    @if ( $dateOut )
+                        <button class="btn btn-outline btn-danger  dim form-control" type="button"><i class="fa fa-bus"></i> {{ $dateOut->hour }}</button>
+                    @else
+                        <button class="btn btn-outline btn-danger  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'OUT', '#panelButton', '#tabAssistance')"><i class="fa fa-bus"></i> Marcar Salida</button>
+                    @endif
                 </div>
 
                 <div class="form-group row"><label class="col-lg-2 col-form-label">Comentarios</label>
                       <div class="col-lg-10">
-                            <input type="text" placeholder="Comentarios" class="form-control">
+                        <textarea class="form-control" placeholder="Ingrese su comentario" id="comentario"></textarea>
                       </div>
                   </div>
                 @endcan
@@ -77,6 +88,7 @@
                           <i class="fa fa-clock-o fa-5x"></i>
                       </div>
                       <div class="col-8 text-right">
+                        <h1><b>{{ date('d/m/Y'); }}</b></h1>
                         <div id="clock" class="clock-style"></div>
                       </div>
                   </div>
@@ -95,12 +107,12 @@
                     <div class="col-sm-4">
                         <div class="input-group date">
 
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="03/04/2014">
                         </div>
                     </div>
                     <div class="col-sm-4 text-right">
                         <div class="input-group date">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="03/04/2014" onchange="filterAssitance('#date_added_init', '#date_added_end')">
                         </div>
                     </div>
                 </div>
@@ -133,30 +145,29 @@
                         </a>
                     </div>
                 </div>
-                <div class="ibox-content">
-
-                    <table class="table">
+                <div class="ibox-content" id="tabAssistance">
+                    <table class="table table-striped">
                         <thead>
-                        <tr>
-                            <td>Entrada</td>
-                            <td> - </td>
-                            <td>08:15:31 AM</td>
-                            <td>07/02/2024</td>
-                        </tr>
+                          <tr>
+                                <th>Fecha de Asistencia</th>
+                                <th>Nombre del Agente</th>
+                                <th>Hora de Ingreso</th>
+                                <th>Hora de Break</th>
+                                <th>Vuelta de Break</th>
+                                <th>Hora de Salida</th>
+                          </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>Break</td>
-                            <td> - </td>
-                            <td>13:07:22 PM</td>
-                            <td>07/02/2024</td>
-                        </tr>
-                        <tr>
-                            <td>Observación</td>
-                            <td> - </td>
-                            <td>13:25:14</td>
-                            <td>Permiso de emergencia</td>
-                        </tr>
+                          @foreach ($assistances as $assistance)
+                              <tr>
+                                <td>{{ $assistance->date }}</td>
+                                <td>{{ $assistance->name }} {{ $assistance->lastname }}</td>
+                                <td>{{ $assistance->IN }}</td>
+                                <td>{{ $assistance->INBREAK }}</td>
+                                <td>{{ $assistance->OUTBREAK }}</td>
+                                <td>{{ $assistance->OUT }}</td>
+                              </tr>
+                          @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -185,12 +196,17 @@
                 const timeString = `${hours}:${minutes}:${seconds}`;
                 document.getElementById('clock').innerText = timeString;
             }
-
-            // Actualiza el reloj cada segundo
             setInterval(updateClock, 1000);
-
-            // Llama a updateClock para mostrar la hora actual inmediatamente
             updateClock();
         </script>
+
+@endsection
+@section('script')
+<script>
+    var registerAssitanceRoute = '{{ route("registerAssistance") }}';
+    var filterAssitanceRoute = '{{ route("filterAssistance") }}';
+    var token = '{{ csrf_token() }}';
+</script>
+<script src="{{ asset('js/partTime/registerAssitance.js') }}"></script>
 
 @endsection

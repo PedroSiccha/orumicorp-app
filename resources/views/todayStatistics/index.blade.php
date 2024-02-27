@@ -15,20 +15,24 @@
             <div class="col-sm-4">
                 @can('Filtrar Today')
                 <div class="input-group date">
-                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="03/04/2014">
                 </div>
                 @endcan
             </div>
             <div class="col-sm-4">
                 @can('Filtrar Today')
                 <div class="input-group date">
-                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="03/04/2014" onchange="filtrarStatistics('#area', '#date_added_init', '#date_added_end', '#tabStatistics')">
                 </div>
                 @endcan
             </div>
             <div class="col-sm-2 text-right">
                 @can('Filtrar Area Today')
-                <button class="btn btn-primary " type="button"><i class="fa fa-check"></i> RETENCIÓN</button>
+                    <select class="form-control m-b" name="area" id="area" onchange="filtrarStatistics('#area', '#date_added_init', '#date_added_end', '#tabStatistics')">
+                        @foreach($areas as $area)
+                        <option value = "{{ $area->id }}">{{ $area->name }}</option>
+                        @endforeach
+                    </select>
                 @endcan
             </div>
         </div>
@@ -58,7 +62,7 @@
                       </a>
                   </div>
               </div>
-              <div class="ibox-content">
+              <div class="ibox-content" id="tabStatistics">
 
                   <table class="table table-striped">
                       <thead>
@@ -94,4 +98,11 @@
           </div>
       </div>
   </div>
+@endsection
+@section('script')
+<script>
+    var filterStatisticsRoute = '{{ route("filterStatistics") }}';
+    var token = '{{ csrf_token() }}';
+</script>
+
 @endsection

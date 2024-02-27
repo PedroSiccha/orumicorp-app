@@ -12,7 +12,7 @@
                   <h5>Tabla Clientes </h5>
                   <div>
                     @can('Crear Agente')
-                    <button type="button" class="btn btn-default" type="button" onclick="nuevoAgente()"><i class="fa fa-plus"></i> Nuevo Agente</button>
+                    <button type="button" class="btn btn-default" type="button" onclick="modalNuevo('#modalAgente')"><i class="fa fa-plus"></i> Nuevo Agente</button>
                     @endcan
                   </div>
               </div>
@@ -37,6 +37,7 @@
                                 <td>{{ $agent->area->name }}</td>
                                 <td>{{ $agent->user->email }}</td>
                                 <td>
+                                    <button class="btn btn-default" type="button" onclick="asignarCantGiros('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-dashboard"></i></button>
                                     @can('Estado Agente')
                                     <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-check"></i></button>
                                     @endcan
@@ -190,14 +191,6 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>
-                                <strong>Correo</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su correo" id='eEmail'>
-                            </td>
-                        </tr>
-                        <tr>
                               <td>
                                     <strong>Área</strong>
                               </td>
@@ -234,14 +227,86 @@
         </div>
     </div>
 </div>
+
+<div class="modal inmodal fade" id="modalCantGiros" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Registrar Cantidad de Giros</h4>
+                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su código" id='cantId' hidden>
+            </div>
+            <div class="modal-body">
+                <table class="table m-b-xs">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>Agente</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Nombres del agente" id='cantName' readonly>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Cantidad de Giros</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='number' class='form-control text-success' placeholder="Ingrese la cantidad de giros" id='cantGiros'>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-info " type="button" onclick="registerCant()"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 @section('script')
+<script src="{{ asset('js/modal/modalNuevo.js') }}"></script>
 
     <script>
 
-        function nuevoAgente() {
-            $('#modalAgente').modal('show');
+        function asignarCantGiros(id, name) {
+            $("#cantId").val(id);
+            $("#cantName").val(name);
+            $('#modalCantGiros').modal('show');
         }
+
+        function registerCant() {
+            var id = $("#cantId").val();
+            $.post("{{ Route('saveNumberTurns') }}", {id: id, _token: '{{ csrf_token() }}'}).done(function(data) {
+                $('#modalCantGiros').modal('hide');
+                $("#tabAgente").empty();
+                $("#tabAgente").html(data.view);
+                if (data.resp == 1) {
+
+                    Swal.fire({
+                        title: "Guardado",
+                        text: "Se registraron sus giros correctamente",
+                        icon: "success"
+                    });
+
+                } else {
+
+                    Swal.fire({
+                        title: "Guardado",
+                        text: "El agente no pudo ser guardado",
+                        icon: "error"
+                    });
+
+                }
+
+            });
+        }
+
+
+
 
         function guardarNuevoAgente() {
             var name = $("#name").val();
