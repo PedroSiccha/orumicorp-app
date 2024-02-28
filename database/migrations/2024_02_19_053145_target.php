@@ -19,7 +19,10 @@ return new class extends Migration
             $table->integer('mount');
             $table->string('observation')->nullable();
             $table->boolean('status');
+            $table->unsignedBigInteger('agent_id');
             $table->timestamps();
+
+            $table->foreign('agent_id')->references('id')->on('agents')->onDelete('cascade');
         });
     }
 

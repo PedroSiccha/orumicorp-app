@@ -9,4 +9,8 @@ class Target extends Model
 {
     protected $table = 'targets';
     protected $fillable = ['id', 'amount', 'mount', 'observation', 'status'];
+
+    public function agent() {
+        return $this->belongsTo(Agent::class);
+    }
 }
