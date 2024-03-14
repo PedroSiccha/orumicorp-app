@@ -10,9 +10,29 @@
           <div class="ibox ">
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Clientes </h5>
-                  <div>
+                  @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
+                    <div class="col-sm-2 text-right">
+                        @can('Filtrar Area Today')
+                            <select class="form-control m-b" name="area" id="area" onchange="filterAgent('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAgente')" onclick="filterAgent('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAgente')">
+                                @foreach($areas as $area)
+                                <option value = "{{ $area->id }}">{{ $area->name }}</option>
+                                @endforeach
+                            </select>
+                        @endcan
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar por nombre o código" id="inputCode" oninput="filterAgent('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAgente')">
+                            <div class="input-group-append">
+                                <button class="btn btn-sm btn-default" type="button"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                  <div class="col-sm-2 text-right">
                     @can('Crear Agente')
-                    <button type="button" class="btn btn-default" type="button" onclick="nuevoAgente()"><i class="fa fa-plus"></i> Nuevo Agente</button>
+                    <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalAgente')"><i class="fa fa-plus"></i> Nuevo Agente</button>
                     @endcan
                   </div>
               </div>
@@ -25,6 +45,7 @@
                               <th>DNI</th>
                               <th>Área</th>
                               <th>Correo</th>
+                              <th>Cantidad de Giros</th>
                               <th>Acción</th>
                         </tr>
                       </thead>
@@ -32,11 +53,17 @@
                         @foreach ($agents as $agent)
                             <tr>
                                 <td>{{ $agent->code }}</td>
-                                <td>{{ $agent->name }} {{ $agent->lastname }}</td>
+                                <td>
+                                    <a href="{{ route('perfilUsuario', ['id' => $agent->id]) }}">
+                                        {{ $agent->name }} {{ $agent->lastname }}
+                                    </a>
+                                </td>
                                 <td>{{ $agent->dni }}</td>
                                 <td>{{ $agent->area->name }}</td>
                                 <td>{{ $agent->user->email }}</td>
+                                <td>{{ $agent->number_turns }}</td>
                                 <td>
+                                    <button class="btn btn-default" type="button" onclick="asignarCantGiros('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-dashboard"></i></button>
                                     @can('Estado Agente')
                                     <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-check"></i></button>
                                     @endcan
@@ -190,14 +217,6 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>
-                                <strong>Correo</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su correo" id='eEmail'>
-                            </td>
-                        </tr>
-                        <tr>
                               <td>
                                     <strong>Área</strong>
                               </td>
@@ -234,14 +253,108 @@
         </div>
     </div>
 </div>
+
+<div class="modal inmodal fade" id="modalCantGiros" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Registrar Cantidad de Giros</h4>
+                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su código" id='cantId' hidden>
+            </div>
+            <div class="modal-body">
+                <table class="table m-b-xs">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>Agente</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Nombres del agente" id='cantName' readonly>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Cantidad de Giros</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='number' class='form-control text-success' placeholder="Ingrese la cantidad de giros" id='cantGiros'>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-info " type="button" onclick="registerCant()"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 @section('script')
+<script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
+<script src="{{ asset('js/agent/filterAgent.js') }}"></script>
 
     <script>
 
-        function nuevoAgente() {
-            $('#modalAgente').modal('show');
+    $(document).ready(function() {
+            $('#date_added_init').datepicker({
+                    todayBtn: "linked",
+                    keyboardNavigation: false,
+                    forceParse: false,
+                    calendarWeeks: true,
+                    autoclose: true
+            });
+            $('#date_added_end').datepicker({
+                    todayBtn: "linked",
+                    keyboardNavigation: false,
+                    forceParse: false,
+                    calendarWeeks: true,
+                    autoclose: true
+            });
+        });
+
+        var filterAgentRoute = '{{ route("filterAgent") }}';
+        var token = '{{ csrf_token() }}';
+
+        function asignarCantGiros(id, name) {
+            $("#cantId").val(id);
+            $("#cantName").val(name);
+            $('#modalCantGiros').modal('show');
         }
+
+        function registerCant() {
+            var id = $("#cantId").val();
+            var cant = $("#cantGiros").val();
+            $.post("{{ Route('saveNumberTurns') }}", {id: id, cant: cant, _token: '{{ csrf_token() }}'}).done(function(data) {
+                $('#modalCantGiros').modal('hide');
+                $("#tabAgente").empty();
+                $("#tabAgente").html(data.view);
+                if (data.resp == 1) {
+
+                    Swal.fire({
+                        title: "Guardado",
+                        text: "Se registraron sus giros correctamente",
+                        icon: "success"
+                    });
+
+                } else {
+
+                    Swal.fire({
+                        title: "Guardado",
+                        text: "El agente no pudo ser guardado",
+                        icon: "error"
+                    });
+
+                }
+
+            });
+        }
+
+
+
 
         function guardarNuevoAgente() {
             var name = $("#name").val();

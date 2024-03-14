@@ -6,6 +6,7 @@
               <th>DNI</th>
               <th>Área</th>
               <th>Correo</th>
+              <th>Cantidad de Giros</th>
               <th>Acción</th>
         </tr>
       </thead>
@@ -13,14 +14,26 @@
         @foreach ($agents as $agent)
             <tr>
                 <td>{{ $agent->code }}</td>
-                <td>{{ $agent->name }} {{ $agent->lastname }}</td>
+                <td>
+                    <a href="{{ route('perfilUsuario', ['id' => $agent->id]) }}">
+                        {{ $agent->name }} {{ $agent->lastname }}
+                    </a>
+                </td>
                 <td>{{ $agent->dni }}</td>
                 <td>{{ $agent->area->name }}</td>
                 <td>{{ $agent->user->email }}</td>
+                <td>{{ $agent->number_turns }}</td>
                 <td>
-                    <button class="btn btn-info " type="button"><i class="fa fa-check"></i></button>
-                    <button class="btn btn-warning " type="button"><i class="fa fa-pencil"></i></button>
-                    <button class="btn btn-danger " type="button"><i class="fa fa-trash"></i></button>
+                    <button class="btn btn-default" type="button" onclick="asignarCantGiros('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-dashboard"></i></button>
+                    @can('Estado Agente')
+                    <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-check"></i></button>
+                    @endcan
+                    @can('Editar Agente')
+                    <button class="btn btn-warning " type="button" onclick="editarAgente('{{ $agent->id }}', '{{ $agent->code }}', '{{ $agent->name }}', '{{ $agent->lastname }}', '{{ $agent->dni }}', '{{ $agent->email }}', '{{ $agent->area->id }}', '{{ $agent->user->roles->first() }}')"><i class="fa fa-pencil"></i></button>
+                    @endcan
+                    @can('Eliminar Agente')
+                    <button class="btn btn-danger " type="button" onclick="eliminarAgente('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-trash"></i></button>
+                    @endcan
                 </td>
             </tr>
         @endforeach
