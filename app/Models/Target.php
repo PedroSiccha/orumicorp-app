@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Target extends Model
 {
     protected $table = 'targets';
-    protected $fillable = ['id', 'amount', 'mount', 'observation', 'status'];
+    protected $fillable = ['id', 'amount', 'month', 'observation', 'status'];
 
     public function agent() {
         return $this->belongsTo(Agent::class);

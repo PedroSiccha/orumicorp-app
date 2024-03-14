@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AsistenciasExport;
 use App\Models\Agent;
+use App\Models\Area;
 use App\Models\Assistance;
 use App\Models\Customers;
 use App\Models\Premio;
+use DateTime;
+use Illuminate\Support\Facades\View;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PartTimeController extends Controller
 {
@@ -56,11 +63,13 @@ class PartTimeController extends Controller
         )
         ->join('agents', 'assistance.agent_id', '=', 'agents.id')
         ->where('agents.id', $agent->id)
-        ->where('assistance.date', date('Y-m-d'))
         ->groupBy('agents.name', 'agents.lastname', 'assistance.date')
         ->get();
 
-        return view('partTime.index', compact('premios1', 'premios2', 'dataUser', 'dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut', 'assistances'));
+        $rouletteSpin = $agent->number_turns ?: 0;
+        $areas = Area::where('status', true)->get();
+
+        return view('partTime.index', compact('premios1', 'premios2', 'dataUser', 'dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut', 'assistances', 'rouletteSpin', 'areas'));
     }
 
     /**
@@ -121,6 +130,7 @@ class PartTimeController extends Controller
         ->groupBy('agents.name', 'agents.lastname', 'assistance.date')
         ->get();
 
+
         return response()->json(["view"=>view('partTime.components.panelButton', compact('dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut'))->render(), "viewTable"=>view('partTime.components.tabAssistance', compact('assistances'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
 
     }
@@ -133,7 +143,33 @@ class PartTimeController extends Controller
      */
     public function filterAssistance(Request $request)
     {
-        //
+
+        $codigo = $request->code;
+        $nombre = $request->code;
+
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+        $dateInit = DateTime::createFromFormat('m/d/Y', $request->dateInit)->format('Y-m-d');
+        $dateEnd = DateTime::createFromFormat('m/d/Y', $request->dateEnd)->format('Y-m-d');
+        $assistances = Assistance::select(
+            'agents.name',
+            'agents.lastname',
+            'assistance.date',
+            DB::raw("MAX(CASE WHEN assistance.type = 'IN' THEN assistance.hour END) AS 'IN'"),
+            DB::raw("MAX(CASE WHEN assistance.type = 'IN-BREAK' THEN assistance.hour END) AS 'INBREAK'"),
+            DB::raw("MAX(CASE WHEN assistance.type = 'OUT-BREAK' THEN assistance.hour END) AS 'OUTBREAK'"),
+            DB::raw("MAX(CASE WHEN assistance.type = 'OUT' THEN assistance.hour END) AS 'OUT'")
+        )
+        ->join('agents', 'assistance.agent_id', '=', 'agents.id')
+        ->where(function ($query) use ($codigo, $nombre) {
+            $query->where('agents.code', 'LIKE', '%' . $codigo . '%')
+                ->orWhere(DB::raw("CONCAT(agents.name, ' ', agents.lastname)"), 'LIKE', '%' . $nombre . '%');
+        })
+        ->where('agents.area_id', $request->area)
+        ->whereBetween('assistance.date', [$dateInit, $dateEnd])
+        ->groupBy('agents.name', 'agents.lastname', 'assistance.date')
+        ->get();
+        return response()->json(["view"=>view('partTime.components.tabAssistance', compact('assistances'))->render()]);
     }
 
     /**
@@ -142,9 +178,26 @@ class PartTimeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function descargarReportePDF()
     {
-        //
+        $assistances = Assistance::select(
+                                        'agents.name',
+                                        'agents.lastname',
+                                        'assistance.date',
+                                        DB::raw("MAX(CASE WHEN assistance.type = 'IN' THEN assistance.hour END) AS 'IN'"),
+                                        DB::raw("MAX(CASE WHEN assistance.type = 'IN-BREAK' THEN assistance.hour END) AS 'INBREAK'"),
+                                        DB::raw("MAX(CASE WHEN assistance.type = 'OUT-BREAK' THEN assistance.hour END) AS 'OUTBREAK'"),
+                                        DB::raw("MAX(CASE WHEN assistance.type = 'OUT' THEN assistance.hour END) AS 'OUT'")
+                                    )
+                                    ->join('agents', 'assistance.agent_id', '=', 'agents.id')
+                                    ->groupBy('agents.name', 'agents.lastname', 'assistance.date')
+                                    ->get();
+
+        $pdf = new Dompdf();
+        $pdf->loadHtml(View::make('report.assistance_pdf', compact('assistances'))->render());
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->render();
+        return $pdf->stream('asistencia.pdf');
     }
 
     /**
@@ -153,9 +206,9 @@ class PartTimeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function descargarReporteExcel()
     {
-        //
+        return Excel::download(new AsistenciasExport, 'asistencias.xlsx');
     }
 
     /**

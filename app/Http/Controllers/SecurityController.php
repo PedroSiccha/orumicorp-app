@@ -20,15 +20,55 @@ class SecurityController extends Controller
      */
     public function index()
     {
-        //$permission = Permission::create(['name' => 'Ver Seguridad']);
-        //$permission = Permission::create(['name' => 'Registrar Roles']);
-        //$permission = Permission::create(['name' => 'Ver Permisos de Roles']);
-        //$permission = Permission::create(['name' => 'Asignar Permisos']);
-        //$permission = Permission::create(['name' => 'Estado Cliente']);
+        /*
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        */
+
+
         $user_id = Auth::user()->id;
 
         $agent = Agent::where('user_id', $user_id)->first();
         $client = Customers::where('user_id', $user_id)->first();
+        $rouletteSpin = $agent->number_turns ?: 0;
 
         $dataUser = null;
 
@@ -41,10 +81,10 @@ class SecurityController extends Controller
         }
 
         $roles = Role::paginate(10)->withQueryString();
-        $permisos = Permission::paginate(10)->withQueryString();
+        $permisos = Permission::get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        return view('security.index', compact('premios1', 'premios2', 'roles', 'permisos', 'dataUser'));
+        return view('security.index', compact('premios1', 'premios2', 'roles', 'permisos', 'dataUser', 'rouletteSpin'));
     }
 
     /**

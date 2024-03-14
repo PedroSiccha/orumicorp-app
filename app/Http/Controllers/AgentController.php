@@ -9,9 +9,11 @@ use App\Models\Area;
 use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\User;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 class AgentController extends Controller
@@ -27,6 +29,7 @@ class AgentController extends Controller
 
         $agent = Agent::where('user_id', $user_id)->first();
         $client = Customers::where('user_id', $user_id)->first();
+        $rouletteSpin = $agent->number_turns ?: 0;
 
         $dataUser = null;
 
@@ -38,12 +41,12 @@ class AgentController extends Controller
             $dataUser = $client;
         }
 
-        $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
+        $agents = Agent::where('status', true)->orderBy('lastname')->get();
         $areas = Area::where('status', true)->get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $roles = Role::get();
-        return view('agent.index', compact('agents', 'areas', 'premios1', 'premios2', 'roles', 'dataUser'));
+        return view('agent.index', compact('agents', 'areas', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin'));
     }
 
     public function searchAgent(Request $request)
@@ -82,7 +85,7 @@ class AgentController extends Controller
             }
         }
 
-        $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
+        $agents = Agent::where('status', true)->orderBy('lastname')->get();
 
         return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
     }
@@ -113,7 +116,7 @@ class AgentController extends Controller
             }
         }
 
-        $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
+        $agents = Agent::where('status', true)->orderBy('lastname')->get();
 
         return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
     }
@@ -132,7 +135,7 @@ class AgentController extends Controller
         if ($agent->save()) {
             $resp = 1;
         }
-        $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
+        $agents = Agent::where('status', true)->orderBy('lastname')->get();
 
         return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
     }
@@ -154,7 +157,7 @@ class AgentController extends Controller
             }
         }
 
-        $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
+        $agents = Agent::where('status', true)->orderBy('lastname')->get();
 
         return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
 
@@ -168,7 +171,15 @@ class AgentController extends Controller
      */
     public function saveNumberTurns(Request $request)
     {
-        //
+        $resp = 0;
+        $agent = Agent::find($request->id);
+        $agent->number_turns = $request->cant;
+        if ($agent->save()) {
+            $resp = 1;
+        }
+        $agents = Agent::where('status', true)->orderBy('lastname')->get();
+
+        return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
     }
 
     /**
@@ -178,9 +189,18 @@ class AgentController extends Controller
      * @param  \App\Models\Agent  $agent
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateAgentRequest $request, Agent $agent)
+    public function filterAgent(Request $request)
     {
-        //
+        $search = $request->code;
+
+        $agents = Agent::where('area_id', $request->area)
+                        ->where('status', 1)
+                        ->where(function ($query) use ($search) {
+                            $query->whereRaw('CONCAT(name, " ", lastname) LIKE ?', ['%'.$search.'%'])
+                                ->orWhere('code', 'like', '%'.$search.'%');
+                        })->get();
+
+        return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render()]);
     }
 
     /**
@@ -189,8 +209,60 @@ class AgentController extends Controller
      * @param  \App\Models\Agent  $agent
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Agent $agent)
+    public function uploadImg(Request $request)
     {
-        //
+
+        $dataImg = $request->image;
+        $subido="";
+        $urlGuardar="";
+        $user = Auth::user();
+        $agent = Agent::where('user_id', $user->id)->first();
+        $client = Customers::where('user_id', $user->id)->first();
+
+        if ($request->hasFile('image')) {
+            $nombre = $dataImg->getClientOriginalName();
+            $extension=$dataImg->getClientOriginalExtension();
+            $nuevoNombre = $nombre.".".$extension;
+            $subido = Storage::disk('perfil')->put($nombre, \File::get($dataImg));
+            if($subido){
+                $urlGuardar = 'img/perfil/'.$nombre;
+            }
+        }
+
+        $dataUser = null;
+
+        if ($agent) {
+            $agent->img = $urlGuardar;
+            $agent->save();
+        }
+
+        if ($client) {
+            $client->img = $urlGuardar;
+            $client->save();
+        }
+
+    }
+
+    public function changePassword(Request $request)
+    {
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        if ($user->save()) {
+            $title = "Correcto";
+            $mensaje = "La contraseña se actualizó correctamente";
+            $status = "success";
+        } else {
+            $title = "Error";
+            $mensaje = "Error desconocido";
+            $status = "error";
+        }
+        return response()->json(["title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 }

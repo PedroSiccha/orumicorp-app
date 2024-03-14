@@ -22,9 +22,12 @@ class ClientsController extends Controller
     public function index()
     {
         $user_id = Auth::user()->id;
+        $user = User::where('id', $user_id)->first();
+        $roles = $user->getRoleNames()->first();
 
         $agent = Agent::where('user_id', $user_id)->first();
         $client = Customers::where('user_id', $user_id)->first();
+        $rouletteSpin = $agent->number_turns ?: 0;
 
         $dataUser = null;
 
@@ -36,11 +39,18 @@ class ClientsController extends Controller
             $dataUser = $client;
         }
 
-        $customers = Customers::where('status', true)->orderBy('date_admission')->paginate(10);
+        if ($roles == 'ADMINISTRADOR') {
+            $customers = Customers::where('status', true)->orderBy('date_admission')->paginate(10);
+        } else {
+            $customers = Customers::where('status', true)->where('agent_id', $agent->id)->orderBy('date_admission')->paginate(10);
+        }
+
+
+
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $roles = Role::get();
-        return view('cliente.index', compact('customers', 'premios1', 'premios2', 'roles', 'dataUser'));
+        return view('cliente.index', compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin'));
     }
 
     public function saveCustomer(Request $request)
@@ -79,7 +89,29 @@ class ClientsController extends Controller
      */
     public function asignAgent(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $agent = Agent::where('dni', $request->dni_agent)
+                  ->orWhere('code', $request->dni_agent)
+                  ->first();
+
+        $client = Customers::find($request->id);
+        $client->agent_id = $agent->id;
+        if ($client->save()) {
+            $title = "Correcto";
+            $mensaje = "Se asignó correctamente el agente";
+            $status = "success";
+        } else {
+            $title = "Error";
+            $mensaje = "Error desconocido";
+            $status = "error";
+        }
+        $customers = Customers::where('status', true)->orderBy('date_admission')->paginate(10);
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+
     }
 
     /**

@@ -68,7 +68,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Valor del Premio</label>
                     <div class="col-lg-9">
-                        <input type="number" placeholder="Ingrese el valor del premio" class="form-control" id='valorPremio'>
+                        <input type="number" placeholder="Ingrese el valor del premio" class="form-control" id='valorPremio' style="@if($errors->has('valorPremio')) border-color: red; @endif" required>
                     </div>
                 </div>
                 <div class="form-group row">

@@ -13,7 +13,11 @@
                 <tr>
                     <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
                     <td>{{ $customer->code }}</td>
-                    <td>{{ $customer->name }} {{ $customer->lastname }}</td>
+                    <td>
+                        <a href="{{ route('perfilUsuario', ['id' => $customer->id]) }}">
+                            {{ $customer->name }} {{ $customer->lastname }}
+                        </a>
+                    </td>
                     <td>
                         <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
                         @can('Estado Cliente')

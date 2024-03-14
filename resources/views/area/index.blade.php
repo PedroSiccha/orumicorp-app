@@ -10,6 +10,7 @@
           <div class="ibox ">
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Áreas </h5>
+
                   <div>
                     @can('Crear Area')
                     <button type="button" class="btn btn-default" type="button" onclick="nuevaArea()"><i class="fa fa-plus"></i> Nueva Área</button>
@@ -23,6 +24,7 @@
                               <th>ID de Área</th>
                               <th>Nombre del Área</th>
                               <th>Descripción</th>
+                              <th>Cantidad de Agentes</th>
                               <th>Acción</th>
                         </tr>
                       </thead>
@@ -32,6 +34,7 @@
                                 <td>{{ $area->id }}</td>
                                 <td>{{ $area->name }}</td>
                                 <td>{{ $area->description }}</td>
+                                <td>{{ $area->agents->count() }}</td>
                                 <td>
                                     @can('Estado Area')
                                     <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $area->id }}', '{{ $area->name }}')"><i class="fa fa-check"></i></button>

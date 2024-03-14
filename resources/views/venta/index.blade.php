@@ -9,12 +9,49 @@
       <div class="col-lg-12">
           <div class="ibox ">
               <div class="ibox-title d-flex justify-content-between align-items-center">
+                <div class="row">
+                <div class="col-sm-1">
                   <h5>Tabla Ventas </h5>
-                  <div>
+                </div>
+                @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
+                  <div class="col-sm-2">
+                    @can('Filtrar Today')
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
+                    </div>
+                    @endcan
+                </div>
+                <div class="col-sm-2">
+                    @can('Filtrar Today')
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
+                    </div>
+                    @endcan
+                </div>
+                <div class="col-sm-2 text-right">
+                    @can('Filtrar Area Today')
+                        <select class="form-control m-b" name="area" id="area" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')" onclick="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
+                            @foreach($areas as $area)
+                            <option value = "{{ $area->id }}">{{ $area->name }}</option>
+                            @endforeach
+                        </select>
+                    @endcan
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control form-control-sm" placeholder="Buscar por nombre o código" id="inputCode" oninput="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
+                        <div class="input-group-append">
+                            <button class="btn btn-sm btn-default" type="button"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                @endif
+                  <div class="col-sm-2">
                     @can('Registrar Ventas')
                     <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalVenta')"><i class="fa fa-plus"></i> Registrar Venta</button>
                     @endcan
                   </div>
+                </div>
               </div>
               <div class="ibox-content" id="tabVenta">
                   <table class="table table-striped">
@@ -31,6 +68,7 @@
                           <th>Agente</th>
                           <th>Area</th>
                           <th>Comentario</th>
+                          <th>Acción</th>
                       </tr>
                       </thead>
                       <tbody>
@@ -39,16 +77,29 @@
                                 <td>{{ date("d/m/Y", strtotime($sale->date_admission)) }}</td>
                                 <td>{{ $sale->customer->id }}</td>
                                 <td>{{ $sale->customer->name }} {{ $sale->customer->lastname }}</td>
-                                <td> $ {{ number_format($sale->amount / $sale->exchangeRate->amount, 2) }} </td>
-                                <td>{{ $sale->percent->description }}</td>
-                                <td> $ {{ number_format($sale->commission->amount / $sale->exchangeRate->amount, 2) }}</td>
-                                <td>{{ $sale->exchangeRate->name }}</td>
-                                <td>{{ $sale->commission->name }}</td>
+                                <td> $ {{ number_format($sale->amount, 2) }} </td>
+                                <td>{{ $sale->percent }}</td>
+                                <td> $ {{ number_format($sale->commission, 2) }}</td>
+                                <td>{{ $sale->exchange_rate }}</td>
+                                <td>{{ $sale->commission }}</td>
                                 <td>{{ $sale->agent->name }} {{ $sale->agent->lastname }}</td>
                                 <td>{{ $sale->agent->area->name }}</td>
                                 <td>{{ $sale->obsercation }}</td>
+                                <td><button class="btn btn-warning " type="button" onclick="editarVenta('{{ $sale->id }}', '{{ $sale->customer->id }}', '{{ $sale->amount }}', '{{ $sale->percent }}', '{{ $sale->comission }}', '{{ $sale->agent->id }}', '{{ $sale->obsercation }}')"><i class="fa fa-pencil"></i></button></td>
                             </tr>
                         @endforeach
+                        <tr>
+                            <td></td>
+                            <td>TOTAL</td>
+                            <td>:</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>$ {{ number_format($totalAmount, 2) }}</td>
+                            <td></td>
+                        </tr>
                       </tbody>
                   </table>
               </div>
@@ -162,7 +213,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="createSales('#dniCustomer', '#dniCustomer', '#amount', '#percent', '#typeChange', '#commission', '#observation', '#modalVenta', '#tabVenta')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="createSales({dniCustomer: '#dniCustomer', dniAgent: '#dniAgent', amount: '#amount', percent: '#percent', exchange_rate: '#typeChange', commission: '#commission', observation: '#observation', modal: '#modalVenta', tableName: '#tabVenta' , typeSales: '1'})"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -171,17 +222,36 @@
 @endsection
 @section('script')
     <script>
+        $(document).ready(function() {
+            $('#date_added_init').datepicker({
+                    todayBtn: "linked",
+                    keyboardNavigation: false,
+                    forceParse: false,
+                    calendarWeeks: true,
+                    autoclose: true
+            });
+            $('#date_added_end').datepicker({
+                    todayBtn: "linked",
+                    keyboardNavigation: false,
+                    forceParse: false,
+                    calendarWeeks: true,
+                    autoclose: true
+            });
+        });
         var searchClientRoute = '{{ route("searchCustomer") }}';
         var saveSaleRoute = '{{ Route("saveSale") }}';
         var searchAgentRoute = '{{ route("searchAgent") }}';
+        var filterSalesRoute = '{{ route("filterSales") }}';
         var token = '{{ csrf_token() }}';
     </script>
 
+    <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
     <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
     <script src="{{ asset('js/customer/searchClient.js') }}"></script>
     <script src="{{ asset('js/sales/createSales.js') }}"></script>
     <script src="{{ asset('js/sales/calculateCommission.js') }}"></script>
     <script src="{{ asset('js/agent/searchAgent.js') }}"></script>
+    <script src="{{ asset('js/sales/filterSales.js') }}"></script>
 
 
 @endsection

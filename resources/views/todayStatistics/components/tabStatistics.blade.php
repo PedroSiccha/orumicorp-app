@@ -14,16 +14,16 @@
     <tbody>
       @foreach ($sales as $sale)
 
-          <tr>
-              <td>{{ $sale->id }}</td>
-              <td>{{ $sale->name }} {{ $sale->lastname }}</td>
-              <td>S/. {{ number_format($sale->total_amount_day, 2) }}</td>
-              <td>S/. {{ number_format($sale->total_amount_month, 2) }}</td>
-              <td>8 (01:02:24)</td>
-              <td>107 (01:33:12)</td>
-              <td>$ 3500.00</td>
-              <td>$ 2000.00</td>
-          </tr>
+        <tr>
+            <td>{{ $sale->id }}</td>
+            <td>{{ $sale->name }} {{ $sale->lastname }}</td>
+            <td>$ {{ number_format($sale->total_amount_day, 2) }}</td>
+            <td>$ {{ number_format($sale->total_amount_month, 2) }}</td>
+            <td>8 (01:02:24)</td>
+            <td>107 (01:33:12)</td>
+            <td>$ {{ number_format($sale->total_amount_action_4, 2) }}</td>
+            <td>$ {{ number_format($sale->total_amount_month, 2) }}</td>
+        </tr>
 
       @endforeach
     </tbody>

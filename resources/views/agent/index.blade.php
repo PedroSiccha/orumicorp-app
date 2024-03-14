@@ -10,9 +10,29 @@
           <div class="ibox ">
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Clientes </h5>
-                  <div>
+                  @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
+                    <div class="col-sm-2 text-right">
+                        @can('Filtrar Area Today')
+                            <select class="form-control m-b" name="area" id="area" onchange="filterAgent('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAgente')" onclick="filterAgent('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAgente')">
+                                @foreach($areas as $area)
+                                <option value = "{{ $area->id }}">{{ $area->name }}</option>
+                                @endforeach
+                            </select>
+                        @endcan
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar por nombre o código" id="inputCode" oninput="filterAgent('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAgente')">
+                            <div class="input-group-append">
+                                <button class="btn btn-sm btn-default" type="button"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                  <div class="col-sm-2 text-right">
                     @can('Crear Agente')
-                    <button type="button" class="btn btn-default" type="button" onclick="modalNuevo('#modalAgente')"><i class="fa fa-plus"></i> Nuevo Agente</button>
+                    <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalAgente')"><i class="fa fa-plus"></i> Nuevo Agente</button>
                     @endcan
                   </div>
               </div>
@@ -25,6 +45,7 @@
                               <th>DNI</th>
                               <th>Área</th>
                               <th>Correo</th>
+                              <th>Cantidad de Giros</th>
                               <th>Acción</th>
                         </tr>
                       </thead>
@@ -32,10 +53,15 @@
                         @foreach ($agents as $agent)
                             <tr>
                                 <td>{{ $agent->code }}</td>
-                                <td>{{ $agent->name }} {{ $agent->lastname }}</td>
+                                <td>
+                                    <a href="{{ route('perfilUsuario', ['id' => $agent->id]) }}">
+                                        {{ $agent->name }} {{ $agent->lastname }}
+                                    </a>
+                                </td>
                                 <td>{{ $agent->dni }}</td>
                                 <td>{{ $agent->area->name }}</td>
                                 <td>{{ $agent->user->email }}</td>
+                                <td>{{ $agent->number_turns }}</td>
                                 <td>
                                     <button class="btn btn-default" type="button" onclick="asignarCantGiros('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-dashboard"></i></button>
                                     @can('Estado Agente')
@@ -268,9 +294,30 @@
 </div>
 @endsection
 @section('script')
-<script src="{{ asset('js/modal/modalNuevo.js') }}"></script>
+<script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
+<script src="{{ asset('js/agent/filterAgent.js') }}"></script>
 
     <script>
+
+    $(document).ready(function() {
+            $('#date_added_init').datepicker({
+                    todayBtn: "linked",
+                    keyboardNavigation: false,
+                    forceParse: false,
+                    calendarWeeks: true,
+                    autoclose: true
+            });
+            $('#date_added_end').datepicker({
+                    todayBtn: "linked",
+                    keyboardNavigation: false,
+                    forceParse: false,
+                    calendarWeeks: true,
+                    autoclose: true
+            });
+        });
+
+        var filterAgentRoute = '{{ route("filterAgent") }}';
+        var token = '{{ csrf_token() }}';
 
         function asignarCantGiros(id, name) {
             $("#cantId").val(id);
@@ -280,7 +327,8 @@
 
         function registerCant() {
             var id = $("#cantId").val();
-            $.post("{{ Route('saveNumberTurns') }}", {id: id, _token: '{{ csrf_token() }}'}).done(function(data) {
+            var cant = $("#cantGiros").val();
+            $.post("{{ Route('saveNumberTurns') }}", {id: id, cant: cant, _token: '{{ csrf_token() }}'}).done(function(data) {
                 $('#modalCantGiros').modal('hide');
                 $("#tabAgente").empty();
                 $("#tabAgente").html(data.view);

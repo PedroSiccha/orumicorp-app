@@ -79,9 +79,7 @@
                       @endforeach
                     </tbody>
                 </table>
-                <div class="pagination justify-content-center">
-                    {{ $permisos->links() }}
-                </div>
+
             </div>
         </div>
         @endcan

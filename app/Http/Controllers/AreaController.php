@@ -24,6 +24,7 @@ class AreaController extends Controller
 
         $agent = Agent::where('user_id', $user_id)->first();
         $client = Customers::where('user_id', $user_id)->first();
+        $rouletteSpin = $agent->number_turns ?: 0;
 
         $dataUser = null;
 
@@ -38,7 +39,7 @@ class AreaController extends Controller
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $areas = Area::where('status', true)->get();
-        return view('area.index', compact('areas', 'premios1', 'premios2', 'dataUser'));
+        return view('area.index', compact('areas', 'premios1', 'premios2', 'dataUser', 'rouletteSpin'));
     }
 
     public function saveArea(Request $request)

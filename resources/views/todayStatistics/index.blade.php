@@ -12,29 +12,31 @@
             <div class="col-sm-2">
                 <button class="btn btn-primary " type="button"><i class="fa fa-area-chart"></i> TODAY STATISTICS</button>
             </div>
+            @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
             <div class="col-sm-4">
                 @can('Filtrar Today')
                 <div class="input-group date">
-                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="03/04/2014">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
                 </div>
                 @endcan
             </div>
             <div class="col-sm-4">
                 @can('Filtrar Today')
                 <div class="input-group date">
-                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="03/04/2014" onchange="filtrarStatistics('#area', '#date_added_init', '#date_added_end', '#tabStatistics')">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterStatistics('#area', '#date_added_init', '#date_added_end', '#tabStatistics')">
                 </div>
                 @endcan
             </div>
             <div class="col-sm-2 text-right">
                 @can('Filtrar Area Today')
-                    <select class="form-control m-b" name="area" id="area" onchange="filtrarStatistics('#area', '#date_added_init', '#date_added_end', '#tabStatistics')">
+                    <select class="form-control m-b" name="area" id="area" onchange="filterStatistics('#area', '#date_added_init', '#date_added_end', '#tabStatistics')" onclick="filterStatistics('#area', '#date_added_init', '#date_added_end', '#tabStatistics')">
                         @foreach($areas as $area)
                         <option value = "{{ $area->id }}">{{ $area->name }}</option>
                         @endforeach
                     </select>
                 @endcan
             </div>
+            @endif
         </div>
     </div>
 </div>
@@ -83,12 +85,12 @@
                             <tr>
                                 <td>{{ $sale->id }}</td>
                                 <td>{{ $sale->name }} {{ $sale->lastname }}</td>
-                                <td>S/. {{ number_format($sale->total_amount_day, 2) }}</td>
-                                <td>S/. {{ number_format($sale->total_amount_month, 2) }}</td>
+                                <td>$ {{ number_format($sale->total_amount_day, 2) }}</td>
+                                <td>$ {{ number_format($sale->total_amount_month, 2) }}</td>
                                 <td>8 (01:02:24)</td>
                                 <td>107 (01:33:12)</td>
-                                <td>$ 3500.00</td>
-                                <td>$ 2000.00</td>
+                                <td>$ {{ number_format($sale->total_amount_action_4, 2) }}</td>
+                                <td>$ {{ number_format($sale->total_amount_month, 2) }}</td>
                             </tr>
 
                         @endforeach
@@ -101,8 +103,24 @@
 @endsection
 @section('script')
 <script>
+    $(document).ready(function() {
+        $('#date_added_init').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+        });
+        $('#date_added_end').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+        });
+    });
     var filterStatisticsRoute = '{{ route("filterStatistics") }}';
     var token = '{{ csrf_token() }}';
 </script>
-
+<script src="{{ asset('js/statisticsToday/filterStatistics.js') }}"></script>
 @endsection

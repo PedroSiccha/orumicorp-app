@@ -6,6 +6,7 @@
               <th>DNI</th>
               <th>Área</th>
               <th>Correo</th>
+              <th>Cantidad de Giros</th>
               <th>Acción</th>
         </tr>
       </thead>
@@ -13,10 +14,15 @@
         @foreach ($agents as $agent)
             <tr>
                 <td>{{ $agent->code }}</td>
-                <td>{{ $agent->name }} {{ $agent->lastname }}</td>
+                <td>
+                    <a href="{{ route('perfilUsuario', ['id' => $agent->id]) }}">
+                        {{ $agent->name }} {{ $agent->lastname }}
+                    </a>
+                </td>
                 <td>{{ $agent->dni }}</td>
                 <td>{{ $agent->area->name }}</td>
                 <td>{{ $agent->user->email }}</td>
+                <td>{{ $agent->number_turns }}</td>
                 <td>
                     <button class="btn btn-default" type="button" onclick="asignarCantGiros('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-dashboard"></i></button>
                     @can('Estado Agente')

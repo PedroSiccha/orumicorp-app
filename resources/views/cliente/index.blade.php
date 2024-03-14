@@ -10,6 +10,7 @@
           <div class="ibox ">
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Clientes </h5>
+
                   <div>
                     @can('Crear Cliente')
                     <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalCliente')"><i class="fa fa-plus"></i> Nuevo Cliente</button>
@@ -31,7 +32,10 @@
                             <tr>
                                 <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
                                 <td>{{ $customer->code }}</td>
-                                <td>{{ $customer->name }} {{ $customer->lastname }}</td>
+                                <td>
+                                    <a href="{{ route('perfilUsuario', ['id' => $customer->id]) }}">
+                                        {{ $customer->name }} {{ $customer->lastname }}</td>
+                                    </a>
                                 <td>
                                     <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
                                     @can('Estado Cliente')
@@ -277,6 +281,7 @@
     var updateClientRoute = '{{ route("updateClient") }}';
     var deleteClientRoute = '{{ Route("deleteClient") }}';
     var changeStatusClienteRoute = '{{ Route("changeStatusClient") }}';
+    var asignAgentRoute = '{{ route("asignAgent") }}';
     var token = '{{ csrf_token() }}';
 </script>
 <script src="{{asset('js/agent/assignAgent.js')}}"></script>

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             $table->decimal('value');
+            $table->integer('order');
+            $table->integer('type');
             $table->boolean('status');
             $table->timestamps();
         });

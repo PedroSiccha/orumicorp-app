@@ -38,7 +38,7 @@
                 <div class="form-group" id="data_2">
                     <label class="font-normal">Entrada</label>
                     @if ( $dateIn )
-                        <button class="btn btn-outline btn-success  dim form-control" type="button"><i class="fa fa-address-card-o"></i> {{ $dateIn->hour }}</button>
+                        <button class="btn btn-outline btn-success  dim form-control" type="button" @if($dateOut) onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN', '#panelButton', '#tabAssistance')" @endif><i class="fa fa-address-card-o"></i> {{ $dateIn->hour }}</button>
                     @else
                     <button class="btn btn-outline btn-success  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN', '#panelButton', '#tabAssistance')"><i class="fa fa-address-card-o"></i> Marcar Entrada</button>
                     @endif
@@ -47,7 +47,7 @@
                 <div class="form-group" id="data_3">
                     <label class="font-normal">Break</label>
                     @if ( $dateBreakIn )
-                        <button class="btn btn-outline btn-warning  dim form-control" type="button"><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-left"></i> {{ $dateBreakIn->hour }}</button>
+                        <button class="btn btn-outline btn-warning  dim form-control" type="button" @if($dateOut) onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN-BREAK', '#panelButton', '#tabAssistance')" @endif><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-left"></i> {{ $dateBreakIn->hour }}</button>
                     @else
                         <button class="btn btn-outline btn-warning  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN-BREAK', '#panelButton', '#tabAssistance')"><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-left"></i> Marcar Salia Break</button>
                     @endif
@@ -56,7 +56,7 @@
                 <div class="form-group" id="data_3">
                     <label class="font-normal">Break</label>
                     @if ( $dateBreakOut )
-                        <button class="btn btn-outline btn-primary  dim form-control" type="button"><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-right"></i> {{ $dateBreakOut->hour }}</button>
+                        <button class="btn btn-outline btn-primary  dim form-control" type="button" @if($dateOut) onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'OUT-BREAK', '#panelButton', '#tabAssistance')" @endif><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-right"></i> {{ $dateBreakOut->hour }}</button>
                     @else
                         <button class="btn btn-outline btn-primary  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'OUT-BREAK', '#panelButton', '#tabAssistance')"><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-right"></i> Marcar Vuelta Break</button>
                     @endif
@@ -65,7 +65,7 @@
                 <div class="form-group" id="data_4">
                     <label class="font-normal">Salida</label>
                     @if ( $dateOut )
-                        <button class="btn btn-outline btn-danger  dim form-control" type="button"><i class="fa fa-bus"></i> {{ $dateOut->hour }}</button>
+                        <button class="btn btn-outline btn-danger  dim form-control" type="button" @if($dateOut) onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'OUT', '#panelButton', '#tabAssistance')" @endif><i class="fa fa-bus"></i> {{ $dateOut->hour }}</button>
                     @else
                         <button class="btn btn-outline btn-danger  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'OUT', '#panelButton', '#tabAssistance')"><i class="fa fa-bus"></i> Marcar Salida</button>
                     @endif
@@ -76,6 +76,11 @@
                         <textarea class="form-control" placeholder="Ingrese su comentario" id="comentario"></textarea>
                       </div>
                   </div>
+
+                    <div class="form-group" id="data_4">
+                        <label class="font-normal">Vacaciones</label>
+                        <button class="btn btn-default  dim form-control" type="button"><i class="fa fa-plane"></i> Registrar Vacaciones</button>
+                    </div>
                 @endcan
               </div>
           </div>
@@ -96,23 +101,39 @@
           </div>
           </div>
           </div>
-
+          @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
           <div class="wrapper wrapper-content animated fadeInRight ecommerce">
             @can('Filtrar Historial de Asistencias')
             <div class="ibox-content m-b-sm border-bottom">
                 <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-sm-2">
                         <h3>Filtrar Fechas</h3>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-2">
                         <div class="input-group date">
-
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="03/04/2014">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
                         </div>
                     </div>
-                    <div class="col-sm-4 text-right">
+                    <div class="col-sm-2 text-right">
                         <div class="input-group date">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="03/04/2014" onchange="filterAssitance('#date_added_init', '#date_added_end')">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterAssitance('#area', '#date_added_init', '#date_added_end', '#tabAssistance')">
+                        </div>
+                    </div>
+                    <div class="col-sm-2 text-right">
+                        @can('Filtrar Area Today')
+                            <select class="form-control m-b" name="area" id="area" onchange="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')" onclick="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')">
+                                @foreach($areas as $area)
+                                <option value = "{{ $area->id }}">{{ $area->name }}</option>
+                                @endforeach
+                            </select>
+                        @endcan
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar por nombre o código" id="inputCode" oninput="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')">
+                            <div class="input-group-append">
+                                <button class="btn btn-sm btn-default" type="button"><i class="fa fa-search"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -128,21 +149,15 @@
                 <div class="ibox-title">
                     <h5>Historial</h5>
                     <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <i class="fa fa-wrench"></i>
+                            <i class="fa fa-cloud-download"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
-                            <li><a href="#" class="dropdown-item">Config option 1</a>
+                            <li><a href="{{ route('descargar-asistencia-excel') }}" class="dropdown-item"><i class="fa fa-file-excel-o"></i> Descargar Excel</a>
                             </li>
-                            <li><a href="#" class="dropdown-item">Config option 2</a>
+                            <li><a href="{{ route('descargar-asistencia-pdf') }}" class="dropdown-item"><i class="fa fa-file-pdf-o"></i> Descargar PDF</a>
                             </li>
                         </ul>
-                        <a class="close-link" >
-                            <i class="fa fa-times"></i>
-                        </a>
                     </div>
                 </div>
                 <div class="ibox-content" id="tabAssistance">
@@ -175,6 +190,7 @@
             </div>
         </div>
       </div>
+      @endif
 
       <style>
             .clock-style {
@@ -203,10 +219,27 @@
 @endsection
 @section('script')
 <script>
+    $(document).ready(function() {
+        $('#date_added_init').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+        });
+        $('#date_added_end').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+        });
+    });
     var registerAssitanceRoute = '{{ route("registerAssistance") }}';
     var filterAssitanceRoute = '{{ route("filterAssistance") }}';
     var token = '{{ csrf_token() }}';
 </script>
 <script src="{{ asset('js/partTime/registerAssitance.js') }}"></script>
+<script src="{{ asset('js/partTime/filterAssitance.js') }}"></script>
 
 @endsection
