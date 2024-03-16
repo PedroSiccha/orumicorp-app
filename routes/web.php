@@ -49,10 +49,12 @@ Auth::routes();
     Route::post('/changeStatusClient', [App\Http\Controllers\ClientsController::class, 'changeStatusClient'])->name('changeStatusClient');
     Route::post('/updateClient', [App\Http\Controllers\ClientsController::class, 'updateClient'])->name('updateClient');
     Route::post('/deleteClient', [App\Http\Controllers\ClientsController::class, 'deleteClient'])->name('deleteClient');
+    Route::post('/assignGroupAgent', [App\Http\Controllers\ClientsController::class, 'assignGroupAgent'])->name('assignGroupAgent');
 
     Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
     Route::post('/searchCustomer', [App\Http\Controllers\SalesController::class, 'searchCustomer'])->name('searchCustomer');
     Route::post('/saveSale', [App\Http\Controllers\SalesController::class, 'saveSale'])->name('saveSale');
+    Route::post('/updateSale', [App\Http\Controllers\SalesController::class, 'updateSale'])->name('updateSale');
     Route::post('/filterSales', [App\Http\Controllers\SalesController::class, 'filterSales'])->name('filterSales');
     Route::get('/obtener-datos-ventas', [App\Http\Controllers\SalesController::class, 'obtenerDatosVentas'])->name('obtenerDatosVentas');
 
@@ -89,6 +91,8 @@ Auth::routes();
 
     Route::get('/task', [App\Http\Controllers\TaskController::class, 'index'])->name('task');
     Route::post('/guardarTask', [App\Http\Controllers\TaskController::class, 'guardarTask'])->name('guardarTask');
+
+    Route::get('/audit', [App\Http\Controllers\TaskController::class, 'index'])->name('audit');
 
 //});
 

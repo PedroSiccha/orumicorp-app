@@ -41,7 +41,7 @@ class AgentController extends Controller
             $dataUser = $client;
         }
 
-        $agents = Agent::where('status', true)->orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->get();
         $areas = Area::where('status', true)->get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
@@ -85,7 +85,7 @@ class AgentController extends Controller
             }
         }
 
-        $agents = Agent::where('status', true)->orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->get();
 
         return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
     }
@@ -116,7 +116,7 @@ class AgentController extends Controller
             }
         }
 
-        $agents = Agent::where('status', true)->orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->get();
 
         return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
     }
@@ -131,11 +131,11 @@ class AgentController extends Controller
     {
         $resp = 0;
         $agent = Agent::find($request->id);
-        $agent->status = false;
+        $agent->status = $request->status;
         if ($agent->save()) {
             $resp = 1;
         }
-        $agents = Agent::where('status', true)->orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->get();
 
         return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
     }
@@ -157,7 +157,7 @@ class AgentController extends Controller
             }
         }
 
-        $agents = Agent::where('status', true)->orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->get();
 
         return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
 
@@ -177,7 +177,7 @@ class AgentController extends Controller
         if ($agent->save()) {
             $resp = 1;
         }
-        $agents = Agent::where('status', true)->orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->get();
 
         return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
     }
@@ -194,7 +194,6 @@ class AgentController extends Controller
         $search = $request->code;
 
         $agents = Agent::where('area_id', $request->area)
-                        ->where('status', 1)
                         ->where(function ($query) use ($search) {
                             $query->whereRaw('CONCAT(name, " ", lastname) LIKE ?', ['%'.$search.'%'])
                                 ->orWhere('code', 'like', '%'.$search.'%');

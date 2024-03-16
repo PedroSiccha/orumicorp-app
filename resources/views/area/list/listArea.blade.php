@@ -10,14 +10,18 @@
     </thead>
     <tbody>
       @foreach ($areas as $area)
-          <tr>
+          <tr @if($area->status == 0) class="table-danger" @endif>
               <td>{{ $area->id }}</td>
               <td>{{ $area->name }}</td>
               <td>{{ $area->description }}</td>
               <td>{{ $area->agents->count() }}</td>
               <td>
                   @can('Estado Area')
-                  <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $area->id }}', '{{ $area->name }}')"><i class="fa fa-check"></i></button>
+                      @if ($area->status == 0)
+                          <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $area->id }}', '{{ $area->name }}', '1')"><i class="fa fa-check"></i></button>
+                      @else
+                          <button class="btn btn-danger " type="button" onclick="cambiarEstado('{{ $area->id }}', '{{ $area->name }}', '0')"><i class="fa fa-minus"></i></button>
+                      @endif
                   @endcan
                   @can('Editar Area')
                   <button class="btn btn-warning " type="button" onclick="editarArea('{{ $area->id }}', '{{ $area->name }}', '{{ $area->description }}')"><i class="fa fa-pencil"></i></button>

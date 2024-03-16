@@ -82,8 +82,8 @@
                 </li>
                 @endcan
                 @can('Ver Auditorio')
-                <li class="{{ Request::is('security') ? 'active' : '' }}">
-                    <a href="{{ route('security') }}"><i class="fa fa-warning"></i> <span class="nav-label">Auditoria</span></a>
+                <li class="{{ Request::is('audit') ? 'active' : '' }}">
+                    <a href="{{ route('audit') }}"><i class="fa fa-warning"></i> <span class="nav-label">Auditoria</span></a>
                 </li>
                 @endcan
                 <li class="{{ Request::is('task') ? 'active' : '' }}">
@@ -98,13 +98,14 @@
             <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
             <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
-            <form role="search" class="navbar-form-custom" action="search_results.html">
-                <div class="form-group">
-                    <input type="text" placeholder="Buscar..." class="form-control" name="top-search" id="top-search">
-                </div>
-            </form>
         </div>
             <ul class="nav navbar-top-links navbar-right">
+
+                <li class="dropdown">
+                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                        <i class="fa fa-clock-o"></i>
+                    </a>
+                </li>
                 <li class="dropdown">
                     <a href="">
                         <div id="dateMenu"></div>
@@ -122,16 +123,6 @@
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-share-alt"></i>
-                    </a>
-                </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-check"></i>
-                    </a>
-                </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
                         <img alt="image" class="rounded-circle" src="{{  asset($dataUser->img) ?: asset('img/logo/basic_logo.png') }}" style="width: 40px; height: auto; max-width: 100%;"/>
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
@@ -145,59 +136,7 @@
                         </form>
                     </ul>
                 </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-clock-o"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-messages">
-                        <li>
-                            <div class="dropdown-messages-box">
-                                <a class="dropdown-item float-left" href="profile.html">
-                                    <img alt="image" class="rounded-circle" src="img/a7.jpg">
-                                </a>
-                                <div>
-                                    <small class="float-right">46h ago</small>
-                                    <strong>Mike Loreipsum</strong> started following <strong>Monica Smith</strong>. <br>
-                                    <small class="text-muted">3 days ago at 7:58 pm - 10.06.2014</small>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-divider"></li>
-                        <li>
-                            <div class="dropdown-messages-box">
-                                <a class="dropdown-item float-left" href="profile.html">
-                                    <img alt="image" class="rounded-circle" src="img/a4.jpg">
-                                </a>
-                                <div>
-                                    <small class="float-right text-navy">5h ago</small>
-                                    <strong>Chris Johnatan Overtunk</strong> started following <strong>Monica Smith</strong>. <br>
-                                    <small class="text-muted">Yesterday 1:21 pm - 11.06.2014</small>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-divider"></li>
-                        <li>
-                            <div class="dropdown-messages-box">
-                                <a class="dropdown-item float-left" href="profile.html">
-                                    <img alt="image" class="rounded-circle" src="img/profile.jpg">
-                                </a>
-                                <div>
-                                    <small class="float-right">23h ago</small>
-                                    <strong>Monica Smith</strong> love <strong>Kim Smith</strong>. <br>
-                                    <small class="text-muted">2 days ago at 2:30 am - 11.06.2014</small>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-divider"></li>
-                        <li>
-                            <div class="text-center link-block">
-                                <a href="mailbox.html" class="dropdown-item">
-                                    <i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
-                                </a>
-                            </div>
-                        </li>
-                    </ul>
-                </li>
+
                 <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
                         <i class="fa fa-bell"></i>

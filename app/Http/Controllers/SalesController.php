@@ -311,9 +311,97 @@ class SalesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateSale(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+        $commission = 0;
+        $amount = 0;
+
+        if ($request->typeSales == 3) {
+            $commission = (-1)*$request->eComission;
+        } else {
+            $commission = $request->eComission;
+        }
+
+        if ($request->eAmount) {
+            $amount = $request->eAmount;
+        } else {
+            $amount = $commission;
+        }
+
+
+        try {
+            $sale = Sales::where('id', $request->eId)->first();
+            $sale->amount = $amount;
+            $sale->observation = $request->eObservation;
+            $sale->status = true;
+            $sale->percent = $request->ePercent;
+            $sale->commission = $commission;
+            $sale->exchange_rate = $request->eTypeChange;
+            $sale->action_id = $request->typeSales;
+            $sale->user_id = Auth::user()->id;
+            if ($sale->save()) {
+                $title = "Correcto";
+                $mensaje = "La venta se actualizó correctamente";
+                $status = "success";
+            } else {
+                $title = "Error";
+                $mensaje = "Hubo un error al actualizar la venta";
+                $status = "error";
+            }
+
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Error: ".$e;
+            $status = "error";
+        }
+
+        switch ($request->typeSales) {
+            case 1:
+
+                $currentMonth = Carbon::now()->month;
+                $currentYear = Carbon::now()->year;
+
+                $previousMonth = Carbon::now()->subMonth()->month;
+                $previousYear = Carbon::now()->subMonth()->year;
+
+                $sales = Sales::where('status', true)
+                                ->where('action_id', $request->typeSales)
+                                ->where(function ($query) use ($currentMonth, $currentYear, $previousMonth, $previousYear) {
+                                    $query->whereYear('date_admission', $currentYear)->whereMonth('date_admission', $currentMonth)
+                                            ->orWhere(function ($query) use ($previousMonth, $previousYear) {
+                                                $query->whereYear('date_admission', $previousYear)->whereMonth('date_admission', $previousMonth);
+                                            });
+                                })
+                                ->orderBy('date_admission', 'desc')
+                                ->get();
+                $totalAmount = $sales->sum('amount');
+
+                return response()->json(["view"=>view('venta.list.listSale', compact('sales', 'totalAmount'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+                break;
+            case 2:
+                $bonusAgent = Sales::where('status', true)
+                                    ->where('action_id', 2)
+                                    ->orWhere('action_id', 3)
+                                    ->orderBy('created_at', 'desc')
+                                    ->get();
+
+                return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+                break;
+            case 3:
+                $bonusAgent = Sales::where('status', true)
+                            ->where('action_id', 2)
+                            ->orWhere('action_id', 3)
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+
+                return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+                break;
+            default:
+                echo "Opción no válida";
+        }
     }
 
     /**

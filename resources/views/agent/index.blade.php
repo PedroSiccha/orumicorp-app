@@ -9,7 +9,7 @@
       <div class="col-lg-12">
           <div class="ibox ">
               <div class="ibox-title d-flex justify-content-between align-items-center">
-                  <h5>Tabla Clientes </h5>
+                  <h5>Tabla de Agentes </h5>
                   @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
                     <div class="col-sm-2 text-right">
                         @can('Filtrar Area Today')
@@ -51,7 +51,7 @@
                       </thead>
                       <tbody>
                         @foreach ($agents as $agent)
-                            <tr>
+                            <tr @if($agent->status == 0) class="table-danger" @endif>
                                 <td>{{ $agent->code }}</td>
                                 <td>
                                     <a href="{{ route('perfilUsuario', ['id' => $agent->id]) }}">
@@ -65,7 +65,11 @@
                                 <td>
                                     <button class="btn btn-default" type="button" onclick="asignarCantGiros('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-dashboard"></i></button>
                                     @can('Estado Agente')
-                                    <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-check"></i></button>
+                                        @if ($agent->status == 0)
+                                            <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}', '1')"><i class="fa fa-check"></i></button>
+                                        @else
+                                            <button class="btn btn-danger " type="button" onclick="cambiarEstado('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}', '0')"><i class="fa fa-minus"></i></button>
+                                        @endif
                                     @endcan
                                     @can('Editar Agente')
                                     <button class="btn btn-warning " type="button" onclick="editarAgente('{{ $agent->id }}', '{{ $agent->code }}', '{{ $agent->name }}', '{{ $agent->lastname }}', '{{ $agent->dni }}', '{{ $agent->email }}', '{{ $agent->area->id }}', '{{ $agent->user->roles->first() }}')"><i class="fa fa-pencil"></i></button>
@@ -436,7 +440,7 @@
             });
         }
 
-        function cambiarEstado(id, name) {
+        function cambiarEstado(id, name, status) {
             Swal.fire({
                 title: "¿Desea cambiar el estado de este agente?",
                 text: "Agente :" + name,
@@ -449,7 +453,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
 
-                    $.post("{{ Route('cambiarEstadoAgente') }}", {id: id, _token: '{{ csrf_token() }}'}).done(function(data) {
+                    $.post("{{ Route('cambiarEstadoAgente') }}", {id: id, status: status, _token: '{{ csrf_token() }}'}).done(function(data) {
                         $("#tabAgente").empty();
                         $("#tabAgente").html(data.view);
                         if (data.resp == 1) {

@@ -13,11 +13,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AreaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         $user_id = Auth::user()->id;
@@ -38,7 +34,7 @@ class AreaController extends Controller
 
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        $areas = Area::where('status', true)->get();
+        $areas = Area::get();
         return view('area.index', compact('areas', 'premios1', 'premios2', 'dataUser', 'rouletteSpin'));
     }
 
@@ -54,16 +50,11 @@ class AreaController extends Controller
             $resp = 1;
         }
 
-        $areas = Area::where('status', true)->get();
+        $areas = Area::get();
 
         return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function updateArea(Request $request)
     {
         $resp = 0;
@@ -75,38 +66,26 @@ class AreaController extends Controller
             $resp = 1;
         }
 
-        $areas = Area::where('status', true)->get();
+        $areas = Area::get();
 
         return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreareaRequest  $request
-     * @return \Illuminate\Http\Response
-     */
     public function changeStatusArea(Request $request)
     {
         $resp = 0;
 
         $area = Area::find($request->id);
-        $area->status = false;
+        $area->status = $request->status;
         if ($area->save()) {
             $resp = 1;
         }
 
-        $areas = Area::where('status', true)->get();
+        $areas = Area::get();
 
         return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\area  $area
-     * @return \Illuminate\Http\Response
-     */
     public function deleteArea(Request $request)
     {
         $resp = 0;
@@ -116,40 +95,21 @@ class AreaController extends Controller
             $resp = 1;
         }
 
-        $areas = Area::where('status', true)->get();
+        $areas = Area::get();
 
         return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\area  $area
-     * @return \Illuminate\Http\Response
-     */
     public function edit(area $area)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateareaRequest  $request
-     * @param  \App\Models\area  $area
-     * @return \Illuminate\Http\Response
-     */
     public function update(UpdateareaRequest $request, area $area)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\area  $area
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(area $area)
     {
         //

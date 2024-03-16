@@ -24,5 +24,3 @@ function updateClient(modal, inputId, inputCode, inputName, inputLastName, input
         mostrarMensaje(data.title, data.text, data.status);
     });
 }
-
-
