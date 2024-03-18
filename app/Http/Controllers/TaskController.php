@@ -47,6 +47,12 @@ class TaskController extends Controller
         return view('task.index', compact('premios1', 'premios2', 'dataUser', 'areas', 'rouletteSpin'));
     }
 
+    public function obtenerEventos()
+    {
+        $event = Task::get();
+        return response()->json(['events' => $event]);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -61,11 +67,12 @@ class TaskController extends Controller
         $horaFin = $request->horaFin;
         $img = $request->imgEvento;
         $nomArchivo = trim($img);
+        $urlGuardar = '';
         $resp = 0;
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
 
-        if ($request->hasFile('imgTask')) {
+        if ($request->hasFile('imgEvento')) {
             $nombre=$img->getClientOriginalName();
             $extension=$img->getClientOriginalExtension();
             $nuevoNombre=$nombre.".".$extension;

@@ -65,9 +65,13 @@
                                 <td> $ {{ number_format($ba->commission, 2) }}</td>
                                 <td>S/. {{ number_format($ba->commission*3.5, 2) }}</td>
                                 <td>
+                                    @can('Ver Perfil Agente')
                                     <a href="{{ route('perfilUsuario', ['id' => $ba->agent->id]) }}">
-                                        {{ $ba->agent->name }} {{ $ba->agent->lastname }}
+                                    @endcan
+                                    {{ $ba->agent->name }} {{ $ba->agent->lastname }}
+                                    @can('Ver Perfil Agente')
                                     </a>
+                                    @endcan
                                 </td>
                                 <td>{{ $ba->agent->area->name }}</td>
                                 <td>{{ $ba->observation }}</td>
@@ -79,31 +83,6 @@
           </div>
       </div>
   </div>
-<!--
-  <div class="col-lg-12">
-      <div class="ibox ">
-          <div class="ibox-title">
-              <h5>Totales  </h5>
-              <div class="ibox-tools">
-                  <a class="collapse-link">
-                      <i class="fa fa-chevron-up"></i>
-                  </a>
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                      <i class="fa fa-wrench"></i>
-                  </a>
-                  <ul class="dropdown-menu dropdown-user">
-
-                    <li><a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalRegistrarTarget')">Registrar Target</a></li>
-
-                    <li><a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalRegistrarRetiro')">Registrar Retiro</a></li>
-
-                  </ul>
-              </div>
-          </div>
-
-      </div>
-  </div>
--->
 
   <div class="modal inmodal fade" id="modalBonus" tabindex="-1" role="dialog"  aria-hidden="true">
     <div class="modal-dialog modal-lg">

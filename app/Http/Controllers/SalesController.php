@@ -319,6 +319,10 @@ class SalesController extends Controller
         $commission = 0;
         $amount = 0;
 
+        $agent = Agent::where('dni', $request->eCodAgent)
+                 ->orWhere('code', $request->eCodAgent)
+                 ->first();
+
         if ($request->typeSales == 3) {
             $commission = (-1)*$request->eComission;
         } else {
@@ -341,6 +345,7 @@ class SalesController extends Controller
             $sale->commission = $commission;
             $sale->exchange_rate = $request->eTypeChange;
             $sale->action_id = $request->typeSales;
+            $sale->agent_id = $agent->id;
             $sale->user_id = Auth::user()->id;
             if ($sale->save()) {
                 $title = "Correcto";

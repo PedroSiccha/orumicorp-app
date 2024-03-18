@@ -86,11 +86,13 @@ Auth::routes();
     Route::post('/saveRol', [App\Http\Controllers\SecurityController::class, 'saveRol'])->name('saveRol');
     Route::post('/verPermisos', [App\Http\Controllers\SecurityController::class, 'verPermisos'])->name('verPermisos');
     Route::post('/asignarPermisoRol', [App\Http\Controllers\SecurityController::class, 'asignarPermisoRol'])->name('asignarPermisoRol');
+    Route::post('/deletePermiso', [App\Http\Controllers\SecurityController::class, 'deletePermiso'])->name('deletePermiso');
 
     Route::get('/perfilUsuario/{id}', [App\Http\Controllers\PerfilController::class, 'perfilUsuario'])->name('perfilUsuario');
 
     Route::get('/task', [App\Http\Controllers\TaskController::class, 'index'])->name('task');
     Route::post('/guardarTask', [App\Http\Controllers\TaskController::class, 'guardarTask'])->name('guardarTask');
+    Route::get('/obtenerEventos', [App\Http\Controllers\TaskController::class, 'obtenerEventos'])->name('obtenerEventos');
 
     Route::get('/audit', [App\Http\Controllers\TaskController::class, 'index'])->name('audit');
 

@@ -48,7 +48,7 @@
                 @endif
                   <div class="col-sm-2">
                     @can('Registrar Ventas')
-                    <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalVenta')"><i class="fa fa-plus"></i> Registrar Venta</button>
+                        <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalVenta')"><i class="fa fa-plus"></i> Registrar Venta</button>
                     @endcan
                   </div>
                 </div>
@@ -85,7 +85,11 @@
                                 <td>{{ $sale->agent->name }} {{ $sale->agent->lastname }}</td>
                                 <td>{{ $sale->agent->area->name }}</td>
                                 <td>{{ $sale->obsercation }}</td>
-                                <td><button class="btn btn-warning " type="button" onclick="editarSale('{{ $sale->id }}', '{{ $sale->customer->id }}', '{{ $sale->customer->name }} {{ $sale->customer->lastname }}', '{{ $sale->amount }}', '{{ $sale->percent }}', '{{ $sale->exchange_rate }}', '{{ $sale->comission }}', '{{ $sale->agent->id }}', '{{ $sale->agent->name }} {{ $sale->agent->lastname }}', '{{ $sale->obsercation }}', '#modalEditarVenta', '#eId', '#eIdClient', '#eNameClient', '#eAmount', '#ePercent', '#eTypeChange', '#eComission', '#eIdAgent', '#eNameAgent', '#eObservation')"><i class="fa fa-pencil"></i></button></td>
+                                <td>
+                                    @can('Editar Venta')
+                                        <button class="btn btn-warning " type="button" onclick="editarSale('{{ $sale->id }}', '{{ $sale->customer->id }}', '{{ $sale->customer->name }} {{ $sale->customer->lastname }}', '{{ $sale->amount }}', '{{ $sale->percent }}', '{{ $sale->exchange_rate }}', '{{ $sale->comission }}', '{{ $sale->agent->id }}', '{{ $sale->agent->code }}', '{{ $sale->agent->name }} {{ $sale->agent->lastname }}', '{{ $sale->obsercation }}', '#modalEditarVenta', '#eId', '#eIdClient', '#eNameClient', '#eAmount', '#ePercent', '#eTypeChange', '#eComission', '#eIdAgent', '#eCodAgent', '#eNameAgent', '#eObservation')"><i class="fa fa-pencil"></i></button>
+                                    @endcan
+                                </td>
                             </tr>
                         @endforeach
                         <tr>
@@ -252,15 +256,16 @@
                                 <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Nombre del cliente" id='eNameClient' readonly>
                             </td>
                         </tr>
-                        <tr hidden>
+                        <tr>
                             <td>
                                 <strong>Agente</strong>
                             </td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="eIdAgent" placeholder="Ingrese el DNI o Código del agente">
+                                    <input type="text" class="form-control" id="eIdAgent" placeholder="Ingrese el DNI o Código del agente" hidden>
+                                    <input type="text" class="form-control" id="eCodAgent" placeholder="Ingrese el DNI o Código del agente">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-primary" onclick="searchAgent('#dniAgent', '#nameAgent')"><i class="fa fa-search"></i></button>
+                                        <button type="button" class="btn btn-primary" onclick="searchAgent('#eCodAgent', '#eNameAgent')"><i class="fa fa-search"></i></button>
                                     </div>
                                 </div>
                             </td>
@@ -294,7 +299,7 @@
                                 <strong>Tipo de Cambio</strong>
                             </td>
                             <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese el tipo de cambio" id='eTypeChange'>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese el tipo de cambio" id='eTypeChange' readonly>
                             </td>
                         </tr>
                         <tr>
@@ -326,7 +331,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="updateSale({eId: '#eId', eIdClient: '#eIdClient', eIdAgent: '#eIdAgent', eAmount: '#eAmount', ePercent: '#ePercent', eTypeChange: '#eTypeChange', eComission: '#eComission', eObservation: '#eObservation', modal: '#modalEditarVenta', tableName: '#tabVenta' , typeSales: '1'})"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="updateSale({eId: '#eId', eIdClient: '#eIdClient', eCodAgent: '#eCodAgent', eIdAgent: '#eIdAgent', eAmount: '#eAmount', ePercent: '#ePercent', eTypeChange: '#eTypeChange', eComission: '#eComission', eObservation: '#eObservation', modal: '#modalEditarVenta', tableName: '#tabVenta' , typeSales: '1'})"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>

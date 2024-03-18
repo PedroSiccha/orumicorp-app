@@ -23,9 +23,16 @@ class PerfilController extends Controller
     public function perfilUsuario($id)
     {
 
+        //dd($id);
         $agent = Agent::where('user_id', $id)->first();
         $client = Customers::where('user_id', $id)->first();
-        $rouletteSpin = $agent->number_turns ?: 0;
+        $rouletteSpin = 0;
+
+        //dd($agent);
+
+        if ($agent->number_turns) {
+            $rouletteSpin = $agent->number_turns;
+        }
 
         $dataUser = null;
 
@@ -52,6 +59,7 @@ class PerfilController extends Controller
                         ->get();
         $sales = Sales::select('sales.*', 'c.name', 'c.lastname')
                         ->join('customers as c', 'sales.customer_id', '=', 'c.id')
+                        ->where('sales.user_id', $id)
                         ->get();
 
         $targetMensual = Target::where('status', true)

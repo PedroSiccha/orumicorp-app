@@ -11,13 +11,13 @@
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Clientes </h5>
                   <div>
-                    @can('Crear Cliente')
-                    <button type="button" class="btn btn-info" type="button" onclick="mostrarNuevoModal('#modalAsignAgent')"><i class="fa fa-group"></i> Asignar Agente</button>
+                    @can('Asignar Cliente Masivo')
+                        <button type="button" class="btn btn-info" type="button" onclick="mostrarNuevoModal('#modalAsignAgent')"><i class="fa fa-group"></i> Asignar Agente</button>
                     @endcan
                     @can('Crear Cliente')
                     <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalCliente')"><i class="fa fa-plus"></i> Nuevo Cliente</button>
                     @endcan
-                    @can('Crear Cliente')
+                    @can('Carga Masiva de Cliente')
                     <button type="button" class="btn btn-success" type="button" onclick="mostrarNuevoModal('#modalChargeGroup')"><i class="fa fa-upload"></i> Carga Masiva</button>
                     @endcan
                   </div>
@@ -42,7 +42,9 @@
                                         {{ $customer->name }} {{ $customer->lastname }}</td>
                                     </a>
                                 <td>
-                                    <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
+                                    @can('Asignar Agente')
+                                        <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
+                                    @endcan
                                     @can('Estado Cliente')
                                         @if ($customer->status == 0)
                                             <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '1')"><i class="fa fa-check"></i></button>
@@ -68,7 +70,7 @@
                                         )"><i class="fa fa-pencil"></i></button>
                                     @endcan
                                     @can('Eliminar Cliente')
-                                    <button class="btn btn-danger " type="button" onclick="eliminarCliente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient')"><i class="fa fa-trash"></i></button>
+                                        <button class="btn btn-danger " type="button" onclick="eliminarCliente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient')"><i class="fa fa-trash"></i></button>
                                     @endcan
                                 </td>
                             </tr>
@@ -96,13 +98,13 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Formato</label>
                     <div class="input-group col-lg-9">
-                        <button type="button" class="btn btn-primary" onclick="searchAgent('#dniGroupAgent', '#nameGroupAgent')"><i class="fa fa-download"></i></button>
+                        <button type="button" class="btn btn-primary"><i class="fa fa-download"></i></button>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Subir Archivo</label>
                     <div class="col-lg-9">
-                        <input type="file" placeholder="Nombre del agente" class="form-control" id='nameGroupAgent' readonly>
+                        <input type="file" placeholder="Nombre del agente" class="form-control" readonly>
                     </div>
                 </div>
             </div>
@@ -149,7 +151,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Cod.</th>
-                                        <th>Permiso</th>
+                                        <th>Clientes</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -158,7 +160,7 @@
                                         <td>
                                             <input type="checkbox" class="i-checks flat chekboxses" name="idGroupClientes[]" value="{{ $asignCustomer->id }}" id="idGroupClientes">
                                         </td>
-                                        <td> {{ $asignCustomer->id }} </td>
+                                        <td> {{ $asignCustomer->code }} </td>
                                         <td> {{ $asignCustomer->name }} </td>
                                     </tr>
                                     @endforeach

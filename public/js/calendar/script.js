@@ -463,7 +463,9 @@ function saveEvents() {
 //function to get events from local storage
 function getEvents() {
   //check if events are already saved in local storage then return event else nothing
-  //getEventsMySQL();
+  getEventsMySQL();
+
+
   if (localStorage.getItem("events") === null) {
     return;
   }
@@ -479,12 +481,12 @@ function getEventsMySQL() {
     success: function(data) {
       // Aquí puedes manejar los datos obtenidos
       console.log(data);
-      
+
       // Por ejemplo, puedes recorrer los eventos y realizar alguna acción
       data.events.forEach(function(event) {
-        console.log(event.fecha);
-        console.log(event.titulo);
-        console.log(event.descripcion);
+        console.log(event.date);
+        console.log(event.name);
+        console.log(event.description);
         // ... Hacer algo con los datos del evento
       });
     },

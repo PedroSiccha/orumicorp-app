@@ -81,14 +81,16 @@
                     <a href="{{ route('security') }}"><i class="fa fa-lock"></i> <span class="nav-label">Seguridad</span></a>
                 </li>
                 @endcan
-                @can('Ver Auditorio')
+                @can('Ver Auditoria')
                 <li class="{{ Request::is('audit') ? 'active' : '' }}">
                     <a href="{{ route('audit') }}"><i class="fa fa-warning"></i> <span class="nav-label">Auditoria</span></a>
                 </li>
                 @endcan
+                @can('Ver Task')
                 <li class="{{ Request::is('task') ? 'active' : '' }}">
                     <a href="{{ route('task') }}"><i class="fa fa-calendar"></i> <span class="nav-label">Task</span></a>
                 </li>
+                @endcan
             </ul>
         </div>
     </nav>

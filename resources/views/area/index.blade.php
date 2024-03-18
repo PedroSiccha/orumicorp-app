@@ -10,10 +10,9 @@
           <div class="ibox ">
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Áreas </h5>
-
                   <div>
                     @can('Crear Area')
-                    <button type="button" class="btn btn-default" type="button" onclick="nuevaArea()"><i class="fa fa-plus"></i> Nueva Área</button>
+                        <button type="button" class="btn btn-default" type="button" onclick="nuevaArea()"><i class="fa fa-plus"></i> Nueva Área</button>
                     @endcan
                   </div>
               </div>

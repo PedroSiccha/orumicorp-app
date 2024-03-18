@@ -42,23 +42,21 @@ class StatisticsTodayController extends Controller
         if ($roles == 'ADMINISTRADOR') {
             $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
                         ->selectRaw('a.name, a.lastname,
-                                    DATE(sales.date_admission) AS day,
-                                    MONTH(sales.date_admission) AS month,
                                     SUM(CASE WHEN sales.action_id = 4 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
                                     SUM(sales.amount) AS total_amount_day,
                                     SUM(sales.amount) AS total_amount_month')
-                        ->groupBy('a.name', 'a.lastname', 'day', 'month')
+                        ->groupBy('a.id')
+                        ->orderBy('total_amount_day', 'DESC')
                         ->get();
         } else {
             $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
             ->selectRaw('a.name, a.lastname,
-                        DATE(sales.date_admission) AS day,
-                        MONTH(sales.date_admission) AS month,
                         SUM(CASE WHEN sales.action_id = 4 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
                         SUM(sales.amount) AS total_amount_day,
                         SUM(sales.amount) AS total_amount_month')
                         ->where('sales.agent_id', $agent->id)
-            ->groupBy('a.name', 'a.lastname', 'day', 'month')
+            ->groupBy('a.name', 'a.lastname')
+            ->orderBy('total_amount_day', 'DESC')
             ->get();
         }
 
@@ -84,14 +82,13 @@ class StatisticsTodayController extends Controller
 
         $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
                       ->selectRaw('a.name, a.lastname,
-                                   DATE(sales.date_admission) AS day,
-                                   MONTH(sales.date_admission) AS month,
                                    SUM(CASE WHEN sales.action_id = 4 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
                                    SUM(sales.amount) AS total_amount_day,
                                    SUM(sales.amount) AS total_amount_month')
                       ->where('a.area_id', $request->area)
                       ->whereBetween('sales.date_admission', [$dateInit, $dateEnd])
-                      ->groupBy('a.name', 'a.lastname', 'day', 'month')
+                      ->groupBy('a.name', 'a.lastname')
+                      ->orderBy('total_amount_day', 'DESC')
                       ->get();
 
         return response()->json(["view"=>view('todayStatistics.components.tabStatistics', compact('sales'))->render()]);

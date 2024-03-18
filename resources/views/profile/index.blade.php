@@ -9,7 +9,6 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
-
     <div class="row m-b-lg m-t-lg">
         <div class="col-md-6">
 
@@ -212,10 +211,10 @@
                             </div>
 
                             <div class="col-4">
-                                <h4>$ {{ number_format($targetMensual->amount ?: 0, 2) }}</h4>
+                                <h4>${{ isset($targetMensual->amount) ? number_format($targetMensual->amount, 2) : '0.00' }}</h4>
                             </div>
                             <div class="col-4">
-                                <h4>S/. {{ number_format(($targetMensual->amount ?: 0)*3.5, 2) }}</h4>
+                                <h4>S/. {{ isset($targetMensual->amount) ? number_format(($targetMensual->amount)*3.5, 2) : '0.00' }}</h4>
                             </div>
                         </div>
                     </div>
@@ -254,10 +253,10 @@
                             </div>
 
                             <div class="col-4">
-                                <h4>$ {{ number_format($targetMensual->amount - $ingresosActuales ?: 0, 2) }}</h4>
+                                <h4>$ {{  isset($targetMensual->amount) ? number_format($targetMensual->amount - $ingresosActuales, 2) : '0.00' }}</h4>
                             </div>
                             <div class="col-4">
-                                <h4>S/. {{ number_format(($targetMensual->amount - $ingresosActuales ?: 0)*3.5, 2) }}</h4>
+                                <h4>S/. {{ isset($targetMensual->amount) ? number_format(($targetMensual->amount - $ingresosActuales)*3.5, 2): '0.00' }}</h4>
                             </div>
                         </div>
                     </div>

@@ -42,8 +42,10 @@
           <div class="events"></div>
           <div class="add-event-wrapper">
             <div class="add-event-header">
-              <div class="title">Agregar Evento</div>
-              <i class="fa fa-times close"></i>
+
+                <div class="title">Agregar Evento</div>
+                <i class="fa fa-times close"></i>
+
             </div>
             <div class="add-event-body">
               <div class="add-event-input">
@@ -55,11 +57,29 @@
               <div class="add-event-input">
                 <input type="file" placeholder="Imagen del evento" class="event-img" id="imgEvento"/>
               </div>
+
+              <div class="input-group">
+                <input type="text" class="form-control" id="dniCustomer" placeholder="Ingrese el DNI o Código del cliente">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-primary" onclick="searchClient('#dniCustomer', '#nameCustomer')"><i class="fa fa-search"></i></button>
+                </div>
+              </div>
+              <div class="add-event-input">
+                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Nombre del cliente" id='nameCustomer' readonly>
+              </div>
               <div class="add-event-input">
                 <input type="text" placeholder="Desde" class="event-time-from" id="horaInicio"/>
               </div>
               <div class="add-event-input">
                 <input type="text" placeholder="Hasta" class="event-time-to" id="horaFin"/>
+              </div>
+              <div class="add-event-input">
+                <select class="form-control m-b" name="percent_id" id="percent_id">
+                    <option>Nivel de Prioridad</option>
+                    <option value="1">Bajo</option>
+                    <option value="2">Medio</option>
+                    <option value="3">Alto</option>
+                </select>
               </div>
             </div>
             <div class="add-event-footer">
@@ -67,16 +87,21 @@
             </div>
           </div>
         </div>
+        @can('Agregar Evento')
         <button class="add-event">
           <i class="fa fa-plus"></i>
         </button>
+        @endcan
       </div>
     </div>
 </div>
 @endsection
 @section('script')
 <script src="{{ asset('js/calendar/script.js') }}"></script>
+<script src="{{ asset('js/customer/searchClient.js') }}"></script>
 <script>
+    var searchClientRoute = '{{ route("searchCustomer") }}';
+    var token = '{{ csrf_token() }}';
 
     function guardarEvento() {
       var formData = new FormData();
@@ -96,7 +121,7 @@
       formData.append('imgEvento', imgFile);
 
        // Obtén el token CSRF del campo meta en tu página
-      var token = $('meta[name="csrf-token"]').attr('content');
+      //var token = $('meta[name="csrf-token"]').attr('content');
       // Agrega el token CSRF al objeto FormData
       formData.append('_token', token);
 

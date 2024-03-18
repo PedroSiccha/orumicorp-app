@@ -51,17 +51,21 @@ class AgentBonusController extends Controller
         $exchange_rates = ExchangeRate::where('status', true)->get();
         if ($roles == 'ADMINISTRADOR') {
             $bonusAgent = Sales::where('status', true)
-            ->where('action_id', 2)
-            ->orWhere('action_id', 3)
-            ->orderBy('created_at', 'desc')
-            ->get();
+                                ->where('action_id', 2)
+                                ->orWhere('action_id', 3)
+                                ->orderBy('created_at', 'desc')
+                                ->get();
         } else {
-            $bonusAgent = Sales::where('status', true)
-            ->where('action_id', 2)
-            ->where('agent_id', $agent->id)
-            ->orWhere('action_id', 3)
-            ->orderBy('created_at', 'desc')
-            ->get();
+
+            $bonusAgent = Sales::where('status', 1)
+                                ->where('agent_id', $agent->id)
+                                ->where(function ($query) {
+                                    $query->where('action_id', 2)
+                                        ->orWhere('action_id', 3);
+                                })
+                                ->orderByDesc('created_at')
+                                ->get();
+
         }
 
 
