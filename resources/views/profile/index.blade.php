@@ -96,8 +96,9 @@
                         </label>
                         <label title="Donload image" id="download" class="btn btn-primary" onclick="uploadImg('inputImage')">Subir</label>
                     </div>
-                    <button class="btn btn-warning btn-block" onclick="mostrarNuevoModal('#modalChangePassword')">Cambiar Contraseña</button>
-
+                    @can('Cambiar Contraseña')
+                        <button class="btn btn-warning btn-block" onclick="mostrarNuevoModal('#modalChangePassword')">Cambiar Contraseña</button>
+                    @endcan
                 </div>
             </div>
 
@@ -199,100 +200,112 @@
                     <div class="ibox-title">
                         <h5>Totales</h5>
                         <div class="ibox-tools">
+                            @can('Registrar Target')
                             <a onclick="mostrarNuevoModal('#modalCreateTarget')">
                                 <i class="fa fa-plus"></i>
                             </a>
+                            @endcan
                         </div>
                     </div>
-                    <div class="ibox-content navy-bg">
-                        <div class="row" id="tabTotalTarget">
-                            <div class="col-4">
-                                <h4>Target Mensual</h4>
-                            </div>
+                    @can('Perfil - Ver Target Mensual')
+                        <div class="ibox-content navy-bg">
+                            <div class="row" id="tabTotalTarget">
+                                <div class="col-4">
+                                    <h4>Target Mensual</h4>
+                                </div>
 
-                            <div class="col-4">
-                                <h4>${{ isset($targetMensual->amount) ? number_format($targetMensual->amount, 2) : '0.00' }}</h4>
-                            </div>
-                            <div class="col-4">
-                                <h4>S/. {{ isset($targetMensual->amount) ? number_format(($targetMensual->amount)*3.5, 2) : '0.00' }}</h4>
+                                <div class="col-4">
+                                    <h4>${{ isset($targetMensual->amount) ? number_format($targetMensual->amount, 2) : '0.00' }}</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. {{ isset($targetMensual->amount) ? number_format(($targetMensual->amount)*3.5, 2) : '0.00' }}</h4>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="ibox-content yellow-bg">
-                        <div class="row">
-                            <div class="col-4">
-                                <h4>Ingresos Actuales</h4>
-                            </div>
+                    @endcan
+                    @can('Perfil - Ver Ingresos Actuales')
+                        <div class="ibox-content yellow-bg">
+                            <div class="row">
+                                <div class="col-4">
+                                    <h4>Ingresos Actuales</h4>
+                                </div>
 
-                            <div class="col-4">
-                                <h4>$ {{ number_format($ingresosActuales ?: 0, 2) }}</h4>
-                            </div>
-                            <div class="col-4">
-                                <h4>S/. {{ number_format(($ingresosActuales ?: 0)*3.5, 2) }}</h4>
+                                <div class="col-4">
+                                    <h4>$ {{ number_format($ingresosActuales ?: 0, 2) }}</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. {{ number_format(($ingresosActuales ?: 0)*3.5, 2) }}</h4>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="ibox-content red-bg">
-                        <div class="row">
-                            <div class="col-4">
-                                <h4>Retiros Actuales</h4>
-                            </div>
+                    @endcan
+                    @can('Perfil - Ver Retiros Actuales')
+                        <div class="ibox-content red-bg">
+                            <div class="row">
+                                <div class="col-4">
+                                    <h4>Retiros Actuales</h4>
+                                </div>
 
-                            <div class="col-4">
-                                <h4>$ {{ number_format($amountRetiro ?: 0, 2) }}</h4>
-                            </div>
-                            <div class="col-4">
-                                <h4>S/. {{ number_format(($amountRetiro ?: 0)*3.5, 2) }}</h4>
+                                <div class="col-4">
+                                    <h4>$ {{ number_format($amountRetiro ?: 0, 2) }}</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. {{ number_format(($amountRetiro ?: 0)*3.5, 2) }}</h4>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="ibox-content lazur-bg">
-                        <div class="row">
-                            <div class="col-4">
-                                <h4>Cuota Pendiente</h4>
-                            </div>
+                    @endcan
+                    @can('Perfil - Ver Cuota Pendiente')
+                        <div class="ibox-content lazur-bg">
+                            <div class="row">
+                                <div class="col-4">
+                                    <h4>Cuota Pendiente</h4>
+                                </div>
 
-                            <div class="col-4">
-                                <h4>$ {{  isset($targetMensual->amount) ? number_format($targetMensual->amount - $ingresosActuales, 2) : '0.00' }}</h4>
-                            </div>
-                            <div class="col-4">
-                                <h4>S/. {{ isset($targetMensual->amount) ? number_format(($targetMensual->amount - $ingresosActuales)*3.5, 2): '0.00' }}</h4>
+                                <div class="col-4">
+                                    <h4>$ {{  isset($targetMensual->amount) ? number_format($targetMensual->amount - $ingresosActuales, 2) : '0.00' }}</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. {{ isset($targetMensual->amount) ? number_format(($targetMensual->amount - $ingresosActuales)*3.5, 2): '0.00' }}</h4>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="ibox-content">
-                        <div class="row">
-                            <div class="col-4">
-                                <h4>Pago en Efectivo</h4>
-                            </div>
+                    @endcan
+                    @can('Perfil - Ver Pago en Efectivo')
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-4">
+                                    <h4>Pago en Efectivo</h4>
+                                </div>
 
-                            <div class="col-4">
-                                <h4>$ 0.00</h4>
-                            </div>
-                            <div class="col-4">
-                                <h4>S/. 0.00</h4>
+                                <div class="col-4">
+                                    <h4>$ 0.00</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. 0.00</h4>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="ibox-content red-bg">
-                        <div class="row">
-                            <div class="col-4">
-                                <h4>Descuentos</h4>
-                            </div>
+                    @endcan
+                    @can('Perfil - Ver Descuentos')
+                        <div class="ibox-content red-bg">
+                            <div class="row">
+                                <div class="col-4">
+                                    <h4>Descuentos</h4>
+                                </div>
 
-                            <div class="col-4">
-                                <h4>$ 0.00</h4>
-                            </div>
-                            <div class="col-4">
-                                <h4>S/. 0.00</h4>
+                                <div class="col-4">
+                                    <h4>$ 0.00</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. 0.00</h4>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endcan
                 </div>
             </div>
-
     </div>
-
 </div>
 
 <div class="modal inmodal fade" id="modalChangePassword" tabindex="-1" role="dialog"  aria-hidden="true">

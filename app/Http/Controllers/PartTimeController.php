@@ -218,9 +218,62 @@ class PartTimeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function registerVacations(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+        $user_id = Auth::user()->id;
+        if ($user_id) {
+            $title = "Error";
+            $mensaje = "Hubo un error con el usuario";
+            $status = "error";
+        }
+        $agent = Agent::where('user_id', $user_id)->first();
+        if ($agent) {
+            $title = "Error";
+            $mensaje = "Hubo un error con el agente";
+            $status = "error";
+        }
+
+        $assistance = new Assistance();
+        $assistance->hour = '00:00:00';
+        $assistance->date = $request->dateInitVacations;
+        $assistance->date_end = $request->dateEndVacations;
+        $assistance->type = 'VACATION';
+        $assistance->observation = $request->observation;
+        $assistance->agent_id = $agent->id;
+        if ($assistance->save()) {
+            $title = "Correcto";
+            $mensaje = "Su asistencia se registró correctamente";
+            $status = "success";
+        } else {
+            $title = "Error";
+            $mensaje = "Hubo un error al registrar su asistencia";
+            $status = "error";
+        }
+
+        $dateIn = Assistance::where('date', date('Y-m-d'))->where('type', 'IN')->where('agent_id', $agent->id)->first();
+        $dateBreakIn = Assistance::where('date', date('Y-m-d'))->where('type', 'IN-BREAK')->where('agent_id', $agent->id)->first();
+        $dateBreakOut = Assistance::where('date', date('Y-m-d'))->where('type', 'OUT-BREAK')->where('agent_id', $agent->id)->first();
+        $dateOut = Assistance::where('date', date('Y-m-d'))->where('type', 'OUT')->where('agent_id', $agent->id)->first();
+        $assistances = Assistance::select(
+            'agents.name',
+            'agents.lastname',
+            'assistance.date',
+            DB::raw("MAX(CASE WHEN assistance.type = 'IN' THEN assistance.hour END) AS 'IN'"),
+            DB::raw("MAX(CASE WHEN assistance.type = 'IN-BREAK' THEN assistance.hour END) AS 'INBREAK'"),
+            DB::raw("MAX(CASE WHEN assistance.type = 'OUT-BREAK' THEN assistance.hour END) AS 'OUTBREAK'"),
+            DB::raw("MAX(CASE WHEN assistance.type = 'OUT' THEN assistance.hour END) AS 'OUT'")
+        )
+        ->join('agents', 'assistance.agent_id', '=', 'agents.id')
+        ->where('agents.id', $agent->id)
+        ->where('assistance.date', date('Y-m-d'))
+        ->groupBy('agents.name', 'agents.lastname', 'assistance.date')
+        ->get();
+
+
+        return response()->json(["view"=>view('partTime.components.panelButton', compact('dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut'))->render(), "viewTable"=>view('partTime.components.tabAssistance', compact('assistances'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
     /**
