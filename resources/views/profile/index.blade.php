@@ -9,12 +9,11 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
-
     <div class="row m-b-lg m-t-lg">
         <div class="col-md-6">
 
             <div class="profile-image">
-                <img src="{{  $dataUser->img ?: asset('img/logo/basic_logo.png') }}" class="rounded-circle circle-border m-b-md" alt="profile">
+                <img src="{{  asset($dataUser->img) ?: asset('img/logo/basic_logo.png') }}" class="rounded-circle circle-border m-b-md" alt="profile">
             </div>
             <div class="profile-info">
                 <div class="">
@@ -35,34 +34,49 @@
                 <tbody>
                 <tr>
                     <td>
-                        <strong>142</strong> Projects
+                        Ingreso
                     </td>
                     <td>
-                        <strong>22</strong> Followers
-                    </td>
-
-                </tr>
-                <tr>
-                    <td>
-                        <strong>61</strong> Comments
-                    </td>
-                    <td>
-                        <strong>54</strong> Articles
+                        @if ($dateIn)
+                            <strong>{{ $dateIn->hour ?: 0 }}</strong>
+                        @endif
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <strong>154</strong> Tags
+                        Break
                     </td>
                     <td>
-                        <strong>32</strong> Friends
+                        @if ($dateBreakIn)
+                            <strong>{{ $dateBreakIn->hour }}</strong>
+                        @endif
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Vuelta Break
+                    </td>
+                    <td>
+                        @if ($dateBreakOut)
+                            <strong>{{ $dateBreakOut->hour }}</strong>
+                        @endif
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Salida
+                    </td>
+                    <td>
+                        @if ($dateOut)
+                            <strong>{{ $dateOut->hour }}</strong>
+                        @endif
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
-        <div class="col-md-3">
-            <small>Sales in last 24h</small>
+        <div class="col-md-3" id="divTarg">
+            <small>Target del Mes</small>
             <h2 class="no-margins">206 480</h2>
         </div>
 
@@ -70,348 +84,302 @@
     </div>
     <div class="row">
 
-        <div class="col-lg-3">
+        <div class="col-lg-5">
 
             <div class="ibox">
                 <div class="ibox-content">
-                        <h3>About Alex Smith</h3>
-
-                    <p class="small">
-                        There are many variations of passages of Lorem Ipsum available, but the majority have
-                        suffered alteration in some form, by injected humour, or randomised words which don't.
-                        <br/>
-                        <br/>
-                        If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't
-                        anything embarrassing
-                    </p>
-
-                    <p class="small font-bold">
-                        <span><i class="fa fa-circle text-navy"></i> Online status</span>
-                        </p>
-
-                </div>
-            </div>
-
-            <div class="ibox">
-                <div class="ibox-content">
-                    <h3>Followers and friends</h3>
-                    <p class="small">
-                        If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't
-                        anything embarrassing
-                    </p>
-                    <div class="user-friends">
-                        <a href=""><img alt="image" class="rounded-circle" src="{{ asset('img/a3.jpg') }}"></a>
-                        <a href=""><img alt="image" class="rounded-circle" src="{{ asset('img/a1.jpg') }}"></a>
-                        <a href=""><img alt="image" class="rounded-circle" src="{{ asset('img/a2.jpg') }}"></a>
-                        <a href=""><img alt="image" class="rounded-circle" src="{{ asset('img/a4.jpg') }}"></a>
-                        <a href=""><img alt="image" class="rounded-circle" src="{{ asset('img/a5.jpg') }}"></a>
-                        <a href=""><img alt="image" class="rounded-circle" src="{{ asset('img/a6.jpg') }}"></a>
-                        <a href=""><img alt="image" class="rounded-circle" src="{{ asset('img/a7.jpg') }}"></a>
-                        <a href=""><img alt="image" class="rounded-circle" src="{{ asset('img/a8.jpg') }}"></a>
-                        <a href=""><img alt="image" class="rounded-circle" src="{{ asset('img/a2.jpg') }}"></a>
-                        <a href=""><img alt="image" class="rounded-circle" src="{{ asset('img/a1.jpg') }}"></a>
+                    <h3>Opciones</h3>
+                    <div class="btn-group">
+                        <label title="Upload image file" for="inputImage" class="btn btn-primary">
+                            <input type="file" accept="image/*" name="file" id="inputImage" class="hide">
+                            Subir Imagen
+                        </label>
+                        <label title="Donload image" id="download" class="btn btn-primary" onclick="uploadImg('inputImage')">Subir</label>
                     </div>
-                </div>
-            </div>
-
-            <div class="ibox">
-                <div class="ibox-content">
-                    <h3>Personal friends</h3>
-                    <ul class="list-unstyled file-list">
-                        <li><a href=""><i class="fa fa-file"></i> Project_document.docx</a></li>
-                        <li><a href=""><i class="fa fa-file-picture-o"></i> Logo_zender_company.jpg</a></li>
-                        <li><a href=""><i class="fa fa-stack-exchange"></i> Email_from_Alex.mln</a></li>
-                        <li><a href=""><i class="fa fa-file"></i> Contract_20_11_2014.docx</a></li>
-                        <li><a href=""><i class="fa fa-file-powerpoint-o"></i> Presentation.pptx</a></li>
-                        <li><a href=""><i class="fa fa-file"></i> 10_08_2015.docx</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="ibox">
-                <div class="ibox-content">
-                    <h3>Private message</h3>
-
-                    <p class="small">
-                        Send private message to Alex Smith
-                    </p>
-
-                    <div class="form-group">
-                        <label>Subject</label>
-                        <input type="email" class="form-control" placeholder="Message subject">
-                    </div>
-                    <div class="form-group">
-                        <label>Message</label>
-                        <textarea class="form-control" placeholder="Your message" rows="3"></textarea>
-                    </div>
-                    <button class="btn btn-primary btn-block">Send</button>
-
+                    @can('Cambiar Contraseña')
+                        <button class="btn btn-warning btn-block" onclick="mostrarNuevoModal('#modalChangePassword')">Cambiar Contraseña</button>
+                    @endcan
                 </div>
             </div>
 
         </div>
 
-        <div class="col-lg-5">
+        <div class="col-lg-3">
 
-            <div class="social-feed-box">
-
-                <div class="float-right social-action dropdown">
-                    <button data-toggle="dropdown" class="dropdown-toggle btn-white">
-                        <i class="fa fa-angle-down"></i>
-                    </button>
-                    <ul class="dropdown-menu m-t-xs">
-                        <li><a href="#">Config</a></li>
-                    </ul>
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>Lista de Clientes Asignados</h5>
                 </div>
-                <div class="social-avatar">
-                    <a href="" class="float-left">
-                        <img alt="image" src="{{ asset('img/a1.jpg') }}">
-                    </a>
-                    <div class="media-body">
-                        <a href="#">
-                            Andrew Williams
-                        </a>
-                        <small class="text-muted">Today 4:21 pm - 12.06.2014</small>
-                    </div>
-                </div>
-                <div class="social-body">
-                    <p>
-                        Many desktop publishing packages and web page editors now use Lorem Ipsum as their
-                        default model text, and a search for 'lorem ipsum' will uncover many web sites still
-                        in their infancy. Packages and web page editors now use Lorem Ipsum as their
-                        default model text.
-                    </p>
-
-                    <div class="btn-group">
-                        <button class="btn btn-white btn-xs"><i class="fa fa-thumbs-up"></i> Like this!</button>
-                        <button class="btn btn-white btn-xs"><i class="fa fa-comments"></i> Comment</button>
-                        <button class="btn btn-white btn-xs"><i class="fa fa-share"></i> Share</button>
-                    </div>
-                </div>
-                <div class="social-footer">
-                    <div class="social-comment">
-                        <a href="" class="float-left">
-                            <img alt="image" src="{{ asset('img/a1.jpg') }}">
-                        </a>
-                        <div class="media-body">
-                            <a href="#">
-                                Andrew Williams
-                            </a>
-                            Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words.
-                            <br/>
-                            <a href="#" class="small"><i class="fa fa-thumbs-up"></i> 26 Like this!</a> -
-                            <small class="text-muted">12.06.2014</small>
-                        </div>
-                    </div>
-
-                    <div class="social-comment">
-                        <a href="" class="float-left">
-                            <img alt="image" src="{{ asset('img/a2.jpg') }}">
-                        </a>
-                        <div class="media-body">
-                            <a href="#">
-                                Andrew Williams
-                            </a>
-                            Making this the first true generator on the Internet. It uses a dictionary of.
-                            <br/>
-                            <a href="#" class="small"><i class="fa fa-thumbs-up"></i> 11 Like this!</a> -
-                            <small class="text-muted">10.07.2014</small>
-                        </div>
-                    </div>
-
-                    <div class="social-comment">
-                        <a href="" class="float-left">
-                            <img alt="image" src="{{ asset('img/a3.jpg') }}">
-                        </a>
-                        <div class="media-body">
-                            <textarea class="form-control" placeholder="Write comment..."></textarea>
-                        </div>
-                    </div>
+                <div class="ibox-content table-responsive">
+                    <table class="table table-hover no-margins">
+                        <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Cliente</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($clients as $client)
+                                <tr>
+                                    <td>{{ $client->code }}</td>
+                                    <td>{{ $client->name }} {{ $client->lastname }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="social-feed-box">
-
-                <div class="float-right social-action dropdown">
-                    <button data-toggle="dropdown" class="dropdown-toggle btn-white">
-                        <i class="fa fa-angle-down"></i>
-                    </button>
-                    <ul class="dropdown-menu m-t-xs">
-                        <li><a href="#">Config</a></li>
-                    </ul>
-                </div>
-                <div class="social-avatar">
-                    <a href="" class="float-left">
-                        <img alt="image" src="{{ asset('img/a6.jpg') }}">
-                    </a>
-                    <div class="media-body">
-                        <a href="#">
-                            Andrew Williams
-                        </a>
-                        <small class="text-muted">Today 4:21 pm - 12.06.2014</small>
-                    </div>
-                </div>
-                <div class="social-body">
-                    <p>
-                        Many desktop publishing packages and web page editors now use Lorem Ipsum as their
-                        default model text, and a search for 'lorem ipsum' will uncover many web sites still
-                        in their infancy. Packages and web page editors now use Lorem Ipsum as their
-                        default model text.
-                    </p>
-                    <p>
-                        Lorem Ipsum as their
-                        default model text, and a search for 'lorem ipsum' will uncover many web sites still
-                        in their infancy. Packages and web page editors now use Lorem Ipsum as their
-                        default model text.
-                    </p>
-                    <img src="{{ asset('img/gallery/3.jpg') }}" class="img-fluid">
-                    <div class="btn-group">
-                        <button class="btn btn-white btn-xs"><i class="fa fa-thumbs-up"></i> Like this!</button>
-                        <button class="btn btn-white btn-xs"><i class="fa fa-comments"></i> Comment</button>
-                        <button class="btn btn-white btn-xs"><i class="fa fa-share"></i> Share</button>
-                    </div>
-                </div>
-                <div class="social-footer">
-                    <div class="social-comment">
-                        <a href="" class="float-left">
-                            <img alt="image" src="{{ asset('img/a1.jpg') }}">
-                        </a>
-                        <div class="media-body">
-                            <a href="#">
-                                Andrew Williams
-                            </a>
-                            Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words.
-                            <br/>
-                            <a href="#" class="small"><i class="fa fa-thumbs-up"></i> 26 Like this!</a> -
-                            <small class="text-muted">12.06.2014</small>
-                        </div>
-                    </div>
-
-                    <div class="social-comment">
-                        <a href="" class="float-left">
-                            <img alt="image" src="{{ asset('img/a2.jpg') }}">
-                        </a>
-                        <div class="media-body">
-                            <a href="#">
-                                Andrew Williams
-                            </a>
-                            Making this the first true generator on the Internet. It uses a dictionary of.
-                            <br/>
-                            <a href="#" class="small"><i class="fa fa-thumbs-up"></i> 11 Like this!</a> -
-                            <small class="text-muted">10.07.2014</small>
-                        </div>
-                    </div>
-
-                    <div class="social-comment">
-                        <a href="" class="float-left">
-                            <img alt="image" src="{{ asset('img/a8.jpg') }}">
-                        </a>
-                        <div class="media-body">
-                            <a href="#">
-                                Andrew Williams
-                            </a>
-                            Making this the first true generator on the Internet. It uses a dictionary of.
-                            <br/>
-                            <a href="#" class="small"><i class="fa fa-thumbs-up"></i> 11 Like this!</a> -
-                            <small class="text-muted">10.07.2014</small>
-                        </div>
-                    </div>
-
-                    <div class="social-comment">
-                        <a href="" class="float-left">
-                            <img alt="image" src="{{ asset('img/a3.jpg') }}">
-                        </a>
-                        <div class="media-body">
-                            <textarea class="form-control" placeholder="Write comment..."></textarea>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
         </div>
 
         <div class="col-lg-4 m-b-lg">
-            <div id="vertical-timeline" class="vertical-container light-timeline no-margins">
-                <div class="vertical-timeline-block">
-                    <div class="vertical-timeline-icon navy-bg">
-                        <i class="fa fa-briefcase"></i>
-                    </div>
-
-                    <div class="vertical-timeline-content">
-                        <h2>Meeting</h2>
-                        <p>Conference on the sales results for the previous year. Monica please examine sales trends in marketing and products. Below please find the current status of the sale.
-                        </p>
-                        <a href="#" class="btn btn-sm btn-primary"> More info</a>
-                            <span class="vertical-date">
-                                Today <br>
-                                <small>Dec 24</small>
-                            </span>
-                    </div>
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>Historial de Target</h5>
                 </div>
-
-                <div class="vertical-timeline-block">
-                    <div class="vertical-timeline-icon blue-bg">
-                        <i class="fa fa-file-text"></i>
-                    </div>
-
-                    <div class="vertical-timeline-content">
-                        <h2>Send documents to Mike</h2>
-                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since.</p>
-                        <a href="#" class="btn btn-sm btn-success"> Download document </a>
-                            <span class="vertical-date">
-                                Today <br>
-                                <small>Dec 24</small>
-                            </span>
-                    </div>
-                </div>
-
-                <div class="vertical-timeline-block">
-                    <div class="vertical-timeline-icon lazur-bg">
-                        <i class="fa fa-coffee"></i>
-                    </div>
-
-                    <div class="vertical-timeline-content">
-                        <h2>Coffee Break</h2>
-                        <p>Go to shop and find some products. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's. </p>
-                        <a href="#" class="btn btn-sm btn-info">Read more</a>
-                        <span class="vertical-date"> Yesterday <br><small>Dec 23</small></span>
-                    </div>
-                </div>
-
-                <div class="vertical-timeline-block">
-                    <div class="vertical-timeline-icon yellow-bg">
-                        <i class="fa fa-phone"></i>
-                    </div>
-
-                    <div class="vertical-timeline-content">
-                        <h2>Phone with Jeronimo</h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iusto, optio, dolorum provident rerum aut hic quasi placeat iure tempora laudantium ipsa ad debitis unde? Iste voluptatibus minus veritatis qui ut.</p>
-                        <span class="vertical-date">Yesterday <br><small>Dec 23</small></span>
-                    </div>
-                </div>
-
-                <div class="vertical-timeline-block">
-                    <div class="vertical-timeline-icon navy-bg">
-                        <i class="fa fa-comments"></i>
-                    </div>
-
-                    <div class="vertical-timeline-content">
-                        <h2>Chat with Monica and Sandra</h2>
-                        <p>Web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like). </p>
-                        <span class="vertical-date">Yesterday <br><small>Dec 23</small></span>
-                    </div>
+                <div class="ibox-content table-responsive" id="tabTarget">
+                    <table class="table table-hover no-margins">
+                        <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Mes</th>
+                            <th>Monto</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($targets as $target)
+                                <tr>
+                                    <td>{{ $target->id }}</td>
+                                    <td>{{ $target->mes }}</td>
+                                    <td>$ {{ number_format($target->amount, 2) }} </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
         </div>
 
     </div>
 
+    <div class="row">
+        <div class="col-lg-8 m-b-lg">
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>Historial de Ventas</h5>
+                </div>
+                <div class="ibox-content table-responsive">
+                    <table class="table table-hover no-margins">
+                        <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Fecha de Ingreso</th>
+                            <th>Monto</th>
+                            <th>Comisión</th>
+                            <th>Cliente</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($sales as $sale)
+                                <tr>
+                                    <td>{{ $sale->id }}</td>
+                                    <td> {{ $sale->date_admission }} </td>
+                                    <td>{{ $sale->amount }}</td>
+                                    <td> {{ $sale->commission }} </td>
+                                    <td>{{ $sale->name }} {{ $sale->lastname }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h5>Totales</h5>
+                        <div class="ibox-tools">
+                            @can('Registrar Target')
+                            <a onclick="mostrarNuevoModal('#modalCreateTarget')">
+                                <i class="fa fa-plus"></i>
+                            </a>
+                            @endcan
+                        </div>
+                    </div>
+                    @can('Perfil - Ver Target Mensual')
+                        <div class="ibox-content navy-bg">
+                            <div class="row" id="tabTotalTarget">
+                                <div class="col-4">
+                                    <h4>Target Mensual</h4>
+                                </div>
+
+                                <div class="col-4">
+                                    <h4>${{ isset($targetMensual->amount) ? number_format($targetMensual->amount, 2) : '0.00' }}</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. {{ isset($targetMensual->amount) ? number_format(($targetMensual->amount)*3.5, 2) : '0.00' }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    @endcan
+                    @can('Perfil - Ver Ingresos Actuales')
+                        <div class="ibox-content yellow-bg">
+                            <div class="row">
+                                <div class="col-4">
+                                    <h4>Ingresos Actuales</h4>
+                                </div>
+
+                                <div class="col-4">
+                                    <h4>$ {{ number_format($ingresosActuales ?: 0, 2) }}</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. {{ number_format(($ingresosActuales ?: 0)*3.5, 2) }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    @endcan
+                    @can('Perfil - Ver Retiros Actuales')
+                        <div class="ibox-content red-bg">
+                            <div class="row">
+                                <div class="col-4">
+                                    <h4>Retiros Actuales</h4>
+                                </div>
+
+                                <div class="col-4">
+                                    <h4>$ {{ number_format($amountRetiro ?: 0, 2) }}</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. {{ number_format(($amountRetiro ?: 0)*3.5, 2) }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    @endcan
+                    @can('Perfil - Ver Cuota Pendiente')
+                        <div class="ibox-content lazur-bg">
+                            <div class="row">
+                                <div class="col-4">
+                                    <h4>Cuota Pendiente</h4>
+                                </div>
+
+                                <div class="col-4">
+                                    <h4>$ {{  isset($targetMensual->amount) ? number_format($targetMensual->amount - $ingresosActuales, 2) : '0.00' }}</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. {{ isset($targetMensual->amount) ? number_format(($targetMensual->amount - $ingresosActuales)*3.5, 2): '0.00' }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    @endcan
+                    @can('Perfil - Ver Pago en Efectivo')
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-4">
+                                    <h4>Pago en Efectivo</h4>
+                                </div>
+
+                                <div class="col-4">
+                                    <h4>$ 0.00</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. 0.00</h4>
+                                </div>
+                            </div>
+                        </div>
+                    @endcan
+                    @can('Perfil - Ver Descuentos')
+                        <div class="ibox-content red-bg">
+                            <div class="row">
+                                <div class="col-4">
+                                    <h4>Descuentos</h4>
+                                </div>
+
+                                <div class="col-4">
+                                    <h4>$ 0.00</h4>
+                                </div>
+                                <div class="col-4">
+                                    <h4>S/. 0.00</h4>
+                                </div>
+                            </div>
+                        </div>
+                    @endcan
+                </div>
+            </div>
+    </div>
+</div>
+
+<div class="modal inmodal fade" id="modalChangePassword" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Asignar Nueva Contraseña</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Contraseña</label>
+                    <div class="col-lg-9">
+                        <input type="password" placeholder="Ingrese su nueva contraseña" class="form-control" id='newPassword'>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info " type="button" onclick="changePassword('#newPassword', '#modalChangePassword')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal inmodal fade" id="modalCreateTarget" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Asignar Target</h4>
+                @if ($targetMensual)
+                    <small>{{ number_format($targetMensual->amount, 2) }}</small>
+                @endif
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Target</label>
+                    <div class="col-lg-9">
+                        <input id="amountTarget" type="text" placeholder="Ingrese el target para el agente" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                @if ($targetMensual)
+                    <button class="btn btn-success " type="button" onclick="updateTarget('#amountTarget', '#modalCreateTarget', '#divTarget', '#tabTarget', '#tabTotalTarget')"><i class="fa fa-refresh"></i> Actualizar</button>
+                    <button class="btn btn-info " type="button" onclick="addTarget('#amountTarget', '#modalCreateTarget', '#divTarget', '#tabTarget', '#tabTotalTarget')"><i class="fa fa-plus"></i> Agregar</button>
+                @else
+                    <button class="btn btn-success " type="button" onclick="createTarget('#amountTarget', '#modalCreateTarget', '#divTarget', '#tabTarget', '#tabTotalTarget')"><i class="fa fa-save"></i> Guardar</button>
+                @endif
+
+                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection
 @section('script')
-    <script>
-    </script>
+<script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
+<script src="{{ asset('js/agent/uploadImg.js') }}"></script>
+<script src="{{ asset('js/agent/changePassword.js') }}"></script>
+<script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+
+<script src="{{ asset('js/target/createTarget.js') }}"></script>
+<script src="{{ asset('js/target/updateTarget.js') }}"></script>
+<script src="{{ asset('js/target/addTarget.js') }}"></script>
+<script>
+    var uploadImgRoute = '{{ route("uploadImg") }}';
+    var changePasswordRoute = '{{ route("changePassword") }}';
+    var saveTargetRoute = '{{ route("saveTarget") }}';
+    var updateTargetRoute = '{{ route("updateTarget") }}';
+    var addTargetRoute = '{{ route("addTarget") }}';
+    var token = '{{ csrf_token() }}';
+</script>
 @endsection

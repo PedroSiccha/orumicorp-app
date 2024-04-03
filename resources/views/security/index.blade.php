@@ -12,7 +12,7 @@
                   <h5>Tabla de Roles </h5>
                   <div>
                     @can('Registrar Roles')
-                    <button type="button" class="btn btn-default" type="button" onclick="nuevoRol()"><i class="fa fa-plus"></i> Nuevo Rol</button>
+                        <button type="button" class="btn btn-default" type="button" onclick="nuevoRol()"><i class="fa fa-plus"></i> Nuevo Rol</button>
                     @endcan
                   </div>
               </div>
@@ -33,13 +33,13 @@
                                 <td>{{ $rol->name }}</td>
                                 <td>{{ $rol->guard_name }}</td>
                                 <td>
-                                    <button class="btn btn-warning " type="button"><i class="fa fa-pencil"></i></button>
-                                    <button class="btn btn-danger " type="button"><i class="fa fa-trash"></i></button>
+
                                 </td>
                             </tr>
                         @endforeach
                       </tbody>
                   </table>
+
               </div>
           </div>
       </div>
@@ -51,7 +51,7 @@
                 <h5>Tabla de Permisos </h5>
                 <div>
                     @can('Asignar Permisos')
-                    <button type="button" class="btn btn-default" onclick="asignarPermiso()" style="display: none;" id="btnAsignar"><i class="fa fa-plus"></i> Asignar Permiso</button>
+                        <button type="button" class="btn btn-default" onclick="asignarPermiso()" style="display: none;" id="btnAsignar"><i class="fa fa-plus"></i> Asignar Permiso</button>
                     @endcan
                 </div>
             </div>
@@ -70,14 +70,11 @@
                               <td>{{ $permiso->id }}</td>
                               <td>{{ $permiso->name }}</td>
                               <td>{{ $permiso->guard_name }}</td>
-                              <td>
-                                  <button class="btn btn-warning " type="button"><i class="fa fa-pencil"></i></button>
-                                  <button class="btn btn-danger " type="button"><i class="fa fa-trash"></i></button>
-                              </td>
                           </tr>
                       @endforeach
                     </tbody>
                 </table>
+
             </div>
         </div>
         @endcan
@@ -235,6 +232,34 @@
 
             });
 
+        }
+
+        function deletePermiso(idPermiso, inputIdRol) {
+            var idRol = $(inputIdRol).val();
+            Swal.fire({
+                title: "¿Desea retirar este permiso?",
+                text: "Permiso id: " + idPermiso,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Si",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.post("{{ Route('deletePermiso') }}", {idPermiso: idPermiso, idRol: idRol, _token: '{{ csrf_token() }}'}).done(function(data) {
+                        $("#tabPermisos").empty();
+                        $("#tabPermisos").html(data.view);
+                        Swal.fire({
+                            title: "Estado",
+                            text: "Se retiró el permiso",
+                            icon: "success"
+                        });
+                    });
+
+                }
+            });
         }
 
     </script>

@@ -6,6 +6,7 @@ use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,17 +15,16 @@ use Spatie\Permission\Models\Role;
 
 class ClientsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         $user_id = Auth::user()->id;
+        $user = User::where('id', $user_id)->first();
+        $roles = $user->getRoleNames()->first();
 
         $agent = Agent::where('user_id', $user_id)->first();
         $client = Customers::where('user_id', $user_id)->first();
+        $rouletteSpin = $agent->number_turns ?: 0;
 
         $dataUser = null;
 
@@ -36,11 +36,18 @@ class ClientsController extends Controller
             $dataUser = $client;
         }
 
-        $customers = Customers::where('status', true)->orderBy('date_admission')->take(10)->get();
+        if ($roles == 'ADMINISTRADOR') {
+            $customers = Customers::orderBy('date_admission')->paginate(10);
+        } else {
+            $customers = Customers::where('agent_id', $agent->id)->orderBy('date_admission')->paginate(10);
+        }
+
+        $asignCustomers = Customers::where('agent_id', null)->where('status', 1)->orderBy('date_admission')->get();
+
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $roles = Role::get();
-        return view('cliente.index', compact('customers', 'premios1', 'premios2', 'roles', 'dataUser'));
+        return view('cliente.index', compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers'));
     }
 
     public function saveCustomer(Request $request)
@@ -67,72 +74,173 @@ class ClientsController extends Controller
             }
         }
 
-        $customers = Customers::where('status', true)->orderBy('date_admission')->take(10)->get();
+        $customers = Customers::orderBy('date_admission')->paginate(10);
 
         return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "resp"=>$resp]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function asignAgent(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $agent = Agent::where('dni', $request->dni_agent)
+                  ->orWhere('code', $request->dni_agent)
+                  ->first();
+
+        $client = Customers::find($request->id);
+        $client->agent_id = $agent->id;
+        if ($client->save()) {
+            $title = "Correcto";
+            $mensaje = "Se asignó correctamente el agente";
+            $status = "success";
+        } else {
+            $title = "Error";
+            $mensaje = "Error desconocido";
+            $status = "error";
+        }
+        $customers = Customers::orderBy('date_admission')->paginate(10);
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function assignGroupAgent(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $agent = Agent::where('dni', $request->dni_agent)
+                  ->orWhere('code', $request->dni_agent)
+                  ->first();
+
+        try {
+            foreach ($request->idGroupClientes as $idClient) {
+                $client = Customers::find($idClient);
+                $client->agent_id = $agent->id;
+                $client->save();
+            }
+
+            $title = "Correcto";
+            $mensaje = "Se asignó correctamente el agente";
+            $status = "success";
+
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Ocurrió un error: " . $e->getMessage();
+            $status = "error";
+        }
+
+        $customers = Customers::orderBy('date_admission')->paginate(10);
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function changeStatusClient(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $idClient = $request->id;
+        $client = Customers::find($idClient);
+        if ($client == null) {
+            $title = "Error";
+            $mensaje = "Hubo un error con el cliente";
+            $status = "error";
+        }
+        $client->status = $request->status;
+        if ($client->save()) {
+            $title = "Correcto";
+            $mensaje = "Se cambió el estado del cliente";
+            $status = "success";
+        } else {
+            $title = "Error";
+            $mensaje = "No se pudo cambiar el estado del cliente";
+            $status = "error";
+        }
+        $customers = Customers::orderBy('date_admission')->paginate(10);
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    public function updateClient(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $client = Customers::find($request->id);
+        if ($client == null) {
+            $title = "Error";
+            $mensaje = "Hubo un error con el cliente";
+            $status = "error";
+        }
+        $client->code = $request->code;
+        $client->name = $request->name;
+        $client->lastname = $request->lastname;
+        $client->dni = $request->phone;
+
+        $user = User::find($client->user_id);
+        $user->name = $request->name;
+
+        if ($client->save()) {
+            if ($user->save()) {
+                $title = "Correcto";
+                $mensaje = "Se actualizó el cliente correctamente";
+                $status = "success";
+            } else {
+                $title = "Error";
+                $mensaje = "Hubo un error al actualizar el usuario del cliente";
+                $status = "error";
+            }
+        } else {
+            $title = "Error";
+            $mensaje = "Hubo un error al actualizar el cliente";
+            $status = "error";
+        }
+
+        $customers = Customers::orderBy('date_admission')->paginate(10);
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    public function deleteClient(Request $request)
+    {
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+        $client = Customers::find($request->id);
+        if ($client == null) {
+            $title = "Error";
+            $mensaje = "Hubo un error con el cliente";
+            $status = "error";
+        }
+        if ($client->delete()) {
+            $title = "Correcto";
+            $mensaje = "El cliente se elimninó correctamente";
+            $status = "success";
+        } else {
+            $title = "Error";
+            $mensaje = "No se pudo eliminar el cliente";
+            $status = "error";
+        }
+
+        $customers = Customers::orderBy('date_admission')->paginate(10);
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+
+    }
+
     public function update(Request $request, $id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         //

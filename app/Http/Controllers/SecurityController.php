@@ -20,15 +20,67 @@ class SecurityController extends Controller
      */
     public function index()
     {
-        //$permission = Permission::create(['name' => 'Ver Seguridad']);
-        //$permission = Permission::create(['name' => 'Registrar Roles']);
-        //$permission = Permission::create(['name' => 'Ver Permisos de Roles']);
-        //$permission = Permission::create(['name' => 'Asignar Permisos']);
-        //$permission = Permission::create(['name' => 'Estado Cliente']);
+
+/*
+        $permission = Permission::create(['name' => 'Perfil - Ver Target Mensual']);
+        $permission = Permission::create(['name' => 'Perfil - Ver Ingresos Actuales']);
+        $permission = Permission::create(['name' => 'Perfil - Ver Retiros Actuales']);
+        $permission = Permission::create(['name' => 'Perfil - Ver Cuota Pendiente']);
+        $permission = Permission::create(['name' => 'Perfil - Ver Pago en Efectivo']);
+        $permission = Permission::create(['name' => 'Perfil - Ver Descuentos']);
+
+        $permission = Permission::create(['name' => 'Tabla Today Statistics - Ver Total Calls']);
+        $permission = Permission::create(['name' => 'Tabla Today Statistics - Ver Retiros']);
+        $permission = Permission::create(['name' => 'Tabla Today Statistics - Ver Chargeback']);
+
+        $permission = Permission::create(['name' => 'Asignar Cliente Masivo']);
+        $permission = Permission::create(['name' => 'Carga Masiva de Cliente']);
+        $permission = Permission::create(['name' => 'Asignar Agente']);
+        $permission = Permission::create(['name' => 'Descargar Part Time Excel']);
+        $permission = Permission::create(['name' => 'Descargar Part Time PDF']);
+        $permission = Permission::create(['name' => 'Quitar Permiso']);
+        $permission = Permission::create(['name' => 'Ver Ventas Tablero']);
+        $permission = Permission::create(['name' => 'Ver Cantidad Agentes Tablero']);
+        $permission = Permission::create(['name' => 'Ver Cantidad Clientes Tablero']);
+        $permission = Permission::create(['name' => 'Estadistica de Ventas']);
+        $permission = Permission::create(['name' => 'Rankig de Ventas Tablero']);
+        $permission = Permission::create(['name' => 'Agregar Evento']);
+        $permission = Permission::create(['name' => 'Editar Venta']);
+        $permission = Permission::create(['name' => 'Ver Task']);
+        $permission = Permission::create(['name' => 'Ver Auditoria']);
+
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        */
+
+
+
         $user_id = Auth::user()->id;
 
         $agent = Agent::where('user_id', $user_id)->first();
         $client = Customers::where('user_id', $user_id)->first();
+        $rouletteSpin = $agent->number_turns ?: 0;
 
         $dataUser = null;
 
@@ -40,11 +92,11 @@ class SecurityController extends Controller
             $dataUser = $client;
         }
 
-        $roles = Role::get();
+        $roles = Role::paginate(10)->withQueryString();
         $permisos = Permission::get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        return view('security.index', compact('premios1', 'premios2', 'roles', 'permisos', 'dataUser'));
+        return view('security.index', compact('premios1', 'premios2', 'roles', 'permisos', 'dataUser', 'rouletteSpin'));
     }
 
     /**
@@ -118,9 +170,20 @@ class SecurityController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function deletePermiso(Request $request)
     {
-        //
+        $rol = Role::findById($request->idRol);
+        $permiso = Permission::find($request->idPermiso);
+        $rol->revokePermissionTo($permiso);
+
+        $rol = Role::where('id', $request->idRol)->first();
+
+        if ($rol) {
+            $permisos = $rol->permissions;
+        }
+
+        return response()->json(["view"=>view('security.components.tabPermisos', compact('permisos'))->render()]);
+
     }
 
     /**

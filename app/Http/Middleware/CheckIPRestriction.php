@@ -2,8 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AllowedIP;
 use Closure;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 
 class CheckIPRestriction
 {
@@ -16,18 +19,22 @@ class CheckIPRestriction
      */
     public function handle(Request $request, Closure $next)
     {
-        // Lista de IP permitidas
-        $allowedIPs = [
-            '127.0.0.1', // Ejemplo de IP local
-            '192.168.0.1' // Ejemplo de otra IP permitida
-        ];
-        $clientIP = $request->ip();
-        if ($request->header('x-forwarded-for')) {
-            $clientIP = $request->header('x-forwarded-for');
+        $ipLocal = $_SERVER['REMOTE_ADDR'];
+        //dd($ipLocal);
+        $client = new Client();
+
+        try {
+            $response = $client->request('GET', 'https://api.ipify.org');
+            $ip = $response->getBody()->getContents();
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'Acceso denegado, '.$th], 403);
         }
 
-        if (!in_array($clientIP, $allowedIPs)) {
-            return response()->json(['error' => 'Acceso denegado.'], 403);
+        $allowedIPs = AllowedIP::where('status', 1)->pluck('ip')->toArray();
+
+        if (!in_array($ip, $allowedIPs)) {
+            //return response()->json(['error' => 'Acceso denegado.'], 403);
+            return response()->view('error.sinacceso', [], 404);
         }
         return $next($request);
     }

@@ -10,6 +10,9 @@
     <link href="{{asset('css/style.css')}}" rel="stylesheet">
     <link href="{{asset('css/plugins/datapicker/datepicker3.css')}}" rel="stylesheet">
     <link href="{{asset('css/plugins/iCheck/custom.css')}}" rel="stylesheet">
+    <link href="{{asset('css/plugins/dataTables/datatables.min.css')}}" rel="stylesheet">
+    <link href="{{ asset('css/plugins/morris/morris-0.4.3.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('js/calendar/style.css') }}" />
 
     <link href="{{asset('ruleta/styles.css')}}" rel="stylesheet">
 </head>
@@ -78,6 +81,16 @@
                     <a href="{{ route('security') }}"><i class="fa fa-lock"></i> <span class="nav-label">Seguridad</span></a>
                 </li>
                 @endcan
+                @can('Ver Auditoria')
+                <li class="{{ Request::is('audit') ? 'active' : '' }}">
+                    <a href="{{ route('audit') }}"><i class="fa fa-warning"></i> <span class="nav-label">Auditoria</span></a>
+                </li>
+                @endcan
+                @can('Ver Task')
+                <li class="{{ Request::is('task') ? 'active' : '' }}">
+                    <a href="{{ route('task') }}"><i class="fa fa-calendar"></i> <span class="nav-label">Task</span></a>
+                </li>
+                @endcan
             </ul>
         </div>
     </nav>
@@ -87,29 +100,32 @@
             <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
             <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
-            <form role="search" class="navbar-form-custom" action="search_results.html">
-                <div class="form-group">
-                    <input type="text" placeholder="Buscar..." class="form-control" name="top-search" id="top-search">
-                </div>
-            </form>
         </div>
             <ul class="nav navbar-top-links navbar-right">
-                <li class="dropdown">
-                    <button type="button" class="btn btn-w-m btn-primary" data-toggle="modal" data-target="#myModal5">Ruleta 2</button>
-                </li>
+
                 <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-share-alt"></i>
+                        <i class="fa fa-clock-o"></i>
                     </a>
                 </li>
                 <li class="dropdown">
-                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-check"></i>
+                    <a href="">
+                        <div id="dateMenu"></div>
                     </a>
                 </li>
                 <li class="dropdown">
+                    <a href="">
+                        <div id="clockMenu"></div>
+                    </a>
+                </li>
+                <li class="dropdown">
+                    @if ($rouletteSpin > 0)
+                        <button type="button" class="btn btn-w-m btn-primary" data-toggle="modal" data-target="#myModal5">Ruleta {{ $rouletteSpin }}</button>
+                    @endif
+                </li>
+                <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <img alt="image" class="rounded-circle" src="{{  $dataUser->img ?: asset('img/logo/basic_logo.png') }}" style="width: 40px; height: auto; max-width: 100%;"/>
+                        <img alt="image" class="rounded-circle" src="{{  asset($dataUser->img) ?: asset('img/logo/basic_logo.png') }}" style="width: 40px; height: auto; max-width: 100%;"/>
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
                             <li><a class="dropdown-item" href="{{ route('perfilUsuario', ['id' => Auth::user()->id]) }}">Perfil</a></li>
@@ -122,59 +138,7 @@
                         </form>
                     </ul>
                 </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-clock-o"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-messages">
-                        <li>
-                            <div class="dropdown-messages-box">
-                                <a class="dropdown-item float-left" href="profile.html">
-                                    <img alt="image" class="rounded-circle" src="img/a7.jpg">
-                                </a>
-                                <div>
-                                    <small class="float-right">46h ago</small>
-                                    <strong>Mike Loreipsum</strong> started following <strong>Monica Smith</strong>. <br>
-                                    <small class="text-muted">3 days ago at 7:58 pm - 10.06.2014</small>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-divider"></li>
-                        <li>
-                            <div class="dropdown-messages-box">
-                                <a class="dropdown-item float-left" href="profile.html">
-                                    <img alt="image" class="rounded-circle" src="img/a4.jpg">
-                                </a>
-                                <div>
-                                    <small class="float-right text-navy">5h ago</small>
-                                    <strong>Chris Johnatan Overtunk</strong> started following <strong>Monica Smith</strong>. <br>
-                                    <small class="text-muted">Yesterday 1:21 pm - 11.06.2014</small>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-divider"></li>
-                        <li>
-                            <div class="dropdown-messages-box">
-                                <a class="dropdown-item float-left" href="profile.html">
-                                    <img alt="image" class="rounded-circle" src="img/profile.jpg">
-                                </a>
-                                <div>
-                                    <small class="float-right">23h ago</small>
-                                    <strong>Monica Smith</strong> love <strong>Kim Smith</strong>. <br>
-                                    <small class="text-muted">2 days ago at 2:30 am - 11.06.2014</small>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-divider"></li>
-                        <li>
-                            <div class="text-center link-block">
-                                <a href="mailbox.html" class="dropdown-item">
-                                    <i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
-                                </a>
-                            </div>
-                        </li>
-                    </ul>
-                </li>
+
                 <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
                         <i class="fa fa-bell"></i>
@@ -258,7 +222,7 @@
                                     </div>
 
                                 </div>
-                                <img class="spin" src="{{asset('ruleta/es_wheel-spin.png')}}" onclick="giro()" alt="">
+                                <img class="spin" src="{{asset('ruleta/es_wheel-spin-logo.png')}}" onclick="giro()" alt="">
                             </div>
 
                             <div>
@@ -661,7 +625,8 @@
 
         </div>
     </div>
-
+    <script src="{{ asset('js/utils/updateClockMenu.js') }}"></script>
+    <script src="{{ asset('js/utils/dateMenu.js') }}"></script>
     <!-- Mainly scripts -->
     <script src="{{asset('js/jquery-3.1.1.min.js')}}"></script>
     <script src="{{asset('js/popper.min.js')}}"></script>
@@ -677,6 +642,7 @@
     <script src="{{asset('js/plugins/flot/jquery.flot.pie.js')}}"></script>
     <script src="{{asset('js/plugins/flot/jquery.flot.symbol.js')}}"></script>
     <script src="{{asset('js/plugins/flot/jquery.flot.time.js')}}"></script>
+    <script src="{{ asset('js/plugins/flot/curvedLines.js') }}"></script>
 
     <!-- Peity -->
     <script src="{{asset('js/plugins/peity/jquery.peity.min.js')}}"></script>
@@ -703,16 +669,27 @@
     <script src="{{asset('js/demo/sparkline-demo.js')}}"></script>
     <script src="{{asset('js/plugins/datapicker/bootstrap-datepicker.js')}}"></script>
 
+    <script src="{{ asset('js/plugins/ladda/spin.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/ladda/ladda.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/ladda/ladda.jquery.min.js') }}"></script>
+
     <!-- FooTable -->
     <script src="{{asset('js/plugins/footable/footable.all.min.js')}}"></script>
+    <script src="{{ asset('js/rouletteManagement/updateGiro.js') }}"></script>
+    <script src="{{ asset('js/rouletteManagement/getPremio.js') }}"></script>
     <script src="{{asset('js/ruleta.js')}}"></script>
     <script src="{{ asset('js/plugins/jasny/jasny-bootstrap.min.js') }}"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script src="{{asset('js/plugins/iCheck/icheck.min.js')}}"></script>
+    <script src="{{ asset('js/plugins/chartJs/Chart.min.js') }}"></script>
+
     @yield('script')
     <script>
+        var updateGiroRoute = '{{ route("updateGiro") }}';
+        var getPremioRoute = '{{ route("getPremio") }}';
+        var token = '{{ csrf_token() }}';
         $(document).ready(function() {
 
             $('#date_added').datepicker({

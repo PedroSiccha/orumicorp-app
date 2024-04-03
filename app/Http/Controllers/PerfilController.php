@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
+use App\Models\Assistance;
 use App\Models\Customers;
 use App\Models\Premio;
+use App\Models\Sales;
+use App\Models\Target;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,10 +22,17 @@ class PerfilController extends Controller
      */
     public function perfilUsuario($id)
     {
-        $user_id = Auth::user()->id;
 
-        $agent = Agent::where('user_id', $user_id)->first();
-        $client = Customers::where('user_id', $user_id)->first();
+        //dd($id);
+        $agent = Agent::where('user_id', $id)->first();
+        $client = Customers::where('user_id', $id)->first();
+        $rouletteSpin = 0;
+
+        //dd($agent);
+
+        if ($agent->number_turns) {
+            $rouletteSpin = $agent->number_turns;
+        }
 
         $dataUser = null;
 
@@ -37,7 +48,43 @@ class PerfilController extends Controller
 
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        return view('profile.index', compact('premios1', 'premios2', 'dataUser'));
+
+        $dateIn = Assistance::where('date', date('Y-m-d'))->where('type', 'IN')->where('agent_id', $agent->id)->first();
+        $dateBreakIn = Assistance::where('date', date('Y-m-d'))->where('type', 'IN-BREAK')->where('agent_id', $agent->id)->first();
+        $dateBreakOut = Assistance::where('date', date('Y-m-d'))->where('type', 'OUT-BREAK')->where('agent_id', $agent->id)->first();
+        $dateOut = Assistance::where('date', date('Y-m-d'))->where('type', 'OUT')->where('agent_id', $agent->id)->first();
+        $clients = Customers::where('agent_id', $agent->id)->get();
+        $targets = Target::select('id', 'amount', 'agent_id')
+                        ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
+                        ->get();
+        $sales = Sales::select('sales.*', 'c.name', 'c.lastname')
+                        ->join('customers as c', 'sales.customer_id', '=', 'c.id')
+                        ->where('sales.user_id', $id)
+                        ->get();
+
+        $targetMensual = Target::where('status', true)
+                        ->where('month', date("m"))
+                        ->where('agent_id', $agent->id)
+                        ->orderBy("created_at", "asc")
+                        ->first();
+
+        $ingresosActuales = Sales::join('actions', 'sales.action_id', '=', 'actions.id')
+                                    ->where('actions.movement_type_id', 1)
+                                    ->where('actions.status', 1)
+                                    ->where('sales.status', 1)
+                                    ->where('sales.agent_id', $agent->id)
+                                    ->whereMonth('sales.created_at', date("m"))
+                                    ->sum('sales.amount');
+
+        $amountRetiro = Sales::join('actions', 'sales.action_id', '=', 'actions.id')
+                            ->where('actions.movement_type_id', 2)
+                            ->where('actions.status', 1)
+                            ->where('sales.status', 1)
+                            ->where('sales.agent_id', $agent->id)
+                            ->whereMonth('sales.created_at', date("m"))
+                            ->sum('sales.amount');
+
+        return view('profile.index', compact('premios1', 'premios2', 'dataUser', 'rouletteSpin', 'dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut', 'clients', 'targets', 'sales', 'targetMensual', 'ingresosActuales', 'amountRetiro'));
     }
 
     /**
