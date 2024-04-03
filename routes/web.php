@@ -71,6 +71,7 @@ Auth::routes();
     Route::post('/filterAssistance', [App\Http\Controllers\PartTimeController::class, 'filterAssistance'])->name('filterAssistance');
     Route::get('/descargar-asistencia-pdf',  [App\Http\Controllers\PartTimeController::class, 'descargarReportePDF'])->name('descargar-asistencia-pdf');
     Route::get('/descargar-asistencia-excel', [App\Http\Controllers\PartTimeController::class, 'descargarReporteExcel'])->name('descargar-asistencia-excel');
+    Route::post('/registerVacations', [App\Http\Controllers\PartTimeController::class, 'registerVacations'])->name('registerVacations');
 
 
     Route::post('/saveTarget', [App\Http\Controllers\TargetController::class, 'saveTarget'])->name('saveTarget');
@@ -95,6 +96,9 @@ Auth::routes();
     Route::get('/obtenerEventos', [App\Http\Controllers\TaskController::class, 'obtenerEventos'])->name('obtenerEventos');
 
     Route::get('/audit', [App\Http\Controllers\TaskController::class, 'index'])->name('audit');
+
+    Route::post('/click-to-call', [App\Http\Controllers\VoisoController::class, 'clickToCall'])->name('clickToCall');
+    Route::post('/initiateCall', [App\Http\Controllers\VoisoController::class, 'initiateCall'])->name('initiateCall');
 
 //});
 

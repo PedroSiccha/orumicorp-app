@@ -21,9 +21,18 @@ class SecurityController extends Controller
     public function index()
     {
 
-        /*
-        $permission = Permission::create(['name' => 'Asignar Cantidad Giros']);
-        $permission = Permission::create(['name' => 'Ver Perfil Agente']);
+/*
+        $permission = Permission::create(['name' => 'Perfil - Ver Target Mensual']);
+        $permission = Permission::create(['name' => 'Perfil - Ver Ingresos Actuales']);
+        $permission = Permission::create(['name' => 'Perfil - Ver Retiros Actuales']);
+        $permission = Permission::create(['name' => 'Perfil - Ver Cuota Pendiente']);
+        $permission = Permission::create(['name' => 'Perfil - Ver Pago en Efectivo']);
+        $permission = Permission::create(['name' => 'Perfil - Ver Descuentos']);
+
+        $permission = Permission::create(['name' => 'Tabla Today Statistics - Ver Total Calls']);
+        $permission = Permission::create(['name' => 'Tabla Today Statistics - Ver Retiros']);
+        $permission = Permission::create(['name' => 'Tabla Today Statistics - Ver Chargeback']);
+
         $permission = Permission::create(['name' => 'Asignar Cliente Masivo']);
         $permission = Permission::create(['name' => 'Carga Masiva de Cliente']);
         $permission = Permission::create(['name' => 'Asignar Agente']);

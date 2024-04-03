@@ -64,7 +64,7 @@
 
                     <div class="form-group" id="data_4">
                         <label class="font-normal">Vacaciones</label>
-                        <button class="btn btn-default  dim form-control" type="button"><i class="fa fa-plane"></i> Registrar Vacaciones</button>
+                        <button class="btn btn-default  dim form-control" type="button" onclick="mostrarNuevoModal('#modalVacaciones')"><i class="fa fa-plane"></i> Registrar Vacaciones</button>
                     </div>
                 @endcan
               </div>
@@ -178,6 +178,51 @@
             </div>
         </div>
       </div>
+
+
+      <div class="modal inmodal fade" id="modalVacaciones" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Registrar Vacaciones</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table m-b-xs">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Fecha de Inicio</strong>
+                                </td>
+                                <td>
+                                    <div class="input-group date">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="dateInitVacations" type="text" class="form-control" value="01/01/2024">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Fecha de Fin</strong>
+                                </td>
+                                <td>
+                                    <div class="input-group date">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="dateEndVacations" type="text" class="form-control" value="01/01/2024">
+                                    </div>
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-info " type="button" onclick="createVacations({dateInitVacations: '#dateInitVacations', dateEndVacations: '#dateEndVacations', modal: '#modalVacaciones', tabAssistance: '#tabAssistance'})"><i class="fa fa-save"></i> Registrar</button>
+                    <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
       @endif
 
       <style>
@@ -222,12 +267,30 @@
                 calendarWeeks: true,
                 autoclose: true
         });
+        $('#dateInitVacations').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+        });
+        $('#dateEndVacations').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+        });
     });
     var registerAssitanceRoute = '{{ route("registerAssistance") }}';
     var filterAssitanceRoute = '{{ route("filterAssistance") }}';
+    var registerVacationsRoute = '{{ Route("registerVacations") }}';
     var token = '{{ csrf_token() }}';
 </script>
 <script src="{{ asset('js/partTime/registerAssitance.js') }}"></script>
 <script src="{{ asset('js/partTime/filterAssitance.js') }}"></script>
+<script src="{{ asset('js/partTime/createVacations.js') }}"></script>
+<script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
+<script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
 
 @endsection
