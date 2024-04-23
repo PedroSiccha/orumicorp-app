@@ -18,7 +18,7 @@
                           {{ $customer->name }} {{ $customer->lastname }}</td>
                       </a>
                   <td>
-                    <button id="clickToCallButton" class="btn btn-success" type="button"><i class="fa fa-phone"></i> </button>
+                    <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->dni }}'})"><i class="fa fa-phone"></i> </button>
                       @can('Asignar Agente')
                           <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
                       @endcan

@@ -11,6 +11,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Response;
 use Spatie\Permission\Models\Role;
 
 class ClientsController extends Controller
@@ -236,9 +237,11 @@ class ClientsController extends Controller
 
     }
 
-    public function update(Request $request, $id)
+    public function descargarArchivo()
     {
-        //
+        $archivo = public_path('utils/CARGA_MASIVA_DE_CLNT.xlsx');
+
+        return Response::download($archivo, 'CARGA_MASIVA_DE_CLNT.xlsx');
     }
 
     public function destroy($id)

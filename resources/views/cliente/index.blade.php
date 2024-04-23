@@ -42,7 +42,7 @@
                                         {{ $customer->name }} {{ $customer->lastname }}</td>
                                     </a>
                                 <td>
-                                    <button id="clickToCallButton" class="btn btn-success" type="button"><i class="fa fa-phone"></i> </button>
+                                    <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->dni }}'})"><i class="fa fa-phone"></i> </button>
 
                                     @can('Asignar Agente')
                                         <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
@@ -100,7 +100,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Formato</label>
                     <div class="input-group col-lg-9">
-                        <button type="button" class="btn btn-primary"><i class="fa fa-download"></i></button>
+                        <a href="{{ route('descargarArchivo') }}" class="btn btn-primary"><i class="fa fa-download"></i> Descargar archivo</a>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -380,6 +380,26 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="callModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginModalLabel">Llamadas</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Contenido de inicio de sesión aquí -->
+          <!-- Puedes cargar la página de inicio de sesión utilizando un iframe o un div -->
+          <iframe src="https://cc-dal01.voiso.com/stats" style="width:100%; height:500px;"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 @endsection
 @section('script')
 <script>
@@ -391,55 +411,8 @@
     var asignAgentRoute = '{{ route("asignAgent") }}';
     var assignGroupAgentRoute = '{{ route("assignGroupAgent") }}';
     var token = '{{ csrf_token() }}';
+    var initiateCallRoute = '{{ route("initiateCall") }}';
 </script>
-
-<script>
-    // Selecciona el botón por su id
-    const clickToCallButton = document.getElementById('clickToCallButton');
-
-    // Agrega un event listener para escuchar el evento de clic en el botón
-    clickToCallButton.addEventListener('click', function() {
-        // Datos para la solicitud
-        const requestData = {
-            agent: 347,
-            number: '16461572020',
-            account_id: 12345678,
-            crm: 'my_crm'
-        };
-
-        // URL de la solicitud (reemplaza {cluster_id} y {contact_center_api_key} con los valores correctos)
-        const url = `https://cc-dal01.voiso.com/api/v1/2a517cb66609906663cf7e5bd337ff168286eeacb0364d1d/click2call`;
-
-        // Realiza la solicitud AJAX al servidor
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams(requestData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                mostrarMensaje("Error", "Network response was not ok", error);
-                throw new Error('Network response was not ok');
-            }
-            // Maneja la respuesta de la API si es necesario
-            mostrarMensaje("Llamando", "Se encuentra en llamada", success);
-            return response.json();
-        })
-        .then(data => {
-            // Realiza cualquier acción necesaria con los datos de la respuesta
-            mostrarMensaje("Error Data", data, error);
-            console.log(data);
-        })
-        .catch(error => {
-            // Maneja cualquier error que ocurra durante la solicitud AJAX
-            mostrarMensaje("Error Fetch", "Hubo un problema con la operación de búsqueda: " + error.message, error);
-            console.error('There was a problem with the fetch operation:', error.message);
-        });
-    });
-</script>
-
 
 <script src="{{asset('js/agent/assignAgent.js')}}"></script>
 <script src="{{asset('js/agent/searchAgent.js')}}"></script>
@@ -451,4 +424,5 @@
 <script src="{{ asset('js/utils/getIp.js') }}"></script>
 <script src="{{ asset('js/agent/assignGroupAgent.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+<script src="{{ asset('js/voiso/initiateCall.js') }}"></script>
 @endsection

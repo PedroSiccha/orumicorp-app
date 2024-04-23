@@ -50,6 +50,8 @@ Auth::routes();
     Route::post('/updateClient', [App\Http\Controllers\ClientsController::class, 'updateClient'])->name('updateClient');
     Route::post('/deleteClient', [App\Http\Controllers\ClientsController::class, 'deleteClient'])->name('deleteClient');
     Route::post('/assignGroupAgent', [App\Http\Controllers\ClientsController::class, 'assignGroupAgent'])->name('assignGroupAgent');
+    Route::get('/descargar-archivo', [App\Http\Controllers\ClientsController::class, 'descargarArchivo'])->name('descargarArchivo');
+
 
     Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
     Route::post('/searchCustomer', [App\Http\Controllers\SalesController::class, 'searchCustomer'])->name('searchCustomer');
@@ -99,6 +101,8 @@ Auth::routes();
 
     Route::post('/click-to-call', [App\Http\Controllers\VoisoController::class, 'clickToCall'])->name('clickToCall');
     Route::post('/initiateCall', [App\Http\Controllers\VoisoController::class, 'initiateCall'])->name('initiateCall');
+
+    Route::get('/makeCall', [\App\Http\Controllers\CallController::class, 'makeCall'])->name('makeCall');
 
 //});
 
