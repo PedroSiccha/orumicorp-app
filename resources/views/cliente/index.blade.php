@@ -42,7 +42,7 @@
                                         {{ $customer->name }} {{ $customer->lastname }}</td>
                                     </a>
                                 <td>
-                                    <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->dni }}'})"><i class="fa fa-phone"></i> </button>
+                                    <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}'})"><i class="fa fa-phone"></i> </button>
 
                                     @can('Asignar Agente')
                                         <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
@@ -60,14 +60,22 @@
                                         '{{ $customer->code }}',
                                         '{{ $customer->name }}',
                                         '{{ $customer->lastname }}',
-                                        '{{ $customer->dni }}',
-                                        '{{ $customer->user->email }}',
+                                        '{{ $customer->phone }}',
+                                        '{{ $customer->optional_phone }}',
+                                        '{{ $customer->city }}',
+                                        '{{ $customer->country }}',
+                                        '{{ $customer->comment }}',
+                                        '{{ $customer->email }}',
                                         '#modalEditarCliente',
                                         '#eId',
                                         '#eCode',
                                         '#eName',
                                         '#eLastname',
                                         '#ePhone',
+                                        '#eOptionalPhone',
+                                        '#eCity',
+                                        '#eCountry',
+                                        '#eComment',
                                         '#eEmail'
                                         )"><i class="fa fa-pencil"></i></button>
                                     @endcan
@@ -106,13 +114,13 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Subir Archivo</label>
                     <div class="col-lg-9">
-                        <input type="file" placeholder="Nombre del agente" class="form-control" readonly>
+                        <input type="file" placeholder="Nombre del agente" id="fileExcel" class="form-control">
                     </div>
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="assignGroupAgent('#idGroupClientes', '#dniGroupAgent', '#modalAsignAgent', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="uploadExcel('#fileExcel')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -221,7 +229,15 @@
                                 <strong>Teléfono</strong>
                             </td>
                             <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su teléfono" id='dni'>
+                                <input style='font-size: large;' type='phone' class='form-control text-success' placeholder="Ingrese su teléfono" id='phone'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Teléfono Opcional</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='phone' class='form-control text-success' placeholder="Ingrese un teléfono opcional" id='optionalPhone'>
                             </td>
                         </tr>
                         <tr>
@@ -229,7 +245,31 @@
                                 <strong>Correo</strong>
                             </td>
                             <td>
-                                <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su correo" id='email'>
+                                <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su Correo" id='email'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Ciudad</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su Ciudad" id='city'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Pais</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su Pais" id='country'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Comentario</strong>
+                            </td>
+                            <td>
+                                <textarea style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese un comentario" id='comment'></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -250,7 +290,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="guardarNuevoCliente('#name', '#lastname', '#dni', '#email', '#code', '#rol_id', '#modalCliente', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info" type="button" onclick="guardarNuevoCliente('#code', '#name', '#lastname', '#phone', '#optionalPhone', '#email', '#city', '#country', '#comment',  '#rol_id', '#modalCliente', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -292,6 +332,7 @@
                                 <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su apellido" id='eLastname'>
                             </td>
                         </tr>
+
                         <tr>
                             <td>
                                 <strong>Teléfono</strong>
@@ -302,10 +343,42 @@
                         </tr>
                         <tr>
                             <td>
+                                <strong>Teléfono Opcional</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese un teléfono opcional" id='eOptionalPhone'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
                                 <strong>Correo</strong>
                             </td>
                             <td>
                                 <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su correo" id='eEmail'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Ciudad</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su Ciudad" id='eCity'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Pais</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su país" id='eCountry'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Comentario</strong>
+                            </td>
+                            <td>
+                                <textarea style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese un comentario" id='eComment'></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -327,14 +400,18 @@
 
             <div class="modal-footer">
                 <button class="btn btn-info " type="button" onclick="updateClient(
-                    '#modalEditarCliente',
                     '#eId',
                     '#eCode',
                     '#eName',
                     '#eLastname',
                     '#ePhone',
+                    '#eOptionalPhone',
                     '#eEmail',
+                    '#eCity',
+                    '#eCountry',
+                    '#eComment',
                     '#eRol_id',
+                    '#modalEditarCliente',
                     '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
@@ -412,6 +489,7 @@
     var assignGroupAgentRoute = '{{ route("assignGroupAgent") }}';
     var token = '{{ csrf_token() }}';
     var initiateCallRoute = '{{ route("initiateCall") }}';
+    var uploadExcelRoute = '{{ route("uploadExcel") }}';
 </script>
 
 <script src="{{asset('js/agent/assignAgent.js')}}"></script>
@@ -425,4 +503,5 @@
 <script src="{{ asset('js/agent/assignGroupAgent.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
 <script src="{{ asset('js/voiso/initiateCall.js') }}"></script>
+<script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
 @endsection

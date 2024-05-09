@@ -31,19 +31,27 @@
                       @endcan
                       @can('Editar Cliente')
                       <button class="btn btn-warning " type="button" onclick="editarCliente(
-                          '{{ $customer->id }}',
-                          '{{ $customer->code }}',
-                          '{{ $customer->name }}',
-                          '{{ $customer->lastname }}',
-                          '{{ $customer->dni }}',
-                          '{{ $customer->user->email }}',
-                          '#modalEditarCliente',
-                          '#eId',
-                          '#eCode',
-                          '#eName',
-                          '#eLastname',
-                          '#ePhone',
-                          '#eEmail'
+                        '{{ $customer->id }}',
+                        '{{ $customer->code }}',
+                        '{{ $customer->name }}',
+                        '{{ $customer->lastname }}',
+                        '{{ $customer->phone }}',
+                        '{{ $customer->optional_phone }}',
+                        '{{ $customer->city }}',
+                        '{{ $customer->country }}',
+                        '{{ $customer->comment }}',
+                        '{{ $customer->email }}',
+                        '#modalEditarCliente',
+                        '#eId',
+                        '#eCode',
+                        '#eName',
+                        '#eLastname',
+                        '#ePhone',
+                        '#eOptionalPhone',
+                        '#eCity',
+                        '#eCountry',
+                        '#eComment',
+                        '#eEmail'
                           )"><i class="fa fa-pencil"></i></button>
                       @endcan
                       @can('Eliminar Cliente')

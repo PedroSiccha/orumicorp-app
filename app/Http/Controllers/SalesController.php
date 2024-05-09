@@ -93,8 +93,7 @@ class SalesController extends Controller
      */
     public function searchCustomer(Request $request)
     {
-        $client = Customers::where('dni', $request->dni)
-                  ->orWhere('code', $request->dni)
+        $client = Customers::where('code', $request->dni)
                   ->first();
 
         $name = $client->name . " " . $client->lastname;

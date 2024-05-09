@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Agent;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class VoisoController extends Controller
@@ -34,8 +36,11 @@ class VoisoController extends Controller
 
     public function initiateCall(Request $request)
     {
+        $user_id = Auth::user()->id;
+        $codeVoiso = Agent::where('user_id', $user_id)->first();
+        //dd($codeVoiso->code);
         $data = [
-            'agent' => '8888',
+            'agent' => $codeVoiso->code,
             'number' => $request->phone,
         ];
         $response = Http::post('https://cc-dal01.voiso.com/api/v1/2a517cb66609906663cf7e5bd337ff168286eeacb0364d1d/click2call', $data);

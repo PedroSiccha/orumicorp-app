@@ -51,6 +51,7 @@ Auth::routes();
     Route::post('/deleteClient', [App\Http\Controllers\ClientsController::class, 'deleteClient'])->name('deleteClient');
     Route::post('/assignGroupAgent', [App\Http\Controllers\ClientsController::class, 'assignGroupAgent'])->name('assignGroupAgent');
     Route::get('/descargar-archivo', [App\Http\Controllers\ClientsController::class, 'descargarArchivo'])->name('descargarArchivo');
+    Route::post('/uploadExcel', [App\Http\Controllers\ClientsController::class, 'uploadExcel'])->name('uploadExcel');
 
 
     Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
@@ -96,6 +97,7 @@ Auth::routes();
     Route::get('/task', [App\Http\Controllers\TaskController::class, 'index'])->name('task');
     Route::post('/guardarTask', [App\Http\Controllers\TaskController::class, 'guardarTask'])->name('guardarTask');
     Route::get('/obtenerEventos', [App\Http\Controllers\TaskController::class, 'obtenerEventos'])->name('obtenerEventos');
+    Route::post('/saveEvent', [App\Http\Controllers\TaskController::class, 'saveEvent'])->name('saveEvent');
 
     Route::get('/audit', [App\Http\Controllers\TaskController::class, 'index'])->name('audit');
 
