@@ -9,14 +9,30 @@ document.addEventListener('DOMContentLoaded', function() {
             right: 'dayGridMonth, timeGridWeek, listWeek'
         },
         dateClick: function(info) {
-            $("#modalRegistrarEvento").modal("show");
-            $("#dateEvent").val(info.dateStr);
+
+            var today = new Date();
+            var selectedDate = new Date(info.dateStr);
+
+            if (selectedDate > today) {
+                $("#modalRegistrarEvento").modal("show");
+                $("#dateEvent").val(info.dateStr);
+            } else {
+                mostrarMensaje("Error", "No se puede programar en una fecha anterior a la actual", "error");
+            }
+
         },
         events: '/obtenerEventos',
         eventContent: function(arg) {
-            console.log("Event", arg.event);
+
+            var today = new Date();
+            var eventDate = new Date(arg.event.start);
+            var eventBackgroundColor = eventDate > today ? arg.event.backgroundColor : 'btn-default';
+                if (eventBackgroundColor == 'btn-default') {
+                    mostrarMensaje("Alert", "Tiene eventos vencidos", "info");
+                }
+
             return {
-                html: '<div class="fc-event-start fc-event-end fc-event-today fc-daygrid-event fc-daygrid-dot-event '+arg.event.backgroundColor+'" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">'+ arg.event.title +'</div>'
+                html: '<div class="fc-event-start fc-event-end fc-event-today fc-daygrid-event fc-daygrid-dot-event '+ eventBackgroundColor +'" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">'+ arg.event.title +'</div>'
             };
         }
     });
