@@ -2,16 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\CustomersImport;
+use App\Imports\UsersImport;
 use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\User;
+use App\Rules\PhoneNumberFormat;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Permission\Models\Role;
+use Webpatser\Countries\Countries;
 
 class ClientsController extends Controller
 {
@@ -52,31 +60,60 @@ class ClientsController extends Controller
 
     public function saveCustomer(Request $request)
     {
-        $resp = 0;
-        $role = Role::find($request->rol_id);
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
 
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->dni);
-        if ($user->save()) {
-            $user->assignRole($role);
-            $client = new Customers();
-            $client->code = $request->code;
-            $client->name = $request->name;
-            $client->lastname = $request->lastname;
-            $client->dni = $request->dni;
-            $client->date_admission = Carbon::now();
-            $client->status = true;
-            $client->user_id = $user->id;
-            if ($client->save()) {
-                $resp = 1;
+        try {
+            $resp = 0;
+            $role = Role::find($request->rol_id);
+
+            $request->validate([
+                'phone' => ['required', new PhoneNumberFormat],
+                'optionalPhone' => ['nullable', 'sometimes', new PhoneNumberFormat],
+            ]);
+
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = Hash::make($request->dni);
+            if ($user->save()) {
+                $user->assignRole($role);
+                $client = new Customers();
+                $client->code = $request->code;
+                $client->name = $request->name;
+                $client->lastname = $request->lastname;
+                $client->phone = $request->phone;
+                $client->optional_phone = $request->optionalPhone;
+                $client->city = $request->city;
+                $client->country = $request->country;
+                $client->date_admission = Carbon::now();
+                $client->status = true;
+                $client->user_id = $user->id;
+                $client->comment = $request->comment;
+                $client->email = $request->email;
+                if ($client->save()) {
+                    $resp = 1;
+                }
             }
+
+            $title = "Correcto";
+            $mensaje = "El cliente se registró correctamente";
+            $status = "success";
+
+        } catch (ValidationException $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Verifique los datos registrados";
+            $status = "error";
         }
 
         $customers = Customers::orderBy('date_admission')->paginate(10);
 
-        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "resp"=>$resp]);
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
     public function asignAgent(Request $request)
@@ -174,33 +211,45 @@ class ClientsController extends Controller
         $mensaje = "Error desconocido";
         $status = "error";
 
-        $client = Customers::find($request->id);
-        if ($client == null) {
-            $title = "Error";
-            $mensaje = "Hubo un error con el cliente";
-            $status = "error";
-        }
-        $client->code = $request->code;
-        $client->name = $request->name;
-        $client->lastname = $request->lastname;
-        $client->dni = $request->phone;
+        try {
 
-        $user = User::find($client->user_id);
-        $user->name = $request->name;
+            $client = Customers::find($request->id);
+            $client->code = $request->code;
+            $client->name = $request->name;
+            $client->lastname = $request->lastname;
+            $client->phone = $request->phone;
+            $client->optional_phone = $request->optionalPhone;
+            $client->city = $request->city;
+            $client->country = $request->country;
+            $client->comment = $request->comment;
+            $client->email = $request->email;
 
-        if ($client->save()) {
-            if ($user->save()) {
-                $title = "Correcto";
-                $mensaje = "Se actualizó el cliente correctamente";
-                $status = "success";
+            $user = User::find($client->user_id);
+            $user->name = $request->name;
+
+            if ($client->save()) {
+                if ($user->save()) {
+                    $title = "Correcto";
+                    $mensaje = "Se actualizó el cliente correctamente";
+                    $status = "success";
+                } else {
+                    $title = "Error";
+                    $mensaje = "Hubo un error al actualizar el usuario del cliente";
+                    $status = "error";
+                }
             } else {
                 $title = "Error";
-                $mensaje = "Hubo un error al actualizar el usuario del cliente";
+                $mensaje = "Hubo un error al actualizar el cliente";
                 $status = "error";
             }
-        } else {
+
+        } catch (ValidationException $e) {
             $title = "Error";
-            $mensaje = "Hubo un error al actualizar el cliente";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Verificar los datos del registro";
             $status = "error";
         }
 
@@ -236,13 +285,32 @@ class ClientsController extends Controller
 
     }
 
-    public function update(Request $request, $id)
+    public function descargarArchivo()
     {
-        //
+        $archivo = public_path('utils/CARGA_MASIVA_DE_CLNT.xlsx');
+
+        return Response::download($archivo, 'CARGA_MASIVA_DE_CLNT.xlsx');
     }
 
-    public function destroy($id)
+    public function uploadExcel(Request $request)
     {
-        //
+        $file = $request->file;
+
+        // Importar los usuarios
+       // Excel::import(new UsersImport, $file);
+
+        // Importar los clientes
+        //Excel::import(new CustomersImport, $file);
+
+        Excel::import(new CustomersImport, $file, null, \Maatwebsite\Excel\Excel::XLSX, [
+            AfterImport::class => function (AfterImport $event) {
+                $customers = Customers::orderBy('date_admission')->paginate(10);
+                $title = "Correcto";
+                $mensaje = "El cliente se eliminó correctamente";
+                $status = "success";
+
+                return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+            }
+        ]);
     }
 }

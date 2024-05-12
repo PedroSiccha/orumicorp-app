@@ -23,12 +23,9 @@ class PerfilController extends Controller
     public function perfilUsuario($id)
     {
 
-        //dd($id);
         $agent = Agent::where('user_id', $id)->first();
         $client = Customers::where('user_id', $id)->first();
         $rouletteSpin = 0;
-
-        //dd($agent);
 
         if ($agent->number_turns) {
             $rouletteSpin = $agent->number_turns;
@@ -43,8 +40,6 @@ class PerfilController extends Controller
         if ($client) {
             $dataUser = $client;
         }
-
-        //dd($dataUser);
 
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();

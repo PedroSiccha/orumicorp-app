@@ -2,38 +2,25 @@ function nuevoCliente(modal) {
     $(modal).modal('show');
 }
 
+function guardarNuevoCliente(inputCode, inputName, inputLastname, inputPhone, inputOptionalPhone, inputEmail, inputCity, inputCountry, inputComment, inputRol, modal, tableName) {
 
-
-function guardarNuevoCliente(inputName, inputLastname, inputDni, inputEmail, inputCode, inputRol, modal, tableName) {
-
-    var l = $( '.ladda-button-demo' ).ladda();
-    l.ladda( 'start' );
-
+    var code = $(inputCode).val();
     var name = $(inputName).val();
     var lastname = $(inputLastname).val();
-    var dni = $(inputDni).val();
+    var phone = $(inputPhone).val();
+    var optionalPhone = $(inputOptionalPhone).val();
     var email = $(inputEmail).val();
-    var code = $(inputCode).val();
+    var city = $(inputCity).val();
+    var country = $(inputCountry).val();
+    var comment = $(inputComment).val();
     var rol_id = $(inputRol).val();
-    $.post(saveCustomerRoute, {code: code, name: name, lastname: lastname, dni: dni, email: email, rol_id: rol_id, _token: token}).done(function(data) {
+
+    $.post(saveCustomerRoute, {code: code, name: name, lastname: lastname, phone: phone, optionalPhone: optionalPhone, email: email, city: city, country: country, comment: comment, rol_id: rol_id, _token: token}).done(function(data) {
+
         $(tableName).empty();
         $(tableName).html(data.view);
-        if (data.resp == 1) {
-            $(modal).modal('hide');
-            l.ladda( 'stop' );
-            mostrarMensaje("Correcto", "El cliente se guardó correctamente", "success");
-        } else {
-            $(modal).modal('hide');
-            l.ladda( 'stop' );
-            mostrarMensaje("Error", "Hubo un error al guardar el cliente", "error");
-        }
-    });
-}
+        $(modal).modal('hide');
+        mostrarMensaje(data.title, data.text, data.status);
 
-function mostrarMensaje(title, text, icon) {
-    Swal.fire({
-        title: title,
-        text: text,
-        icon: icon
     });
 }

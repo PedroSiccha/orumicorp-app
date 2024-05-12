@@ -14,6 +14,7 @@
     <link href="{{ asset('css/plugins/morris/morris-0.4.3.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('js/calendar/style.css') }}" />
 
+
     <link href="{{asset('ruleta/styles.css')}}" rel="stylesheet">
 </head>
 <body>
@@ -625,8 +626,10 @@
 
         </div>
     </div>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
     <script src="{{ asset('js/utils/updateClockMenu.js') }}"></script>
     <script src="{{ asset('js/utils/dateMenu.js') }}"></script>
+    <script src="{{ asset('js/task/task.js') }}" defer></script>
     <!-- Mainly scripts -->
     <script src="{{asset('js/jquery-3.1.1.min.js')}}"></script>
     <script src="{{asset('js/popper.min.js')}}"></script>
@@ -684,6 +687,8 @@
 
     <script src="{{asset('js/plugins/iCheck/icheck.min.js')}}"></script>
     <script src="{{ asset('js/plugins/chartJs/Chart.min.js') }}"></script>
+
+
 
     @yield('script')
     <script>

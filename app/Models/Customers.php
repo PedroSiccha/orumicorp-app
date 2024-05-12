@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Customers extends Model
 {
     protected $table = 'customers';
-    protected $fillable = ['id', 'code', 'name', 'lastname', 'dni', 'date_admission', 'status', 'img'];
+    protected $fillable = ['id', 'code', 'name', 'lastname', 'phone', 'optional_phone', 'city', 'country', 'date_admission', 'status', 'img', 'comment', 'email'];
 
     public function sales()
     {

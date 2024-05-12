@@ -42,7 +42,7 @@
                                         {{ $customer->name }} {{ $customer->lastname }}</td>
                                     </a>
                                 <td>
-                                    <button id="clickToCallButton" class="btn btn-success" type="button"><i class="fa fa-phone"></i> </button>
+                                    <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}'})"><i class="fa fa-phone"></i> </button>
 
                                     @can('Asignar Agente')
                                         <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
@@ -60,14 +60,22 @@
                                         '{{ $customer->code }}',
                                         '{{ $customer->name }}',
                                         '{{ $customer->lastname }}',
-                                        '{{ $customer->dni }}',
-                                        '{{ $customer->user->email }}',
+                                        '{{ $customer->phone }}',
+                                        '{{ $customer->optional_phone }}',
+                                        '{{ $customer->city }}',
+                                        '{{ $customer->country }}',
+                                        '{{ $customer->comment }}',
+                                        '{{ $customer->email }}',
                                         '#modalEditarCliente',
                                         '#eId',
                                         '#eCode',
                                         '#eName',
                                         '#eLastname',
                                         '#ePhone',
+                                        '#eOptionalPhone',
+                                        '#eCity',
+                                        '#eCountry',
+                                        '#eComment',
                                         '#eEmail'
                                         )"><i class="fa fa-pencil"></i></button>
                                     @endcan
@@ -100,19 +108,19 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Formato</label>
                     <div class="input-group col-lg-9">
-                        <button type="button" class="btn btn-primary"><i class="fa fa-download"></i></button>
+                        <a href="{{ route('descargarArchivo') }}" class="btn btn-primary"><i class="fa fa-download"></i> Descargar archivo</a>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Subir Archivo</label>
                     <div class="col-lg-9">
-                        <input type="file" placeholder="Nombre del agente" class="form-control" readonly>
+                        <input type="file" placeholder="Nombre del agente" id="fileExcel" class="form-control">
                     </div>
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="assignGroupAgent('#idGroupClientes', '#dniGroupAgent', '#modalAsignAgent', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="uploadExcel('#fileExcel')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -221,7 +229,15 @@
                                 <strong>Teléfono</strong>
                             </td>
                             <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su teléfono" id='dni'>
+                                <input style='font-size: large;' type='phone' class='form-control text-success' placeholder="Ingrese su teléfono" id='phone'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Teléfono Opcional</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='phone' class='form-control text-success' placeholder="Ingrese un teléfono opcional" id='optionalPhone'>
                             </td>
                         </tr>
                         <tr>
@@ -229,7 +245,31 @@
                                 <strong>Correo</strong>
                             </td>
                             <td>
-                                <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su correo" id='email'>
+                                <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su Correo" id='email'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Ciudad</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su Ciudad" id='city'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Pais</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su Pais" id='country'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Comentario</strong>
+                            </td>
+                            <td>
+                                <textarea style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese un comentario" id='comment'></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -250,7 +290,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="guardarNuevoCliente('#name', '#lastname', '#dni', '#email', '#code', '#rol_id', '#modalCliente', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info" type="button" onclick="guardarNuevoCliente('#code', '#name', '#lastname', '#phone', '#optionalPhone', '#email', '#city', '#country', '#comment',  '#rol_id', '#modalCliente', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -292,6 +332,7 @@
                                 <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su apellido" id='eLastname'>
                             </td>
                         </tr>
+
                         <tr>
                             <td>
                                 <strong>Teléfono</strong>
@@ -302,10 +343,42 @@
                         </tr>
                         <tr>
                             <td>
+                                <strong>Teléfono Opcional</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese un teléfono opcional" id='eOptionalPhone'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
                                 <strong>Correo</strong>
                             </td>
                             <td>
                                 <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su correo" id='eEmail'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Ciudad</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su Ciudad" id='eCity'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Pais</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su país" id='eCountry'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Comentario</strong>
+                            </td>
+                            <td>
+                                <textarea style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese un comentario" id='eComment'></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -327,14 +400,18 @@
 
             <div class="modal-footer">
                 <button class="btn btn-info " type="button" onclick="updateClient(
-                    '#modalEditarCliente',
                     '#eId',
                     '#eCode',
                     '#eName',
                     '#eLastname',
                     '#ePhone',
+                    '#eOptionalPhone',
                     '#eEmail',
+                    '#eCity',
+                    '#eCountry',
+                    '#eComment',
                     '#eRol_id',
+                    '#modalEditarCliente',
                     '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
@@ -380,6 +457,26 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="callModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginModalLabel">Llamadas</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Contenido de inicio de sesión aquí -->
+          <!-- Puedes cargar la página de inicio de sesión utilizando un iframe o un div -->
+          <iframe src="https://cc-dal01.voiso.com/stats" style="width:100%; height:500px;"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 @endsection
 @section('script')
 <script>
@@ -391,55 +488,9 @@
     var asignAgentRoute = '{{ route("asignAgent") }}';
     var assignGroupAgentRoute = '{{ route("assignGroupAgent") }}';
     var token = '{{ csrf_token() }}';
+    var initiateCallRoute = '{{ route("initiateCall") }}';
+    var uploadExcelRoute = '{{ route("uploadExcel") }}';
 </script>
-
-<script>
-    // Selecciona el botón por su id
-    const clickToCallButton = document.getElementById('clickToCallButton');
-
-    // Agrega un event listener para escuchar el evento de clic en el botón
-    clickToCallButton.addEventListener('click', function() {
-        // Datos para la solicitud
-        const requestData = {
-            agent: 347,
-            number: '16461572020',
-            account_id: 12345678,
-            crm: 'my_crm'
-        };
-
-        // URL de la solicitud (reemplaza {cluster_id} y {contact_center_api_key} con los valores correctos)
-        const url = `https://cc-dal01.voiso.com/api/v1/2a517cb66609906663cf7e5bd337ff168286eeacb0364d1d/click2call`;
-
-        // Realiza la solicitud AJAX al servidor
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams(requestData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                mostrarMensaje("Error", "Network response was not ok", error);
-                throw new Error('Network response was not ok');
-            }
-            // Maneja la respuesta de la API si es necesario
-            mostrarMensaje("Llamando", "Se encuentra en llamada", success);
-            return response.json();
-        })
-        .then(data => {
-            // Realiza cualquier acción necesaria con los datos de la respuesta
-            mostrarMensaje("Error Data", data, error);
-            console.log(data);
-        })
-        .catch(error => {
-            // Maneja cualquier error que ocurra durante la solicitud AJAX
-            mostrarMensaje("Error Fetch", "Hubo un problema con la operación de búsqueda: " + error.message, error);
-            console.error('There was a problem with the fetch operation:', error.message);
-        });
-    });
-</script>
-
 
 <script src="{{asset('js/agent/assignAgent.js')}}"></script>
 <script src="{{asset('js/agent/searchAgent.js')}}"></script>
@@ -451,4 +502,6 @@
 <script src="{{ asset('js/utils/getIp.js') }}"></script>
 <script src="{{ asset('js/agent/assignGroupAgent.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+<script src="{{ asset('js/voiso/initiateCall.js') }}"></script>
+<script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
 @endsection
