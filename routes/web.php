@@ -20,7 +20,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
-//Route::middleware('checkip')->group(function () {
+Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -52,6 +52,7 @@ Auth::routes();
     Route::post('/assignGroupAgent', [App\Http\Controllers\ClientsController::class, 'assignGroupAgent'])->name('assignGroupAgent');
     Route::get('/descargar-archivo', [App\Http\Controllers\ClientsController::class, 'descargarArchivo'])->name('descargarArchivo');
     Route::post('/uploadExcel', [App\Http\Controllers\ClientsController::class, 'uploadExcel'])->name('uploadExcel');
+    Route::get('/profileClient/{id}', [App\Http\Controllers\ClientsController::class, 'profileClient'])->name('profileClient');
 
 
     Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
@@ -106,5 +107,5 @@ Auth::routes();
 
     Route::get('/makeCall', [\App\Http\Controllers\CallController::class, 'makeCall'])->name('makeCall');
 
-//});
+});
 

@@ -21,6 +21,16 @@
                     <button type="button" class="btn btn-success" type="button" onclick="mostrarNuevoModal('#modalChargeGroup')"><i class="fa fa-upload"></i> Carga Masiva</button>
                     @endcan
                   </div>
+                  <div class="ibox-tools">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-wrench"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li>
+                            <a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalConfigTable')">Configurar Tabla</a>
+                        </li>
+                    </ul>
+                </div>
               </div>
               <div class="ibox-content" id="tabClient">
                   <table class="table table-striped">
@@ -29,6 +39,12 @@
                           <th>Fecha de Ingreso</th>
                           <th>ID de Cliente</th>
                           <th>Nombre del Cliente</th>
+                          <th>Teléfono</th>
+                          <th>Teléfono Opcional</th>
+                          <th>Correo</th>
+                          <th>Ciudad</th>
+                          <th>Pais</th>
+                          <th>Comentario</th>
                           <th>Acción</th>
                       </tr>
                       </thead>
@@ -38,9 +54,16 @@
                                 <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
                                 <td>{{ $customer->code }}</td>
                                 <td>
-                                    <a href="{{ route('perfilUsuario', ['id' => $customer->id]) }}">
-                                        {{ $customer->name }} {{ $customer->lastname }}</td>
+                                    <a href="{{ route('profileClient', ['id' => $customer->id]) }}">
+                                        {{ $customer->name }} {{ $customer->lastname }}
                                     </a>
+                                </td>
+                                <td>{{ $customer->phone }}</td>
+                                <td>{{ $customer->optional_phone }}</td>
+                                <td>{{ $customer->email }}</td>
+                                <td>{{ $customer->city }}</td>
+                                <td>{{ $customer->country }}</td>
+                                <td>{{ $customer->comment }}</td>
                                 <td>
                                     <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}'})"><i class="fa fa-phone"></i> </button>
 
@@ -87,9 +110,6 @@
                         @endforeach
                       </tbody>
                   </table>
-                <div class="pagination justify-content-center">
-                    {{ $customers->links() }}
-                </div>
               </div>
           </div>
       </div>
@@ -468,13 +488,45 @@
           </button>
         </div>
         <div class="modal-body">
-          <!-- Contenido de inicio de sesión aquí -->
-          <!-- Puedes cargar la página de inicio de sesión utilizando un iframe o un div -->
           <iframe src="https://cc-dal01.voiso.com/stats" style="width:100%; height:500px;"></iframe>
         </div>
       </div>
     </div>
   </div>
+
+    <div class="modal inmodal fade" id="modalConfigTable" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Configurar la tabla</h4>
+                    <small id="nameRol" class="font-bold">Seleccione las columnas que quiere visualizar</small>
+                    <input type="text" placeholder="Ingrese el nombre del rol" class="form-control" id='idRol' value="{{ $myRolesId }}" hidden>
+                </div>
+                <div class="modal-body">
+
+                    <table class="table table-striped table-hover">
+
+                        <tbody>
+                            @foreach ($configTables as $configTable)
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="idPermiso[]" value="{{ $configTable->id }}" id="idPermiso">
+                                </td>
+                                <td> {{ str_replace(' - TabClient', '', $configTable->name);  }} </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-info " type="button" onclick="saveConfigTable('#idRol', '#modalConfigTable', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 @endsection
@@ -504,4 +556,6 @@
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
 <script src="{{ asset('js/voiso/initiateCall.js') }}"></script>
 <script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
+<script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
+<script src="{{ asset('js/customer/saveConfigTable.js') }}"></script>
 @endsection

@@ -5,6 +5,12 @@
             <th>Fecha de Ingreso</th>
             <th>ID de Cliente</th>
             <th>Nombre del Cliente</th>
+            <th>Teléfono</th>
+            <th>Teléfono Opcional</th>
+            <th>Correo</th>
+            <th>Ciudad</th>
+            <th>Pais</th>
+            <th>Comentario</th>
             <th>Acción</th>
         </tr>
         </thead>
@@ -14,9 +20,16 @@
                   <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
                   <td>{{ $customer->code }}</td>
                   <td>
-                      <a href="{{ route('perfilUsuario', ['id' => $customer->id]) }}">
-                          {{ $customer->name }} {{ $customer->lastname }}</td>
+                      <a href="{{ route('profileClient', ['id' => $customer->id]) }}">
+                          {{ $customer->name }} {{ $customer->lastname }}
                       </a>
+                  </td>
+                  <td>{{ $customer->phone }}</td>
+                  <td>{{ $customer->optional_phone }}</td>
+                  <td>{{ $customer->email }}</td>
+                  <td>{{ $customer->city }}</td>
+                  <td>{{ $customer->country }}</td>
+                  <td>{{ $customer->comment }}</td>
                   <td>
                     <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->dni }}'})"><i class="fa fa-phone"></i> </button>
                       @can('Asignar Agente')
@@ -62,7 +75,4 @@
           @endforeach
         </tbody>
     </table>
-    <div class="pagination justify-content-center">
-        {{ $customers->links() }}
-    </div>
   {{-- </div> --}}

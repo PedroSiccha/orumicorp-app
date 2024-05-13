@@ -24,4 +24,17 @@ class Customers extends Model
     {
         return $this->belongsTo(Agent::class);
     }
+
+    public function campaigns()
+    {
+        return $this->belongsToMany(Campaign::class, 'campaign_customers', 'customer_id', 'campaign_id')
+                    ->withPivot('status');
+    }
+
+    public function suppliers()
+    {
+        return $this->belongsToMany(Supplier::class, 'supplier_customers', 'customer_id', 'supplier_id')
+                    ->withPivot('status');
+    }
+
 }
