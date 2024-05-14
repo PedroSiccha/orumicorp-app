@@ -99,6 +99,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/guardarTask', [App\Http\Controllers\TaskController::class, 'guardarTask'])->name('guardarTask');
     Route::get('/obtenerEventos', [App\Http\Controllers\TaskController::class, 'obtenerEventos'])->name('obtenerEventos');
     Route::post('/saveEvent', [App\Http\Controllers\TaskController::class, 'saveEvent'])->name('saveEvent');
+    Route::post('/getEventById', [App\Http\Controllers\TaskController::class, 'getEventById'])->name('getEventById');
+    Route::post('/editEvent', [App\Http\Controllers\TaskController::class, 'editEvent'])->name('editEvent');
+    Route::post('/deleteEvent', [App\Http\Controllers\TaskController::class, 'deleteEvent'])->name('deleteEvent');
 
     Route::get('/audit', [App\Http\Controllers\TaskController::class, 'index'])->name('audit');
 
