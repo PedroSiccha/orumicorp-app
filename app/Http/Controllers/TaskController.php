@@ -55,6 +55,7 @@ class TaskController extends Controller
         $eventos_formateados = [];
         foreach ($eventos as $evento) {
             $eventos_formateados[] = [
+                'id' => $evento->id,
                 'title' => $evento->name,
                 'start' => $evento->start,
                 'end' => $evento->end,
@@ -152,7 +153,6 @@ class TaskController extends Controller
                 $status = "success";
             }
         } catch (Exception $e) {
-            dd("Error: " . $e->getMessage());
             $title = "Error";
             $mensaje = $e->getMessage();
             $status = "error";
@@ -167,9 +167,11 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function getEventById(Request $request)
     {
-        //
+        $id = $request->id;
+        $evento = Task::with('customer')->find($id);
+        return response()->json($evento);
     }
 
     /**
@@ -178,9 +180,44 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function editEvent(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+        $priority = Priority::where('id', $request->priorityEvent)->first();
+        $client = Customers::where('code', $request->codCustomer)->first();
+
+        //dd($request->idEvent);
+
+        try {
+            $task = Task::find($request->idEvent);
+            $task->name = $request->nameEvent;
+            $task->description = $request->descriptionEvent;
+            $task->document = '';
+            $task->timeStart = $request->desde;
+            $task->timeEnd = $request->hasta;
+            $task->date = $request->dateEvent;
+            $task->agent_id = $agent->id;
+            $task->priority_id = $priority->id;
+            $task->customer_id = $client->id;
+            $task->start = $request->dateEvent ." ".$request->desde;
+            $task->end = $request->dateEvent ." ".$request->hasta;
+            if ($task->save()) {
+                $title = "Correcto";
+                $mensaje = "El evento se modificó correctamente";
+                $status = "success";
+            }
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        }
+
+        return response()->json(["title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
     /**
@@ -190,9 +227,26 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function deleteEvent(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        try {
+            $task = Task::find($request->idEvent);
+            if ($task->delete()) {
+                $title = "Correcto";
+                $mensaje = "El evento se eliminó correctamente";
+                $status = "success";
+            }
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        }
+
+        return response()->json(["title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
     /**

@@ -21,6 +21,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
         },
+        eventClick: function (info) {
+            //mostrarMensaje("Event", info.event, "success");
+            getEventById(info.event.id, 'modalRegistrarEvento');
+            //console.log(info.event.id);
+            //$("#modalRegistrarEvento").modal("show");
+        },
         events: '/obtenerEventos',
         eventContent: function(arg) {
 
@@ -32,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
             return {
-                html: '<div class="fc-event-start fc-event-end fc-event-today fc-daygrid-event fc-daygrid-dot-event '+ eventBackgroundColor +'" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">'+ arg.event.title +'</div>'
+                html: '<div class="fc-event-start fc-event-end fc-event-today fc-daygrid-event fc-daygrid-dot-event ' + eventBackgroundColor + '" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">'+ arg.event.title +'</div>'
             };
         }
     });
