@@ -17,7 +17,6 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                     <h4 class="modal-title">Registrar Evento</h4>
-                    <input type="text" placeholder="Nombre del cliente" class="form-control" id='aId' readonly hidden>
                 </div>
                 <div class="modal-body">
                     <div class="form-group row" hidden>
@@ -87,8 +86,8 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-success " type="button" onclick="saveEvent('#id', '#dateEvent', '#nombreEvento', '#descripcionEvento', '#dniCustomer', '#horaInicio', '#horaFin', '#priority_id', '#modalRegistrarEvento', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
-                    <button class="btn btn-warning " type="button" onclick="editEvent('#aId', '#dniAgent', '#modalAsignarAgente', '#tabClient')"><i class="fa fa-pencil"></i> Modificar</button>
-                    <button class="btn btn-danger " type="button" onclick="deleteEvent('#aId', '#dniAgent', '#modalAsignarAgente', '#tabClient')"><i class="fa fa-trash"></i> Eliminar</button>
+                    <button class="btn btn-warning " type="button" onclick="editEvent('#id', '#dateEvent', '#nombreEvento', '#descripcionEvento', '#dniCustomer', '#horaInicio', '#horaFin', '#priority_id', '#modalRegistrarEvento')"><i class="fa fa-pencil"></i> Modificar</button>
+                    <button class="btn btn-danger " type="button" onclick="deleteEvent('#id', '#modalRegistrarEvento')"><i class="fa fa-trash"></i> Eliminar</button>
                     <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-close"></i> Cancelar</button>
                 </div>
             </div>
@@ -104,10 +103,14 @@
 <script src="{{ asset('js/task/editEvent.js') }}"></script>
 <script src="{{ asset('js/task/deleteEvent.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+<script src="{{ asset('js/task/getEventById.js') }}"></script>
 <script>
     var searchClientRoute = '{{ route("searchCustomer") }}';
     var uploadExcelRoute = '{{ route("uploadExcel") }}';
     var saveEventRoute = '{{ route("saveEvent") }}';
+    var editEventRoute = '{{ route("editEvent") }}';
+    var deleteEventRoute = '{{ route("deleteEvent") }}';
+    var getEventByIdRoute = '{{ route("getEventById") }}';
     var token = '{{ csrf_token() }}';
   </script>
 @endsection
