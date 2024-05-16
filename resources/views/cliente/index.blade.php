@@ -140,7 +140,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="uploadExcel('#fileExcel')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="uploadExcel('fileExcel')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -555,7 +555,6 @@
 <script src="{{ asset('js/agent/assignGroupAgent.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
 <script src="{{ asset('js/voiso/initiateCall.js') }}"></script>
-<script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
 <script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
 <script src="{{ asset('js/customer/saveConfigTable.js') }}"></script>
 @endsection

@@ -98,18 +98,39 @@ class ClientsController extends Controller
 
     public function uploadExcel(Request $request)
     {
-        $file = $request->file;
+        //dd($request);
+        // Verificar que se ha enviado un archivo
+        if (!$request->hasFile('file')) {
+            return response()->json(['error' => 'No file uploaded'], 400);
+        }
 
-        Excel::import(new CustomersImport, $file, null, \Maatwebsite\Excel\Excel::XLSX, [
-            AfterImport::class => function (AfterImport $event) {
-                $customers = Customers::orderBy('date_admission')->paginate(10);
-                $title = "Correcto";
-                $mensaje = "El cliente se eliminó correctamente";
-                $status = "success";
+        $file = $request->file('file');
 
-                return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
-            }
-        ]);
+        // Verificar que el archivo es válido
+        if (!$file->isValid()) {
+            return response()->json(['error' => 'Invalid file upload'], 400);
+        }
+
+        try {
+            Excel::import(new CustomersImport, $file);
+
+            // Lógica post-importación
+            $customers = Customers::orderBy('date_admission')->get();
+            $title = "Correcto";
+            $mensaje = "El cliente se importó correctamente";
+            $status = "success";
+
+            return response()->json([
+                "view" => view('cliente.list.listCustomer', compact('customers'))->render(),
+                "title" => $title,
+                "text" => $mensaje,
+                "status" => $status
+            ], 200);
+        } catch (Exception $e) {
+            // Manejo de errores
+            //dd($e->getMessage());
+            return response()->json(['error' => 'Failed to upload file', 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function profileClient($id) {
