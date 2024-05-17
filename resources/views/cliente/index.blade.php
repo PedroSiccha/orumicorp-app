@@ -36,76 +36,109 @@
                   <table class="table table-striped">
                       <thead>
                       <tr>
-                          <th>Fecha de Ingreso</th>
-                          <th>ID de Cliente</th>
-                          <th>Nombre del Cliente</th>
-                          <th>Teléfono</th>
-                          <th>Teléfono Opcional</th>
-                          <th>Correo</th>
-                          <th>Ciudad</th>
-                          <th>Pais</th>
-                          <th>Comentario</th>
-                          <th>Acción</th>
+                        @if ($configTablesDateInit->status == 'active')
+                            <th>Fecha de Ingreso</th>
+                        @endif
+                        @if ($configTablesCode->status == 'active')
+                            <th>ID de Cliente</th>
+                        @endif
+                            <th>Nombre del Cliente</th>
+                        @if ($configTablesPhone->status == 'active')
+                            <th>Teléfono</th>
+                        @endif
+                        @if ($configTablesOptionalPhone->status == 'active')
+                            <th>Teléfono Opcional</th>
+                        @endif
+                        @if ($configTablesEmail->status == 'active')
+                            <th>Correo</th>
+                        @endif
+                        @if ($configTablesCity->status == 'active')
+                            <th>Ciudad</th>
+                        @endif
+                        @if ($configTablesCountry->status == 'active')
+                            <th>Pais</th>
+                        @endif
+                        @if ($configTablesComment->status == 'active')
+                            <th>Comentario</th>
+                        @endif
+                            <th>Acción</th>
                       </tr>
                       </thead>
                       <tbody>
                         @foreach ($customers as $customer)
-                            <tr @if($customer->status == 0) class="table-danger" @endif>
-                                <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
-                                <td>{{ $customer->code }}</td>
-                                <td>
-                                    <a href="{{ route('profileClient', ['id' => $customer->id]) }}">
-                                        {{ $customer->name }} {{ $customer->lastname }}
-                                    </a>
-                                </td>
-                                <td>{{ $customer->phone }}</td>
-                                <td>{{ $customer->optional_phone }}</td>
-                                <td>{{ $customer->email }}</td>
-                                <td>{{ $customer->city }}</td>
-                                <td>{{ $customer->country }}</td>
-                                <td>{{ $customer->comment }}</td>
-                                <td>
-                                    <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}'})"><i class="fa fa-phone"></i> </button>
 
-                                    @can('Asignar Agente')
-                                        <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
-                                    @endcan
-                                    @can('Estado Cliente')
-                                        @if ($customer->status == 0)
-                                            <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '1')"><i class="fa fa-check"></i></button>
-                                        @else
-                                            <button class="btn btn-danger " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '0')"><i class="fa fa-minus"></i></button>
-                                        @endif
-                                    @endcan
-                                    @can('Editar Cliente')
-                                    <button class="btn btn-warning " type="button" onclick="editarCliente(
-                                        '{{ $customer->id }}',
-                                        '{{ $customer->code }}',
-                                        '{{ $customer->name }}',
-                                        '{{ $customer->lastname }}',
-                                        '{{ $customer->phone }}',
-                                        '{{ $customer->optional_phone }}',
-                                        '{{ $customer->city }}',
-                                        '{{ $customer->country }}',
-                                        '{{ $customer->comment }}',
-                                        '{{ $customer->email }}',
-                                        '#modalEditarCliente',
-                                        '#eId',
-                                        '#eCode',
-                                        '#eName',
-                                        '#eLastname',
-                                        '#ePhone',
-                                        '#eOptionalPhone',
-                                        '#eCity',
-                                        '#eCountry',
-                                        '#eComment',
-                                        '#eEmail'
-                                        )"><i class="fa fa-pencil"></i></button>
-                                    @endcan
-                                    @can('Eliminar Cliente')
-                                        <button class="btn btn-danger " type="button" onclick="eliminarCliente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient')"><i class="fa fa-trash"></i></button>
-                                    @endcan
-                                </td>
+                            <tr @if($customer->status == 0) class="table-danger" @endif>
+                                @if ($configTablesDateInit->status == 'active')
+                                    <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
+                                @endif
+                                @if ($configTablesCode->status == 'active')
+                                    <td>{{ $customer->code }}</td>
+                                @endif
+                                    <td>
+                                        <a href="{{ route('profileClient', ['id' => $customer->id]) }}">
+                                            {{ $customer->name }} {{ $customer->lastname }}
+                                        </a>
+                                    </td>
+                                @if ($configTablesPhone->status == 'active')
+                                    <td>{{ $customer->phone }}</td>
+                                @endif
+                                @if ($configTablesOptionalPhone->status == 'active')
+                                    <td>{{ $customer->optional_phone }}</td>
+                                @endif
+                                @if ($configTablesEmail->status == 'active')
+                                    <td>{{ $customer->email }}</td>
+                                @endif
+                                @if ($configTablesCity->status == 'active')
+                                    <td>{{ $customer->city }}</td>
+                                @endif
+                                @if ($configTablesCountry->status == 'active')
+                                    <td>{{ $customer->country }}</td>
+                                @endif
+                                @if ($configTablesComment->status == 'active')
+                                    <td>{{ $customer->comment }}</td>
+                                @endif
+                                    <td>
+                                        <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}'})"><i class="fa fa-phone"></i> </button>
+
+                                        @can('Asignar Agente')
+                                            <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
+                                        @endcan
+                                        @can('Estado Cliente')
+                                            @if ($customer->status == 0)
+                                                <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '1')"><i class="fa fa-check"></i></button>
+                                            @else
+                                                <button class="btn btn-danger " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '0')"><i class="fa fa-minus"></i></button>
+                                            @endif
+                                        @endcan
+                                        @can('Editar Cliente')
+                                        <button class="btn btn-warning " type="button" onclick="editarCliente(
+                                            '{{ $customer->id }}',
+                                            '{{ $customer->code }}',
+                                            '{{ $customer->name }}',
+                                            '{{ $customer->lastname }}',
+                                            '{{ $customer->phone }}',
+                                            '{{ $customer->optional_phone }}',
+                                            '{{ $customer->city }}',
+                                            '{{ $customer->country }}',
+                                            '{{ $customer->comment }}',
+                                            '{{ $customer->email }}',
+                                            '#modalEditarCliente',
+                                            '#eId',
+                                            '#eCode',
+                                            '#eName',
+                                            '#eLastname',
+                                            '#ePhone',
+                                            '#eOptionalPhone',
+                                            '#eCity',
+                                            '#eCountry',
+                                            '#eComment',
+                                            '#eEmail'
+                                            )"><i class="fa fa-pencil"></i></button>
+                                        @endcan
+                                        @can('Eliminar Cliente')
+                                            <button class="btn btn-danger " type="button" onclick="eliminarCliente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient')"><i class="fa fa-trash"></i></button>
+                                        @endcan
+                                    </td>
                             </tr>
                         @endforeach
                       </tbody>
@@ -504,24 +537,63 @@
                     <input type="text" placeholder="Ingrese el nombre del rol" class="form-control" id='idRol' value="{{ $myRolesId }}" hidden>
                 </div>
                 <div class="modal-body">
-
                     <table class="table table-striped table-hover">
 
                         <tbody>
-                            @foreach ($configTables as $configTable)
                             <tr>
                                 <td>
-                                    <input type="checkbox" class="i-checks flat chekboxses" name="idPermiso[]" value="{{ $configTable->id }}" id="idPermiso">
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesDateInit" id="configTablesDateInit" {{ $configTablesDateInit->status == 'active' ? 'checked' : '' }}>
                                 </td>
-                                <td> {{ str_replace(' - TabClient', '', $configTable->name);  }} </td>
+                                <td> {{ $configTablesDateInit->name }}</td>
                             </tr>
-                            @endforeach
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesCode" value="" id="configTablesCode" {{ $configTablesCode->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesCode->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesPhone" value="" id="configTablesPhone" {{ $configTablesPhone->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesPhone->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesOptionalPhone" value="" id="configTablesOptionalPhone" {{ $configTablesOptionalPhone->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesOptionalPhone->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesEmail" value="" id="configTablesEmail" {{ $configTablesEmail->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesEmail->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesCity" value="" id="configTablesCity" {{ $configTablesCity->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesCity->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesCountry" value="" id="configTablesCountry" {{ $configTablesCountry->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesCountry->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesComment" value="" id="configTablesComment" {{ $configTablesComment->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesComment->name }}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="modal-footer">
-                    <button class="btn btn-info " type="button" onclick="saveConfigTable('#idRol', '#modalConfigTable', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-info " type="button" onclick="saveConfigTable('#configTablesDateInit', '#configTablesCode', '#configTablesPhone', '#configTablesOptionalPhone', '#configTablesEmail', '#configTablesCity', '#configTablesCountry', '#configTablesComment', '#modalConfigTable', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
                     <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
                 </div>
             </div>
@@ -542,6 +614,7 @@
     var token = '{{ csrf_token() }}';
     var initiateCallRoute = '{{ route("initiateCall") }}';
     var uploadExcelRoute = '{{ route("uploadExcel") }}';
+    var saveConfigTableRoute = '{{ route("saveConfigTable") }}';
 </script>
 
 <script src="{{asset('js/agent/assignAgent.js')}}"></script>

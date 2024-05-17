@@ -7,6 +7,7 @@ use App\Imports\UsersImport;
 use App\Interfaces\ClientInterface;
 use App\Interfaces\UserInterface;
 use App\Models\Agent;
+use App\Models\Configuration;
 use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\User;
@@ -136,5 +137,157 @@ class ClientsController extends Controller
     public function profileClient($id) {
         $data = $this->clientService->profileClient($id);
         return view('cliente.profile', $data);
+    }
+
+    public function saveConfigTable(Request $request) {
+
+        $estadoDateInit = "active";
+        $estadoCode = "active";
+        $estadoPhone = "active";
+        $estadoOptionalPhone = "active";
+        $estadoEmail = "active";
+        $estadoCity = "active";
+        $estadoCountry = "active";
+        $estadoComment = "active";
+
+        if ($request->configTablesDateInit != "true") {
+            $estadoDateInit = 'inactive';
+        }
+
+
+        try {
+
+            $user = Auth::user();
+            $user_id = $user->id;
+
+            $configTablesDateInit = Configuration::where('user_id', $user_id)
+                                        ->where('view', 'tabClient')
+                                        ->where('name', 'date_init')
+                                        ->first();
+
+            $configTablesDateInit->status = $estadoDateInit;
+            if ($configTablesDateInit->save()) {
+
+                $configTablesCode = Configuration::where('user_id', $user_id)
+                                        ->where('view', 'tabClient')
+                                        ->where('name', 'code')
+                                        ->first();
+
+                $configTablesCode->status = $request->configTablesCode == "true" ? 'active': 'inactive';
+                if ($configTablesCode->save()) {
+                    $configTablesPhone = Configuration::where('user_id', $user_id)
+                                        ->where('view', 'tabClient')
+                                        ->where('name', 'phone')
+                                        ->first();
+
+                    $configTablesPhone->status = $request->configTablesPhone == "true" ? 'active': 'inactive';
+                    if ($configTablesPhone->save()) {
+                        $configTablesOptionalPhone = Configuration::where('user_id', $user_id)
+                                        ->where('view', 'tabClient')
+                                        ->where('name', 'optional_phone')
+                                        ->first();
+
+                        $configTablesOptionalPhone->status = $request->configTablesOptionalPhone == "true" ? 'active': 'inactive';
+                        if ($configTablesOptionalPhone->save()) {
+                            $configTablesEmail = Configuration::where('user_id', $user_id)
+                                        ->where('view', 'tabClient')
+                                        ->where('name', 'email')
+                                        ->first();
+
+                            $configTablesEmail->status = $request->configTablesEmail == "true" ? 'active': 'inactive';
+                            if ($configTablesEmail->save()) {
+                                $configTablesCity = Configuration::where('user_id', $user_id)
+                                        ->where('view', 'tabClient')
+                                        ->where('name', 'city')
+                                        ->first();
+
+                                $configTablesCity->status = $request->configTablesCity == "true" ? 'active': 'inactive';
+
+                                if ($configTablesCity->save()) {
+                                    $configTablesCountry = Configuration::where('user_id', $user_id)
+                                        ->where('view', 'tabClient')
+                                        ->where('name', 'country')
+                                        ->first();
+
+                                    $configTablesCountry->status = $request->configTablesCountry == "true" ? 'active': 'inactive';
+                                    if ($configTablesCountry->save()) {
+                                        $configTablesComment = Configuration::where('user_id', $user_id)
+                                        ->where('view', 'tabClient')
+                                        ->where('name', 'comment')
+                                        ->first();
+
+                                        $configTablesComment->status = $request->configTablesComment == "true" ? 'active': 'inactive';
+                                        if ($configTablesComment->save()) {
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+
+            }
+
+            $title = "Correcto";
+            $mensaje = "Tabla personalizada";
+            $status = "success";
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Ocurrió un error: " . $e->getMessage();
+            $status = "error";
+        }
+
+        $customers = Customers::orderBy('date_admission')->get();
+
+        $configTablesDateInit = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'date_init')
+                                     ->first();
+
+        $configTablesCode = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'code')
+                                     ->first();
+
+        $configTablesPhone = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'phone')
+                                     ->first();
+
+        $configTablesOptionalPhone = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'optional_phone')
+                                     ->first();
+
+        $configTablesEmail = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'email')
+                                     ->first();
+
+        $configTablesCity = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'city')
+                                     ->first();
+
+        $configTablesCountry = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'country')
+                                     ->first();
+
+        $configTablesComment = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'comment')
+                                     ->first();
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'configTablesDateInit', 'configTablesCode', 'configTablesPhone', 'configTablesOptionalPhone', 'configTablesEmail', 'configTablesCity', 'configTablesCountry', 'configTablesComment'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+
     }
 }
