@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Customers extends Model
 {
     protected $table = 'customers';
-    protected $fillable = ['id', 'code', 'name', 'lastname', 'phone', 'optional_phone', 'city', 'country', 'date_admission', 'status', 'img', 'comment', 'email'];
+    protected $fillable = ['id', 'code', 'name', 'lastname', 'phone', 'date_admission', 'status', 'img', 'user_id', 'agent_id', 'optional_phone', 'city', 'country', 'date_admission', 'comment', 'email', 'id_provider', 'id_status'];
 
     public function sales()
     {
@@ -35,6 +35,16 @@ class Customers extends Model
     {
         return $this->belongsToMany(Supplier::class, 'supplier_customers', 'customer_id', 'supplier_id')
                     ->withPivot('status');
+    }
+
+    public function provider()
+    {
+        return $this->belongsTo(Provider::class, 'id_provider');
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(CustomerStatus::class, 'id_status');
     }
 
 }

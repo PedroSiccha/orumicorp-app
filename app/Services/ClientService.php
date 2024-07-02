@@ -7,6 +7,7 @@ use App\Interfaces\UserInterface;
 use App\Models\Agent;
 use App\Models\Configuration;
 use App\Models\Customers;
+use App\Models\CustomerSummary;
 use App\Models\Premio;
 use App\Models\User;
 use App\Rules\PhoneNumberFormat;
@@ -54,9 +55,11 @@ class ClientService implements ClientInterface {
         }
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
-            $customers = Customers::orderBy('date_admission')->get();
+            //$customers = Customers::orderBy('date_admission')->get();
+            $customers = CustomerSummary::orderBy('date_admission')->get();
         } else {
-            $customers = Customers::where('agent_id', $agent->id)->orderBy('date_admission')->get();
+            //$customers = Customers::where('agent_id', $agent->id)->orderBy('date_admission')->get();
+            $customers = CustomerSummary::where('agent_id', $agent->id)->orderBy('date_admission')->get();
         }
 
         $asignCustomers = Customers::where('agent_id', null)->where('status', 1)->orderBy('date_admission')->get();
@@ -178,6 +181,8 @@ class ClientService implements ClientInterface {
             $configTablesComment->status = 'active';
             $configTablesComment->save();
         }
+
+
 
         return compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers', 'myRolesId', 'configTablesDateInit', 'configTablesCode', 'configTablesPhone', 'configTablesOptionalPhone', 'configTablesEmail', 'configTablesCity', 'configTablesCountry', 'configTablesComment');
     }
