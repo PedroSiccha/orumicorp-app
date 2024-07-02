@@ -5,7 +5,9 @@ use App\Interfaces\ClientInterface;
 use App\Interfaces\RolesInterface;
 use App\Interfaces\UserInterface;
 use App\Models\Agent;
+use App\Models\Configuration;
 use App\Models\Customers;
+use App\Models\CustomerSummary;
 use App\Models\Premio;
 use App\Models\User;
 use App\Rules\PhoneNumberFormat;
@@ -53,9 +55,11 @@ class ClientService implements ClientInterface {
         }
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
-            $customers = Customers::orderBy('date_admission')->get();
+            //$customers = Customers::orderBy('date_admission')->get();
+            $customers = CustomerSummary::orderBy('date_admission')->get();
         } else {
-            $customers = Customers::where('agent_id', $agent->id)->orderBy('date_admission')->get();
+            //$customers = Customers::where('agent_id', $agent->id)->orderBy('date_admission')->get();
+            $customers = CustomerSummary::where('agent_id', $agent->id)->orderBy('date_admission')->get();
         }
 
         $asignCustomers = Customers::where('agent_id', null)->where('status', 1)->orderBy('date_admission')->get();
@@ -64,9 +68,123 @@ class ClientService implements ClientInterface {
         $premios1 = $premios['premios1'];
         $premios2 = $premios['premios2'];
         $roles = Role::get();
-        $configTables = Permission::where('name', 'LIKE', '%- TabClient')->get();
 
-        return compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers', 'configTables', 'myRolesId');
+        $configTablesDateInit = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'date_init')
+                                     ->first();
+
+        if ($configTablesDateInit == null) {
+            $configTablesDateInit = new Configuration();
+            $configTablesDateInit->user_id = $user_id;
+            $configTablesDateInit->name = 'date_init';
+            $configTablesDateInit->view = 'tabClient';
+            $configTablesDateInit->status = 'active';
+            $configTablesDateInit->save();
+
+        }
+
+        $configTablesCode = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'code')
+                                     ->first();
+
+        if ($configTablesCode === null) {
+            $configTablesCode = new Configuration();
+            $configTablesCode->user_id = $user_id;
+            $configTablesCode->name = 'code';
+            $configTablesCode->view = 'tabClient';
+            $configTablesCode->status = 'active';
+            $configTablesCode->save();
+        }
+
+        $configTablesPhone = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'phone')
+                                     ->first();
+
+        if ($configTablesPhone === null) {
+            $configTablesPhone = new Configuration();
+            $configTablesPhone->user_id = $user_id;
+            $configTablesPhone->name = 'phone';
+            $configTablesPhone->view = 'tabClient';
+            $configTablesPhone->status = 'active';
+            $configTablesPhone->save();
+        }
+
+        $configTablesOptionalPhone = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'optional_phone')
+                                     ->first();
+
+        if ($configTablesOptionalPhone === null) {
+            $configTablesOptionalPhone = new Configuration();
+            $configTablesOptionalPhone->user_id = $user_id;
+            $configTablesOptionalPhone->name = 'optional_phone';
+            $configTablesOptionalPhone->view = 'tabClient';
+            $configTablesOptionalPhone->status = 'active';
+            $configTablesOptionalPhone->save();
+        }
+
+        $configTablesEmail = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'email')
+                                     ->first();
+
+        if ($configTablesEmail === null) {
+            $configTablesEmail = new Configuration();
+            $configTablesEmail->user_id = $user_id;
+            $configTablesEmail->name = 'email';
+            $configTablesEmail->view = 'tabClient';
+            $configTablesEmail->status = 'active';
+            $configTablesEmail->save();
+        }
+
+        $configTablesCity = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'city')
+                                     ->first();
+
+        if ($configTablesCity === null) {
+            $configTablesCity = new Configuration();
+            $configTablesCity->user_id = $user_id;
+            $configTablesCity->name = 'city';
+            $configTablesCity->view = 'tabClient';
+            $configTablesCity->status = 'active';
+            $configTablesCity->save();
+        }
+
+        $configTablesCountry = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'country')
+                                     ->first();
+
+        if ($configTablesCountry === null) {
+            $configTablesCountry = new Configuration();
+            $configTablesCountry->user_id = $user_id;
+            $configTablesCountry->name = 'country';
+            $configTablesCountry->view = 'tabClient';
+            $configTablesCountry->status = 'active';
+            $configTablesCountry->save();
+        }
+
+        $configTablesComment = Configuration::where('user_id', $user_id)
+                                     ->where('view', 'tabClient')
+                                     ->where('name', 'comment')
+                                     ->first();
+
+        if ($configTablesComment === null) {
+            $configTablesComment = new Configuration();
+            $configTablesComment->user_id = $user_id;
+            $configTablesComment->name = 'comment';
+            $configTablesComment->view = 'tabClient';
+            $configTablesComment->status = 'active';
+            $configTablesComment->save();
+        }
+
+
+
+        return compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers', 'myRolesId', 'configTablesDateInit', 'configTablesCode', 'configTablesPhone', 'configTablesOptionalPhone', 'configTablesEmail', 'configTablesCity', 'configTablesCountry', 'configTablesComment');
     }
 
     public function saveClient($request) {

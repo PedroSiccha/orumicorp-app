@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Customers;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
@@ -19,29 +20,21 @@ class CustomersImport implements ToModel, WithHeadingRow, WithBatchInserts, With
     */
     public function model(array $row)
     {
-
-        $user_id = null;
-
-        $user = User::firstOrCreate(['email' => $row['correo']], [
-            'name' => $row['nombres'],
-            'email' => $row['correo'],
-            'password' => Hash::make($row['codigo']),
-        ]);
+        $user = Auth::user();
 
         return new Customers([
             'code' => $row['codigo'],
             'name' => $row['nombres'],
             'lastname' => $row['apellidos'],
-            'user_id' => $user_id,
+            'user_id' => $user->id,
             'phone' => $row['telefono'],
             'date_admission' => date('Y-m-d'),
             'status' => true,
             'optional_phone' => $row['telefono_opcional'],
             'city' => $row['ciudad'],
             'country' => $row['pais'],
-            //'campaign' => 1,
-            //'supplier' => 1,
             'comment' => $row['comentarios'],
+            'email' => $row['correo'],
         ]);
     }
 

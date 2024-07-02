@@ -27,90 +27,121 @@
                     </a>
                     <ul class="dropdown-menu dropdown-user">
                         <li>
-                            <a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalConfigTable')">Configurar Tabla</a>
+                            <a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalConfigTableLocal')">Configurar Tabla</a>
+                            <!-- <a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalConfigTable')">Configurar Tabla</a> -->
                         </li>
                     </ul>
                 </div>
               </div>
               <div class="ibox-content" id="tabClient">
-                  <table class="table table-striped">
-                      <thead>
-                      <tr>
-                          <th>Fecha de Ingreso</th>
-                          <th>ID de Cliente</th>
-                          <th>Nombre del Cliente</th>
-                          <th>Teléfono</th>
-                          <th>Teléfono Opcional</th>
-                          <th>Correo</th>
-                          <th>Ciudad</th>
-                          <th>Pais</th>
-                          <th>Comentario</th>
-                          <th>Acción</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                        @foreach ($customers as $customer)
-                            <tr @if($customer->status == 0) class="table-danger" @endif>
-                                <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
-                                <td>{{ $customer->code }}</td>
-                                <td>
-                                    <a href="{{ route('profileClient', ['id' => $customer->id]) }}">
-                                        {{ $customer->name }} {{ $customer->lastname }}
-                                    </a>
-                                </td>
-                                <td>{{ $customer->phone }}</td>
-                                <td>{{ $customer->optional_phone }}</td>
-                                <td>{{ $customer->email }}</td>
-                                <td>{{ $customer->city }}</td>
-                                <td>{{ $customer->country }}</td>
-                                <td>{{ $customer->comment }}</td>
-                                <td>
-                                    <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}'})"><i class="fa fa-phone"></i> </button>
-
-                                    @can('Asignar Agente')
-                                        <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
-                                    @endcan
-                                    @can('Estado Cliente')
-                                        @if ($customer->status == 0)
-                                            <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '1')"><i class="fa fa-check"></i></button>
-                                        @else
-                                            <button class="btn btn-danger " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '0')"><i class="fa fa-minus"></i></button>
-                                        @endif
-                                    @endcan
-                                    @can('Editar Cliente')
-                                    <button class="btn btn-warning " type="button" onclick="editarCliente(
-                                        '{{ $customer->id }}',
-                                        '{{ $customer->code }}',
-                                        '{{ $customer->name }}',
-                                        '{{ $customer->lastname }}',
-                                        '{{ $customer->phone }}',
-                                        '{{ $customer->optional_phone }}',
-                                        '{{ $customer->city }}',
-                                        '{{ $customer->country }}',
-                                        '{{ $customer->comment }}',
-                                        '{{ $customer->email }}',
-                                        '#modalEditarCliente',
-                                        '#eId',
-                                        '#eCode',
-                                        '#eName',
-                                        '#eLastname',
-                                        '#ePhone',
-                                        '#eOptionalPhone',
-                                        '#eCity',
-                                        '#eCountry',
-                                        '#eComment',
-                                        '#eEmail'
-                                        )"><i class="fa fa-pencil"></i></button>
-                                    @endcan
-                                    @can('Eliminar Cliente')
-                                        <button class="btn btn-danger " type="button" onclick="eliminarCliente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient')"><i class="fa fa-trash"></i></button>
-                                    @endcan
-                                </td>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Ultima llamada</th>
+                                <th>ID de Cliente</th>
+                                <th>Fecha de Ingreso</th>
+                                <th>Fecha de Última Llamada</th>
+                                <th>Fecha de Última Asignación</th>
+                                <th>Asignado Por</th>
+                                <th>Proveedor</th>
+                                <th>Campaña</th>
+                                <th>Nombre del Cliente</th>
+                                <th>Correo</th>
+                                <th>Teléfono</th>
+                                <th>Teléfono Opcional</th>
+                                <th>Ciudad</th>
+                                <th>Pais</th>
+                                <th>Estado</th>
+                                <th>Agente</th>
+                                <th>Comentario</th>
+                                <th>Última Visita</th>
+                                <th>FTD Date</th>
+                                <th>Método</th>
+                                <th>N° de Depósito</th>
+                                <th>Total Depósitos</th>
+                                <th>Acción</th>
                             </tr>
-                        @endforeach
-                      </tbody>
-                  </table>
-              </div>
+                        </thead>
+                        <tbody>
+                            @foreach ($customers as $customer)
+                                <tr @if($customer->status == 0) class="table-danger" @endif>
+                                    <td>{{ $customer->last_communication_date }}</td>
+                                    <td>{{ $customer->customer_id }}</td>
+                                    <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
+                                    <td>{{ $customer->last_communication_date }}</td>
+                                    <td>{{ $customer->last_assignment_date }}</td>
+                                    <td>{{ $customer->assignment_description }}</td>
+                                    <td>{{ $customer->provider_name }}</td>
+                                    <td>{{ $customer->campaign_name }}</td>
+                                    <td>
+                                        <a href="{{ route('profileClient', ['id' => $customer->customer_id]) }}">
+                                            {{ $customer->customer_name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ $customer->user_email }}</td>
+                                    <td>{{ $customer->phone }}</td>
+                                    <td>{{ $customer->phone }}</td> <!-- Modificar Número Opcional -->
+                                    <td>{{ $customer->city }}</td>
+                                    <td>{{ $customer->country }}</td>
+                                    <td>{{ $customer->customer_status }}</td> <!-- Modificar Tiene que ser de la tabla ESTADOS -->
+                                    <td>{{ $customer->agent_name }}</td>
+                                    <td>{{ $customer->communication_comment }}</td>
+                                    <td>{{ $customer->last_communication_date }}</td>
+                                    <td>{{ $customer->last_communication_date }}</td>
+                                    <td>{{ $customer->deposit_type }}</td>
+                                    <td>{{ $customer->deposit_number }}</td>
+                                    <td>{{ $customer->total_deposit }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}'})"><i class="fa fa-phone"></i> </button>
+                                            @can('Asignar Agente')
+                                                <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
+                                            @endcan
+                                            @can('Estado Cliente')
+                                                @if ($customer->status == 0)
+                                                    <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '1')"><i class="fa fa-check"></i></button>
+                                                @else
+                                                    <button class="btn btn-danger " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '0')"><i class="fa fa-minus"></i></button>
+                                                @endif
+                                            @endcan
+                                            @can('Editar Cliente')
+                                            <button class="btn btn-warning " type="button" onclick="editarCliente(
+                                                '{{ $customer->customer_id }}',
+                                                '{{ $customer->code }}',
+                                                '{{ $customer->name }}',
+                                                '{{ $customer->lastname }}',
+                                                '{{ $customer->phone }}',
+                                                '{{ $customer->optional_phone }}',
+                                                '{{ $customer->city }}',
+                                                '{{ $customer->country }}',
+                                                '{{ $customer->comment }}',
+                                                '{{ $customer->email }}',
+                                                '#modalEditarCliente',
+                                                '#eId',
+                                                '#eCode',
+                                                '#eName',
+                                                '#eLastname',
+                                                '#ePhone',
+                                                '#eOptionalPhone',
+                                                '#eCity',
+                                                '#eCountry',
+                                                '#eComment',
+                                                '#eEmail'
+                                                )"><i class="fa fa-pencil"></i></button>
+                                            @endcan
+                                            @can('Eliminar Cliente')
+                                                <button class="btn btn-danger " type="button" onclick="eliminarCliente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient')"><i class="fa fa-trash"></i></button>
+                                            @endcan
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
           </div>
       </div>
   </div>
@@ -140,7 +171,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="uploadExcel('#fileExcel')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="uploadExcel('fileExcel')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -504,29 +535,159 @@
                     <input type="text" placeholder="Ingrese el nombre del rol" class="form-control" id='idRol' value="{{ $myRolesId }}" hidden>
                 </div>
                 <div class="modal-body">
-
                     <table class="table table-striped table-hover">
 
                         <tbody>
-                            @foreach ($configTables as $configTable)
                             <tr>
                                 <td>
-                                    <input type="checkbox" class="i-checks flat chekboxses" name="idPermiso[]" value="{{ $configTable->id }}" id="idPermiso">
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesDateInit" id="configTablesDateInit" {{ $configTablesDateInit->status == 'active' ? 'checked' : '' }}>
                                 </td>
-                                <td> {{ str_replace(' - TabClient', '', $configTable->name);  }} </td>
+                                <td> {{ $configTablesDateInit->name }}</td>
                             </tr>
-                            @endforeach
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesCode" value="" id="configTablesCode" {{ $configTablesCode->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesCode->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesPhone" value="" id="configTablesPhone" {{ $configTablesPhone->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesPhone->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesOptionalPhone" value="" id="configTablesOptionalPhone" {{ $configTablesOptionalPhone->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesOptionalPhone->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesEmail" value="" id="configTablesEmail" {{ $configTablesEmail->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesEmail->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesCity" value="" id="configTablesCity" {{ $configTablesCity->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesCity->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesCountry" value="" id="configTablesCountry" {{ $configTablesCountry->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesCountry->name }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="i-checks flat chekboxses" name="configTablesComment" value="" id="configTablesComment" {{ $configTablesComment->status == 'active' ? 'checked' : '' }}>
+                                </td>
+                                <td> {{ $configTablesComment->name }}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="modal-footer">
-                    <button class="btn btn-info " type="button" onclick="saveConfigTable('#idRol', '#modalConfigTable', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-info " type="button" onclick="saveConfigTable('#configTablesDateInit', '#configTablesCode', '#configTablesPhone', '#configTablesOptionalPhone', '#configTablesEmail', '#configTablesCity', '#configTablesCountry', '#configTablesComment', '#modalConfigTable', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
                     <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal para configurar la tabla -->
+    <div class="modal fade" id="modalConfigTableLocal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Configurar la Tabla</h4>
+                    <small class="font-bold">Seleccione las columnas que desea mostrar</small>
+                </div>
+                <div class="modal-body">
+                    <form id="configTableForm">
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="0" checked> Ultima llamada</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="1" checked> ID de Cliente</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="2" checked> Fecha de Ingreso</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="3" checked> Fecha de Ultima Llamada</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="4" checked> Fecha de Última Asignación</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="5" checked> Asignado Por</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="6" checked> Proveedor</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="7" checked> Campaña</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="8" checked> Nombre del Cliente</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="9" checked> Correo</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="10" checked> Teléfono</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="11" checked> Teléfono Opcional</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="12" checked> Ciudad</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="13" checked> País</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="14" checked> Estado</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="15" checked> Agente</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="16" checked> Comentario</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="17" checked> Última Visita</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="18" checked> FTD Date</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="19" checked> Método</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="20" checked> N° de Depósito</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" class="column-toggle" data-column="21" checked> Total de Depósito</label>
+                            </div>
+                            <!-- Añadir más checkboxes para cada columna -->
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="button" data-dismiss="modal" onclick="saveTableConfigLocal()">Guardar</button>
+                    <button class="btn btn-default" type="button" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+</div>
+
 
 
 @endsection
@@ -542,6 +703,7 @@
     var token = '{{ csrf_token() }}';
     var initiateCallRoute = '{{ route("initiateCall") }}';
     var uploadExcelRoute = '{{ route("uploadExcel") }}';
+    var saveConfigTableRoute = '{{ route("saveConfigTable") }}';
 </script>
 
 <script src="{{asset('js/agent/assignAgent.js')}}"></script>
@@ -556,6 +718,6 @@
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
 <script src="{{ asset('js/voiso/initiateCall.js') }}"></script>
 <script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
-<script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
 <script src="{{ asset('js/customer/saveConfigTable.js') }}"></script>
+<script src="{{ asset('js/customer/saveConfigTableLocal.js') }}"></script>
 @endsection
