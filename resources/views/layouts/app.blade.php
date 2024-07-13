@@ -90,6 +90,26 @@
                             <a href="{{ route('task') }}"><i class="fa fa-calendar"></i> <span class="nav-label">Task</span></a>
                         </li>
                         @endcan
+                        @can('Ver Task')
+                        <li class="{{ Request::is('whatsapp') ? 'active' : '' }}">
+                            <a href="{{ route('whatsapp') }}"><i class="fa fa-comments-o"></i> <span class="nav-label">Whatsapp</span></a>
+                        </li>
+                        @endcan
+                        @can('Ver Task')
+                        <li class="{{ Request::is('email') ? 'active' : '' }}">
+                            <a href="{{ route('email') }}"><i class="fa fa-envelope-o"></i> <span class="nav-label">Email</span></a>
+                        </li>
+                        @endcan
+                        @can('Ver Task')
+                        <li class="{{ Request::is('shooter') ? 'active' : '' }}">
+                            <a href="{{ route('shooter') }}"><i class="fa fa-superpowers"></i> <span class="nav-label">Shooter</span></a>
+                        </li>
+                        @endcan
+                        @can('Ver Task')
+                        <li class="{{ Request::is('deposit') ? 'active' : '' }}">
+                            <a href="{{ route('deposit') }}"><i class="fa fa-credit-card"></i> <span class="nav-label">Deposit</span></a>
+                        </li>
+                        @endcan
                     </ul>
                 </div>
             </nav>

@@ -1,7 +1,11 @@
 <?php
 namespace App\Services;
 
+use App\Interfaces\AssignamentInterface;
+use App\Interfaces\CampaingInterface;
 use App\Interfaces\ClientInterface;
+use App\Interfaces\ComunicationInterface;
+use App\Interfaces\ProviderInterface;
 use App\Interfaces\RolesInterface;
 use App\Interfaces\UserInterface;
 use App\Models\Agent;
@@ -23,15 +27,27 @@ class ClientService implements ClientInterface {
     protected $userService;
     protected $rolesService;
     protected $awardsService;
+    protected $communicationService;
+    protected $assignamentService;
+    protected $campaingService;
+    protected $providerService;
 
     public function __construct(
         UserInterface $userService,
         RolesInterface $rolesService,
         AwardsService $awardsService,
+        ComunicationInterface $communicationService,
+        AssignamentInterface $assignamentService,
+        CampaingInterface $campaingService,
+        ProviderInterface $providerService
     ) {
         $this->userService = $userService;
         $this->rolesService = $rolesService;
         $this->awardsService = $awardsService;
+        $this->communicationService = $communicationService;
+        $this->assignamentService = $assignamentService;
+        $this->campaingService = $campaingService;
+        $this->providerService = $providerService;
     }
 
     public function index() {
@@ -461,8 +477,20 @@ class ClientService implements ClientInterface {
         $premios1 = $premios['premios1'];
         $premios2 = $premios['premios2'];
         $dataCustomer = Customers::where('id', $id)->first();
+        $dataCommunication = [
+            'customer_id' => $dataCustomer->id
+        ];
+        // dd($dataCommunication['customer_id']);
+        $communications = $this->communicationService->getLocationByCustomer($dataCommunication);
+        $lastAssignament = $this->assignamentService->getLastAssignamentByCustomer($dataCommunication);
+        $lastCampaing = $this->campaingService->getLastCampaingByCustomer($dataCommunication);
+        $campaings = $this->campaingService->getAllCampaingsByCustomer($dataCommunication);
 
-        return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer');
+        $lastProvider = $this->providerService->getLastProviderByCustomer($dataCommunication);
+        $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
+        // dd($communication->agent);
+
+        return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers');
 
     }
 
