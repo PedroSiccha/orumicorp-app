@@ -111,5 +111,15 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/makeCall', [\App\Http\Controllers\CallController::class, 'makeCall'])->name('makeCall');
 
+    Route::post('/saveComentario', [App\Http\Controllers\CommentController::class, 'saveComentario'])->name('saveComentario');
+
+    Route::get('/whatsapp', [App\Http\Controllers\CommentController::class, 'whatsapp'])->name('whatsapp');
+
+    Route::get('/email', [App\Http\Controllers\CommentController::class, 'email'])->name('email');
+
+    Route::get('/shooter', [App\Http\Controllers\ShooterController::class, 'index'])->name('shooter');
+
+    Route::get('/deposit', [App\Http\Controllers\DepositController::class, 'index'])->name('deposit');
+
 });
 
