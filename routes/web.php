@@ -121,5 +121,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/deposit', [App\Http\Controllers\DepositController::class, 'index'])->name('deposit');
 
+    Route::get('/maintenance', [App\Http\Controllers\MaintenanceController::class, 'index'])->name('maintenance');
+
 });
 

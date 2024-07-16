@@ -110,6 +110,11 @@
                             <a href="{{ route('deposit') }}"><i class="fa fa-credit-card"></i> <span class="nav-label">Deposit</span></a>
                         </li>
                         @endcan
+                        @can('Ver Task')
+                        <li class="{{ Request::is('maintenance') ? 'active' : '' }}">
+                            <a href="{{ route('maintenance') }}"><i class="fa fa-cogs"></i> <span class="nav-label">Mantenimiento</span></a>
+                        </li>
+                        @endcan
                     </ul>
                 </div>
             </nav>
