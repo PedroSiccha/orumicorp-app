@@ -28,75 +28,111 @@
             </div>
             <div class="ibox-content">
                 <div>
-                    <div class="feed-activity-list">
-
+                    <div class="feed-activity-list" id="contacts-list">
                         @foreach ($contacts as $contact)
-                        <div class="feed-element" onclick="">
+                        <div class="feed-element" onclick="verDetalleChat('{{ $contact['uuid'] }}', '{{ $contact['phoneNumber'] }}')">
                             <a href="#" class="float-left">
                                 <img alt="image" class="rounded-circle mr-3" src="{{ $contact['avatarUrl'] ?? 'img/logo/basic_logo.png' }}" width="40" height="40">
+                                @if ($contact['source'] === 'whatsapp')
+                                    <img alt="overlay" class="overlay-icon" style="" src="img/logo/whatsappicon.png" width="20" height="20">
+                                @else
+                                    <img alt="overlay" class="overlay-icon" style="" src="img/logo/telegramicon.png" width="20" height="20">
+                                @endif
                             </a>
                             <div class="media-body ">
                                 <small class="float-right">{{ $contact['createdAt'] }}</small>
                                 <strong>{{ $contact['name'] }}</strong>. <br>
                                 <small class="text-muted">{{ $contact['phoneNumber'] }} - {{ $contact['assignedUser'] }}</small>
-                                {{-- <div class="well">
-                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-                                    Over the years, sometimes by accident, sometimes on purpose (injected humour and the like).
-                                </div> --}}
                             </div>
                         </div>
                         @endforeach
-
                     </div>
 
-                    <button class="btn btn-primary btn-block m"><i class="fa fa-arrow-down"></i> Ver Más</button>
+                    <button id="load-more" class="btn btn-primary btn-block m"><i class="fa fa-arrow-down"></i> Ver Más</button>
 
                 </div>
-
             </div>
         </div>
-
     </div>
 
-    <div class="col-md-8">
+    <div class="col-md-8" id="chat-details">
         <div class="card">
             <div class="card-header">
-                <h5>Cliente 01</h5>
+                <h5 id="chat-client-name">Cliente</h5>
             </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <div class="d-flex justify-content-start mb-2">
-                        <div class="bg-light p-3 rounded position-relative">
-                            <h5 class="mb-1">Mensaje 01</h5>
-                            <div class="position-absolute" style="bottom: 5px; right: 10px;">
-                                <small class="text-muted">98%</small>
-                            </div>
+            <div class="card-body" id="chat-messages">
+                <!-- Aquí se cargarán los mensajes del chat -->
+            </div>
+            <div class="mt-3">
+                <form>
+                    <div class="input-group">
+                        <input id="inptuMessage" type="text" class="form-control" placeholder="Escribe tu mensaje...">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button" onclick="sendMessage('', '', '')">Enviar</button>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-end mb-2">
-                        <div class="bg-primary text-white p-3 rounded position-relative">
-                            <h5 class="mb-1">Mensaje 02</h5>
-                            <div class="position-absolute" style="bottom: 5px; right: 10px;">
-                                <small>24%</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <form>
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Escribe tu mensaje...">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">Enviar</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                </form>
             </div>
         </div>
     </div>
-
-
-
 </div>
+
+
+@endsection
+@section('script')
+<script>
+    var getChatDetailsRoute = '{{ route("getChatDetails") }}';
+    var sendMessageRoute = '{{ route("sendMessage") }}';
+</script>
+
+<script src="{{asset('js/callbell/verDetalleChat.js')}}"></script>
+<script src="{{asset('js/callbell/sendMessage.js')}}"></script>
+<script>
+    var baseUrl = '{{ $baseUrl }}';
+    var token_bearer = '{{ $token }}';
+    let page = 1;
+
+    document.getElementById('load-more').addEventListener('click', function() {
+        page++;
+        fetchContacts(page);
+    });
+
+    function fetchContacts(page) {
+        fetch(`/whatsapp?page=${page}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.contacts.length > 0) {
+                const contactsList = document.getElementById('contacts-list');
+                data.contacts.forEach(contact => {
+                    const contactElement = document.createElement('div');
+                    contactElement.className = 'feed-element';
+                    contactElement.innerHTML = `
+                        <a href="#" class="float-left">
+                            <img alt="image" class="rounded-circle mr-3" src="${contact.avatarUrl ?? 'img/logo/basic_logo.png'}" width="40" height="40">
+                            @if ($contact['source'] === 'whatsapp')
+                                <img alt="overlay" class="overlay-icon" style="" src="img/logo/whatsappicon.png" width="20" height="20">
+                            @else
+                                <img alt="overlay" class="overlay-icon" style="" src="img/logo/telegramicon.png" width="20" height="20">
+                            @endif
+                        </a>
+                        <div class="media-body">
+                            <small class="float-right">${contact.createdAt}</small>
+                            <strong>${contact.name}</strong><br>
+                            <small class="text-muted">${contact.phoneNumber} - ${contact.assignedUser}</small>
+                        </div>
+                    `;
+                    contactsList.appendChild(contactElement);
+                });
+            } else {
+                document.getElementById('load-more').disabled = true;
+                document.getElementById('load-more').innerText = 'No hay más contactos';
+            }
+        })
+        .catch(error => console.error('Error al cargar más contactos:', error));
+    }
+</script>
 @endsection

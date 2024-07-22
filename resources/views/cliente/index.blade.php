@@ -65,7 +65,7 @@
                         </thead>
                         <tbody>
                             @foreach ($customers as $customer)
-                                <tr @if($customer->status == 0) class="table-danger" @endif>
+                                <tr class="{{ $customer->status_color }}">
                                     <td>{{ $customer->last_communication_date }}</td>
                                     <td>{{ $customer->customer_id }}</td>
                                     <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
@@ -98,13 +98,13 @@
                                             @can('Asignar Agente')
                                                 <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
                                             @endcan
-                                            @can('Estado Cliente')
+                                            {{-- @can('Estado Cliente')
                                                 @if ($customer->status == 0)
                                                     <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '1')"><i class="fa fa-check"></i></button>
                                                 @else
                                                     <button class="btn btn-danger " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '0')"><i class="fa fa-minus"></i></button>
                                                 @endif
-                                            @endcan
+                                            @endcan --}}
                                             @can('Editar Cliente')
                                             <button class="btn btn-warning " type="button" onclick="editarCliente(
                                                 '{{ $customer->customer_id }}',

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
+use App\Models\Deposit;
 use App\Models\Premio;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,15 +27,17 @@ class DepositController extends Controller
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $rouletteSpin = $agent->number_turns ?: 0;
-        return view('deposit.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser'));
+        $deposits = Deposit::with('customer')->with('agent')->get();
+        foreach ($deposits as &$deposit) {
+            if (isset($deposit['date'])) {
+                $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
+            }
+
+        }
+        return view('deposit.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'deposits'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function saveDeposit(Request $request)
     {
         //
     }

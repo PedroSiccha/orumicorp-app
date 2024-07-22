@@ -301,22 +301,28 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($campaings as $campaing['data'])
+                                            @if(isset($campaings) && $campaings->isNotEmpty())
+                                                @foreach ($campaings as $campaign)
 
-                                                @if(is_object($campaing))
-                                                    <tr>
-                                                        <td>{{ $loop->iteration }}</td> <!-- Número de fila -->
-                                                        <td>{{ $campaing->name }}</td>
-                                                        <td>{{ $campaing->description }}</td> <!-- Muestra 'Sin Agente' si no hay agente -->
-                                                        <td>{{ $campaing->start_date->format('d/m/Y H:i:s') }}</td> <!-- Formato de fecha -->
-                                                        <td>{{ $campaing->end_date->format('d/m/Y H:i:s') }}</td> <!-- Formato de fecha -->
-                                                    </tr>
-                                                @else
-                                                    <tr>
-                                                        <td colspan="4">Datos inválidos: {{ var_dump($campaing) }}</td>
-                                                    </tr>
-                                                @endif
-                                            @endforeach
+                                                    @if(is_object($campaign))
+                                                        <tr>
+                                                            <td>{{ $loop->iteration }}</td> <!-- Número de fila -->
+                                                            <td>{{ $campaign->name ?? 'N/A' }}</td> <!-- Nombre de la campaña -->
+                                                            <td>{{ $campaign->description ?? 'N/A' }}</td> <!-- Descripción de la campaña -->
+                                                            <td>{{ $campaign->start_date ?? 'N/A' }}</td> <!-- Formato de fecha -->
+                                                            <td>{{ optional($campaign->end_date)->format('d/m/Y H:i:s') ?? 'N/A' }}</td> <!-- Formato de fecha -->
+                                                        </tr>
+                                                    @else
+                                                        <tr>
+                                                            <td colspan="5">Datos inválidos: {{ var_dump($campaign) }}</td>
+                                                        </tr>
+                                                    @endif
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td colspan="5">No hay campañas disponibles</td>
+                                                </tr>
+                                            @endif
                                         </tbody>
                                     </table>
                                 </div>

@@ -27,7 +27,7 @@ class CommentController extends Controller
         $this->clientService = $clientService;
     }
 
-    public function whatsapp()
+    public function whatsapp(Request $request)
     {
         $user_id = Auth::user()->id;
         $user = User::where('id', $user_id)->first();
@@ -41,7 +41,8 @@ class CommentController extends Controller
         $baseUrl = env('CALLBELL_API_BASE_URL');
         $token = env('CALLBELL_API_TOKEN');
 
-        $response = Http::withToken($token)->get("{$baseUrl}/contacts?page=1");
+        $page = $request->input('page', 1);
+        $response = Http::withToken($token)->get("{$baseUrl}/contacts?page={$page}");
 
         if ($response->successful()) {
             $contacts = $response->json()['contacts'];
@@ -55,24 +56,69 @@ class CommentController extends Controller
                 }
             }
 
-            // dd($contacts);
-            // return view('contacts.index', compact('contacts'));
-            return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts'));
+            if ($request->ajax()) {
+                return response()->json(['contacts' => $contacts]);
+            }
+
+            return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token'));
         } else {
             return abort(500, 'Error al obtener los contactos');
         }
-
-        return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+
+    public function getChatDetails(Request $request)
     {
-        //
+        $baseUrl = env('CALLBELL_API_BASE_URL');
+        $token = env('CALLBELL_API_TOKEN');
+
+        $response = Http::withToken($token)->get("{$baseUrl}/contacts/{$request->uuid}/messages");
+
+        if ($response->successful()) {
+            $messages = $response->json()['messages'];
+
+            foreach ($messages as &$message) {
+                $message['createdAt'] = Carbon::parse($message['createdAt'])->format('d/m/Y H:i:s');
+            }
+
+            return response()->json(['messages' => $messages]);
+        } else {
+            return response()->json(['error' => 'Error al obtener los mensajes'], 500);
+        }
+    }
+
+    public function sendMessage(Request $request)
+    {
+        $baseUrl = env('CALLBELL_API_BASE_URL');
+        $token = env('CALLBELL_API_TOKEN');
+
+        // Formatear el número de teléfono
+        // $phoneNumber = $this->formatPhoneNumber($request->input('to'));
+
+        // Preparar el cuerpo de la solicitud
+        $body = [
+            "from" => "whatsapp",
+            // "to" => $phoneNumber,
+            "to" => "+51910832955",
+            "type" => "text",
+            "content" => [
+                // "text" => $request->input('text'),
+                "text" => "Esto es una prueba",
+                // "url" => $request->input('url')
+            ],
+            "template_uuid" => $request->input('template_uuid'),
+            "optin_contact" => $request->input('optin_contact', true)
+        ];
+
+        // Enviar la solicitud a la API de Callbell
+        $response = Http::withToken($token)->post("{$baseUrl}/messages/send", $body);
+
+        // Verificar la respuesta
+        if ($response->successful()) {
+            return response()->json(['message' => $response->json()['message']], 200);
+        } else {
+            return response()->json(['error' => 'Error al enviar el mensaje'], 500);
+        }
     }
 
     /**

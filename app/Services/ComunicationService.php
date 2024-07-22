@@ -114,6 +114,7 @@ class ComunicationService implements ComunicationInterface {
         try {
             $communications = Comunications::where('customer_id', $request['customer_id'])
                 ->with('agent')
+                ->orderBy('date', 'desc')
                 ->get();
 
             return $communications;

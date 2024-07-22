@@ -19,7 +19,7 @@ class CampaignCustomer extends Model
 
     public function campaign()
     {
-        return $this->belongsTo(Campaign::class, 'campaign_id');
+        return $this->belongsTo(Campaing::class, 'campaign_id');
     }
 
     public function customer()
