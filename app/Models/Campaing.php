@@ -13,8 +13,9 @@ class Campaing extends Model
 
     public function customers()
     {
-        return $this->belongsToMany(Customers::class, 'campaign_customers', 'campaign_id', 'customer_id')
-                    ->withPivot('status');
+        // return $this->belongsToMany(Customers::class, 'campaign_customers', 'campaign_id', 'customer_id')
+        //             ->withPivot('status');
+        return $this->belongsToMany(Customers::class, 'campaign_customers');
     }
 
 }

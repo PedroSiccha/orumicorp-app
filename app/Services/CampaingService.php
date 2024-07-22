@@ -2,7 +2,9 @@
 namespace App\Services;
 
 use App\Interfaces\CampaingInterface;
+use App\Models\CampaignCustomer;
 use App\Models\Campaing;
+use App\Models\Customers;
 use Exception;
 
 class CampaingService implements CampaingInterface {
@@ -12,15 +14,12 @@ class CampaingService implements CampaingInterface {
     public function getAllCampaingsByCustomer($request) {
         try {
             $customerId = $request['customer_id'];
-            $campaings = Campaing::whereHas('customers', function($query) use ($customerId) {
-                $query->where('customer_id', $customerId);
-            })->with('customers')->get();
-
-            return response()->json([
-                'status' => 'success',
-                'data' => $campaings,
-            ]);
+            // dd("User".$customerId);
+            $campaings = Campaing::get();
+            // dd($campaings);
+            return $campaings;
         } catch (Exception $e) {
+            dd($e);
             return collect();
         }
 
@@ -29,6 +28,7 @@ class CampaingService implements CampaingInterface {
     public function getLastCampaingByCustomer($request) {
         try {
             $customerId = $request['customer_id'];
+
             $lastCampaing = Campaing::whereHas('customers', function($query) use ($customerId) {
                 $query->where('customer_id', $customerId);
             })->with('customers')->orderBy('created_at', 'desc')->first();

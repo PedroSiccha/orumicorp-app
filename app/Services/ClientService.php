@@ -484,8 +484,9 @@ class ClientService implements ClientInterface {
         $communications = $this->communicationService->getLocationByCustomer($dataCommunication);
         $lastAssignament = $this->assignamentService->getLastAssignamentByCustomer($dataCommunication);
         $lastCampaing = $this->campaingService->getLastCampaingByCustomer($dataCommunication);
+        // dd($lastCampaing);
         $campaings = $this->campaingService->getAllCampaingsByCustomer($dataCommunication);
-
+        // dd($campaings['name']);
         $lastProvider = $this->providerService->getLastProviderByCustomer($dataCommunication);
         $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
         // dd($communication->agent);

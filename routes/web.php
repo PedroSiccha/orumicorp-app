@@ -114,12 +114,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/saveComentario', [App\Http\Controllers\CommentController::class, 'saveComentario'])->name('saveComentario');
 
     Route::get('/whatsapp', [App\Http\Controllers\CommentController::class, 'whatsapp'])->name('whatsapp');
+    Route::post('/whatsapp/chat', [App\Http\Controllers\CommentController::class, 'getChatDetails'])->name('getChatDetails');
+    Route::post('/whatsapp/send', [App\Http\Controllers\CommentController::class, 'sendMessage'])->name('sendMessage');
 
     Route::get('/email', [App\Http\Controllers\CommentController::class, 'email'])->name('email');
 
     Route::get('/shooter', [App\Http\Controllers\ShooterController::class, 'index'])->name('shooter');
 
     Route::get('/deposit', [App\Http\Controllers\DepositController::class, 'index'])->name('deposit');
+    Route::post('/deposit/save', [App\Http\Controllers\DepositController::class, 'saveDeposit'])->name('saveDeposit');
 
     Route::get('/maintenance', [App\Http\Controllers\MaintenanceController::class, 'index'])->name('maintenance');
 
