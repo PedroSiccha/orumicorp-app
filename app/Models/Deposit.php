@@ -17,6 +17,8 @@ class Deposit extends Model
         'tipo',
         'descripcion',
         'amount',
+        'transaction_type_id',
+        'users_id'
     ];
 
     public function agent()
@@ -27,5 +29,13 @@ class Deposit extends Model
     public function customer()
     {
         return $this->belongsTo(Customers::class, 'customer_id');
+    }
+
+    public function transactionType() {
+        return $this->belongsTo(TransactionType::class, 'transaction_type_id');
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class, 'users_id');
     }
 }

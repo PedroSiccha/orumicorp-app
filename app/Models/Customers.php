@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Customers extends Model
 {
     protected $table = 'customers';
-    protected $fillable = ['id', 'code', 'name', 'lastname', 'phone', 'date_admission', 'img', 'user_id', 'agent_id', 'optional_phone', 'city', 'country', 'date_admission', 'comment', 'email', 'id_provider', 'id_status'];
+    protected $fillable = ['id', 'code', 'name', 'lastname', 'phone', 'date_admission', 'img', 'user_id', 'agent_id', 'optional_phone', 'city', 'country', 'date_admission', 'comment', 'email', 'id_provider', 'id_status', 'platform_id', 'traiding_id'];
 
     public function sales()
     {
@@ -23,6 +23,11 @@ class Customers extends Model
     public function agent()
     {
         return $this->belongsTo(Agent::class);
+    }
+
+    public function comunications()
+    {
+        return $this->hasMany(Comunications::class);
     }
 
     public function campaigns()
@@ -48,12 +53,30 @@ class Customers extends Model
         return $this->belongsTo(CustomerStatus::class, 'id_status');
     }
 
+    public function platform() {
+        return $this->belongsTo(Platform::class);
+    }
+
+    public function traiding() {
+        return $this->belongsTo(Traiding::class);
+    }
+
+    public function views() {
+        return $this->hasMany(Views::class);
+    }
+
     public function latestCampaign()
     {
-        return $this->belongsToMany(Campaing::class, 'campaign_customers', 'customer_id', 'campaign_id')
-                    ->withPivot('status')
-                    ->latest('campaign_customers.created_at')
-                    ->take(1);
+        $lastCampaign = $this->belongsToMany(Campaing::class, 'campaign_customers', 'customer_id', 'campaing_id')
+                            ->withPivot('status')
+                            ->latest('campaign_customers.created_at')
+                            ->take(1);
+
+        if ($lastCampaign == null) {
+            $lastCampaign = null;
+        }
+
+        return $lastCampaign;
     }
 
     public function latestSupplier()
@@ -62,6 +85,11 @@ class Customers extends Model
                     ->withPivot('status')
                     ->latest('supplier_customers.created_at')
                     ->take(1);
+    }
+
+    public function latestComunication()
+    {
+        return $this->hasOne(Comunications::class, 'customer_id')->latest('date')->take(1);
     }
 
 }

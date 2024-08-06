@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Platform;
 use App\Http\Controllers\Controller;
-use App\Models\Provider;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-class ProviderController extends Controller
+class PlatformController extends Controller
 {
 
-    public function saveProvider(Request $request)
+    public function savePlatform(Request $request)
     {
         $title = "Error";
         $mensaje = "Error desconocido";
@@ -19,13 +19,13 @@ class ProviderController extends Controller
 
         try {
 
-            $provider = new Provider();
-            $provider->name = $request->name;
-            $provider->phone = $request->phone;
-            $provider->email = $request->email;
-            if ($provider->save()) {
+            $platform = new Platform();
+            $platform->name = $request->name;
+            $platform->description = $request->description;
+            $platform->status = 'active';
+            if ($platform->save()) {
                 $title = "Correcto";
-                $mensaje = "El proveedor se registró correctamente";
+                $mensaje = "Su platform se registró correctamente";
                 $status = "success";
             }
 
@@ -39,13 +39,13 @@ class ProviderController extends Controller
             $status = "error";
         }
 
-        $suppliers = Provider::get();
+        $platforms = Platform::get();
 
-        return response()->json(["view"=>view('provider.table.tableProvider', compact('suppliers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        return response()->json(["view"=>view('platform.table.tablePlatform', compact('platforms'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
 
     }
 
-    public function updateProvider(Request $request)
+    public function updatePlatform(Request $request)
     {
         $title = "Error";
         $mensaje = "Error desconocido";
@@ -53,18 +53,18 @@ class ProviderController extends Controller
 
         try {
 
-            $provider = Provider::find($request->id);
-            $provider->name = $request->name;
-            $provider->phone = $request->phone;
-            $provider->email = $request->email;
+            $platform = Platform::find($request->id);
+            $platform->name = $request->name;
+            $platform->description = $request->description;
+            // $platform->status = $request->status;
 
-            if ($provider->save()) {
+            if ($platform->save()) {
                 $title = "Correcto";
-                $mensaje = "Se actualizó su proveedor correctamente";
+                $mensaje = "Se actualizó su platform correctamente";
                 $status = "success";
             } else {
                 $title = "Error";
-                $mensaje = "Hubo un error al actualizar su proveedor";
+                $mensaje = "Hubo un error al actualizar su platform";
                 $status = "error";
             }
 
@@ -78,31 +78,31 @@ class ProviderController extends Controller
             $status = "error";
         }
 
-        $suppliers = Provider::get();
+        $platforms = Platform::get();
 
-        return response()->json(["view"=>view('provider.table.tableProvider', compact('suppliers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        return response()->json(["view"=>view('platform.table.tablePlatform', compact('platforms'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
 
     }
 
-    public function deleteProvider(Request $request)
+    public function deletePlatform(Request $request)
     {
         $title = "Error";
         $mensaje = "Error desconocido";
         $status = "error";
-        $provider = Provider::find($request->id);
-        if ($provider == null) {
+        $platform = Platform::find($request->id);
+        if ($platform == null) {
             $title = "Error";
-            $mensaje = "Hubo un error con su proveedor";
+            $mensaje = "Hubo un error con su platform";
             $status = "error";
         }
         try {
-            if ($provider->delete()) {
+            if ($platform->delete()) {
                 $title = "Correcto";
-                $mensaje = "Su proveedor se eliminó correctamente";
+                $mensaje = "Su platform se eliminó correctamente";
                 $status = "success";
             } else {
                 $title = "Error";
-                $mensaje = "No se pudo eliminar su proveedor";
+                $mensaje = "No se pudo eliminar su platform";
                 $status = "error";
             }
         } catch (Exception $e) {
@@ -111,19 +111,19 @@ class ProviderController extends Controller
             $status = "error";
         }
 
-        $suppliers = Provider::get();
+        $platforms = Platform::get();
 
-        return response()->json(["view"=>view('provider.table.tableProvider', compact('suppliers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        return response()->json(["view"=>view('platform.table.tablePlatform', compact('platforms'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
 
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Platform  $platform
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Platform $platform)
     {
         //
     }
@@ -131,10 +131,10 @@ class ProviderController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Platform  $platform
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Platform $platform)
     {
         //
     }
@@ -143,10 +143,10 @@ class ProviderController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Models\Platform  $platform
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Platform $platform)
     {
         //
     }
@@ -154,10 +154,10 @@ class ProviderController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Models\Platform  $platform
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Platform $platform)
     {
         //
     }

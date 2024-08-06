@@ -72,7 +72,27 @@ class ClientService implements ClientInterface {
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
             //$customers = Customers::orderBy('date_admission')->get();
-            $customers = CustomerSummary::orderBy('date_admission')->get();
+            // $customers = CustomerSummary::orderBy('date_admission')->get();
+            $customers = Customers::with([
+                // 'sales' => function ($query) {
+                //     $query->orderBy('created_at', 'desc')->take(1);
+                // },
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'status',
+                'platform',
+                'traiding',
+                'latestComunication'
+                // 'views' => function ($query) {
+                //     $query->orderBy('created_at', 'desc')->take(1);
+                // },
+            ])->get();
+
+            // dd($customers);
+
         } else {
             //$customers = Customers::where('agent_id', $agent->id)->orderBy('date_admission')->get();
             $customers = CustomerSummary::where('agent_id', $agent->id)->orderBy('date_admission')->get();

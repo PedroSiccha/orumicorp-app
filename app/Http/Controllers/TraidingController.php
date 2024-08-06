@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Traiding;
 use App\Http\Controllers\Controller;
-use App\Models\Provider;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-class ProviderController extends Controller
+class TraidingController extends Controller
 {
 
-    public function saveProvider(Request $request)
+    public function saveTraiding(Request $request)
     {
         $title = "Error";
         $mensaje = "Error desconocido";
@@ -19,13 +19,13 @@ class ProviderController extends Controller
 
         try {
 
-            $provider = new Provider();
-            $provider->name = $request->name;
-            $provider->phone = $request->phone;
-            $provider->email = $request->email;
-            if ($provider->save()) {
+            $trading = new Traiding();
+            $trading->code = $request->code;
+            $trading->description = $request->description;
+            $trading->status = 'active';
+            if ($trading->save()) {
                 $title = "Correcto";
-                $mensaje = "El proveedor se registró correctamente";
+                $mensaje = "El trading se registró correctamente";
                 $status = "success";
             }
 
@@ -39,13 +39,13 @@ class ProviderController extends Controller
             $status = "error";
         }
 
-        $suppliers = Provider::get();
+        $traidings = Traiding::get();
 
-        return response()->json(["view"=>view('provider.table.tableProvider', compact('suppliers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        return response()->json(["view"=>view('traiding.table.tableTraiding', compact('traidings'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
 
     }
 
-    public function updateProvider(Request $request)
+    public function updateTraiding(Request $request)
     {
         $title = "Error";
         $mensaje = "Error desconocido";
@@ -53,18 +53,18 @@ class ProviderController extends Controller
 
         try {
 
-            $provider = Provider::find($request->id);
-            $provider->name = $request->name;
-            $provider->phone = $request->phone;
-            $provider->email = $request->email;
+            $trading = Traiding::find($request->id);
+            $trading->code = $request->code;
+            $trading->description = $request->description;
+            $trading->status = $request->status;
 
-            if ($provider->save()) {
+            if ($trading->save()) {
                 $title = "Correcto";
-                $mensaje = "Se actualizó su proveedor correctamente";
+                $mensaje = "Se actualizó su trading correctamente";
                 $status = "success";
             } else {
                 $title = "Error";
-                $mensaje = "Hubo un error al actualizar su proveedor";
+                $mensaje = "Hubo un error al actualizar su trading";
                 $status = "error";
             }
 
@@ -78,31 +78,31 @@ class ProviderController extends Controller
             $status = "error";
         }
 
-        $suppliers = Provider::get();
+        $traidings = Traiding::get();
 
-        return response()->json(["view"=>view('provider.table.tableProvider', compact('suppliers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        return response()->json(["view"=>view('traiding.table.tableTraiding', compact('traidings'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
 
     }
 
-    public function deleteProvider(Request $request)
+    public function deleteTraiding(Request $request)
     {
         $title = "Error";
         $mensaje = "Error desconocido";
         $status = "error";
-        $provider = Provider::find($request->id);
-        if ($provider == null) {
+        $traiding = Traiding::find($request->id);
+        if ($traiding == null) {
             $title = "Error";
-            $mensaje = "Hubo un error con su proveedor";
+            $mensaje = "Hubo un error con el traiding";
             $status = "error";
         }
         try {
-            if ($provider->delete()) {
+            if ($traiding->delete()) {
                 $title = "Correcto";
-                $mensaje = "Su proveedor se eliminó correctamente";
+                $mensaje = "El traiding se elimninó correctamente";
                 $status = "success";
             } else {
                 $title = "Error";
-                $mensaje = "No se pudo eliminar su proveedor";
+                $mensaje = "No se pudo eliminar el traiding";
                 $status = "error";
             }
         } catch (Exception $e) {
@@ -111,19 +111,19 @@ class ProviderController extends Controller
             $status = "error";
         }
 
-        $suppliers = Provider::get();
+        $traidings = Traiding::get();
 
-        return response()->json(["view"=>view('provider.table.tableProvider', compact('suppliers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        return response()->json(["view"=>view('traiding.table.tableTraiding', compact('traidings'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
 
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Traiding  $traiding
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Traiding $traiding)
     {
         //
     }
@@ -131,10 +131,10 @@ class ProviderController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Traiding  $traiding
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Traiding $traiding)
     {
         //
     }
@@ -143,10 +143,10 @@ class ProviderController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Models\Traiding  $traiding
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Traiding $traiding)
     {
         //
     }
@@ -154,10 +154,10 @@ class ProviderController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Models\Traiding  $traiding
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Traiding $traiding)
     {
         //
     }
