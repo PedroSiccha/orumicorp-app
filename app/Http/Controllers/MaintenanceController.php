@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Agent;
 use App\Models\Campaing;
 use App\Models\CustomerStatus;
+use App\Models\Platform;
 use App\Models\Premio;
 use App\Models\Provider;
+use App\Models\Traiding;
+use App\Models\TransactionType;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,10 +29,16 @@ class MaintenanceController extends Controller
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $rouletteSpin = $agent->number_turns ?: 0;
 
-        $customersStatus = CustomerStatus::get();
+        $customerStatusController = new CustomerStatusController();
+        $customersStatus = $customerStatusController->index();
+
+        // $customersStatus = CustomerStatus::get();
         $campaigns = Campaing::get();
         $suppliers = Provider::get();
-        return view('maintenance.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'customersStatus', 'campaigns', 'suppliers'));
+        $platforms = Platform::get();
+        $traidings = Traiding::get();
+        $transactionsType = TransactionType::get();
+        return view('maintenance.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'customersStatus', 'campaigns', 'suppliers', 'platforms', 'traidings', 'transactionsType'));
     }
 
     public function create()

@@ -66,16 +66,28 @@
                         <tbody>
                             @foreach ($customers as $customer)
                                 <tr class="{{ $customer->status_color }}">
-                                    <td>{{ $customer->last_communication_date }}</td>
-                                    <td>{{ $customer->customer_id }}</td>
+                                    <td>
+                                        @if ($customer->latestComunication)
+                                            {{ date("d/m/Y", strtotime($customer->latestComunication->date)) }}
+                                        @else
+                                            Sin Comunicación
+                                        @endif
+                                    </td>
+                                    <td>{{ $customer->id }}</td>
                                     <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
-                                    <td>{{ $customer->last_communication_date }}</td>
-                                    <td>{{ $customer->last_assignment_date }}</td>
+                                    <td>
+                                        @if ($customer->latestComunication)
+                                            {{ date("d/m/Y", strtotime($customer->latestComunication->date)) }}
+                                        @else
+                                            Sin Comunicación
+                                        @endif
+                                    </td>
+                                    <td>{{ $customer->latestSupplier }}</td>
                                     <td>{{ $customer->assignment_description }}</td>
                                     <td>{{ $customer->provider_name }}</td>
                                     <td>{{ $customer->campaign_name }}</td>
                                     <td>
-                                        <a href="{{ route('profileClient', ['id' => $customer->customer_id]) }}">
+                                        <a href="{{ route('profileClient', ['id' => $customer->id]) }}">
                                             {{ $customer->customer_name }}
                                         </a>
                                     </td>

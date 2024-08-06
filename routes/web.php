@@ -126,5 +126,28 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/maintenance', [App\Http\Controllers\MaintenanceController::class, 'index'])->name('maintenance');
 
+    Route::post('/saveCustomerStatus', [App\Http\Controllers\CustomerStatusController::class, 'saveCustomerStatus'])->name('saveCustomerStatus');
+    Route::post('/updateCustomerStatus', [App\Http\Controllers\CustomerStatusController::class, 'updateCustomerStatus'])->name('updateCustomerStatus');
+    Route::post('/deleteCustomerStatus', [App\Http\Controllers\CustomerStatusController::class, 'deleteCustomerStatus'])->name('deleteCustomerStatus');
+
+    Route::post('/saveCampaign', [App\Http\Controllers\CampaingController::class, 'saveCampaign'])->name('saveCampaign');
+    Route::post('/updateCampaign', [App\Http\Controllers\CampaingController::class, 'updateCampaign'])->name('updateCampaign');
+    Route::post('/deleteCampaign', [App\Http\Controllers\CampaingController::class, 'deleteCampaign'])->name('deleteCampaign');
+
+    Route::post('/saveProvider', [App\Http\Controllers\ProviderController::class, 'saveProvider'])->name('saveProvider');
+    Route::post('/updateProvider', [App\Http\Controllers\ProviderController::class, 'updateProvider'])->name('updateProvider');
+    Route::post('/deleteProvider', [App\Http\Controllers\ProviderController::class, 'deleteProvider'])->name('deleteProvider');
+
+    Route::post('/savePlatform', [App\Http\Controllers\PlatformController::class, 'savePlatform'])->name('savePlatform');
+    Route::post('/updatePlatform', [App\Http\Controllers\PlatformController::class, 'updatePlatform'])->name('updatePlatform');
+    Route::post('/deletePlatform', [App\Http\Controllers\PlatformController::class, 'deletePlatform'])->name('deletePlatform');
+
+    Route::post('/saveTraiding', [App\Http\Controllers\TraidingController::class, 'saveTraiding'])->name('saveTraiding');
+    Route::post('/updateTraiding', [App\Http\Controllers\TraidingController::class, 'updateTraiding'])->name('updateTraiding');
+    Route::post('/deleteTraiding', [App\Http\Controllers\TraidingController::class, 'deleteTraiding'])->name('deleteTraiding');
+
+    Route::post('/saveTransactionType', [App\Http\Controllers\TransactionTypeController::class, 'saveTransactionType'])->name('saveTransactionType');
+    Route::post('/updateTransactionType', [App\Http\Controllers\TransactionTypeController::class, 'updateTransactionType'])->name('updateTransactionType');
+    Route::post('/deleteTransactionType', [App\Http\Controllers\TransactionTypeController::class, 'deleteTransactionType'])->name('deleteTransactionType');
 });
 

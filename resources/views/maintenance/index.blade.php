@@ -32,6 +32,9 @@ Mantenimiento
                                             <li><a class="nav-link active show" href="#tab-customer-status" data-toggle="tab">Estados de Clientes</a></li>
                                             <li><a class="nav-link" href="#tab-campaign" data-toggle="tab">Campañas</a></li>
                                             <li><a class="nav-link" href="#tab-provider" data-toggle="tab">Proveedores</a></li>
+                                            <li><a class="nav-link" href="#tab-platform" data-toggle="tab">Platform</a></li>
+                                            <li><a class="nav-link" href="#tab-traiding" data-toggle="tab">Traiding</a></li>
+                                            <li><a class="nav-link" href="#tab-transaction-type" data-toggle="tab">Tipo de Transacción</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -39,7 +42,7 @@ Mantenimiento
                                 <div class="panel-body">
 
                                     <div class="tab-content">
-                                        <div class="tab-pane active show" id="tab-status">
+                                        <div class="tab-pane active show" id="tab-customer-status">
                                             <div class="col-lg-12">
                                                 <div class="ibox ">
                                                     <div class="ibox-title d-flex justify-content-between align-items-center">
@@ -50,31 +53,11 @@ Mantenimiento
                                                     </div>
                                                     <div class="ibox-content" id="tabStatus">
                                                         <div class="table-responsive">
-                                                            <table class="table table-striped">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>ID</th>
-                                                                        <th>Nombre</th>
-                                                                        <th>Color</th>
-                                                                        <th>Acción</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach ($customersStatus as $customerStatus)
-                                                                    <tr>
-                                                                        <td>{{ $customerStatus->id }}</td>
-                                                                        <td>{{ $customerStatus->name }}</td>
-                                                                        <td>{{ $customerStatus->color }}</td>
-                                                                        <td>
-                                                                            <div class="d-flex align-items-center">
-                                                                                <button class="btn btn-warning " type="button" onclick="editarStatus({id: '{{ $customerStatus->id }}', nombre: '{{ $customerStatus->name }}', color: '{{ $customerStatus->color }}', modal: '#modalEstado', inputId: '#idComunication', inputName: '#nameStatus', inputColor: '#colorStatus', tableName: '#tabStatus'})"><i class="fa fa-pencil"></i></button>
-                                                                                <button class="btn btn-danger " type="button" onclick="eliminarStatus({id: '{{ $customerStatus->id }}', tableName: '#tabStatus'})"><i class="fa fa-trash"></i></button>
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                    @endforeach
-                                                                </tbody>
-                                                            </table>
+                                                            @if ($customersStatus->isEmpty())
+                                                                <p>No hay datos disponibles.</p>
+                                                            @else
+                                                                @include('customerStatus.table.tableCustomerStatus')
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
@@ -86,40 +69,16 @@ Mantenimiento
                                                     <div class="ibox-title d-flex justify-content-between align-items-center">
                                                         <h5>Tabla Campañas </h5>
                                                         <div>
-                                                            <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalCampaign')"><i class="fa fa-plus"></i> Nueva Campaña</button>
+                                                            <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearCampaign')"><i class="fa fa-plus"></i> Nueva Campaña</button>
                                                         </div>
                                                     </div>
                                                     <div class="ibox-content" id="tabCampaing">
                                                         <div class="table-responsive">
-                                                            <table class="table table-striped">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>ID</th>
-                                                                        <th>Nombre</th>
-                                                                        <th>Descripción</th>
-                                                                        <th>Inicio</th>
-                                                                        <th>Fin</th>
-                                                                        <th>Acción</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach ($campaigns as $campaign)
-                                                                        <tr>
-                                                                            <td>{{ $campaign->id }}</td>
-                                                                            <td>{{ $campaign->name }}</td>
-                                                                            <td>{{ $campaign->description }}</td>
-                                                                            <td>{{ $campaign->start_date }}</td>
-                                                                            <td>{{ $campaign->end_date }}</td>
-                                                                            <td>
-                                                                                <div class="d-flex align-items-center">
-                                                                                    <button class="btn btn-warning " type="button" onclick="editarCampaign({idCampaign: '{{ $campaign->id }}', name: '{{ $campaign->name }}', description: '{{ $campaign->description }}', startDate: '{{ $campaign->start_date }}', endDate: '{{ $campaign->end_date }}', modal: '#modalCampaign', inputId: '#idCampaign', inputName: '#nameCampaign', inputDescription: '#descriptionCampign', inputStartDate: '#startDateCampign', inputEndCampaign: '#endDateCampaign', tableName: '#tabCampaign'})"><i class="fa fa-pencil"></i></button>
-                                                                                    <button class="btn btn-danger " type="button" onclick="eliminarCampaign({idCampaign: '{{ $campaign->id }}', tableName: '#tabClient'})"><i class="fa fa-trash"></i></button>
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                    @endforeach
-                                                                </tbody>
-                                                            </table>
+                                                            @if ($campaigns->isEmpty())
+                                                                <p>No hay datos disponibles.</p>
+                                                            @else
+                                                                @include('campaign.table.tableCampaign')
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
@@ -132,38 +91,82 @@ Mantenimiento
                                                     <div class="ibox-title d-flex justify-content-between align-items-center">
                                                         <h5>Tabla Proveedores </h5>
                                                         <div>
-                                                            <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalProveedor')"><i class="fa fa-plus"></i> Nuevo Proveedor</button>
+                                                            <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearProvider')"><i class="fa fa-plus"></i> Nuevo Proveedor</button>
                                                         </div>
                                                     </div>
                                                     <div class="ibox-content" id="tabProvider">
                                                         <div class="table-responsive">
-                                                            <table class="table table-striped">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>ID</th>
-                                                                        <th>Nombre</th>
-                                                                        <th>Teléfono</th>
-                                                                        <th>Correo</th>
-                                                                        <th>Acción</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach ($suppliers as $supplier)
-                                                                        <tr>
-                                                                            <td>{{ $supplier->id }}</td>
-                                                                            <td>{{ $supplier->name }}</td>
-                                                                            <td>{{ $supplier->phone }}</td>
-                                                                            <td>{{ $supplier->email }}</td>
-                                                                            <td>
-                                                                                <div class="d-flex align-items-center">
-                                                                                    <button class="btn btn-warning " type="button" onclick="editarProveedor({id: '{{ $supplier->id }}', name: '{{ $supplier->name }}', phone: '{{ $supplier->phone }}', email: '{{ $supplier->email }}', modal: '#modalProveedor', inputId: '#idProveedor', inputName: '#nameProveedor', inputPhone: '#phoneProveedor', inputEmail: '#emailProveedor', tableName: '#tabProvider'})"><i class="fa fa-pencil"></i></button>
-                                                                                    <button class="btn btn-danger " type="button" onclick="eliminarProveedor({id: '{{ $supplier->id }}', tableName: '#tabProvider'})"><i class="fa fa-trash"></i></button>
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                    @endforeach
-                                                                </tbody>
-                                                            </table>
+                                                            @if ($suppliers->isEmpty())
+                                                                <p>No hay datos disponibles.</p>
+                                                            @else
+                                                                @include('provider.table.tableProvider')
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tab-pane" id="tab-platform">
+                                            <div class="col-lg-12">
+                                                <div class="ibox ">
+                                                    <div class="ibox-title d-flex justify-content-between align-items-center">
+                                                        <h5>Tabla Platform </h5>
+                                                        <div>
+                                                            <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearPlatform')"><i class="fa fa-plus"></i> Nueva Platform</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ibox-content" id="tabPlatform">
+                                                        <div class="table-responsive">
+                                                            @if ($platforms->isEmpty())
+                                                                <p>No hay datos disponibles.</p>
+                                                            @else
+                                                                @include('platform.table.tablePlatform')
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tab-pane" id="tab-traiding">
+                                            <div class="col-lg-12">
+                                                <div class="ibox ">
+                                                    <div class="ibox-title d-flex justify-content-between align-items-center">
+                                                        <h5>Tabla Traiding </h5>
+                                                        <div>
+                                                            <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearTraiding')"><i class="fa fa-plus"></i> Nuevo Traiding</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ibox-content" id="tabTraiding">
+                                                        <div class="table-responsive">
+                                                            @if ($traidings->isEmpty())
+                                                                <p>No hay datos disponibles.</p>
+                                                            @else
+                                                                @include('traiding.table.tableTraiding')
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tab-pane" id="tab-transaction-type">
+                                            <div class="col-lg-12">
+                                                <div class="ibox ">
+                                                    <div class="ibox-title d-flex justify-content-between align-items-center">
+                                                        <h5>Tabla Tipo de Transacción </h5>
+                                                        <div>
+                                                            <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearTransactionType')"><i class="fa fa-plus"></i> Nuevo Tipo de Transacción</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ibox-content" id="tabTransactionType">
+                                                        <div class="table-responsive">
+                                                            @if ($transactionsType->isEmpty())
+                                                                <p>No hay datos disponibles.</p>
+                                                            @else
+                                                                @include('transactionType.table.tableTransactionType')
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
@@ -179,8 +182,26 @@ Mantenimiento
         </div>
     </div>
 </div>
+@include('customerStatus.modal.modalCrear')
+@include('customerStatus.modal.modalEditar')
+
+@include('campaign.modal.modalCrear')
+@include('campaign.modal.modalEditar')
+
+@include('provider.modal.modalCrear')
+@include('provider.modal.modalEditar')
+
+@include('platform.modal.modalCrear')
+@include('platform.modal.modalEditar')
+
+@include('traiding.modal.modalCrear')
+@include('traiding.modal.modalEditar')
+
+@include('transactionType.modal.modalCrear')
+@include('transactionType.modal.modalEditar')
+
 @endsection
-@push('scripts')
+@section('script')
     <script>
         var saveCustomerStatusRoute = '{{ route("saveCustomerStatus") }}';
         var updateCustomerStatusRoute = '{{ route("updateCustomerStatus") }}';
@@ -191,19 +212,43 @@ Mantenimiento
         var saveProviderRoute = '{{ route("saveProvider") }}';
         var updateProviderRoute = '{{ route("updateProvider") }}';
         var deleteProviderRoute = '{{ route("deleteProvider") }}';
+        var savePlatformRoute = '{{ route("savePlatform") }}';
+        var updatePlatformRoute = '{{ route("updatePlatform") }}';
+        var deletePlatformRoute = '{{ route("deletePlatform") }}';
+        var saveTraidingRoute = '{{ route("saveTraiding") }}';
+        var updateTraidingRoute = '{{ route("updateTraiding") }}';
+        var deleteTraidingRoute = '{{ route("deleteTraiding") }}';
+        var saveTransactionTypeRoute = '{{ route("saveTransactionType") }}';
+        var updateTransactionTypeRoute = '{{ route("updateTransactionType") }}';
+        var deleteTransactionTypeRoute = '{{ route("deleteTransactionType") }}';
         var token = '{{ csrf_token() }}';
     </script>
 
     <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
     <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+
     <script src="{{ asset('js/customerStatus/createCustomerStatus.js') }}"></script>
     <script src="{{ asset('js/customerStatus/editCustomerStatus.js') }}"></script>
     <script src="{{ asset('js/customerStatus/deleteCustomerStatus.js') }}"></script>
+
     <script src="{{ asset('js/campaign/createCampaign.js') }}"></script>
     <script src="{{ asset('js/campaign/editCampaign.js') }}"></script>
     <script src="{{ asset('js/campaign/deleteCampaign.js') }}"></script>
+
     <script src="{{ asset('js/provider/createProvider.js') }}"></script>
     <script src="{{ asset('js/provider/editProvider.js') }}"></script>
     <script src="{{ asset('js/provider/deleteProvider.js') }}"></script>
-@endpush
+
+    <script src="{{ asset('js/platform/createPlatform.js') }}"></script>
+    <script src="{{ asset('js/platform/editPlatform.js') }}"></script>
+    <script src="{{ asset('js/platform/deletePlatform.js') }}"></script>
+
+    <script src="{{ asset('js/traiding/createTraiding.js') }}"></script>
+    <script src="{{ asset('js/traiding/editTraiding.js') }}"></script>
+    <script src="{{ asset('js/traiding/deleteTraiding.js') }}"></script>
+
+    <script src="{{ asset('js/transactionType/createTransactionType.js') }}"></script>
+    <script src="{{ asset('js/transactionType/editTransactionType.js') }}"></script>
+    <script src="{{ asset('js/transactionType/deleteTransactionType.js') }}"></script>
+@endsection
 
