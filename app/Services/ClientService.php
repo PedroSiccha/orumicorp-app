@@ -82,10 +82,12 @@ class ClientService implements ClientInterface {
                 'latestCampaign',
                 'latestSupplier',
                 'provider',
-                'status',
+                'statusCustomer',
                 'platform',
                 'traiding',
-                'latestComunication'
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
                 // 'views' => function ($query) {
                 //     $query->orderBy('created_at', 'desc')->take(1);
                 // },
