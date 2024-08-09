@@ -34,7 +34,7 @@ class AgentService implements AgentInterface {
             $dataUser = $client;
         }
 
-        $agents = Agent::orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->paginate(10);
         $areas = Area::where('status', true)->get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
@@ -45,8 +45,8 @@ class AgentService implements AgentInterface {
 
     public function searchAgent($request)
     {
-        $agent = Agent::where('dni', $request->dni)
-                      ->orWhere('code', $request->dni)
+        $agent = Agent::where('code_voiso', $request->codeVoiso)
+                      ->orWhere('code', $request->codeVoiso)
                       ->first();
 
         return $agent->name . " " . $agent->lastname;
@@ -68,10 +68,11 @@ class AgentService implements AgentInterface {
             $agent->code = $requestData->code;
             $agent->name = $requestData->name;
             $agent->lastname = $requestData->lastname;
-            $agent->dni = $requestData->dni;
+            $agent->code_voiso = $requestData->codeVoiso;
             $agent->status = true;
             $agent->area_id = $requestData->area_id;
             $agent->user_id = $user->id;
+            $agent->status_voiso = 'LIBRE';
             if ($agent->save()) {
                 $resp = 1;
             }
@@ -88,6 +89,7 @@ class AgentService implements AgentInterface {
         $agent->name = $requestData->name;
         $agent->lastname = $requestData->lastname;
         $agent->area_id = $requestData->area_id;
+        $agent->code_voiso = $requestData->codeVoiso;
         if ($agent->save()) {
             $user = User::find($agent->user_id);
             $user->name = $requestData->name;

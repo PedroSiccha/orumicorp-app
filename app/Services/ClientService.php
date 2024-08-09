@@ -74,9 +74,6 @@ class ClientService implements ClientInterface {
             //$customers = Customers::orderBy('date_admission')->get();
             // $customers = CustomerSummary::orderBy('date_admission')->get();
             $customers = Customers::with([
-                // 'sales' => function ($query) {
-                //     $query->orderBy('created_at', 'desc')->take(1);
-                // },
                 'user',
                 'agent',
                 'latestCampaign',
@@ -88,16 +85,26 @@ class ClientService implements ClientInterface {
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-                // 'views' => function ($query) {
-                //     $query->orderBy('created_at', 'desc')->take(1);
-                // },
-            ])->get();
+            ])->orderBy('date_admission')->paginate(10);
 
             // dd($customers);
 
         } else {
             //$customers = Customers::where('agent_id', $agent->id)->orderBy('date_admission')->get();
-            $customers = CustomerSummary::where('agent_id', $agent->id)->orderBy('date_admission')->get();
+            // $customers = CustomerSummary::where('agent_id', $agent->id)->orderBy('date_admission')->get();
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->where('agent_id', $agent->id)->orderBy('date_admission')->paginate(10);
         }
 
         $asignCustomers = Customers::where('agent_id', null)->where('status', 1)->orderBy('date_admission')->get();
