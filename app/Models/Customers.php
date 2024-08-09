@@ -30,6 +30,11 @@ class Customers extends Model
         return $this->hasMany(Comunications::class);
     }
 
+    public function assignaments()
+    {
+        return $this->hasMany(Assignment::class);
+    }
+
     public function campaigns()
     {
         // return $this->belongsToMany(Campaing::class, 'campaign_customers', 'customer_id', 'campaign_id')
@@ -48,7 +53,7 @@ class Customers extends Model
         return $this->belongsTo(Provider::class, 'id_provider');
     }
 
-    public function status()
+    public function statusCustomer()
     {
         return $this->belongsTo(CustomerStatus::class, 'id_status');
     }
@@ -90,6 +95,16 @@ class Customers extends Model
     public function latestComunication()
     {
         return $this->hasOne(Comunications::class, 'customer_id')->latest('date')->take(1);
+    }
+
+    public function latestAssignamet()
+    {
+        return $this->hasOne(Assignment::class, 'customer_id')->with(['agent'])->latest('date')->take(1);
+    }
+
+    public function latestDeposit()
+    {
+        return $this->hasOne(Deposit::class, 'customer_id')->with(['agent', 'transactionType'])->latest('date')->take(1);
     }
 
 }

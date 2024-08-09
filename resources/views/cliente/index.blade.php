@@ -82,28 +82,94 @@
                                             Sin Comunicación
                                         @endif
                                     </td>
-                                    <td>{{ $customer->latestSupplier }}</td>
-                                    <td>{{ $customer->assignment_description }}</td>
-                                    <td>{{ $customer->provider_name }}</td>
-                                    <td>{{ $customer->campaign_name }}</td>
+                                    <td>
+                                        @if ($customer->latestAssignamet)
+                                            {{ date("d/m/Y", strtotime($customer->latestAssignamet->date)) }}
+                                        @else
+                                            Sin Asignacion
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($customer->latestAssignamet)
+                                            {{ date("d/m/Y", strtotime($customer->latestAssignamet->date)) }}
+                                        @else
+                                            Sin Asignacion
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($customer->provider)
+                                            {{ $customer->provider->name }}
+                                        @else
+                                            Sin Proveedor
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($customer->latestCampaign)
+                                            {{ $customer->latestCampaign }}
+                                        @else
+                                            Sin Campaña
+                                        @endif
+                                    </td>
                                     <td>
                                         <a href="{{ route('profileClient', ['id' => $customer->id]) }}">
-                                            {{ $customer->customer_name }}
+                                            {{ $customer->name }} {{ $customer->lastname }}
                                         </a>
                                     </td>
-                                    <td>{{ $customer->user_email }}</td>
+                                    <td>{{ $customer->email }}</td>
                                     <td>{{ $customer->phone }}</td>
-                                    <td>{{ $customer->phone }}</td> <!-- Modificar Número Opcional -->
+                                    <td>{{ $customer->optiomal_phone }}</td> <!-- Modificar Número Opcional -->
                                     <td>{{ $customer->city }}</td>
                                     <td>{{ $customer->country }}</td>
-                                    <td>{{ $customer->customer_status }}</td> <!-- Modificar Tiene que ser de la tabla ESTADOS -->
-                                    <td>{{ $customer->agent_name }}</td>
-                                    <td>{{ $customer->communication_comment }}</td>
+                                    <td>
+                                        @if ($customer->statusCustomer)
+                                            {{ $customer->statusCustomer->name }}
+                                        @else
+                                            Sin Estado
+                                        @endif
+                                    </td> <!-- Modificar Tiene que ser de la tabla ESTADOS -->
+                                    <td>
+                                        @if ($customer->latestAssignamet)
+                                            {{ $customer->latestAssignamet->agent->name }}
+                                        @else
+                                            Sin Asignacion
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($customer->latestComunication)
+                                            {{ $customer->latestComunication->comment }}
+                                        @else
+                                            Sin Comentario
+                                        @endif
+                                    </td>
                                     <td>{{ $customer->last_communication_date }}</td>
-                                    <td>{{ $customer->last_communication_date }}</td>
-                                    <td>{{ $customer->deposit_type }}</td>
-                                    <td>{{ $customer->deposit_number }}</td>
-                                    <td>{{ $customer->total_deposit }}</td>
+                                    <td>
+                                        @if ($customer->latestDeposit)
+                                            {{ date("d/m/Y", strtotime($customer->latestDeposit->date)) }}
+                                        @else
+                                            Sin Depósito
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($customer->latestDeposit)
+                                            {{ $customer->latestDeposit->transactionType->name }}
+                                        @else
+                                            Sin Depósito
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($customer->latestDeposit)
+                                            {{ $customer->latestDeposit->number }}
+                                        @else
+                                            Sin Depósito
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($customer->latestDeposit)
+                                            $ {{ $customer->latestDeposit->amount }}
+                                        @else
+                                            Sin Depósito
+                                        @endif
+                                    </td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}', modal: '#modalCrearComentario', input: '#idComunication'})"><i class="fa fa-phone"></i> </button>

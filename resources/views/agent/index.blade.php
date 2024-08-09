@@ -40,9 +40,10 @@
                   <table class="table table-striped">
                       <thead>
                         <tr>
+                              <th>Estado</th>
                               <th>ID de Agente</th>
                               <th>Nombre del Agente</th>
-                              <th>DNI</th>
+                              <th>Código Voiso</th>
                               <th>Área</th>
                               <th>Correo</th>
                               <th>Cantidad de Giros</th>
@@ -52,13 +53,14 @@
                       <tbody>
                         @foreach ($agents as $agent)
                             <tr @if($agent->status == 0) class="table-danger" @endif>
+                                <td><p @if($agent->status_voiso == 'LIBRE') class="text-navy" @else class="text-danger" @endif>{{ $agent->status_voiso }}</p></td>
                                 <td>{{ $agent->code }}</td>
                                 <td>
                                     <a href="{{ route('perfilUsuario', ['id' => $agent->user->id]) }}">
                                         {{ $agent->name }} {{ $agent->lastname }}
                                     </a>
                                 </td>
-                                <td>{{ $agent->dni }}</td>
+                                <td>{{ $agent->code_voiso }}</td>
                                 <td>{{ $agent->area->name }}</td>
                                 <td>{{ $agent->user->email }}</td>
                                 <td>{{ $agent->number_turns }}</td>
@@ -127,10 +129,10 @@
                         </tr>
                         <tr>
                             <td>
-                                <strong>DNI</strong>
+                                <strong>Código Voiso</strong>
                             </td>
                             <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su dni" id='dni'>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Registro Código Voiso" id='dni'>
                             </td>
                         </tr>
                         <tr>
