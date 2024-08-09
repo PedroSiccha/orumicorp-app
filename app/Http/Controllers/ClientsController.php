@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Imports\CustomersImport;
 use App\Imports\UsersImport;
 use App\Interfaces\ClientInterface;
+use App\Interfaces\RolesInterface;
 use App\Interfaces\UserInterface;
 use App\Models\Agent;
 use App\Models\Configuration;
@@ -26,18 +27,65 @@ use Webpatser\Countries\Countries;
 
 class ClientsController extends Controller
 {
-    protected $clientService, $userService;
+    protected $clientService, $userService, $rolesService;
 
     public function __construct(
-        ClientInterface $clientService
+        ClientInterface $clientService,
+        RolesInterface $rolesService,
     ) {
         $this->clientService = $clientService;
+        $this->rolesService = $rolesService;
     }
 
     public function index()
     {
         $data = $this->clientService->index();
         return view('cliente.index', $data);
+    }
+
+    public function clientsPagination()
+    {
+
+        $myRoles = $this->rolesService->getMyRoles();
+        $myRolesId = $myRoles['rolesId'];
+
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission')->paginate(10);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->where('agent_id', $agent->id)->orderBy('date_admission')->paginate(10);
+        }
+
+        return view('cliente.list.listCustomer', compact('customers'))->render();
     }
 
     public function saveCustomer(Request $request)

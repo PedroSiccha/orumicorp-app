@@ -20,6 +20,12 @@ class AgentController extends Controller
         return view('agent.index', $data);
     }
 
+    public function agentsPagination()
+    {
+        $agents = Agent::orderBy('lastname')->paginate(10);
+        return view('agent.list.listAgent', compact('agents'))->render();
+    }
+
     public function searchAgent(Request $request)
     {
         $name = $this->agentService->searchAgent($request);

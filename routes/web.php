@@ -36,6 +36,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/filterAgent', [App\Http\Controllers\AgentController::class, 'filterAgent'])->name('filterAgent');
     Route::post('/uploadImg', [App\Http\Controllers\AgentController::class, 'uploadImg'])->name('uploadImg');
     Route::post('/changePassword', [App\Http\Controllers\AgentController::class, 'changePassword'])->name('changePassword');
+    Route::get('/agentsPagination', [App\Http\Controllers\AgentController::class, 'agentsPagination'])->name('agentsPagination');
 
     Route::get('areas', [\App\Http\Controllers\AreaController::class, 'index'])->name('areas');
     Route::post('/saveArea', [App\Http\Controllers\AreaController::class, 'saveArea'])->name('saveArea');
@@ -54,6 +55,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/uploadExcel', [App\Http\Controllers\ClientsController::class, 'uploadExcel'])->name('uploadExcel');
     Route::get('/profileClient/{id}', [App\Http\Controllers\ClientsController::class, 'profileClient'])->name('profileClient');
     Route::post('/saveConfigTable', [App\Http\Controllers\ClientsController::class, 'saveConfigTable'])->name('saveConfigTable');
+    Route::get('/clientsPagination', [App\Http\Controllers\ClientsController::class, 'clientsPagination'])->name('clientsPagination');
 
 
     Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
