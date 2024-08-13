@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
+use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -25,7 +26,8 @@ class ShooterController extends Controller
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $rouletteSpin = $agent->number_turns ?: 0;
-        return view('shooter.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser'));
+        $clients = Customers::where('id_status', 1)->with(['latestComunication', 'latestCampaign', 'latestSupplier'])->get();
+        return view('shooter.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'clients'));
     }
 
     /**

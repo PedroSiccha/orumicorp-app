@@ -9,10 +9,15 @@ use App\Interfaces\ProviderInterface;
 use App\Interfaces\RolesInterface;
 use App\Interfaces\UserInterface;
 use App\Models\Agent;
+use App\Models\Assignment;
 use App\Models\Configuration;
 use App\Models\Customers;
+use App\Models\CustomerStatus;
 use App\Models\CustomerSummary;
+use App\Models\Platform;
 use App\Models\Premio;
+use App\Models\Provider;
+use App\Models\Traiding;
 use App\Models\User;
 use App\Rules\PhoneNumberFormat;
 use Carbon\Carbon;
@@ -70,7 +75,7 @@ class ClientService implements ClientInterface {
             $dataUser = $client;
         }
 
-        if ($myRoles['roles']== 'ADMINISTRADOR') {
+        if ($myRoles['roles'] == 'ADMINISTRADOR') {
             //$customers = Customers::orderBy('date_admission')->get();
             // $customers = CustomerSummary::orderBy('date_admission')->get();
             $customers = Customers::with([
@@ -85,7 +90,7 @@ class ClientService implements ClientInterface {
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->orderBy('date_admission')->paginate(10);
+            ])->orderBy('date_admission', 'desc')->paginate(10);
 
             // dd($customers);
 
@@ -104,7 +109,7 @@ class ClientService implements ClientInterface {
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('agent_id', $agent->id)->orderBy('date_admission')->paginate(10);
+            ])->where('agent_id', $agent->id)->orderBy('date_admission', 'desc')->paginate(10);
         }
 
         $asignCustomers = Customers::where('agent_id', null)->where('status', 1)->orderBy('date_admission')->get();
@@ -227,9 +232,11 @@ class ClientService implements ClientInterface {
             $configTablesComment->save();
         }
 
+        $providers = Provider::all();
+        $platforms = Platform::all();
+        $traidings = Traiding::all();
 
-
-        return compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers', 'myRolesId', 'configTablesDateInit', 'configTablesCode', 'configTablesPhone', 'configTablesOptionalPhone', 'configTablesEmail', 'configTablesCity', 'configTablesCountry', 'configTablesComment');
+        return compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers', 'myRolesId', 'configTablesDateInit', 'configTablesCode', 'configTablesPhone', 'configTablesOptionalPhone', 'configTablesEmail', 'configTablesCity', 'configTablesCountry', 'configTablesComment', 'providers', 'platforms', 'traidings');
     }
 
     public function saveClient($request) {
@@ -239,7 +246,8 @@ class ClientService implements ClientInterface {
 
         try {
 
-            $role = Role::find($request->rol_id);
+            $role = Role::where('name', 'CLIENTE')->first();
+            $statusClient = CustomerStatus::where('name', 'NUEVO')->first();
 
             $request->validate([
                 'phone' => ['required', new PhoneNumberFormat],
@@ -251,7 +259,7 @@ class ClientService implements ClientInterface {
             $user->email = $request->email;
             $user->password = Hash::make($request->dni);
             if ($user->save()) {
-                $user->assignRole($role);
+                $user->assignRole($role->id);
                 $client = new Customers();
                 $client->code = $request->code;
                 $client->name = $request->name;
@@ -263,8 +271,18 @@ class ClientService implements ClientInterface {
                 $client->date_admission = Carbon::now();
                 $client->status = true;
                 $client->user_id = $user->id;
-                $client->comment = $request->comment;
                 $client->email = $request->email;
+                if ($request->provide_id != 'Seleccione un proveedor') {
+                    $client->id_provider = $request->provide_id;
+                }
+                if ($request->platform_id != 'Seleccione su platform') {
+                    $client->platform_id = $request->platform_id;
+                }
+                $client->id_status = $statusClient->id;
+                if ($request->traiding_id != 'Seleccione su Traiding') {
+                    $client->traiding_id = $request->traiding_id;
+                }
+
                 if ($client->save()) {
                     $title = "Correcto";
                     $mensaje = "El cliente se registró correctamente";
@@ -331,15 +349,27 @@ class ClientService implements ClientInterface {
         $mensaje = "Error desconocido";
         $status = "error";
 
-        $agent = Agent::where('dni', $request->dni_agent)
+        // dd($request->idGroupClientes);
+
+        $agent = Agent::where('code_voiso', $request->dni_agent)
                   ->orWhere('code', $request->dni_agent)
                   ->first();
 
+        $user_id = Auth::user()->id;
+
         try {
             foreach ($request->idGroupClientes as $idClient) {
-                $client = Customers::find($idClient);
-                $client->agent_id = $agent->id;
-                $client->save();
+
+                $assignament = new Assignment();
+                $assignament->agent_id = $agent->id;
+                $assignament->customer_id = $idClient;
+                $assignament->date = Carbon::now();
+                $assignament->assignated_by_id = $user_id;
+                $assignament->save();
+
+                // $client = Customers::find($idClient);
+                // $client->agent_id = $agent->id;
+                // $client->save();
             }
 
             $title = "Correcto";

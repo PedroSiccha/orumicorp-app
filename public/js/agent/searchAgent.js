@@ -1,6 +1,6 @@
-function searchAgent(inputDni, inputName) {
-    var dni = $(inputDni).val();
-    $.post(searchAgentRoute, {dni: dni, _token: token}).done(function(data) {
+function searchAgent(inputcodeVoiso, inputName) {
+    var codeVoiso = $(inputcodeVoiso).val();
+    $.post(searchAgentRoute, {codeVoiso: codeVoiso, _token: token}).done(function(data) {
         $(inputName).val(data.name);
     });
 }

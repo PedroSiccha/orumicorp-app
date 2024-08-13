@@ -11,9 +11,9 @@
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Clientes </h5>
                   <div>
-                    @can('Asignar Cliente Masivo')
-                        <button type="button" class="btn btn-info" type="button" onclick="mostrarNuevoModal('#modalAsignAgent')"><i class="fa fa-group"></i> Asignar Agente</button>
-                    @endcan
+                    {{-- @can('Asignar Cliente Masivo') --}}
+                        <button id="asignarBtn" type="button" class="btn btn-info" type="button" onclick="mostrarNuevoModal('#modalAsignAgent')" style="display: none;"><i class="fa fa-group"></i> Asignar Agente</button>
+                    {{-- @endcan --}}
                     @can('Crear Cliente')
                     <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalCliente')"><i class="fa fa-plus"></i> Nuevo Cliente</button>
                     @endcan
@@ -33,17 +33,16 @@
                     </ul>
                 </div>
               </div>
-              <div class="ibox-content" id="tabClient">
-                <div class="table-responsive">
+              <a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalAsignar')">Asignar</a>
+              <div class="ibox-content" >
+                <div class="table-responsive" id="tabClient">
                     @include('cliente.list.listCustomer')
-
                 </div>
             </div>
 
           </div>
       </div>
   </div>
-
 
   <div class="modal inmodal fade" id="modalChargeGroup" tabindex="-1" role="dialog"  aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -102,7 +101,7 @@
                     </div>
                 </div>
 
-                <table class="table m-b-xs">
+                {{-- <table class="table m-b-xs">
                     <tbody>
                         <tr>
                             <table class="table table-striped table-hover">
@@ -127,7 +126,7 @@
                             </table>
                         </tr>
                     </tbody>
-                </table>
+                </table> --}}
             </div>
 
             <div class="modal-footer">
@@ -147,99 +146,74 @@
                 <small class="font-bold">Registre su nuevo cliente</small>
             </div>
             <div class="modal-body">
-                <table class="table m-b-xs">
-                    <tbody>
-                        <tr>
-                            <td>
-                                <strong>Código</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su código" id='code'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Nombre</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su nombre" id='name'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Apellidos</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su apellido" id='lastname'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Teléfono</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='phone' class='form-control text-success' placeholder="Ingrese su teléfono" id='phone'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Teléfono Opcional</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='phone' class='form-control text-success' placeholder="Ingrese un teléfono opcional" id='optionalPhone'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Correo</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su Correo" id='email'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Ciudad</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su Ciudad" id='city'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Pais</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su Pais" id='country'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Comentario</strong>
-                            </td>
-                            <td>
-                                <textarea style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese un comentario" id='comment'></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                  <strong>Asignar un Rol</strong>
-                            </td>
-                            <td>
-                                  <select class="form-control m-b" name="account" id="rol_id">
-                                        <option>Seleccione su Rol</option>
-                                        @foreach($roles as $rol)
-                                        <option value = "{{ $rol->id }}">{{ $rol->name }}</option>
-                                        @endforeach
-                                    </select>
-                            </td>
-                      </tr>
-                    </tbody>
-                </table>
+                <div class="row">
+                    <div class="col-sm-6 b-r"><h3 class="m-t-none m-b">Datos Personales</h3>
+                        <div class="form-group">
+                            <label>Código</label>
+                            <input id="code" type="text" placeholder="Ingrese Código" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Nombres</label>
+                            <input id="name" type="text" placeholder="Ingrese Nombre" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Apellidos</label>
+                            <input id="lastname" type="text" placeholder="Ingrese Apellido" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input id="phone" type="text" placeholder="Ingrese Teléfono" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono Opcional</label>
+                            <input id="optionalPhone" type="text" placeholder="Ingrese Teléfono Opcional" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Correo</label>
+                            <input id="email" type="email" placeholder="Ingrese Correo" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Ciudad</label>
+                            <input id="city" type="text" placeholder="Ingrese Ciudad" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>País</label>
+                            <input id="country" type="text" placeholder="Ingrese País" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Proveedor</label>
+                            <select name="provider" id="provide_id" class="form-control m-b">
+                                <option>Seleccione un proveedor</option>
+                                @foreach ($providers as $provider)
+                                    <option value="{{ $provider->id }}">{{ $provider->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Platform</label>
+                            <select name="platform" id="platform_id" class="form-control m-b">
+                                <option>Seleccione su platform</option>
+                                @foreach ($platforms as $platform)
+                                    <option value="{{ $platform->id }}">{{ $platform->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Traiding</label>
+                            <select name="traiding" id="traiding_id" class="form-control m-b">
+                                <option>Seleccione su Traiding</option>
+                                @foreach ($traidings as $traiding)
+                                    <option value="{{ $traiding->id }}">{{ $traiding->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                </div>
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-info" type="button" onclick="guardarNuevoCliente('#code', '#name', '#lastname', '#phone', '#optionalPhone', '#email', '#city', '#country', '#comment',  '#rol_id', '#modalCliente', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info" type="button" onclick="guardarNuevoCliente('#code', '#name', '#lastname', '#phone', '#optionalPhone', '#email', '#city', '#country', '#provide_id', '#traiding_id', '#platform_id', '#modalCliente', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -643,6 +617,7 @@
 <script src="{{ asset('js/customer/saveConfigTable.js') }}"></script>
 <script src="{{ asset('js/customer/saveConfigTableLocal.js') }}"></script>
 <script src="{{ asset('js/comentario/guardarComentario.js') }}"></script>
+<script src="{{ asset('js/utils/viewCheck.js') }}"></script>
 
 <script>
     $(document).on('click', '.pagination a', function(event) {
