@@ -1,6 +1,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
+            <th>#</th>
             <th>Ultima llamada</th>
             <th>ID de Cliente</th>
             <th>Fecha de Ingreso</th>
@@ -29,6 +30,10 @@
     <tbody>
         @foreach ($customers as $customer)
             <tr class="{{ $customer->status_color }}">
+                <td>
+                    <div class="i-checks"><label> <input type="checkbox" class="i-checks flat chekboxses" name="idGroupClientes[]" value="{{ $customer->id }}" id="idGroupClientes"> <i></i> </label></div>
+                    {{-- <input type="checkbox" class="i-checks flat chekboxses" name="idGroupClientes[]" value="{{ $asignCustomer->id }}" id="idGroupClientes"> --}}
+                </td>
                 <td>
                     @if ($customer->latestComunication)
                         {{ date("d/m/Y", strtotime($customer->latestComunication->date)) }}
@@ -181,3 +186,5 @@
     </tbody>
 </table>
 {{ $customers->links() }}
+
+<script src="{{ asset('js/utils/viewCheck.js') }}"></script>

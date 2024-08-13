@@ -6,6 +6,7 @@ function assignGroupAgent(inputId, inputDni, modal, tableName) {
             idGroupClientes.push($(this).val());
         }
     );
+    // console.log('idGroupClientes', idGroupClientes);
     $.post(assignGroupAgentRoute, {idGroupClientes: idGroupClientes, dni_agent: dni_agent, _token: token}).done(function(data) {
         $(tableName).empty();
         $(tableName).html(data.view);

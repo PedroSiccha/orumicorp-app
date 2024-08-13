@@ -2,7 +2,7 @@ function nuevoCliente(modal) {
     $(modal).modal('show');
 }
 
-function guardarNuevoCliente(inputCode, inputName, inputLastname, inputPhone, inputOptionalPhone, inputEmail, inputCity, inputCountry, inputComment, inputRol, modal, tableName) {
+function guardarNuevoCliente(inputCode, inputName, inputLastname, inputPhone, inputOptionalPhone, inputEmail, inputCity, inputCountry, inputProvide, inputTraiding, inputPlatform, modal, tableName) {
 
     var code = $(inputCode).val();
     var name = $(inputName).val();
@@ -12,10 +12,11 @@ function guardarNuevoCliente(inputCode, inputName, inputLastname, inputPhone, in
     var email = $(inputEmail).val();
     var city = $(inputCity).val();
     var country = $(inputCountry).val();
-    var comment = $(inputComment).val();
-    var rol_id = $(inputRol).val();
+    var provide_id = $(inputProvide).val();
+    var traiding_id = $(inputTraiding).val();
+    var platform_id = $(inputPlatform).val();
 
-    $.post(saveCustomerRoute, {code: code, name: name, lastname: lastname, phone: phone, optionalPhone: optionalPhone, email: email, city: city, country: country, comment: comment, rol_id: rol_id, _token: token}).done(function(data) {
+    $.post(saveCustomerRoute, {code: code, name: name, lastname: lastname, phone: phone, optionalPhone: optionalPhone, email: email, city: city, country: country, provide_id: provide_id, traiding_id: traiding_id, platform_id: platform_id, _token: token}).done(function(data) {
 
         $(tableName).empty();
         $(tableName).html(data.view);

@@ -45,6 +45,7 @@ class AgentService implements AgentInterface {
 
     public function searchAgent($request)
     {
+        // dd($request);
         $agent = Agent::where('code_voiso', $request->codeVoiso)
                       ->orWhere('code', $request->codeVoiso)
                       ->first();

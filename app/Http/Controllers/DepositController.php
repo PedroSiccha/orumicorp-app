@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
+use App\Models\Customers;
 use App\Models\Deposit;
 use App\Models\Premio;
+use App\Models\TransactionType;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class DepositController extends Controller
 {
@@ -27,19 +31,69 @@ class DepositController extends Controller
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $rouletteSpin = $agent->number_turns ?: 0;
-        $deposits = Deposit::with('customer')->with('agent')->get();
+        $transactionsType = TransactionType::all();
+        $deposits = Deposit::with('customer')->with(['agent', 'user'])->get();
         foreach ($deposits as &$deposit) {
             if (isset($deposit['date'])) {
                 $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
             }
 
         }
-        return view('deposit.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'deposits'));
+        return view('deposit.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'deposits', 'transactionsType'));
     }
 
     public function saveDeposit(Request $request)
     {
-        //
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $client = Customers::where('code', $request->codeClient)->first();
+
+        $agent = Agent::where('code_voiso', $request->codeAgent)
+                      ->orWhere('code', $request->codeAgent)
+                      ->first();
+
+        $user_id = Auth::user()->id;
+
+        try {
+            $deposit = new Deposit();
+            $deposit->agent_id = $agent->id;
+            $deposit->customer_id = $client->id;
+            $deposit->date = Carbon::now();
+            $deposit->number = $request->codeReceipt;
+            $deposit->tipo = "DEPOSITO";
+            $deposit->descripcion = "";
+            $deposit->amount = $request->amount;
+            $deposit->transaction_type_id = $request->transaction_type_id;
+            $deposit->users_id = $user_id;
+
+            if ($deposit->save()) {
+                $title = "Correcto";
+                $mensaje = "Su depósito se registró correctamente";
+                $status = "success";
+            }
+
+        } catch (ValidationException $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        }
+
+        $deposits = Deposit::with('customer')->with(['agent', 'user'])->get();
+        foreach ($deposits as &$deposit) {
+            if (isset($deposit['date'])) {
+                $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
+            }
+
+        }
+
+        return response()->json(["view"=>view('deposit.table.tableDeposit', compact('deposits'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+
     }
 
     /**

@@ -22,7 +22,11 @@ Shooter
             <small>Administre shooter.</small>
         </div>
     </div>
+
+
+
 </div>
+@include('shooter.table.tableShooter')
 
 @endsection
 @section('script')
