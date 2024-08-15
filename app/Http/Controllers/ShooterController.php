@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
+use App\Models\CategoryFolder;
 use App\Models\Customers;
+use App\Models\Folder;
 use App\Models\Premio;
+use App\Models\Shooter;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +30,11 @@ class ShooterController extends Controller
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $rouletteSpin = $agent->number_turns ?: 0;
         $clients = Customers::where('id_status', 1)->with(['latestComunication', 'latestCampaign', 'latestSupplier'])->get();
-        return view('shooter.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'clients'));
+
+        $shooter = Shooter::where('status', 1)->with('folder')->first();
+        $folders = Folder::where('status', 1)->get();
+
+        return view('shooter.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'clients', 'shooter', 'folders'));
     }
 
     /**
@@ -48,7 +55,11 @@ class ShooterController extends Controller
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $rouletteSpin = $agent->number_turns ?: 0;
-        return view('shooter.details.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser'));
+
+        $categoryFolders = CategoryFolder::where('status', 1)->get();
+        $folders = Folder::where('status', 1)->where('category_id', 1)->get();
+
+        return view('shooter.details.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'categoryFolders', 'folders'));
     }
 
     /**
