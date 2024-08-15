@@ -13,7 +13,7 @@ Shooter
             <small>Activa el shooter.</small>
         </div>
     </div>
-    <div class="widget white-bg p-lg text-center col-lg-4 m-2">
+    <a class="widget white-bg p-lg text-center col-lg-4 m-2" href="{{ Route('administrarShoter') }}">
         <div class="m-b-md">
             <i class="fa fa-shield fa-4x"></i>
             <h1 class="m-xs">ADMINISTRAR</h1>
@@ -21,7 +21,7 @@ Shooter
             </h3>
             <small>Administre shooter.</small>
         </div>
-    </div>
+    </a>
 
 
 

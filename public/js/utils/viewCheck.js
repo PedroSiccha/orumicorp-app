@@ -5,13 +5,14 @@ $(document).ready(function () {
     });
 
     $('.i-checks input').on('ifChanged', function () {
-        // Verifica si alguna checkbox está seleccionada
         var anyChecked = $('.i-checks input:checked').length > 0;
 
         if (anyChecked) {
-            $('#asignarBtn').show(); // Muestra el botón "Asignar"
+            $('#asignarBtn').show();
+            $('#changeStatusBtn').show();
         } else {
-            $('#asignarBtn').hide(); // Oculta el botón "Asignar"
+            $('#asignarBtn').hide();
+            $('#changeStatusBtn').hide();
         }
     });
 });

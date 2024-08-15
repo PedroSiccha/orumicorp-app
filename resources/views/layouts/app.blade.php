@@ -14,7 +14,7 @@
     <link href="{{asset('css/plugins/dataTables/datatables.min.css')}}" rel="stylesheet">
     <link href="{{ asset('css/plugins/morris/morris-0.4.3.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('js/calendar/style.css') }}">
-    <link href="{{asset('ruleta/styles.css')}}" rel="stylesheet">
+    {{-- <link href="{{asset('ruleta/styles.css')}}" rel="stylesheet"> --}}
     <link href="{{ asset('css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css') }}" rel="stylesheet">
 </head>
 
@@ -195,7 +195,7 @@
                     </ul>
                 </nav>
             </div>
-            <div class="wrapper wrapper-content">
+            <div class="wrapper wrapper-content animated fadeInRight">
                 @yield('content')
             </div>
 

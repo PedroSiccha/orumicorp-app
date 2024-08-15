@@ -30,7 +30,13 @@
                     <th>{{ $deposit->agent->name }} {{ $deposit->agent->lastname }}</th>
                     <th></th>
                     <th></th>
-                    <th>{{ $deposit->user->name }} </th>
+                    <th>
+                        @if ($deposit->user)
+                            {{ $deposit->user->name }}
+                        @else
+                            Verificar la Data
+                        @endif
+                    </th>
                 </tr>
             @endforeach
         </tbody>

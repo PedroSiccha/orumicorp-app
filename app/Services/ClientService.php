@@ -235,8 +235,9 @@ class ClientService implements ClientInterface {
         $providers = Provider::all();
         $platforms = Platform::all();
         $traidings = Traiding::all();
+        $statusCustomers = CustomerStatus::all();
 
-        return compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers', 'myRolesId', 'configTablesDateInit', 'configTablesCode', 'configTablesPhone', 'configTablesOptionalPhone', 'configTablesEmail', 'configTablesCity', 'configTablesCountry', 'configTablesComment', 'providers', 'platforms', 'traidings');
+        return compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers', 'myRolesId', 'configTablesDateInit', 'configTablesCode', 'configTablesPhone', 'configTablesOptionalPhone', 'configTablesEmail', 'configTablesCity', 'configTablesCountry', 'configTablesComment', 'providers', 'platforms', 'traidings', 'statusCustomers');
     }
 
     public function saveClient($request) {
