@@ -56,7 +56,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/profileClient/{id}', [App\Http\Controllers\ClientsController::class, 'profileClient'])->name('profileClient');
     Route::post('/saveConfigTable', [App\Http\Controllers\ClientsController::class, 'saveConfigTable'])->name('saveConfigTable');
     Route::get('/clientsPagination', [App\Http\Controllers\ClientsController::class, 'clientsPagination'])->name('clientsPagination');
-
+    Route::post('/changeStatusGroup', [App\Http\Controllers\ClientsController::class, 'changeStatusGroup'])->name('changeStatusGroup');
 
     Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
     Route::post('/searchCustomer', [App\Http\Controllers\SalesController::class, 'searchCustomer'])->name('searchCustomer');
@@ -122,6 +122,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/email', [App\Http\Controllers\CommentController::class, 'email'])->name('email');
 
     Route::get('/shooter', [App\Http\Controllers\ShooterController::class, 'index'])->name('shooter');
+    Route::get('/administrarShoter', [App\Http\Controllers\ShooterController::class, 'administrarShoter'])->name('administrarShoter');
 
     Route::get('/deposit', [App\Http\Controllers\DepositController::class, 'index'])->name('deposit');
     Route::post('/deposit/save', [App\Http\Controllers\DepositController::class, 'saveDeposit'])->name('saveDeposit');

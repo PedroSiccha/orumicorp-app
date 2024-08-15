@@ -60,7 +60,7 @@
     <script src="{{asset('js/plugins/iCheck/icheck.min.js')}}"></script>
     <script src="{{ asset('js/plugins/chartJs/Chart.min.js') }}"></script>
 
-    @yield('script')
+
     <script>
         var updateGiroRoute = '{{ route("updateGiro") }}';
             var getPremioRoute = '{{ route("getPremio") }}';
@@ -234,3 +234,4 @@
                 });
             });
     </script>
+@yield('script')

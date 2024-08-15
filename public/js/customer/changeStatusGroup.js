@@ -1,6 +1,6 @@
-function assignGroupAgent(inputId, inputDni, modal, tableName) {
+function changeStatusGroup(inputId, inputStatus, modal, tableName) {
     var idGroupClientes = [];
-    var dni_agent = $(inputDni).val();
+    var statusId = $(inputStatus).val();
 
     $('.chekboxses:checked').each(function() {
         var val = $(this).val();
@@ -9,7 +9,8 @@ function assignGroupAgent(inputId, inputDni, modal, tableName) {
         }
     });
 
-    $.post(assignGroupAgentRoute, {idGroupClientes: idGroupClientes, dni_agent: dni_agent, _token: token}).done(function(data) {
+    console.log('IdGroupClient ', idGroupClientes);
+    $.post(changeStatusGroupRoute, {idGroupClientes: idGroupClientes, statusId: statusId, _token: token}).done(function(data) {
         $(tableName).empty();
         $(tableName).html(data.view);
         $(modal).modal('hide');
