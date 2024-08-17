@@ -123,6 +123,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/shooter', [App\Http\Controllers\ShooterController::class, 'index'])->name('shooter');
     Route::get('/administrarShoter', [App\Http\Controllers\ShooterController::class, 'administrarShoter'])->name('administrarShoter');
+    Route::post('/viewFolder', [App\Http\Controllers\ShooterController::class, 'viewFolder'])->name('viewFolder');
+    Route::post('/viewListClients', [App\Http\Controllers\ShooterController::class, 'viewListClients'])->name('viewListClients');
+    Route::post('/viewResumClient', [App\Http\Controllers\ShooterController::class, 'viewResumClient'])->name('viewResumClient');
 
     Route::get('/deposit', [App\Http\Controllers\DepositController::class, 'index'])->name('deposit');
     Route::post('/deposit/save', [App\Http\Controllers\DepositController::class, 'saveDeposit'])->name('saveDeposit');
@@ -152,5 +155,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/saveTransactionType', [App\Http\Controllers\TransactionTypeController::class, 'saveTransactionType'])->name('saveTransactionType');
     Route::post('/updateTransactionType', [App\Http\Controllers\TransactionTypeController::class, 'updateTransactionType'])->name('updateTransactionType');
     Route::post('/deleteTransactionType', [App\Http\Controllers\TransactionTypeController::class, 'deleteTransactionType'])->name('deleteTransactionType');
+
+    Route::post('/deleteFolder', [App\Http\Controllers\FolderController::class, 'deleteFolder'])->name('deleteFolder');
+    Route::post('/addGroupClientFolder', [App\Http\Controllers\FolderController::class, 'addGroupClientFolder'])->name('addGroupClientFolder');
+    Route::post('/saveFolder', [App\Http\Controllers\FolderController::class, 'saveFolder'])->name('saveFolder');
+    Route::post('/editFolder', [App\Http\Controllers\FolderController::class, 'editFolder'])->name('editFolder');
+    Route::post('/addClientFolder', [App\Http\Controllers\FolderController::class, 'addClientFolder'])->name('addClientFolder');
 });
 
