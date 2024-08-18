@@ -15,4 +15,19 @@ $(document).ready(function () {
             $('#changeStatusBtn').hide();
         }
     });
+
+    $('#selectAllCheckboxes').on('ifClicked', function () {
+        var isChecked = $(this).is(':checked');
+        if (isChecked) {
+            $('.chekboxses').iCheck('uncheck');
+        } else {
+            $('.chekboxses').iCheck('check');
+        }
+    });
+
+    // Sincronización del checkbox principal cuando se seleccionan o deseleccionan checkboxes individuales
+    $('.chekboxses').on('ifChanged', function () {
+        var allChecked = $('.chekboxses:checked').length === $('.chekboxses').length;
+        $('#selectAllCheckboxes').iCheck(allChecked ? 'check' : 'uncheck');
+    });
 });

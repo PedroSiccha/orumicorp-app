@@ -1,7 +1,14 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>#</th>
+            <th>
+                Seleccionar Todo
+                <div class="i-checks">
+                <label>
+                    <input type="checkbox" id="selectAllCheckboxes" class="i-checks flat" name="selectAll">
+                    <i></i>
+                </label>
+            </div></div></th>
             <th>Ultima llamada</th>
             <th>ID de Cliente</th>
             <th>Fecha de Ingreso</th>
@@ -198,3 +205,23 @@
 {{ $customers->appends(['limit' => request('limit')])->links() }}
 
 <script src="{{ asset('js/utils/viewCheck.js') }}"></script>
+{{-- <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectAllCheckbox = $('#selectAllCheckboxes');
+        const checkboxes = $('.chekboxses');
+
+        selectAllCheckbox.on('ifChanged', function () {
+            const isChecked = $(this).is(':checked');
+            checkboxes.iCheck(isChecked ? 'check' : 'uncheck');
+        });
+
+        checkboxes.on('ifChanged', function () {
+            if (!$(this).is(':checked')) {
+                selectAllCheckbox.iCheck('uncheck');
+            } else {
+                const allChecked = checkboxes.filter(':checked').length === checkboxes.length;
+                selectAllCheckbox.iCheck(allChecked ? 'check' : 'uncheck');
+            }
+        });
+    });
+</script> --}}

@@ -19,22 +19,44 @@
         <tbody>
             @foreach ($deposits as $deposit)
                 <tr>
-                    <th>{{ $deposit->date }}</th>
-                    <th>{{ $deposit->customer->id }}</th>
-                    <th>{{ $deposit->customer->name }} {{ $deposit->customer->lastname }}</th>
+                    <th>
+                        @if ($deposit->date)
+                            {{ $deposit->date }}
+                        @endif
+                    </th>
+                    <th>
+                        @if ($deposit->customer)
+                            {{ $deposit->customer->id }}
+                        @endif
+                    </th>
+                    <th>
+                        @if ($deposit->customer)
+                            {{ $deposit->customer->name }} {{ $deposit->customer->lastname }}
+                        @endif
+                    </th>
                     <th></th>
-                    <th>{{ $deposit->id }}</th>
-                    <th>S/. {{ $deposit->amount }}</th>
-                    <th>$ {{ number_format($deposit->amount / 3.5, 2) }}</th>
-                    <th>{{ $deposit->tipo }}</th>
-                    <th>{{ $deposit->agent->name }} {{ $deposit->agent->lastname }}</th>
+                    <th>
+                            {{ $deposit->id }}
+                    </th>
+                    <th>
+                        S/. {{ $deposit->amount }}
+                    </th>
+                    <th>
+                        $ {{ number_format($deposit->amount / 3.5, 2) }}
+                    </th>
+                    <th>
+                        {{ $deposit->tipo }}
+                    </th>
+                    <th>
+                        @if ($deposit->agent)
+                            {{ $deposit->agent->name }} {{ $deposit->agent->lastname }}
+                        @endif
+                    </th>
                     <th></th>
                     <th></th>
                     <th>
                         @if ($deposit->user)
                             {{ $deposit->user->name }}
-                        @else
-                            Verificar la Data
                         @endif
                     </th>
                 </tr>
