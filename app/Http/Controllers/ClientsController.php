@@ -254,6 +254,51 @@ class ClientsController extends Controller
         return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
+    public function searchStatus(Request $request) {
+        $customerStatusId = $request->customerStatusId;
+
+        $myRoles = $this->rolesService->getMyRoles();
+        $myRolesId = $myRoles['rolesId'];
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->where('id_status', $customerStatusId)->orderBy('date_admission', 'desc')->paginate(50);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->where('agent_id', $agent->id)->where('id_status', $customerStatusId)->orderBy('date_admission', 'desc')->paginate(50);
+        }
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render()]);
+
+    }
+
     public function changeStatusClient(Request $request)
     {
         $data = $this->clientService->changeStatusClient($request);
@@ -286,7 +331,13 @@ class ClientsController extends Controller
     {
         $archivo = public_path('utils/CARGA_MASIVA_DE_CLNT.xlsx');
 
-        return Response::download($archivo, 'CARGA_MASIVA_DE_CLNT.xlsx');
+        // return Response::download($archivo, 'CARGA_MASIVA_DE_CLNT.xlsx');
+
+        return response()->download($archivo, 'CARGA_MASIVA_DE_CLNT.xlsx', [
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
     }
 
     public function uploadExcel(Request $request)

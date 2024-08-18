@@ -68,6 +68,7 @@
 @include('shooter.modal.modalCrearFolder')
 @include('shooter.modal.modalEditarFolder')
 @include('shooter.modal.modalAddClient')
+@include('shooter.modal.modalCargaMasivaShooter')
 
 @endsection
 @section('script')
