@@ -8,7 +8,7 @@
                 <li><a onclick="changeNameFolder({ inputFolderId: '#idFolderEdit', folderId: '{{ $folder->id }}', inputNameFolder: '#nameFolderEdit', folderName: '{{ $folder->name }}', modal: '#modalEditarFolder' })" class="dropdown-item">Cambiar Nombre</a></li>
                 <li><a onclick="deleteFolder({ id: '{{ $folder->id }}', name: '{{ $folder->name }}', tableName: '#folders' })" class="dropdown-item">Eliminar</a></li>
                 <li><a onclick="mostrarAddClient({ inputFolderId: '#idAssignFolderClient', folderId: '{{ $folder->id }}', inputNameFolder: '#nameFolderEdit', folderName: '{{ $folder->name }}', modal: '#modalAddClient' })" class="dropdown-item">Agregar Cliente</a></li>
-                <li><a onclick="mostrarNuevoModal('#modalAddGroupClient')" class="dropdown-item">Agregar Varios Clientes</a></li>
+                <li><a onclick="mostrarNuevoModal('#modalCargaMasivaShooter')" class="dropdown-item">Agregar Varios Clientes</a></li>
             </ul>
         </li>
     @endforeach

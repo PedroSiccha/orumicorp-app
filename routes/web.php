@@ -57,6 +57,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/saveConfigTable', [App\Http\Controllers\ClientsController::class, 'saveConfigTable'])->name('saveConfigTable');
     Route::get('/clientsPagination', [App\Http\Controllers\ClientsController::class, 'clientsPagination'])->name('clientsPagination');
     Route::post('/changeStatusGroup', [App\Http\Controllers\ClientsController::class, 'changeStatusGroup'])->name('changeStatusGroup');
+    Route::post('/searchStatus', [App\Http\Controllers\ClientsController::class, 'searchStatus'])->name('searchStatus');
 
     Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
     Route::post('/searchCustomer', [App\Http\Controllers\SalesController::class, 'searchCustomer'])->name('searchCustomer');

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Interfaces\ClientInterface;
 use App\Interfaces\ComunicationInterface;
 use App\Models\Agent;
+use App\Models\Comunications;
 use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\User;
@@ -133,6 +134,14 @@ class CommentController extends Controller
             'comunicationId' => $request->idComunication,
             'comment' => $request->txtComentario
         ];
+
+        if ($request->customerStatusId) {
+            $comunication = Comunications::find($request->idComunication);
+
+            $customer = Customers::find($comunication->customer_id);
+            $customer->id_status = $request->customerStatusId;
+            $customer->save();
+        }
 
         $data = $this->comentarioService->updateComunication($dataCustomer);
         $customers = $this->clientService->index();
