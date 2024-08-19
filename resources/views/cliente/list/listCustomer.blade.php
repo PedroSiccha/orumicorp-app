@@ -10,7 +10,7 @@
                 </label>
             </div></div></th>
             <th>Ultima llamada</th>
-            <th>ID de Cliente</th>
+            <th>COD. de Cliente</th>
             <th>Fecha de Ingreso</th>
             <th>Fecha de Última Llamada</th>
             <th>Fecha de Última Asignación</th>
@@ -48,7 +48,7 @@
                         Sin Comunicación
                     @endif
                 </td>
-                <td>{{ $customer->id }}</td>
+                <td>{{ $customer->code }}</td>
                 <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
                 <td>
                     @if ($customer->latestComunication)
