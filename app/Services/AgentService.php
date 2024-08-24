@@ -8,6 +8,7 @@ use App\Models\Area;
 use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -45,12 +46,35 @@ class AgentService implements AgentInterface {
 
     public function searchAgent($request)
     {
-        // dd($request);
-        $agent = Agent::where('code_voiso', $request->codeVoiso)
-                      ->orWhere('code', $request->codeVoiso)
-                      ->first();
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+        $name = "";
 
-        return $agent->name . " " . $agent->lastname;
+        try {
+            $agent = Agent::where('code_voiso', $request->codeVoiso)->orWhere('code', $request->codeVoiso)->first();
+
+            if (is_null($agent)) {
+                $mensaje = "El agente no existe";
+            } else {
+                $title = "Éxito";
+                $status = "success";
+                $name =  $agent->name . " " . $agent->lastname;
+                $mensaje = "Agente encontrado exitosamente";
+            }
+
+        } catch (Exception $e) {
+            $mensaje = "Error " . $e->getMessage();
+        }
+
+        return [
+            'name' => $name,
+            'title' => $title,
+            'mensaje' => $mensaje,
+            'status' => $status
+        ];
+
+        // return response()->json(["name" => $name, "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
     public function saveAgent($requestData) {

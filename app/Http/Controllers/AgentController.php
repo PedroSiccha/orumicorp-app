@@ -28,8 +28,8 @@ class AgentController extends Controller
 
     public function searchAgent(Request $request)
     {
-        $name = $this->agentService->searchAgent($request);
-        return response()->json(["name" => $name]);
+        $data = $this->agentService->searchAgent($request);
+        return response()->json(["name" => $data['name'], "title" => $data['title'], "text" => $data['mensaje'], "status" => $data['status']]);
     }
 
     public function saveAgent(Request $request)

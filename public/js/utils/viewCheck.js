@@ -10,9 +10,13 @@ $(document).ready(function () {
         if (anyChecked) {
             $('#asignarBtn').show();
             $('#changeStatusBtn').show();
+            $('#liberarClienteBtn').show();
+            $('#asignarFolderBtn').show();
         } else {
             $('#asignarBtn').hide();
             $('#changeStatusBtn').hide();
+            $('#liberarClienteBtn').hide();
+            $('#asignarFolderBtn').hide();
         }
     });
 

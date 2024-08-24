@@ -18,6 +18,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+use function PHPUnit\Framework\isNull;
+
 class SalesController extends Controller
 {
     /**
@@ -93,12 +95,31 @@ class SalesController extends Controller
      */
     public function searchCustomer(Request $request)
     {
-        $client = Customers::where('code', $request->dni)
-                  ->first();
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+        $name = "";
 
-        $name = $client->name . " " . $client->lastname;
-        return response()->json(["name"=>$name]);
+        try {
+
+            $client = Customers::where('code', $request->dni)->orWhere('id', $request->dni)->first();
+
+            if (is_null($client)) {
+                $mensaje = "El cliente no existe";
+            } else {
+                $title = "Éxito";
+                $status = "success";
+                $name = $client->name . " " . $client->lastname;
+                $mensaje = "Cliente encontrado exitosamente";
+            }
+
+        } catch (Exception $e) {
+            $mensaje = "Error " . $e->getMessage();
+        }
+
+        return response()->json(["name" => $name, "title" => $title, "text" => $mensaje, "status" => $status]);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -116,14 +137,14 @@ class SalesController extends Controller
         $amount = 0;
 
         if ($request->dniCustomer != null) {
-            $client = Customers::where('dni', $request->dniCustomer)
+            $client = Customers::where('id', $request->dniCustomer)
                   ->orWhere('code', $request->dniCustomer)
                   ->first();
 
             $client_id = $client->id;
         }
 
-        $agent = Agent::where('dni', $request->dniAgent)
+        $agent = Agent::where('code_voiso', $request->dniAgent)
                  ->orWhere('code', $request->dniAgent)
                  ->first();
 

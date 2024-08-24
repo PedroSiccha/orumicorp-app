@@ -12,6 +12,14 @@ Clientes
                 <h5>Tabla Clientes </h5>
                 <div>
                     {{-- @can('Asignar Cliente Masivo') --}}
+
+
+                    <button id="asignarFolderBtn" type="button" class="btn btn-default" type="button"
+                        onclick="mostrarNuevoModal('#modalAsignFolder')" style="display: none;"><i
+                            class="fa fa-folder-open"></i> Asignar Folder</button>
+                    <button id="liberarClienteBtn" type="button" class="btn btn-danger" type="button"
+                        onclick="liberarCliente()" style="display: none;"><i
+                            class="fa fa-minus-square"></i> Liberar Cliente</button>
                     <button id="asignarBtn" type="button" class="btn btn-info" type="button"
                         onclick="mostrarNuevoModal('#modalAsignAgent')" style="display: none;"><i
                             class="fa fa-group"></i> Asignar Agente</button>
@@ -91,6 +99,7 @@ Clientes
 @include('cliente.modal.modalConfigTableLocal')
 @include('cliente.modal.modalCrearComentario')
 @include('cliente.modal.modalChangeStatus')
+@include('cliente.modal.modalAsignFolder')
 
 @endsection
 @section('script')
@@ -109,6 +118,8 @@ Clientes
     var saveConfigTableRoute = '{{ route("saveConfigTable") }}';
     var saveComentarioRoute = '{{ route("saveComentario") }}';
     var searchStatusRoute = '{{ route("searchStatus") }}';
+
+    var asignFolderGroupRoute = '{{ route("addGroupClientFolder") }}';
 </script>
 
 <script src="{{asset('js/agent/assignAgent.js')}}"></script>
@@ -128,6 +139,8 @@ Clientes
 <script src="{{ asset('js/customer/saveConfigTableLocal.js') }}"></script>
 <script src="{{ asset('js/comentario/guardarComentario.js') }}"></script>
 <script src="{{ asset('js/customer/searchStatus.js') }}"></script>
+<script src="{{ asset('js/customer/freeClient.js') }}"></script>
+<script src="{{ asset('js/folder/asignFolderGroup.js') }}"></script>
 
 
 <script>
