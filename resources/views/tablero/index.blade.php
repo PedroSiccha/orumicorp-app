@@ -7,7 +7,7 @@
 @section('content')
 <div class="row">
 
-    @can('Ver Ventas Tablero')
+    {{-- @can('Ver Ventas Tablero') --}}
         <div class="col-lg-6">
             <div class="ibox ">
                 <div class="ibox-title">
@@ -27,9 +27,9 @@
                 </div>
             </div>
         </div>
-    @endcan
+    {{-- @endcan
 
-    @can('Ver Cantidad Agentes Tablero')
+    @can('Ver Cantidad Agentes Tablero') --}}
         <div class="col-lg-3">
             <div class="ibox ">
                 <div class="ibox-title">
@@ -42,9 +42,9 @@
                 </div>
             </div>
         </div>
-    @endcan
+    {{-- @endcan
 
-    @can('Ver Cantidad Clientes Tablero')
+    @can('Ver Cantidad Clientes Tablero') --}}
         <div class="col-lg-3">
             <div class="ibox ">
                 <div class="ibox-title">
@@ -57,10 +57,10 @@
                 </div>
             </div>
         </div>
-    @endcan
+    {{-- @endcan --}}
 </div>
 
-@can('Estadistica de Ventas')
+{{-- @can('Estadistica de Ventas') --}}
     <div class="row">
         <div class="col-lg-12">
             <div class="ibox ">
@@ -93,9 +93,9 @@
             </div>
         </div>
     </div>
-@endcan
+{{-- @endcan
 
-@can('Rankig de Ventas Tablero')
+@can('Rankig de Ventas Tablero') --}}
     <div class="row">
         <div class="col-lg-12">
             <div class="ibox ">
@@ -131,7 +131,7 @@
             </div>
         </div>
     </div>
-@endcan
+{{-- @endcan --}}
 
 @endsection
 @section('script')

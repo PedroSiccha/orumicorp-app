@@ -13,29 +13,29 @@
                 <div class="col-sm-1">
                   <h5>Tabla Ventas </h5>
                 </div>
-                @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
+                {{-- @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR')) --}}
                   <div class="col-sm-2">
-                    @can('Filtrar Today')
+                    {{-- @can('Filtrar Today') --}}
                     <div class="input-group date">
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
                     </div>
-                    @endcan
+                    {{-- @endcan --}}
                 </div>
                 <div class="col-sm-2">
-                    @can('Filtrar Today')
+                    {{-- @can('Filtrar Today') --}}
                     <div class="input-group date">
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
                     </div>
-                    @endcan
+                    {{-- @endcan --}}
                 </div>
                 <div class="col-sm-2 text-right">
-                    @can('Filtrar Area Today')
+                    {{-- @can('Filtrar Area Today') --}}
                         <select class="form-control m-b" name="area" id="area" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')" onclick="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
                             @foreach($areas as $area)
                             <option value = "{{ $area->id }}">{{ $area->name }}</option>
                             @endforeach
                         </select>
-                    @endcan
+                    {{-- @endcan --}}
                 </div>
                 <div class="col-sm-3">
                     <div class="input-group mb-3">
@@ -45,11 +45,11 @@
                         </div>
                     </div>
                 </div>
-                @endif
+                {{-- @endif --}}
                   <div class="col-sm-2">
-                    @can('Registrar Ventas')
+                    {{-- @can('Registrar Ventas') --}}
                         <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalVenta')"><i class="fa fa-plus"></i> Registrar Venta</button>
-                    @endcan
+                    {{-- @endcan --}}
                   </div>
                 </div>
               </div>
@@ -86,9 +86,9 @@
                                 <td>{{ $sale->agent->area->name }}</td>
                                 <td>{{ $sale->obsercation }}</td>
                                 <td>
-                                    @can('Editar Venta')
+                                    {{-- @can('Editar Venta') --}}
                                         <button class="btn btn-warning " type="button" onclick="editarSale('{{ $sale->id }}', '{{ $sale->customer->id }}', '{{ $sale->customer->name }} {{ $sale->customer->lastname }}', '{{ $sale->amount }}', '{{ $sale->percent }}', '{{ $sale->exchange_rate }}', '{{ $sale->comission }}', '{{ $sale->agent->id }}', '{{ $sale->agent->code }}', '{{ $sale->agent->name }} {{ $sale->agent->lastname }}', '{{ $sale->obsercation }}', '#modalEditarVenta', '#eId', '#eIdClient', '#eNameClient', '#eAmount', '#ePercent', '#eTypeChange', '#eComission', '#eIdAgent', '#eCodAgent', '#eNameAgent', '#eObservation')"><i class="fa fa-pencil"></i></button>
-                                    @endcan
+                                    {{-- @endcan --}}
                                 </td>
                             </tr>
                         @endforeach
@@ -120,6 +120,9 @@
                 <small class="font-bold">Registre su venta</small>
             </div>
             <div class="modal-body">
+                <div id="alertError" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorText"></span>
+                </div>
                 <table class="table m-b-xs">
                     <tbody>
                         <tr>
@@ -130,7 +133,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="dniCustomer" placeholder="Ingrese el DNI o Código del cliente">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-primary" onclick="searchClient('#dniCustomer', '#nameCustomer')"><i class="fa fa-search"></i></button>
+                                        <button type="button" class="btn btn-primary ladda-button-client" data-style="zoom-in" onclick="searchClient({ inputDni: '#dniCustomer', inputName: '#nameCustomer', alertError: '#alertError', alertErrorText: '#alertErrorText', btnLadda: '.ladda-button-client' })"><i class="fa fa-search"></i></button>
                                     </div>
                                 </div>
                             </td>
@@ -151,7 +154,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="dniAgent" placeholder="Ingrese el DNI o Código del agente">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-primary" onclick="searchAgent('#dniAgent', '#nameAgent')"><i class="fa fa-search"></i></button>
+                                        <button type="button" class="btn btn-primary ladda-button-agent" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniAgent', inputName: '#nameAgent', alertError:  '#alertError', alertErrorText: '#alertErrorText', btnLadda: '.ladda-button-agent' })"><i class="fa fa-search"></i></button>
                                     </div>
                                 </div>
                             </td>
@@ -217,7 +220,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="createSales({dniCustomer: '#dniCustomer', dniAgent: '#dniAgent', amount: '#amount', percent: '#percent', exchange_rate: '#typeChange', commission: '#commission', observation: '#observation', modal: '#modalVenta', tableName: '#tabVenta' , typeSales: '1'})"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info ladda-button-save" type="button" data-style="zoom-in" onclick="createSales({dniCustomer: '#dniCustomer', dniAgent: '#dniAgent', amount: '#amount', percent: '#percent', exchange_rate: '#typeChange', commission: '#commission', observation: '#observation', modal: '#modalVenta', tableName: '#tabVenta' , typeSales: '1'})"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -365,6 +368,7 @@
     </script>
 
     <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+    <script src="{{ asset('js/utils/mostrarMensajeModal.js') }}"></script>
     <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
     <script src="{{ asset('js/customer/searchClient.js') }}"></script>
     <script src="{{ asset('js/sales/createSales.js') }}"></script>

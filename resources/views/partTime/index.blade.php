@@ -15,7 +15,7 @@
                   </div>
               </div>
               <div class="ibox-content" id="panelButton">
-                @can('Registrar Asistencia')
+                {{-- @can('Registrar Asistencia') --}}
                 <h3>
                     Registro de Asistencia
                 </h3>
@@ -66,7 +66,7 @@
                         <label class="font-normal">Vacaciones</label>
                         <button class="btn btn-default  dim form-control" type="button" onclick="mostrarNuevoModal('#modalVacaciones')"><i class="fa fa-plane"></i> Registrar Vacaciones</button>
                     </div>
-                @endcan
+                {{-- @endcan --}}
               </div>
           </div>
       </div>
@@ -86,9 +86,9 @@
           </div>
           </div>
           </div>
-          @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
+          {{-- @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR')) --}}
           <div class="wrapper wrapper-content animated fadeInRight ecommerce">
-            @can('Filtrar Historial de Asistencias')
+            {{-- @can('Filtrar Historial de Asistencias') --}}
             <div class="ibox-content m-b-sm border-bottom">
                 <div class="row">
                     <div class="col-sm-2">
@@ -105,13 +105,13 @@
                         </div>
                     </div>
                     <div class="col-sm-2 text-right">
-                        @can('Filtrar Area Today')
+                        {{-- @can('Filtrar Area Today') --}}
                             <select class="form-control m-b" name="area" id="area" onchange="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')" onclick="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')">
                                 @foreach($areas as $area)
                                 <option value = "{{ $area->id }}">{{ $area->name }}</option>
                                 @endforeach
                             </select>
-                        @endcan
+                        {{-- @endcan --}}
                     </div>
                     <div class="col-sm-4">
                         <div class="input-group mb-3">
@@ -123,14 +123,14 @@
                     </div>
                 </div>
             </div>
-            @endcan
+            {{-- @endcan --}}
         </div>
 
 
           <div class="row">
             <div class="col-lg-12">
             <div class="ibox ">
-                @can('Ver Historial de Asistencias')
+                {{-- @can('Ver Historial de Asistencias') --}}
                 <div class="ibox-title">
                     <h5>Historial</h5>
                     <div class="ibox-tools">
@@ -138,12 +138,12 @@
                             <i class="fa fa-cloud-download"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
-                            @can('Descargar Part Time Excel')
+                            {{-- @can('Descargar Part Time Excel') --}}
                                 <li><a href="{{ route('descargar-asistencia-excel') }}" class="dropdown-item"><i class="fa fa-file-excel-o"></i> Descargar Excel</a></li>
-                            @endcan
-                            @can('Descargar Part Time PDF')
+                            {{-- @endcan --}}
+                            {{-- @can('Descargar Part Time PDF') --}}
                                 <li><a href="{{ route('descargar-asistencia-pdf') }}" class="dropdown-item"><i class="fa fa-file-pdf-o"></i> Descargar PDF</a></li>
-                            @endcan
+                            {{-- @endcan --}}
 
                         </ul>
                     </div>
@@ -174,7 +174,7 @@
                         </tbody>
                     </table>
                 </div>
-                @endcan
+                {{-- @endcan --}}
             </div>
         </div>
       </div>
@@ -223,7 +223,7 @@
         </div>
     </div>
 
-      @endif
+      {{-- @endif --}}
 
       <style>
             .clock-style {

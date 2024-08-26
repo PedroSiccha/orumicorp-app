@@ -96,9 +96,9 @@
                         </label>
                         <label title="Donload image" id="download" class="btn btn-primary" onclick="uploadImg('inputImage')">Subir</label>
                     </div>
-                    @can('Cambiar Contraseña')
+                    {{-- @can('Cambiar Contraseña') --}}
                         <button class="btn btn-warning btn-block" onclick="mostrarNuevoModal('#modalChangePassword')">Cambiar Contraseña</button>
-                    @endcan
+                    {{-- @endcan --}}
                 </div>
             </div>
 
@@ -200,14 +200,14 @@
                     <div class="ibox-title">
                         <h5>Totales</h5>
                         <div class="ibox-tools">
-                            @can('Registrar Target')
+                            {{-- @can('Registrar Target') --}}
                             <a onclick="mostrarNuevoModal('#modalCreateTarget')">
                                 <i class="fa fa-plus"></i>
                             </a>
-                            @endcan
+                            {{-- @endcan --}}
                         </div>
                     </div>
-                    @can('Perfil - Ver Target Mensual')
+                    {{-- @can('Perfil - Ver Target Mensual') --}}
                         <div class="ibox-content navy-bg">
                             <div class="row" id="tabTotalTarget">
                                 <div class="col-4">
@@ -222,8 +222,8 @@
                                 </div>
                             </div>
                         </div>
-                    @endcan
-                    @can('Perfil - Ver Ingresos Actuales')
+                    {{-- @endcan
+                    @can('Perfil - Ver Ingresos Actuales') --}}
                         <div class="ibox-content yellow-bg">
                             <div class="row">
                                 <div class="col-4">
@@ -238,8 +238,8 @@
                                 </div>
                             </div>
                         </div>
-                    @endcan
-                    @can('Perfil - Ver Retiros Actuales')
+                    {{-- @endcan
+                    @can('Perfil - Ver Retiros Actuales') --}}
                         <div class="ibox-content red-bg">
                             <div class="row">
                                 <div class="col-4">
@@ -254,8 +254,8 @@
                                 </div>
                             </div>
                         </div>
-                    @endcan
-                    @can('Perfil - Ver Cuota Pendiente')
+                    {{-- @endcan
+                    @can('Perfil - Ver Cuota Pendiente') --}}
                         <div class="ibox-content lazur-bg">
                             <div class="row">
                                 <div class="col-4">
@@ -270,8 +270,8 @@
                                 </div>
                             </div>
                         </div>
-                    @endcan
-                    @can('Perfil - Ver Pago en Efectivo')
+                    {{-- @endcan
+                    @can('Perfil - Ver Pago en Efectivo') --}}
                         <div class="ibox-content">
                             <div class="row">
                                 <div class="col-4">
@@ -286,8 +286,8 @@
                                 </div>
                             </div>
                         </div>
-                    @endcan
-                    @can('Perfil - Ver Descuentos')
+                    {{-- @endcan
+                    @can('Perfil - Ver Descuentos') --}}
                         <div class="ibox-content red-bg">
                             <div class="row">
                                 <div class="col-4">
@@ -302,7 +302,7 @@
                                 </div>
                             </div>
                         </div>
-                    @endcan
+                    {{-- @endcan --}}
                 </div>
             </div>
     </div>

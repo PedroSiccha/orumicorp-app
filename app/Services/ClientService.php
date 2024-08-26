@@ -14,6 +14,7 @@ use App\Models\Configuration;
 use App\Models\Customers;
 use App\Models\CustomerStatus;
 use App\Models\CustomerSummary;
+use App\Models\Folder;
 use App\Models\Platform;
 use App\Models\Premio;
 use App\Models\Provider;
@@ -236,8 +237,9 @@ class ClientService implements ClientInterface {
         $platforms = Platform::all();
         $traidings = Traiding::all();
         $statusCustomers = CustomerStatus::all();
+        $folders = Folder::where('status', true)->get();
 
-        return compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers', 'myRolesId', 'configTablesDateInit', 'configTablesCode', 'configTablesPhone', 'configTablesOptionalPhone', 'configTablesEmail', 'configTablesCity', 'configTablesCountry', 'configTablesComment', 'providers', 'platforms', 'traidings', 'statusCustomers');
+        return compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers', 'myRolesId', 'configTablesDateInit', 'configTablesCode', 'configTablesPhone', 'configTablesOptionalPhone', 'configTablesEmail', 'configTablesCity', 'configTablesCountry', 'configTablesComment', 'providers', 'platforms', 'traidings', 'statusCustomers', 'folders');
     }
 
     public function saveClient($request) {

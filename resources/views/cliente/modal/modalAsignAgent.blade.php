@@ -4,18 +4,20 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
                         class="sr-only">Close</span></button>
-                <h4 class="modal-title">Asignar Clientes</h4>
+                <h4 class="modal-title">Asignar Agente</h4>
             </div>
             <div class="modal-body">
-
+                <div id="alertError" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorText"></span>
+                </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Agente</label>
                     <div class="input-group col-lg-9">
                         <input type="text" class="form-control" id="dniGroupAgent"
                             placeholder="Ingrese el DNI o Código del agente">
                         <div class="input-group-append">
-                            <button type="button" class="btn btn-primary"
-                                onclick="searchAgent('#dniGroupAgent', '#nameGroupAgent')"><i
+                            <button type="button" class="btn btn-primary ladda-button-agent" data-style="zoom-in"
+                                onclick="searchAgent({ inputcodeVoiso: '#dniGroupAgent', inputName: '#nameGroupAgent', alertError: '#alertError', alertErrorText: '#alertErrorText', btnLadda: '.ladda-button-agent'})"><i
                                     class="fa fa-search"></i></button>
                         </div>
                     </div>
