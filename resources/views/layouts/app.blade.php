@@ -41,96 +41,102 @@
                                 class="nav-label">Tablero</span> </a>
                     </li>
 
-                    {{-- @can('Ver Agentes') --}}
+                    @can('Ver Agentes')
                     <li class="{{ Request::is('agents') ? 'active' : '' }}">
                         <a href="{{ route('agents') }}"><i class="fa fa-user-o"></i> <span
                                 class="nav-label">Agentes</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Area') --}}
+                    @endcan
+                    @can('Ver Area')
                     <li class="{{ Request::is('areas') ? 'active' : '' }}">
                         <a href="{{ route('areas') }}"><i class="fa fa-user-o"></i> <span
                                 class="nav-label">Áreas</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Cliente') --}}
+                    @endcan
+                    @can('Ver Cliente')
                     <li class="{{ Request::is('clients') ? 'active' : '' }}">
                         <a href="{{ route('clients') }}"><i class="fa fa-user-o"></i> <span
                                 class="nav-label">Clientes</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Ventas') --}}
+                    @endcan
+                    @can('Ver Ventas')
                     <li class="{{ Request::is('sales') ? 'active' : '' }}">
                         <a href="{{ route('sales') }}"><i class="fa fa-file-text-o"></i> <span
                                 class="nav-label">Ventas</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Bonus') --}}
+                    @endcan
+                    @can('Ver Bonus')
                     <li class="{{ Request::is('agentbonus') ? 'active' : '' }}">
                         <a href="{{ route('agentBonus') }}"><i class="fa fa-dot-circle-o"></i> <span
                                 class="nav-label">Bonus agente </span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Today') --}}
+                    @endcan
+                    @can('Ver Today')
                     <li class="{{ Request::is('statisticstoday') ? 'active' : '' }}">
                         <a href="{{ route('statisticsToday') }}"><i class="fa fa-bar-chart"></i> <span
                                 class="nav-label">Today Statistic</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Gestión Ruleta') --}}
+                    @endcan
+                    @can('Ver Gestión Ruleta')
                     <li class="{{ Request::is('gestionRuleta') ? 'active' : '' }}">
                         <a href="{{ route('gestionRuleta') }}"><i class="fa fa-bar-chart"></i> <span
                                 class="nav-label">Gestión de Ruleta</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Part Time') --}}
+                    @endcan
+                    @can('Ver Part Time')
                     <li class="{{ Request::is('parttime') ? 'active' : '' }}">
                         <a href="{{ route('partTime') }}"><i class="fa fa-clock-o"></i> <span class="nav-label">Part
                                 Time</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Seguridad') --}}
+                    @endcan
+                    @can('Ver Seguridad')
                     <li class="{{ Request::is('security') ? 'active' : '' }}">
                         <a href="{{ route('security') }}"><i class="fa fa-lock"></i> <span
                                 class="nav-label">Seguridad</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Auditoria') --}}
+                    @endcan
+                    @can('Ver Auditoria')
                     <li class="{{ Request::is('audit') ? 'active' : '' }}">
                         <a href="{{ route('audit') }}"><i class="fa fa-warning"></i> <span
                                 class="nav-label">Auditoria</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Task') --}}
+                    @endcan
+                    @can('Ver Task')
                     <li class="{{ Request::is('task') ? 'active' : '' }}">
                         <a href="{{ route('task') }}"><i class="fa fa-calendar"></i> <span
                                 class="nav-label">Task</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Task') --}}
+                    @endcan
+                    @can('Ver Task')
                     <li class="{{ Request::is('whatsapp') ? 'active' : '' }}">
                         <a href="{{ route('whatsapp') }}"><i class="fa fa-comments-o"></i> <span
                                 class="nav-label">Whatsapp</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Task') --}}
+                    @endcan
+                    @can('Ver Mail')
+                    <li class="{{ Request::is('mail') ? 'active' : '' }}">
+                        <a href="{{ route('mail') }}"><i class="fa fa-comments-o"></i> <span
+                                class="nav-label">Mail</span></a>
+                    </li>
+                    @endcan
+                    @can('Ver Task')
                     <li class="{{ Request::is('shooter') ? 'active' : '' }}">
                         <a href="{{ route('shooter') }}"><i class="fa fa-superpowers"></i> <span
                                 class="nav-label">Shooter</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Task') --}}
+                    @endcan
+                    @can('Ver Task')
                     <li class="{{ Request::is('deposit') ? 'active' : '' }}">
                         <a href="{{ route('deposit') }}"><i class="fa fa-credit-card"></i> <span
                                 class="nav-label">Deposit</span></a>
                     </li>
-                    {{-- @endcan
-                    @can('Ver Task') --}}
+                    @endcan
+                    @can('Ver Task')
                     <li class="{{ Request::is('maintenance') ? 'active' : '' }}">
                         <a href="{{ route('maintenance') }}"><i class="fa fa-cogs"></i> <span
                                 class="nav-label">Mantenimiento</span></a>
                     </li>
-                    {{-- @endcan --}}
+                    @endcan
                 </ul>
             </div>
         </nav>
