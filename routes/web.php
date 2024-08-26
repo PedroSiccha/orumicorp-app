@@ -162,5 +162,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/saveFolder', [App\Http\Controllers\FolderController::class, 'saveFolder'])->name('saveFolder');
     Route::post('/editFolder', [App\Http\Controllers\FolderController::class, 'editFolder'])->name('editFolder');
     Route::post('/addClientFolder', [App\Http\Controllers\FolderController::class, 'addClientFolder'])->name('addClientFolder');
+
+    Route::get('/mail', [App\Http\Controllers\MaintenanceController::class, 'mail'])->name('mail');
 });
 
