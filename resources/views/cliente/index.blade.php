@@ -27,15 +27,15 @@ Clientes
                         onclick="mostrarNuevoModal('#modalChangeStatus')" style="display: none;"><i
                             class="fa fa-retweet"></i> Cambiar Estado</button>
                     {{-- @endcan --}}
-                    @can('Crear Cliente')
+                    {{-- @can('Crear Cliente') --}}
                     <button type="button" class="btn btn-default" type="button"
                         onclick="mostrarNuevoModal('#modalCliente')"><i class="fa fa-plus"></i> Nuevo Cliente</button>
-                    @endcan
-                    @can('Carga Masiva de Cliente')
+                    {{-- @endcan
+                    @can('Carga Masiva de Cliente') --}}
                     <button type="button" class="btn btn-success" type="button"
                         onclick="mostrarNuevoModal('#modalChargeGroup')"><i class="fa fa-upload"></i> Carga
                         Masiva</button>
-                    @endcan
+                    {{-- @endcan --}}
                 </div>
                 <div class="ibox-tools">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">

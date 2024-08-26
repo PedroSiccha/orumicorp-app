@@ -7,12 +7,15 @@
                 <input type="text" class="form-control" id='idAssignFolderClient' hidden>
             </div>
             <div class="modal-body">
+                <div id="alertErrorAddClient" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorTextAddClient"></span>
+                </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Cliente</label>
                     <div class="input-group col-lg-9">
                         <input type="text" class="form-control" id="dniCli" placeholder="Ingrese el DNI o Código del agente">
                         <div class="input-group-append">
-                            <button type="button" class="btn btn-primary" onclick="searchClient('#dniCli', '#nameClient')"><i class="fa fa-search"></i></button>
+                            <button type="button" class="btn btn-primary ladda-button-agent-add-client" data-style="zoom-in" onclick="searchClient({ inputDni: '#dniCli', inputName: '#nameClient', alertError: '#alertErrorAddClient', alertErrorText: '#alertErrorTextAddClient', btnLadda: '.ladda-button-agent-add-client'})"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
                 </div>

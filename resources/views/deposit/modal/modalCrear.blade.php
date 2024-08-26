@@ -6,12 +6,15 @@
                     <h4 class="modal-title">Nuevo Depósito</h4>
             </div>
             <div class="modal-body">
+                <div id="alertErrorNuevoDeposito" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorTextNuevoDeposito"></span>
+                </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Cliente</label>
                     <div class="input-group col-lg-9">
                         <input type="text" class="form-control" id="dniCli" placeholder="Ingrese el DNI o Código del agente">
                         <div class="input-group-append">
-                            <button type="button" class="btn btn-primary" onclick="searchClient('#dniCli', '#nameClient')"><i class="fa fa-search"></i></button>
+                            <button type="button" class="btn btn-primary ladda-button-client-new-deposit" data-style="zoom-in" onclick="searchClient({ inputDni: '#dniCli', inputName: '#nameClient', alertError: '#alertErrorNuevoDeposito', alertErrorText: '#alertErrorTextNuevoDeposito', btnLadda: '.ladda-button-client-new-deposit' })"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
                 </div>
@@ -26,7 +29,7 @@
                     <div class="input-group col-lg-9">
                         <input type="text" class="form-control" id="codeAgent" placeholder="Ingrese el DNI o Código del agente">
                         <div class="input-group-append">
-                            <button type="button" class="btn btn-primary" onclick="searchAgent('#codeAgent', '#nameAgent')"><i class="fa fa-search"></i></button>
+                            <button type="button" class="btn btn-primary ladda-button-agent-new-deposit" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#codeAgent', inputName: '#nameAgent', alertError: '#alertErrorNuevoDeposito', alertErrorText: '#alertErrorTextNuevoDeposito', btnLadda: '.ladda-button-agent-new-deposit' })"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
                 </div>
@@ -60,6 +63,17 @@
                             <a type="button" class="btn btn-default">S/.</a>
                         </div>
                         <input type="number" placeholder="Ingrese monto" class="form-control" id="amount">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Lista de Ventas</label>
+                    <div class="col-lg-9">
+                        <select name="transaction_type" id="transaction_type_id" class="form-control m-b">
+                            <option>Seleccione la venta asociada</option>
+                            @foreach ($sales as $sale)
+                                <option value="{{ $sale->id }}">MONTO: $ {{ number_format($sale->amount, 2) }} CLIENTE: {{ $sale->customer->name }} {{ $sale->customer->lastname }} AGENTE: {{ $sale->customer->name }} {{ $sale->customer->lastname }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
             </div>

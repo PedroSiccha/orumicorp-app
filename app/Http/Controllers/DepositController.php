@@ -7,6 +7,7 @@ use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\Deposit;
 use App\Models\Premio;
+use App\Models\Sales;
 use App\Models\TransactionType;
 use App\Models\User;
 use Carbon\Carbon;
@@ -39,7 +40,8 @@ class DepositController extends Controller
             }
 
         }
-        return view('deposit.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'deposits', 'transactionsType'));
+        $sales = Sales::where('status', 1)->whereHas('agent')->whereHas('customer')->with(['agent', 'customer'])->get();
+        return view('deposit.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'deposits', 'transactionsType', 'sales'));
     }
 
     public function saveDeposit(Request $request)

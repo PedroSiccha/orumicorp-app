@@ -8,6 +8,9 @@
                 <input type="text" placeholder="Nombre del cliente" class="form-control" id='aId' readonly hidden>
             </div>
             <div class="modal-body">
+                <div id="alertError" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorText"></span>
+                </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Cliente</label>
                     <div class="col-lg-9">
@@ -21,8 +24,8 @@
                         <input type="text" class="form-control" id="dniAgent"
                             placeholder="Ingrese el DNI o Código del agente">
                         <div class="input-group-append">
-                            <button type="button" class="btn btn-primary"
-                                onclick="searchAgent('#dniAgent', '#nameAgent')"><i class="fa fa-search"></i></button>
+                            <button type="button" class="btn btn-primary ladda-button-agent" data-style="zoom-in"
+                                onclick="searchAgent({inputCodeVoiso: '#dniAgent', inputName: '#nameAgent', alertError: '#alertError', btnLadda: '.ladda-button-agent'})"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
                 </div>
