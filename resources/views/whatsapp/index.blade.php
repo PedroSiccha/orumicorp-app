@@ -42,7 +42,7 @@
                             <div class="media-body ">
                                 <small class="float-right">{{ $contact['createdAt'] }}</small>
                                 <strong>{{ $contact['name'] }}</strong>. <br>
-                                <small class="text-muted">{{ $contact['phoneNumber'] }} - {{ $contact['assignedUser'] }}</small>
+                                <small class="text-muted">{{ $contact['assignedUser'] }}</small>
                             </div>
                         </div>
                         @endforeach
