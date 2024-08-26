@@ -54,12 +54,12 @@
                                 </td>
 
                                 <td>
-                                    <button class="btn btn-primary float-right" onclick="initiateCall({phone: '{{ $client->phone }}', modal: '#modalCrearComentario', input: '#idComunication'})"><h3><i class="fa fa-phone"></i> {{ $client->phone }}</h3></button>
+                                    <button class="btn btn-primary float-right" onclick="initiateCall({phone: '{{ $client->phone }}', modal: '#modalCrearComentario', input: '#idComunication'})"><h3><i class="fa fa-phone"></i> </h3></button>
                                     {{-- <h3 class="table-active navy-bg"><i class="fa fa-phone"></i> {{ $client->phone }}</h3> --}}
                                 </td>
                                 <td>
                                     <h4>
-                                        <button class="btn btn-warning" onclick="initiateCall({phone: '{{ $client->phone }}', modal: '#modalCrearComentario', input: '#idComunication'})"><i class="fa fa-phone"></i> {{ $client->optional_phone }}</button>
+                                        <button class="btn btn-warning" onclick="initiateCall({phone: '{{ $client->phone }}', modal: '#modalCrearComentario', input: '#idComunication'})"><i class="fa fa-phone"></i> </button>
                                     </h4>
                                 </td>
                             </tr>
