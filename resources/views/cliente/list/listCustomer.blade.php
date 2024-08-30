@@ -9,28 +9,238 @@
                     <i></i>
                 </label>
             </div></div></th>
-            <th>Ultima llamada</th>
-            <th>COD. de Cliente</th>
-            <th>Fecha de Ingreso</th>
-            <th>Fecha de Última Llamada</th>
-            <th>Fecha de Última Asignación</th>
-            <th>Asignado Por</th>
-            <th>Proveedor</th>
-            <th>Campaña</th>
-            <th>Nombre del Cliente</th>
-            <th>Correo</th>
-            <th>Teléfono</th>
-            <th>Teléfono Opcional</th>
-            <th>Ciudad</th>
-            <th>Pais</th>
-            <th>Estado</th>
-            <th>Agente</th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Última llamada
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Más Recientes</a>
+                        <a class="dropdown-item" href="#">Más Antigüos</a>
+                        <a class="dropdown-item" href="#">Hoy</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        COD. de Cliente
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Ascedente</a>
+                        <a class="dropdown-item" href="#">Descendente</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Fecha de Ingreso
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Más Recientes</a>
+                        <a class="dropdown-item" href="#">Más Antigüos</a>
+                        <a href="#" class="dropdown-item">Hoy</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Fecha de Última Llamada
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Más Recientes</a>
+                        <a class="dropdown-item" href="#">Más Antigüos</a>
+                        <a href="#" class="dropdown-item">Hoy</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Fecha de última Asignación
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Más Recientes</a>
+                        <a class="dropdown-item" href="#">Más Antigüos</a>
+                        <a href="#" class="dropdown-item">Hoy</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Asignado Por
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Agente 01</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Proveedor
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Proveedor 01</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Campaña
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Campaña 01</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Nombre del Cliente
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Ascedente</a>
+                        <a class="dropdown-item" href="#">Descendente</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Correo
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Ascedente</a>
+                        <a class="dropdown-item" href="#">Descendente</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Teléfono
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Ascedente</a>
+                        <a class="dropdown-item" href="#">Descendente</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Teléfono Opcional
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Ascedente</a>
+                        <a class="dropdown-item" href="#">Descendente</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Ciudad
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Ascedente</a>
+                        <a class="dropdown-item" href="#">Descendente</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        País
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Ascedente</a>
+                        <a class="dropdown-item" href="#">Descendente</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Estado
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Estado 01</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Agente
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Agente 01</a>
+                    </div>
+                </div>
+            </th>
             <th>Comentario</th>
-            <th>Última Visita</th>
-            <th>FTD Date</th>
-            <th>Método</th>
-            <th>N° de Depósito</th>
-            <th>Total Depósitos</th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Última Visita
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Más Recientes</a>
+                        <a class="dropdown-item" href="#">Más Antigüos</a>
+                        <a href="#" class="dropdown-item">Hoy</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        FTD Date
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Más Recientes</a>
+                        <a class="dropdown-item" href="#">Más Antigüos</a>
+                        <a href="#" class="dropdown-item">Hoy</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Método
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Método 01</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        N° de Depósito
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Ascedente</a>
+                        <a class="dropdown-item" href="#">Descendente</a>
+                    </div>
+                </div>
+            </th>
+            <th>
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Total Depósito
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Mayor</a>
+                        <a class="dropdown-item" href="#">Menor</a>
+                    </div>
+                </div>
+            </th>
             <th>Acción</th>
         </tr>
     </thead>
@@ -193,15 +403,17 @@
     </tbody>
 </table>
 <label for="limit">Mostrar:</label>
-<select name="limit" id="limit">
-    <option value="5" {{ request('limit') == 5 ? 'selected' : '' }}>5</option>
-    <option value="10" {{ request('limit') == 10 ? 'selected' : '' }}>10</option>
-    <option value="20" {{ request('limit') == 20 ? 'selected' : '' }}>20</option>
-    <option value="50" {{ request('limit') == 50 ? 'selected' : '' }}>50</option>
-    <option value="100" {{ request('limit') == 100 ? 'selected' : '' }}>100</option>
-    <option value="500" {{ request('limit') == 500 ? 'selected' : '' }}>500</option>
-    <option value="1000" {{ request('limit') == 1000 ? 'selected' : '' }}>1000</option>
-</select>
+<div class="col-sm-1 m-b-xs">
+    <select class="form-control-sm form-control input-s-sm inline" name="limit" id="limit">
+        <option value="5" {{ request('limit') == 5 ? 'selected' : '' }}>5</option>
+        <option value="10" {{ request('limit') == 10 ? 'selected' : '' }}>10</option>
+        <option value="20" {{ request('limit') == 20 ? 'selected' : '' }}>20</option>
+        <option value="50" {{ request('limit') == 50 ? 'selected' : '' }}>50</option>
+        <option value="100" {{ request('limit') == 100 ? 'selected' : '' }}>100</option>
+        <option value="500" {{ request('limit') == 500 ? 'selected' : '' }}>500</option>
+        <option value="1000" {{ request('limit') == 1000 ? 'selected' : '' }}>1000</option>
+    </select>
+</div>
 {{ $customers->appends(['limit' => request('limit')])->links() }}
 
 <script src="{{ asset('js/utils/viewCheck.js') }}"></script>
