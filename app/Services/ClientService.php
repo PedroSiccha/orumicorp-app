@@ -10,6 +10,7 @@ use App\Interfaces\RolesInterface;
 use App\Interfaces\UserInterface;
 use App\Models\Agent;
 use App\Models\Assignment;
+use App\Models\Campaing;
 use App\Models\Configuration;
 use App\Models\Customers;
 use App\Models\CustomerStatus;
@@ -238,8 +239,10 @@ class ClientService implements ClientInterface {
         $traidings = Traiding::all();
         $statusCustomers = CustomerStatus::all();
         $folders = Folder::where('status', true)->get();
+        $agents = Agent::all();
+        $campaings = Campaing::all();
 
-        return compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers', 'myRolesId', 'configTablesDateInit', 'configTablesCode', 'configTablesPhone', 'configTablesOptionalPhone', 'configTablesEmail', 'configTablesCity', 'configTablesCountry', 'configTablesComment', 'providers', 'platforms', 'traidings', 'statusCustomers', 'folders');
+        return compact('customers', 'premios1', 'premios2', 'roles', 'dataUser', 'rouletteSpin', 'asignCustomers', 'myRolesId', 'configTablesDateInit', 'configTablesCode', 'configTablesPhone', 'configTablesOptionalPhone', 'configTablesEmail', 'configTablesCity', 'configTablesCountry', 'configTablesComment', 'providers', 'platforms', 'traidings', 'statusCustomers', 'folders', 'agents', 'campaings');
     }
 
     public function saveClient($request) {

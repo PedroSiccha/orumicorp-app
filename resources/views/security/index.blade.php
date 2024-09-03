@@ -11,9 +11,9 @@
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla de Roles </h5>
                   <div>
-                    {{-- @can('Registrar Roles') --}}
+                    @can('Registrar Roles')
                         <button type="button" class="btn btn-default" type="button" onclick="nuevoRol()"><i class="fa fa-plus"></i> Nuevo Rol</button>
-                    {{-- @endcan --}}
+                    @endcan
                   </div>
               </div>
               <div class="ibox-content" id="tabRoles">
@@ -50,9 +50,9 @@
             <div class="ibox-title d-flex justify-content-between align-items-center">
                 <h5>Tabla de Permisos </h5>
                 <div>
-                    {{-- @can('Asignar Permisos') --}}
+                    @can('Asignar Permisos')
                         <button type="button" class="btn btn-default" onclick="asignarPermiso()" style="display: none;" id="btnAsignar"><i class="fa fa-plus"></i> Asignar Permiso</button>
-                    {{-- @endcan --}}
+                    @endcan
                 </div>
             </div>
             <div class="ibox-content" id="tabPermisos">

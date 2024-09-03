@@ -11,31 +11,24 @@ Clientes
             <div class="ibox-title d-flex justify-content-between align-items-center">
                 <h5>Tabla Clientes </h5>
                 <div>
-                    {{-- @can('Asignar Cliente Masivo') --}}
-
-
-                    <button id="asignarFolderBtn" type="button" class="btn btn-default" type="button"
-                        onclick="mostrarNuevoModal('#modalAsignFolder')" style="display: none;"><i
-                            class="fa fa-folder-open"></i> Asignar Folder</button>
-                    <button id="liberarClienteBtn" type="button" class="btn btn-danger" type="button"
-                        onclick="liberarCliente()" style="display: none;"><i
-                            class="fa fa-minus-square"></i> Liberar Cliente</button>
-                    <button id="asignarBtn" type="button" class="btn btn-info" type="button"
-                        onclick="mostrarNuevoModal('#modalAsignAgent')" style="display: none;"><i
-                            class="fa fa-group"></i> Asignar Agente</button>
-                    <button id="changeStatusBtn" type="button" class="btn btn-warning" type="button"
-                        onclick="mostrarNuevoModal('#modalChangeStatus')" style="display: none;"><i
-                            class="fa fa-retweet"></i> Cambiar Estado</button>
-                    {{-- @endcan --}}
-                    {{-- @can('Crear Cliente') --}}
-                    <button type="button" class="btn btn-default" type="button"
-                        onclick="mostrarNuevoModal('#modalCliente')"><i class="fa fa-plus"></i> Nuevo Cliente</button>
-                    {{-- @endcan
-                    @can('Carga Masiva de Cliente') --}}
-                    <button type="button" class="btn btn-success" type="button"
-                        onclick="mostrarNuevoModal('#modalChargeGroup')"><i class="fa fa-upload"></i> Carga
-                        Masiva</button>
-                    {{-- @endcan --}}
+                    @can('Asignar Folder')
+                    <button id="asignarFolderBtn" type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalAsignFolder')" style="display: none;"><i class="fa fa-folder-open"></i> Asignar Folder</button>
+                    @endcan
+                    @can('Liberar Cliente')
+                    <button id="liberarClienteBtn" type="button" class="btn btn-danger" type="button" onclick="liberarCliente()" style="display: none;"><i class="fa fa-minus-square"></i> Liberar Cliente</button>
+                    @endcan
+                    @can('Asignar Agente')
+                    <button id="asignarBtn" type="button" class="btn btn-info" type="button" onclick="mostrarNuevoModal('#modalAsignAgent')" style="display: none;"><i class="fa fa-group"></i> Asignar Agente</button>
+                    @endcan
+                    @can('Cambiar Estado Cliente')
+                    <button id="changeStatusBtn" type="button" class="btn btn-warning" type="button" onclick="mostrarNuevoModal('#modalChangeStatus')" style="display: none;"><i class="fa fa-retweet"></i> Cambiar Estado</button>
+                    @endcan
+                    @can('Crear Cliente')
+                    <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalCliente')"><i class="fa fa-plus"></i> Nuevo Cliente</button>
+                    @endcan
+                    @can('Carga Masiva de Cliente')
+                    <button type="button" class="btn btn-success" type="button" onclick="mostrarNuevoModal('#modalChargeGroup')"><i class="fa fa-upload"></i> Carga Masiva</button>
+                    @endcan
                 </div>
                 <div class="ibox-tools">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -120,6 +113,10 @@ Clientes
     var searchStatusRoute = '{{ route("searchStatus") }}';
 
     var asignFolderGroupRoute = '{{ route("addGroupClientFolder") }}';
+
+    var filterOrderRoute = '{{ route("filterOrder") }}';
+    var filterByAttrRoute = '{{ route("filterByAttr") }}';
+    var filterByDateRoute = '{{ route("filterByDate") }}';
 </script>
 
 <script src="{{asset('js/agent/assignAgent.js')}}"></script>
@@ -141,6 +138,8 @@ Clientes
 <script src="{{ asset('js/customer/searchStatus.js') }}"></script>
 <script src="{{ asset('js/customer/freeClient.js') }}"></script>
 <script src="{{ asset('js/folder/asignFolderGroup.js') }}"></script>
+
+<script src="{{ asset('js/customer/filterAdvance.js') }}"></script>
 
 
 <script>

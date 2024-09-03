@@ -9,105 +9,82 @@
                     id='eId' hidden>
             </div>
             <div class="modal-body">
-                <table class="table m-b-xs">
-                    <tbody>
-                        <tr>
-                            <td>
-                                <strong>Código</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success'
-                                    placeholder="Ingrese su código" id='eCode'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Nombre</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success'
-                                    placeholder="Ingrese su nombre" id='eName'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Apellidos</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success'
-                                    placeholder="Ingrese su apellido" id='eLastname'>
-                            </td>
-                        </tr>
+                <div class="row">
+                    <div class="col-sm-6 b-r">
+                        <h3 class="m-t-none m-b">Datos Personales</h3>
+                        <div class="form-group">
+                            <label>Código</label>
+                            <input type="text" placeholder="Ingrese Código" class="form-control" id='eCode'>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombres</label>
+                            <input type="text" placeholder="Ingrese Nombre" class="form-control" id='eName'>
+                        </div>
+                        <div class="form-group">
+                            <label>Apellidos</label>
+                            <input type="text" placeholder="Ingrese Apellido" class="form-control" id='eLastname'>
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="text" placeholder="Ingrese Teléfono" class="form-control" id='ePhone'>
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono Opcional</label>
+                            <input type="text" placeholder="Ingrese Teléfono Opcional" class="form-control" id='eOptionalPhone'>
+                        </div>
+                    </div>
 
-                        <tr>
-                            <td>
-                                <strong>Teléfono</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success'
-                                    placeholder="Ingrese su teléfono" id='ePhone'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Teléfono Opcional</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success'
-                                    placeholder="Ingrese un teléfono opcional" id='eOptionalPhone'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Correo</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='email' class='form-control text-success'
-                                    placeholder="Ingrese su correo" id='eEmail'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Ciudad</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success'
-                                    placeholder="Ingrese su Ciudad" id='eCity'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Pais</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success'
-                                    placeholder="Ingrese su país" id='eCountry'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Comentario</strong>
-                            </td>
-                            <td>
-                                <textarea style='font-size: large;' type='text' class='form-control text-success'
-                                    placeholder="Ingrese un comentario" id='eComment'></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Asignar un Rol</strong>
-                            </td>
-                            <td>
-                                <select class="form-control m-b" name="account" id="eRol_id">
-                                    <option>Seleccione su Rol</option>
-                                    @foreach($roles as $rol)
-                                    <option value="{{ $rol->id }}">{{ $rol->name }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Correo</label>
+                            <input type="email" placeholder="Ingrese Correo" class="form-control" id='eEmail'>
+                        </div>
+                        <div class="form-group">
+                            <label>Ciudad</label>
+                            <input type="text" placeholder="Ingrese Ciudad" class="form-control" id='eCity'>
+                        </div>
+                        <div class="form-group">
+                            <label>País</label>
+                            <input type="text" placeholder="Ingrese País" class="form-control" id='eCountry'>
+                        </div>
+                        <div class="form-group">
+                            <label>Proveedor</label>
+                            <select name="provider" id="eProvide_id" class="form-control m-b">
+                                <option>Seleccione un proveedor</option>
+                                @foreach ($providers as $provider)
+                                <option value="{{ $provider->id }}">{{ $provider->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Platform</label>
+                            <select name="platform" id="ePlatform_id" class="form-control m-b">
+                                <option>Seleccione su platform</option>
+                                @foreach ($platforms as $platform)
+                                <option value="{{ $platform->id }}">{{ $platform->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Traiding</label>
+                            <select name="traiding" id="eTraiding_id" class="form-control m-b">
+                                <option>Seleccione su Traiding</option>
+                                @foreach ($traidings as $traiding)
+                                <option value="{{ $traiding->id }}">{{ $traiding->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <select name="status" id="eStatus_id" class="form-control m-b">
+                                <option>Seleccione su Estado</option>
+                                @foreach ($statusCustomers as $statusCustomer)
+                                <option value="{{ $statusCustomer->id }}">{{ $statusCustomer->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="modal-footer">

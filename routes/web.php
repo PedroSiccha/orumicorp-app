@@ -58,6 +58,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/clientsPagination', [App\Http\Controllers\ClientsController::class, 'clientsPagination'])->name('clientsPagination');
     Route::post('/changeStatusGroup', [App\Http\Controllers\ClientsController::class, 'changeStatusGroup'])->name('changeStatusGroup');
     Route::post('/searchStatus', [App\Http\Controllers\ClientsController::class, 'searchStatus'])->name('searchStatus');
+    Route::post('/filterOrder', [App\Http\Controllers\ClientsController::class, 'filterOrder'])->name('filterOrder');
+    Route::post('/filterByAttr', [App\Http\Controllers\ClientsController::class, 'filterByAttr'])->name('filterByAttr');
+    Route::post('/filterByDate', [App\Http\Controllers\ClientsController::class, 'filterByDate'])->name('filterByDate');
 
     Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
     Route::post('/searchCustomer', [App\Http\Controllers\SalesController::class, 'searchCustomer'])->name('searchCustomer');

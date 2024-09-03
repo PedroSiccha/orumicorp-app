@@ -15,9 +15,9 @@
                         Última llamada
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Más Recientes</a>
-                        <a class="dropdown-item" href="#">Más Antigüos</a>
-                        <a class="dropdown-item" href="#">Hoy</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
+                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Hoy</a>
                     </div>
                 </div>
             </th>
@@ -27,8 +27,8 @@
                         COD. de Cliente
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Ascedente</a>
-                        <a class="dropdown-item" href="#">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'code', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'code', type: 'ASC', tableName: '#tabClient' })">Descendente</a>
                     </div>
                 </div>
             </th>
@@ -38,8 +38,8 @@
                         Fecha de Ingreso
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Más Recientes</a>
-                        <a class="dropdown-item" href="#">Más Antigüos</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'date_admission', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'date_admission', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
                         <a href="#" class="dropdown-item">Hoy</a>
                     </div>
                 </div>
@@ -50,8 +50,8 @@
                         Fecha de Última Llamada
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Más Recientes</a>
-                        <a class="dropdown-item" href="#">Más Antigüos</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
                         <a href="#" class="dropdown-item">Hoy</a>
                     </div>
                 </div>
@@ -62,8 +62,8 @@
                         Fecha de última Asignación
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Más Recientes</a>
-                        <a class="dropdown-item" href="#">Más Antigüos</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'latestAssignamet.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'latestAssignamet.date', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
                         <a href="#" class="dropdown-item">Hoy</a>
                     </div>
                 </div>
@@ -74,7 +74,9 @@
                         Asignado Por
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Agente 01</a>
+                        @foreach ($agents as $agent)
+                            <a class="dropdown-item" href="#">{{ $agent->name }} {{ $agent->lastname }}</a>
+                        @endforeach
                     </div>
                 </div>
             </th>
@@ -84,7 +86,9 @@
                         Proveedor
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Proveedor 01</a>
+                        @foreach ($providers as $provider)
+                            <a class="dropdown-item" onclick="filterByAttr({ type: 'id_provider', id: '{{ $provider->id }}'})">{{ $provider->name }}</a>
+                        @endforeach
                     </div>
                 </div>
             </th>
@@ -94,7 +98,9 @@
                         Campaña
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Campaña 01</a>
+                        @foreach ($campaings as $campaing)
+                            <a class="dropdown-item">{{ $campaing->name }}</a>
+                        @endforeach
                     </div>
                 </div>
             </th>
@@ -104,8 +110,8 @@
                         Nombre del Cliente
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Ascedente</a>
-                        <a class="dropdown-item" href="#">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Descendente</a>
                     </div>
                 </div>
             </th>
@@ -115,8 +121,8 @@
                         Correo
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Ascedente</a>
-                        <a class="dropdown-item" href="#">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Descendente</a>
                     </div>
                 </div>
             </th>
@@ -126,8 +132,8 @@
                         Teléfono
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Ascedente</a>
-                        <a class="dropdown-item" href="#">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Descendente</a>
                     </div>
                 </div>
             </th>
@@ -137,8 +143,8 @@
                         Teléfono Opcional
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Ascedente</a>
-                        <a class="dropdown-item" href="#">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Descendente</a>
                     </div>
                 </div>
             </th>
@@ -148,8 +154,8 @@
                         Ciudad
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Ascedente</a>
-                        <a class="dropdown-item" href="#">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Descendente</a>
                     </div>
                 </div>
             </th>
@@ -159,8 +165,8 @@
                         País
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Ascedente</a>
-                        <a class="dropdown-item" href="#">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Descendente</a>
                     </div>
                 </div>
             </th>
@@ -170,7 +176,9 @@
                         Estado
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Estado 01</a>
+                        @foreach ($statusCustomers as $statusCustomer)
+                            <a class="dropdown-item" onclick="filterByAttr({ type: 'id_status', id: '{{ $statusCustomer->id }}'})">{{ $statusCustomer->name }}</a>
+                        @endforeach
                     </div>
                 </div>
             </th>
@@ -191,8 +199,8 @@
                         Última Visita
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Más Recientes</a>
-                        <a class="dropdown-item" href="#">Más Antigüos</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Antigüos</a>
                         <a href="#" class="dropdown-item">Hoy</a>
                     </div>
                 </div>
@@ -203,8 +211,8 @@
                         FTD Date
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Más Recientes</a>
-                        <a class="dropdown-item" href="#">Más Antigüos</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Antigüos</a>
                         <a href="#" class="dropdown-item">Hoy</a>
                     </div>
                 </div>
@@ -225,8 +233,8 @@
                         N° de Depósito
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Ascedente</a>
-                        <a class="dropdown-item" href="#">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Descendente</a>
                     </div>
                 </div>
             </th>
@@ -236,8 +244,8 @@
                         Total Depósito
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Mayor</a>
-                        <a class="dropdown-item" href="#">Menor</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Mayor</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Menor</a>
                     </div>
                 </div>
             </th>
@@ -357,10 +365,12 @@
                 </td>
                 <td>
                     <div class="d-flex align-items-center">
+                        @can('Llamadas VOISO')
                         <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}', modal: '#modalCrearComentario', input: '#idComunication'})"><i class="fa fa-phone"></i> </button>
-                        {{-- @can('Asignar Agente') --}}
-                            <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
-                        {{-- @endcan --}}
+                        @endcan
+                        @can('Asignar Agente')
+                        <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
+                        @endcan
                         {{-- @can('Estado Cliente')
                             @if ($customer->status == 0)
                                 <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '1')"><i class="fa fa-check"></i></button>
@@ -368,7 +378,7 @@
                                 <button class="btn btn-danger " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '0')"><i class="fa fa-minus"></i></button>
                             @endif
                         @endcan --}}
-                        {{-- @can('Editar Cliente') --}}
+                        @can('Editar Cliente')
                         <button class="btn btn-warning " type="button" onclick="editarCliente(
                             '{{ $customer->customer_id }}',
                             '{{ $customer->code }}',
@@ -378,8 +388,11 @@
                             '{{ $customer->optional_phone }}',
                             '{{ $customer->city }}',
                             '{{ $customer->country }}',
-                            '{{ $customer->comment }}',
                             '{{ $customer->email }}',
+                            '{{ $customer->provider_id }}',
+                            '{{ $customer->platform_id }}',
+                            '{{ $customer->traiding_id }}',
+                            '{{ $customer->status_id }}',
                             '#modalEditarCliente',
                             '#eId',
                             '#eCode',
@@ -389,13 +402,16 @@
                             '#eOptionalPhone',
                             '#eCity',
                             '#eCountry',
-                            '#eComment',
-                            '#eEmail'
+                            '#eEmail',
+                            '#eProvide_id',
+                            '#ePlatform_id',
+                            '#eTraiding_id',
+                            '#eStatus_id'
                             )"><i class="fa fa-pencil"></i></button>
-                        {{-- @endcan
-                        @can('Eliminar Cliente') --}}
+                        @endcan
+                        @can('Eliminar Cliente')
                             <button class="btn btn-danger " type="button" onclick="eliminarCliente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient')"><i class="fa fa-trash"></i></button>
-                        {{-- @endcan --}}
+                        @endcan
                     </div>
                 </td>
             </tr>

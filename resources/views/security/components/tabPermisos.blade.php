@@ -13,9 +13,9 @@
               <td>{{ $permiso->name }}</td>
               <td>{{ $permiso->guard_name }}</td>
               <td>
-                {{-- @can('Quitar Permiso') --}}
+                @can('Quitar Permiso')
                     <button class="btn btn-danger " type="button" onclick="deletePermiso('{{ $permiso->id }}', '#idRol')"><i class="fa fa-trash"></i></button>
-                {{-- @endcan --}}
+                @endcan
               </td>
           </tr>
       @endforeach
