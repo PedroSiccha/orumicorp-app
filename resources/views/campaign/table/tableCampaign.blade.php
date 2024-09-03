@@ -19,8 +19,12 @@
                 <td>{{ $campaign->end_date }}</td>
                 <td>
                     <div class="d-flex align-items-center">
+                        @can('Editar Campania')
                         <button class="btn btn-warning " type="button" onclick="editarCampaign({idCampaign: '{{ $campaign->id }}', name: '{{ $campaign->name }}', description: '{{ $campaign->description }}', startDate: '{{ $campaign->start_date }}', endDate: '{{ $campaign->end_date }}', modal: '#modalEditarCampaign', inputId: '#idEditarCampaign', inputName: '#nameCampaignEdit', inputDescription: '#descriptionCampaignEdit', inputStartDate: '#initDateCampaignEdit', inputEndCampaign: '#endDateCampaignEdit'})"><i class="fa fa-pencil"></i></button>
+                        @endcan
+                        @can('Eliminar Campania')
                         <button class="btn btn-danger " type="button" onclick="deleteCampaign({idCampaign: '{{ $campaign->id }}', name: '{{ $campaign->name }}', tableName: '#tabCampaing'})"><i class="fa fa-trash"></i></button>
+                        @endcan
                     </div>
                 </td>
             </tr>

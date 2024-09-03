@@ -19,10 +19,11 @@
                     Sin Comentario
                 @endif
             </p>
+            @can('Llamadas VOISO')
             @if ($client->phone)
                 <button type="button" class="btn btn-info btn-sm btn-block"><i class="fa fa-phone"></i> </button>
             @endif
-
+            @endcan
         </div>
     </div>
     <div class="client-detail">

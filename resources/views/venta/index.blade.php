@@ -13,29 +13,29 @@
                 <div class="col-sm-1">
                   <h5>Tabla Ventas </h5>
                 </div>
-                {{-- @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR')) --}}
+                @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
                   <div class="col-sm-2">
-                    {{-- @can('Filtrar Today') --}}
+                    @can('Filtrar Today')
                     <div class="input-group date">
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
                     </div>
-                    {{-- @endcan --}}
+                    @endcan
                 </div>
                 <div class="col-sm-2">
-                    {{-- @can('Filtrar Today') --}}
+                    @can('Filtrar Today')
                     <div class="input-group date">
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
                     </div>
-                    {{-- @endcan --}}
+                    @endcan
                 </div>
                 <div class="col-sm-2 text-right">
-                    {{-- @can('Filtrar Area Today') --}}
+                    @can('Filtrar Area Today')
                         <select class="form-control m-b" name="area" id="area" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')" onclick="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
                             @foreach($areas as $area)
                             <option value = "{{ $area->id }}">{{ $area->name }}</option>
                             @endforeach
                         </select>
-                    {{-- @endcan --}}
+                    @endcan
                 </div>
                 <div class="col-sm-3">
                     <div class="input-group mb-3">
@@ -45,11 +45,11 @@
                         </div>
                     </div>
                 </div>
-                {{-- @endif --}}
+                @endif
                   <div class="col-sm-2">
-                    {{-- @can('Registrar Ventas') --}}
+                    @can('Registrar Ventas')
                         <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalVenta')"><i class="fa fa-plus"></i> Registrar Venta</button>
-                    {{-- @endcan --}}
+                    @endcan
                   </div>
                 </div>
               </div>
@@ -86,9 +86,9 @@
                                 <td>{{ $sale->agent->area->name }}</td>
                                 <td>{{ $sale->obsercation }}</td>
                                 <td>
-                                    {{-- @can('Editar Venta') --}}
+                                    @can('Editar Venta')
                                         <button class="btn btn-warning " type="button" onclick="editarSale('{{ $sale->id }}', '{{ $sale->customer->id }}', '{{ $sale->customer->name }} {{ $sale->customer->lastname }}', '{{ $sale->amount }}', '{{ $sale->percent }}', '{{ $sale->exchange_rate }}', '{{ $sale->comission }}', '{{ $sale->agent->id }}', '{{ $sale->agent->code }}', '{{ $sale->agent->name }} {{ $sale->agent->lastname }}', '{{ $sale->obsercation }}', '#modalEditarVenta', '#eId', '#eIdClient', '#eNameClient', '#eAmount', '#ePercent', '#eTypeChange', '#eComission', '#eIdAgent', '#eCodAgent', '#eNameAgent', '#eObservation')"><i class="fa fa-pencil"></i></button>
-                                    {{-- @endcan --}}
+                                    @endcan
                                 </td>
                             </tr>
                         @endforeach

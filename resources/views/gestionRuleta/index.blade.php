@@ -11,9 +11,9 @@
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Datos de Premios </h5>
                   <div>
-                    {{-- @can('Registrar Premio Ruleta') --}}
+                    @can('Registrar Premio Ruleta')
                     <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalPremio')"><i class="fa fa-plus"></i> Registrar Premio</button>
-                    {{-- @endcan --}}
+                    @endcan
                   </div>
               </div>
               <div class="ibox-content" id="tabPremio">

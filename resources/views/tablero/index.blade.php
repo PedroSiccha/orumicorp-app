@@ -5,9 +5,215 @@
 @endsection
 
 @section('content')
+@if (auth()->check() && auth()->user()->hasRole('PROVEEDOR'))
+<div class="row">
+    <div class="col-lg-4">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <span class="label label-success float-right">Agosto</span>
+                <h5>Clientes Registrados</h5>
+            </div>
+            <div class="ibox-content">
+                <h1 class="no-margins">100</h1>
+                <div class="stat-percent font-bold text-success">100% <i class="fa fa-users"></i></div>
+                <small>Total Clientes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <span class="label label-info float-right">Agosto</span>
+                <h5>Clientes Activados</h5>
+            </div>
+            <div class="ibox-content">
+                <h1 class="no-margins">40</h1>
+                <div class="stat-percent font-bold text-info">40% <i class="fa fa-check"></i></div>
+                <small>Clientes Activos</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <span class="label label-warning float-right">2024</span>
+                <h5>Clientes Anuales</h5>
+            </div>
+            <div class="ibox-content">
+                <h1 class="no-margins">1000</h1>
+                <div class="stat-percent font-bold text-warning"> <i class="fa fa-calendar"></i></div>
+                <small>Registro de clientes durante el año</small>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 <div class="row">
 
-    {{-- @can('Ver Ventas Tablero') --}}
+    <div class="col-lg-4">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5>Mensajes</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content ibox-heading">
+                <h3><i class="fa fa-envelope-o"></i> Nuevo Mensaje</h3>
+                <small><i class="fa fa-tim"></i> Usted tiene 3 mensajes.</small>
+            </div>
+            <div class="ibox-content">
+                <div class="feed-activity-list">
+
+                    <div class="feed-element">
+                        <div>
+                            <small class="float-right text-navy">1m ago</small>
+                            <strong>Monica Smith</strong>
+                            <div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum</div>
+                            <small class="text-muted">Today 5:60 pm - 12.06.2014</small>
+                        </div>
+                    </div>
+
+                    <div class="feed-element">
+                        <div>
+                            <small class="float-right">2m ago</small>
+                            <strong>Jogn Angel</strong>
+                            <div>There are many variations of passages of Lorem Ipsum available</div>
+                            <small class="text-muted">Today 2:23 pm - 11.06.2014</small>
+                        </div>
+                    </div>
+
+                    <div class="feed-element">
+                        <div>
+                            <small class="float-right">5m ago</small>
+                            <strong>Jesica Ocean</strong>
+                            <div>Contrary to popular belief, Lorem Ipsum</div>
+                            <small class="text-muted">Today 1:00 pm - 08.06.2014</small>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5>Posicionamiento de Clientes</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content table-responsive">
+                <table class="table table-hover no-margins">
+                    <thead>
+                    <tr>
+                        <th>Estado</th>
+                        <th>Fecha Registro</th>
+                        <th>Cliente</th>
+                        <th>Carpeta</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><small>Pending...</small></td>
+                        <td><i class="fa fa-clock-o"></i> 11:20pm</td>
+                        <td>Samantha</td>
+                        <td><i class="fa fa-folder-o"> Carpeta 01</td>
+                    </tr>
+                    <tr>
+                        <td><span class="label label-warning">Canceled</span> </td>
+                        <td><i class="fa fa-clock-o"></i> 10:40am</td>
+                        <td>Monica</td>
+                        <td><i class="fa fa-folder-o"> Carpeta 01</td>
+                    </tr>
+                    <tr>
+                        <td><small>Pending...</small> </td>
+                        <td><i class="fa fa-clock-o"></i> 01:30pm</td>
+                        <td>John</td>
+                        <td><i class="fa fa-folder-o"> Carpeta 01</td>
+                    </tr>
+                    <tr>
+                        <td><small>Pending...</small> </td>
+                        <td><i class="fa fa-clock-o"></i> 02:20pm</td>
+                        <td>Agnes</td>
+                        <td><i class="fa fa-folder-o"> Carpeta 01</td>
+                    </tr>
+                    <tr>
+                        <td><small>Pending...</small> </td>
+                        <td><i class="fa fa-clock-o"></i> 09:40pm</td>
+                        <td>Janet</td>
+                        <td><i class="fa fa-folder-o"> Carpeta 01</td>
+                    </tr>
+                    <tr>
+                        <td><span class="label label-primary">Completed</span> </td>
+                        <td><i class="fa fa-clock-o"></i> 04:10am</td>
+                        <td>Amelia</td>
+                        <td><i class="fa fa-folder-o"> Carpeta 01</td>
+                    </tr>
+                    <tr>
+                        <td><small>Pending...</small> </td>
+                        <td><i class="fa fa-clock-o"></i> 12:08am</td>
+                        <td>Damian</td>
+                        <td><i class="fa fa-folder-o"> Carpeta 01</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="ibox-content">
+            <div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="widget style1 lazur-bg">
+                            <div class="row vertical-align">
+                                <div class="col-3">
+                                    <i class="fa fa-plus fa-3x"></i>
+                                </div>
+                                <div class="col-9 text-right">
+                                    <h2 class="font-bold">Registrar Cliente</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="widget style1 navy-bg">
+                            <div class="row vertical-align">
+                                <div class="col-3">
+                                    <i class="fa fa-group fa-3x"></i>
+                                </div>
+                                <div class="col-9 text-right">
+                                    <h2 class="font-bold">Carga Masiva</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+@else
+
+<div class="row">
+
+    @can('Ver Ventas Tablero')
         <div class="col-lg-6">
             <div class="ibox ">
                 <div class="ibox-title">
@@ -27,9 +233,9 @@
                 </div>
             </div>
         </div>
-    {{-- @endcan
+    @endcan
 
-    @can('Ver Cantidad Agentes Tablero') --}}
+    @can('Ver Cantidad Agentes Tablero')
         <div class="col-lg-3">
             <div class="ibox ">
                 <div class="ibox-title">
@@ -42,9 +248,9 @@
                 </div>
             </div>
         </div>
-    {{-- @endcan
+    @endcan
 
-    @can('Ver Cantidad Clientes Tablero') --}}
+    @can('Ver Cantidad Clientes Tablero')
         <div class="col-lg-3">
             <div class="ibox ">
                 <div class="ibox-title">
@@ -57,10 +263,10 @@
                 </div>
             </div>
         </div>
-    {{-- @endcan --}}
+    @endcan
 </div>
 
-{{-- @can('Estadistica de Ventas') --}}
+@can('Estadistica de Ventas')
     <div class="row">
         <div class="col-lg-12">
             <div class="ibox ">
@@ -93,9 +299,9 @@
             </div>
         </div>
     </div>
-{{-- @endcan
+@endcan
 
-@can('Rankig de Ventas Tablero') --}}
+@can('Rankig de Ventas Tablero')
     <div class="row">
         <div class="col-lg-12">
             <div class="ibox ">
@@ -131,8 +337,8 @@
             </div>
         </div>
     </div>
-{{-- @endcan --}}
-
+@endcan
+@endif
 @endsection
 @section('script')
 <script src="{{asset('js/utils/fechaActual.js')}}"></script>

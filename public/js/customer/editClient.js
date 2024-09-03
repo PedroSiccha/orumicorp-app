@@ -1,4 +1,4 @@
-function editarCliente(id, code, name, lastname, phone, optional_phone, city, country, comment, email, modal, inputId, inputCode, inputName, inputLastName, inputPhone, inputOptionalPhone, inputCity, inputCountry, inputComment, inputEmail) {
+function editarCliente(id, code, name, lastname, phone, optional_phone, city, country, email, provider_id, platform_id, traiding_id, status_id, modal, inputId, inputCode, inputName, inputLastName, inputPhone, inputOptionalPhone, inputCity, inputCountry, inputEmail, inputProvider, inputPlatform, inputTraiding, inputStatus) {
     $(inputId).val(id);
     $(inputCode).val(code);
     $(inputName).val(name);
@@ -7,8 +7,11 @@ function editarCliente(id, code, name, lastname, phone, optional_phone, city, co
     $(inputOptionalPhone).val(optional_phone);
     $(inputCity).val(city);
     $(inputCountry).val(country);
-    $(inputComment).val(comment);
     $(inputEmail).val(email);
+    $(inputProvider).val(provider_id);
+    $(inputPlatform).val(platform_id);
+    $(inputTraiding).val(traiding_id);
+    $(inputStatus).val(status_id);
     $(modal).modal('show');
 }
 

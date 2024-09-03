@@ -107,7 +107,7 @@
                                 class="nav-label">Task</span></a>
                     </li>
                     @endcan
-                    @can('Ver Task')
+                    @can('Ver Whatsapp')
                     <li class="{{ Request::is('whatsapp') ? 'active' : '' }}">
                         <a href="{{ route('whatsapp') }}"><i class="fa fa-comments-o"></i> <span
                                 class="nav-label">Whatsapp</span></a>
@@ -119,19 +119,19 @@
                                 class="nav-label">Mail</span></a>
                     </li>
                     @endcan
-                    @can('Ver Task')
+                    @can('Ver Shooter')
                     <li class="{{ Request::is('shooter') ? 'active' : '' }}">
                         <a href="{{ route('shooter') }}"><i class="fa fa-superpowers"></i> <span
                                 class="nav-label">Shooter</span></a>
                     </li>
                     @endcan
-                    @can('Ver Task')
+                    @can('Ver Deposit')
                     <li class="{{ Request::is('deposit') ? 'active' : '' }}">
                         <a href="{{ route('deposit') }}"><i class="fa fa-credit-card"></i> <span
                                 class="nav-label">Deposit</span></a>
                     </li>
                     @endcan
-                    @can('Ver Task')
+                    @can('Ver Mantenimiento')
                     <li class="{{ Request::is('maintenance') ? 'active' : '' }}">
                         <a href="{{ route('maintenance') }}"><i class="fa fa-cogs"></i> <span
                                 class="nav-label">Mantenimiento</span></a>

@@ -10,7 +10,9 @@ Depósito
                 <h5>
                     Tabla Depositos
                 </h5>
+                @can('Nuevo Deposito')
                 <button class="btn btn-info" type="button" onclick="mostrarNuevoModal('#modalNuevoDeposito')"><i class="fa fa-plus"></i> Registrar</button>
+                @endcan
             </div>
             <div class="inbox-content" id="tabDeposit">
                 @include('deposit.table.tableDeposit')

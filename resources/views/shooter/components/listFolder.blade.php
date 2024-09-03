@@ -5,10 +5,18 @@
             <a onclick="" style="flex: 1;"><i class="fa fa-folder"></i> {{ $folder->name }}</a>
             <a class="dropdown-toggle" data-toggle="dropdown"></a>
             <ul class="dropdown-menu dropdown-user">
+                @can('Renombrar Carpeta')
                 <li><a onclick="changeNameFolder({ inputFolderId: '#idFolderEdit', folderId: '{{ $folder->id }}', inputNameFolder: '#nameFolderEdit', folderName: '{{ $folder->name }}', modal: '#modalEditarFolder' })" class="dropdown-item">Cambiar Nombre</a></li>
+                @endcan
+                @can('Eliminar Carpeta')
                 <li><a onclick="deleteFolder({ id: '{{ $folder->id }}', name: '{{ $folder->name }}', tableName: '#folders' })" class="dropdown-item">Eliminar</a></li>
+                @endcan
+                @can('Agregar Cliente a Carpeta')
                 <li><a onclick="mostrarAddClient({ inputFolderId: '#idAssignFolderClient', folderId: '{{ $folder->id }}', inputNameFolder: '#nameFolderEdit', folderName: '{{ $folder->name }}', modal: '#modalAddClient' })" class="dropdown-item">Agregar Cliente</a></li>
+                @endcan
+                @can('Carga Masiva a Carpetas')
                 <li><a onclick="mostrarNuevoModal('#modalCargaMasivaShooter')" class="dropdown-item">Agregar Varios Clientes</a></li>
+                @endcan
             </ul>
         </li>
     @endforeach

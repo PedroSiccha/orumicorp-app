@@ -10,15 +10,15 @@
           <div class="ibox ">
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla de Agentes </h5>
-                  {{-- @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR')) --}}
+                  @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
                     <div class="col-sm-2 text-right">
-                        {{-- @can('Filtrar Area Today') --}}
+                        @can('Filtrar Area Today')
                             <select class="form-control m-b" name="area" id="area" onchange="filterAgent('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAgente')" onclick="filterAgent('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAgente')">
                                 @foreach($areas as $area)
                                 <option value = "{{ $area->id }}">{{ $area->name }}</option>
                                 @endforeach
                             </select>
-                        {{-- @endcan --}}
+                        @endcan
                     </div>
                     <div class="col-sm-4">
                         <div class="input-group mb-3">
@@ -28,12 +28,12 @@
                             </div>
                         </div>
                     </div>
-                    {{-- @endif --}}
+                    @endif
 
                   <div class="col-sm-2 text-right">
-                    {{-- @can('Crear Agente') --}}
+                    @can('Crear Agente')
                         <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalAgente')"><i class="fa fa-plus"></i> Nuevo Agente</button>
-                    {{-- @endcan --}}
+                    @endcan
                   </div>
               </div>
               <div class="ibox-content" id="tabAgente">

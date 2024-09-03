@@ -10,7 +10,7 @@
           <div class="ibox ">
               <div class="ibox-title d-flex justify-content-between align-items-center">
                   <h5>Tabla Bonus </h5>
-                  {{-- @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR')) --}}
+                  @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
                     <div class="col-sm-2">
                         <div class="input-group date">
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
@@ -36,14 +36,14 @@
                             </div>
                         </div>
                     </div>
-                    {{-- @endif --}}
+                    @endif
                   <div>
-                    {{-- @can('Registrar Descuento') --}}
+                    @can('Registrar Descuento')
                     <button type="button" class="btn btn-danger" type="button" onclick="mostrarNuevoModal('#modalDescuento')"><i class="fa fa-plus"></i> Registrar Descuento</button>
-                    {{-- @endcan --}}
-                    {{-- @can('Registrar Bonus') --}}
+                    @endcan
+                    @can('Registrar Bonus')
                     <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalBonus')"><i class="fa fa-plus"></i> Registrar Bonus</button>
-                    {{-- @endcan --}}
+                    @endcan
                   </div>
               </div>
               <div class="ibox-content" id="tabBonus">
@@ -65,13 +65,13 @@
                                 <td> $ {{ number_format($ba->commission, 2) }}</td>
                                 <td>S/. {{ number_format($ba->commission*3.5, 2) }}</td>
                                 <td>
-                                    {{-- @can('Ver Perfil Agente') --}}
+                                    @can('Ver Perfil Agente')
                                     <a href="{{ route('perfilUsuario', ['id' => $ba->agent->id]) }}">
-                                    {{-- @endcan --}}
+                                    @endcan
                                     {{ $ba->agent->name }} {{ $ba->agent->lastname }}
-                                    {{-- @can('Ver Perfil Agente') --}}
+                                    @can('Ver Perfil Agente')
                                     </a>
-                                    {{-- @endcan --}}
+                                    @endcan
                                 </td>
                                 <td>{{ $ba->agent->area->name }}</td>
                                 <td>{{ $ba->observation }}</td>

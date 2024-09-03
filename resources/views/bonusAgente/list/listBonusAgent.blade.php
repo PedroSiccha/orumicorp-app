@@ -16,13 +16,13 @@
               <td> $ {{ number_format($ba->commission, 2) }}</td>
               <td>S/. {{ number_format($ba->commission*3.5, 2) }}</td>
               <td>
-                {{-- @can('Ver Perfil Agente') --}}
+                @can('Ver Perfil Agente')
                 <a href="{{ route('perfilUsuario', ['id' => $ba->agent->id]) }}">
-                {{-- @endcan --}}
+                @endcan
                 {{ $ba->agent->name }} {{ $ba->agent->lastname }}
-                {{-- @can('Ver Perfil Agente') --}}
+                @can('Ver Perfil Agente')
                 </a>
-                {{-- @endcan --}}
+                @endcan
               </td>
               <td>{{ $ba->agent->area->name }}</td>
               <td>{{ $ba->observation }}</td>

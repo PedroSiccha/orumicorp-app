@@ -13,7 +13,9 @@
                         <a onclick="viewFolder({categoryId: '{{ $categoryFolder->id }}', tableName: '#folders'})" class="file-control active">{{ $categoryFolder->name }}</a>
                     @endforeach
                     <div class="hr-line-dashed"></div>
+                    @can('Crear Carpeta')
                     <button class="btn btn-primary btn-block" onclick="mostrarNuevoModal('#modalCrearFolder')">Crear Carpeta</button>
+                    @endcan
                     <div class="hr-line-dashed"></div>
                     <h5>Carpetas</h5>
                     <ul class="folder-list" style="padding: 0" id="folders">

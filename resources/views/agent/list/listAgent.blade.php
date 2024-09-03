@@ -26,23 +26,22 @@
               <td>{{ $agent->user->email }}</td>
               <td>{{ $agent->number_turns }}</td>
               <td>
-                  {{-- @can('Asignar Cantidad Giros') --}}
+                  @can('Asignar Cantidad Giros')
                       <button class="btn btn-default" type="button" onclick="asignarCantGiros('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-dashboard"></i></button>
-                  {{-- @endcan --}}
-                  {{-- @can('Estado Agente') --}}
+                  @endcan
+                  @can('Estado Agente')
                       @if ($agent->status == 0)
                           <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}', '1')"><i class="fa fa-check"></i></button>
                       @else
                           <button class="btn btn-danger " type="button" onclick="cambiarEstado('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}', '0')"><i class="fa fa-minus"></i></button>
                       @endif
-                  {{-- @endcan
-                  @can('Editar Agente') --}}
+                  @endcan
+                  @can('Editar Agente')
                   <button class="btn btn-warning " type="button" onclick="editarAgente('{{ $agent->id }}', '{{ $agent->code }}', '{{ $agent->name }}', '{{ $agent->lastname }}', '{{ $agent->code_voiso }}', '{{ $agent->email }}', '{{ $agent->area->id }}', '{{ $agent->user->roles->first()->id ?? '1' }}')"><i class="fa fa-pencil"></i></button>
-                  {{-- @endcan
-                  @can('Eliminar Agente') --}}
+                  @endcan
+                  @can('Eliminar Agente')
                   <button class="btn btn-danger " type="button" onclick="eliminarAgente('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-trash"></i></button>
-                  {{-- @endcan --}}
-
+                  @endcan
               </td>
           </tr>
       @endforeach

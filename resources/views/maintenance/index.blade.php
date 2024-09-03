@@ -48,7 +48,9 @@ Mantenimiento
                                                     <div class="ibox-title d-flex justify-content-between align-items-center">
                                                         <h5>Tabla Estado </h5>
                                                         <div>
+                                                            @can('Crear Estado Cliente')
                                                             <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalEstado')"><i class="fa fa-plus"></i> Nuevo Estado</button>
+                                                            @endcan
                                                         </div>
                                                     </div>
                                                     <div class="ibox-content" id="tabStatus">
@@ -69,7 +71,9 @@ Mantenimiento
                                                     <div class="ibox-title d-flex justify-content-between align-items-center">
                                                         <h5>Tabla Campañas </h5>
                                                         <div>
+                                                            @can('Crear Campania')
                                                             <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearCampaign')"><i class="fa fa-plus"></i> Nueva Campaña</button>
+                                                            @endcan
                                                         </div>
                                                     </div>
                                                     <div class="ibox-content" id="tabCampaing">
@@ -91,7 +95,9 @@ Mantenimiento
                                                     <div class="ibox-title d-flex justify-content-between align-items-center">
                                                         <h5>Tabla Proveedores </h5>
                                                         <div>
+                                                            @can('Crear Proveedores')
                                                             <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearProvider')"><i class="fa fa-plus"></i> Nuevo Proveedor</button>
+                                                            @endcan
                                                         </div>
                                                     </div>
                                                     <div class="ibox-content" id="tabProvider">
@@ -113,7 +119,9 @@ Mantenimiento
                                                     <div class="ibox-title d-flex justify-content-between align-items-center">
                                                         <h5>Tabla Platform </h5>
                                                         <div>
+                                                            @can('Crear Plataforma')
                                                             <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearPlatform')"><i class="fa fa-plus"></i> Nueva Platform</button>
+                                                            @endcan
                                                         </div>
                                                     </div>
                                                     <div class="ibox-content" id="tabPlatform">
@@ -135,7 +143,9 @@ Mantenimiento
                                                     <div class="ibox-title d-flex justify-content-between align-items-center">
                                                         <h5>Tabla Traiding </h5>
                                                         <div>
+                                                            @can('Crear Traiding')
                                                             <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearTraiding')"><i class="fa fa-plus"></i> Nuevo Traiding</button>
+                                                            @endcan
                                                         </div>
                                                     </div>
                                                     <div class="ibox-content" id="tabTraiding">
@@ -157,7 +167,9 @@ Mantenimiento
                                                     <div class="ibox-title d-flex justify-content-between align-items-center">
                                                         <h5>Tabla Tipo de Transacción </h5>
                                                         <div>
+                                                            @can('Crear Tipo Transanccion')
                                                             <button type="button" class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearTransactionType')"><i class="fa fa-plus"></i> Nuevo Tipo de Transacción</button>
+                                                            @endcan
                                                         </div>
                                                     </div>
                                                     <div class="ibox-content" id="tabTransactionType">
