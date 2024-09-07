@@ -74,6 +74,43 @@ class SecurityController extends Controller
         $permission = Permission::create(['name' => 'Estado Cliente']);
         */
 
+        $permission = Permission::create(['name' => 'Editar Campania']);
+        $permission = Permission::create(['name' => 'Crear Campania']);
+        $permission = Permission::create(['name' => 'Eliminar Campania']);
+        $permission = Permission::create(['name' => 'Asignar Folder']);
+        $permission = Permission::create(['name' => 'Liberar Cliente']);
+        $permission = Permission::create(['name' => 'Cambiar Estado Cliente']);
+        $permission = Permission::create(['name' => 'Llamadas VOISO']);
+        $permission = Permission::create(['name' => 'Editar Estados de Cliente']);
+        $permission = Permission::create(['name' => 'Crear Estado Cliente']);
+        $permission = Permission::create(['name' => 'Eliminar Estados de Cliente']);
+        $permission = Permission::create(['name' => 'Nuevo Deposito']);
+        $permission = Permission::create(['name' => 'Ver Whatsapp']);
+        $permission = Permission::create(['name' => 'Ver Mail']);
+        $permission = Permission::create(['name' => 'Ver Shooter']);
+        $permission = Permission::create(['name' => 'Ver Deposit']);
+        $permission = Permission::create(['name' => 'Ver Mantenimiento']);
+        $permission = Permission::create(['name' => 'Editar Proveedor']);
+        $permission = Permission::create(['name' => 'Eliminar Proveedor']);
+        $permission = Permission::create(['name' => 'Crear Proveedores']);
+        $permission = Permission::create(['name' => 'Eliminar Plataforma']);
+        $permission = Permission::create(['name' => 'Editar Plataforma']);
+        $permission = Permission::create(['name' => 'Crear Plataforma']);
+        $permission = Permission::create(['name' => 'Editar Traiding']);
+        $permission = Permission::create(['name' => 'Eliminar Traiding']);
+        $permission = Permission::create(['name' => 'Crear Traiding']);
+        $permission = Permission::create(['name' => 'Editar Tipo Transaccion']);
+        $permission = Permission::create(['name' => 'Eliminar Tipo Transaccion']);
+        $permission = Permission::create(['name' => 'Crear Tipo Transanccion']);
+        $permission = Permission::create(['name' => 'Activar Shooter']);
+        $permission = Permission::create(['name' => 'Administrar Shooter']);
+        $permission = Permission::create(['name' => 'Lista Shooter']);
+        $permission = Permission::create(['name' => 'Crear Carpeta']);
+        $permission = Permission::create(['name' => 'Renombrar Carpeta']);
+        $permission = Permission::create(['name' => 'Eliminar Carpeta']);
+        $permission = Permission::create(['name' => 'Agregar Cliente a Carpeta']);
+        $permission = Permission::create(['name' => 'Carga Masiva a Carpetas']);
+
 
 
         $user_id = Auth::user()->id;
