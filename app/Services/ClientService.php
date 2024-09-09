@@ -543,9 +543,10 @@ class ClientService implements ClientInterface {
         $premios2 = $premios['premios2'];
         $dataCustomer = Customers::where('id', $id)->first();
         $dataCommunication = [
-            'customer_id' => $dataCustomer->id
+            'customer_id' => $dataCustomer->id,
+            // 'customerStatusId' => $dataCustomer->customerStatusId
         ];
-        // dd($dataCommunication['customer_id']);
+
         $communications = $this->communicationService->getLocationByCustomer($dataCommunication);
         $lastAssignament = $this->assignamentService->getLastAssignamentByCustomer($dataCommunication);
         $lastCampaing = $this->campaingService->getLastCampaingByCustomer($dataCommunication);

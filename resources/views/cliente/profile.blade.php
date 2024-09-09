@@ -198,6 +198,7 @@
                                                 <th>#</th>
                                                 <th>Comentario</th>
                                                 <th>Agente</th>
+                                                <th>Estado</th>
                                                 <th>Fecha Registro</th>
                                             </tr>
                                         </thead>
@@ -206,8 +207,9 @@
                                                 @if(is_object($communication))
                                                     <tr>
                                                         <td>{{ $loop->iteration }}</td> <!-- Número de fila -->
-                                                        <td>{{ $communication->comment }}</td>
+                                                        <td>{{ $communication->comment ?? 'Sin Comentario' }}</td>
                                                         <td>{{ $communication->agent->name.' '.$communication->agent->lastname ?? 'Sin Agente' }}</td> <!-- Muestra 'Sin Agente' si no hay agente -->
+                                                        <td>{{ $communication->status }}</td>
                                                         <td>{{ $communication->date->format('d/m/Y H:i:s') }}</td> <!-- Formato de fecha -->
                                                     </tr>
                                                 @else

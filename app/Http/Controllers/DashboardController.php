@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\Premio;
+use App\Models\Provider;
 use App\Models\Sales;
 use App\Models\User;
 use Carbon\Carbon;
@@ -68,10 +69,13 @@ class DashboardController extends Controller
         $user_id = Auth::user()->id;
         $user = User::where('id', $user_id)->first();
         $roles = $user->getRoleNames()->first();
+        $rouletteSpin = 0;
 
         $agent = Agent::where('user_id', $user_id)->first();
         $client = Customers::where('user_id', $user_id)->first();
-        $rouletteSpin = $agent->number_turns ?: 0;
+        if ($agent) {
+            $rouletteSpin = $agent->number_turns ?: 0;
+        }
 
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
@@ -93,6 +97,8 @@ class DashboardController extends Controller
         //$permission = ModelsPermission::create(['name' => 'Ver Agentes']);
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
+        $sales = null;
+        $totalAmount = 0;
 
         if ($roles == 'ADMINISTRADOR') {
             $sales = Sales::where('status', true)
@@ -106,7 +112,8 @@ class DashboardController extends Controller
                         ->orderBy('date_admission', 'desc')
                         ->get();
         } else {
-            $sales = Sales::where('status', true)
+            if ($agent) {
+                $sales = Sales::where('status', true)
                         ->where('action_id', 1)
                         ->where('agent_id', $agent->id)
                         ->where(function ($query) use ($currentMonth, $currentYear, $previousMonth, $previousYear) {
@@ -117,10 +124,12 @@ class DashboardController extends Controller
                         })
                         ->orderBy('date_admission', 'desc')
                         ->get();
+            }
         }
 
-
-        $totalAmount = $sales->sum('amount');
+        if ($agent) {
+            $totalAmount = $sales->sum('amount');
+        }
 
         $agents = Agent::get();
         $clients = Customers::get();
@@ -143,7 +152,31 @@ class DashboardController extends Controller
                                 ->take(10)
                                 ->get();
 
-        return view('tablero.index', compact('premios1', 'premios2', 'dataUser', 'rouletteSpin', 'sales', 'totalAmount', 'cantAgents', 'cantClients', 'montoVenta', 'montoRetencion', 'montosPorAgente'));
+        $cantClientsRegisterProvider = 0;
+        $percentClientsRegisterProvider = 0;
+        $cantClientsActiveProvider = 0;
+        $percentClientsActiveProvider = 0;
+        $cantClientsProvider = 0;
+        $listClientsProvider = [];
+
+        if ($roles == 'PROVEEDOR') {
+            $providerId = Provider::where('user_id', $user_id)->first()->id;
+            $cantClientsRegisterProvider = Customers::where('id_provider', $providerId)->whereMonth('date_admission', Carbon::now()->month)->whereYear('date_admission', Carbon::now()->year)->count();
+            $cantClientsActiveProvider = Customers::where('id_provider', $providerId)->whereHas('deposits', function($query) {
+                                                        $query->whereMonth('date', Carbon::now()->month)
+                                                            ->whereYear('date', Carbon::now()->year);
+                                                    })->distinct('id')->count();
+            $cantClientsProvider = Customers::where('id_provider', $providerId)->whereYear('date_admission', Carbon::now()->year)->count();
+            if ($cantClientsRegisterProvider > 0) {
+                $percentClientsActiveProvider = round(($cantClientsActiveProvider / $cantClientsRegisterProvider) * 100, 2);
+            }
+            if ($cantClientsProvider > 0) {
+                $percentClientsRegisterProvider = round(($cantClientsRegisterProvider / $cantClientsProvider) * 100, 2);
+            }
+            $listClientsProvider = Customers::where('id_provider', $providerId)->whereMonth('date_admission', Carbon::now()->month)->whereYear('date_admission', Carbon::now()->year)->with('statusCustomer')->get();
+        }
+
+        return view('tablero.index', compact('premios1', 'premios2', 'dataUser', 'rouletteSpin', 'sales', 'totalAmount', 'cantAgents', 'cantClients', 'montoVenta', 'montoRetencion', 'montosPorAgente', 'cantClientsRegisterProvider', 'cantClientsActiveProvider', 'cantClientsProvider', 'listClientsProvider', 'percentClientsActiveProvider', 'percentClientsRegisterProvider'));
     }
 
     /**

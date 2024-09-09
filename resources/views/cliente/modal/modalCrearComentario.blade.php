@@ -17,11 +17,12 @@
                             placeholder="Ingrese un comentario" id='txtComentario'></textarea>
                     </div>
                 </div>
-                <div class="col-sm-5 m-b-xs">
-                    <select class="form-control-sm form-control input-s-sm inline" id="statusCustomerComent">
-                        <option>Seleccione un estado</option>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select name="statusCustomerComent" id="statusCustomerComent" class="form-control m-b">
+                        <option>¿Desea cambiar el estado?</option>
                         @foreach ($statusCustomers as $statusCustomer)
-                            <option value="{{ $statusCustomer->id }}">{{ $statusCustomer->name }}</option>
+                        <option value="{{ $statusCustomer->id }}">{{ $statusCustomer->name }}</option>
                         @endforeach
                     </select>
                 </div>

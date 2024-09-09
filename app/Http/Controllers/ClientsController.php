@@ -388,13 +388,57 @@ class ClientsController extends Controller
             Excel::import(new CustomersImport, $file);
 
             // Lógica post-importación
-            $customers = Customers::orderBy('date_admission')->get();
+            // $customers = Customers::orderBy('date_admission')->get();
+
+            $myRoles = $this->rolesService->getMyRoles();
+            $myRolesId = $myRoles['rolesId'];
+            $user_id = Auth::user()->id;
+            $agent = Agent::where('user_id', $user_id)->first();
+
+            if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+                $customers = Customers::with([
+                    'user',
+                    'agent',
+                    'latestCampaign',
+                    'latestSupplier',
+                    'provider',
+                    'statusCustomer',
+                    'platform',
+                    'traiding',
+                    'latestComunication',
+                    'latestAssignamet',
+                    'latestDeposit'
+                ])->orderBy('date_admission', 'desc')->paginate(50);
+
+            } else {
+
+                $customers = Customers::with([
+                    'user',
+                    'agent',
+                    'latestCampaign',
+                    'latestSupplier',
+                    'provider',
+                    'statusCustomer',
+                    'platform',
+                    'traiding',
+                    'latestComunication',
+                    'latestAssignamet',
+                    'latestDeposit'
+                ])->where('agent_id', $agent->id)->orderBy('date_admission', 'desc')->paginate(50);
+            }
+
+            $agents = Agent::all();
+            $campaings = Campaing::all();
+            $providers = Provider::all();
+            $statusCustomers = CustomerStatus::all();
+
             $title = "Correcto";
             $mensaje = "El cliente se importó correctamente";
             $status = "success";
 
             return response()->json([
-                "view" => view('cliente.list.listCustomer', compact('customers'))->render(),
+                "view" => view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(),
                 "title" => $title,
                 "text" => $mensaje,
                 "status" => $status

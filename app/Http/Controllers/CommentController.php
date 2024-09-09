@@ -132,7 +132,8 @@ class CommentController extends Controller
     {
         $dataCustomer = [
             'comunicationId' => $request->idComunication,
-            'comment' => $request->txtComentario
+            'comment' => $request->txtComentario,
+            'customerStatusId' => $request->customerStatusId
         ];
 
         if ($request->customerStatusId) {

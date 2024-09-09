@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Provider;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Role;
 
 class ProviderController extends Controller
 {
@@ -18,17 +21,24 @@ class ProviderController extends Controller
         $status = "error";
 
         try {
-
-            $provider = new Provider();
-            $provider->name = $request->name;
-            $provider->phone = $request->phone;
-            $provider->email = $request->email;
-            if ($provider->save()) {
-                $title = "Correcto";
-                $mensaje = "El proveedor se registró correctamente";
-                $status = "success";
+            $role = Role::find(9);
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = Hash::make($request->phone);
+            if ($user->save()) {
+                $user->assignRole($role);
+                $provider = new Provider();
+                $provider->name = $request->name;
+                $provider->phone = $request->phone;
+                $provider->email = $request->email;
+                $provider->user_id = $user->id;
+                if ($provider->save()) {
+                    $title = "Correcto";
+                    $mensaje = "El proveedor se registró correctamente";
+                    $status = "success";
+                }
             }
-
         } catch (ValidationException $e) {
             $title = "Error";
             $mensaje = $e->getMessage();
