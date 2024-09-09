@@ -166,6 +166,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/editFolder', [App\Http\Controllers\FolderController::class, 'editFolder'])->name('editFolder');
     Route::post('/addClientFolder', [App\Http\Controllers\FolderController::class, 'addClientFolder'])->name('addClientFolder');
 
-    Route::get('/mail', [App\Http\Controllers\MaintenanceController::class, 'mail'])->name('mail');
+    Route::get('/mail', [App\Http\Controllers\MailController::class, 'index'])->name('mail');
 });
 
