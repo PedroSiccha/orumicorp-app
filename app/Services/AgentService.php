@@ -80,12 +80,14 @@ class AgentService implements AgentInterface {
     public function saveAgent($requestData) {
         $resp = 0;
 
+        $pass = $requestData->code . $requestData->codeVoiso;
+
         $role = Role::find($requestData->rol_id);
 
         $user = new User();
         $user->name = $requestData->name;
         $user->email = $requestData->email;
-        $user->password = Hash::make($requestData->dni);
+        $user->password = Hash::make($pass);
 
         if ($user->save()) {
             $user->assignRole($role);
