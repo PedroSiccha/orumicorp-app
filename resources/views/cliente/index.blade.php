@@ -1,18 +1,27 @@
 @extends('layouts.app')
 
 @section('title')
-      Clientes
+Clientes
 @endsection
 
 @section('content')
 <div class="row">
-      <div class="col-lg-12">
-          <div class="ibox ">
-              <div class="ibox-title d-flex justify-content-between align-items-center">
-                  <h5>Tabla Clientes </h5>
-                  <div>
-                    @can('Asignar Cliente Masivo')
-                        <button type="button" class="btn btn-info" type="button" onclick="mostrarNuevoModal('#modalAsignAgent')"><i class="fa fa-group"></i> Asignar Agente</button>
+    <div class="col-lg-12">
+        <div class="ibox ">
+            <div class="ibox-title d-flex justify-content-between align-items-center">
+                <h5>Tabla Clientes </h5>
+                <div>
+                    @can('Asignar Folder')
+                    <button id="asignarFolderBtn" type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalAsignFolder')" style="display: none;"><i class="fa fa-folder-open"></i> Asignar Folder</button>
+                    @endcan
+                    @can('Liberar Cliente')
+                    <button id="liberarClienteBtn" type="button" class="btn btn-danger" type="button" onclick="liberarCliente()" style="display: none;"><i class="fa fa-minus-square"></i> Liberar Cliente</button>
+                    @endcan
+                    @can('Asignar Agente')
+                    <button id="asignarBtn" type="button" class="btn btn-info" type="button" onclick="mostrarNuevoModal('#modalAsignAgent')" style="display: none;"><i class="fa fa-group"></i> Asignar Agente</button>
+                    @endcan
+                    @can('Cambiar Estado Cliente')
+                    <button id="changeStatusBtn" type="button" class="btn btn-warning" type="button" onclick="mostrarNuevoModal('#modalChangeStatus')" style="display: none;"><i class="fa fa-retweet"></i> Cambiar Estado</button>
                     @endcan
                     @can('Crear Cliente')
                     <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalCliente')"><i class="fa fa-plus"></i> Nuevo Cliente</button>
@@ -20,366 +29,71 @@
                     @can('Carga Masiva de Cliente')
                     <button type="button" class="btn btn-success" type="button" onclick="mostrarNuevoModal('#modalChargeGroup')"><i class="fa fa-upload"></i> Carga Masiva</button>
                     @endcan
-                  </div>
-              </div>
-              <div class="ibox-content" id="tabClient">
-                  <table class="table table-striped">
-                      <thead>
-                      <tr>
-                          <th>Fecha de Ingreso</th>
-                          <th>ID de Cliente</th>
-                          <th>Nombre del Cliente</th>
-                          <th>Acción</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                        @foreach ($customers as $customer)
-                            <tr @if($customer->status == 0) class="table-danger" @endif>
-                                <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
-                                <td>{{ $customer->code }}</td>
-                                <td>
-                                    <a href="{{ route('perfilUsuario', ['id' => $customer->id]) }}">
-                                        {{ $customer->name }} {{ $customer->lastname }}</td>
-                                    </a>
-                                <td>
-                                    <button id="clickToCallButton" class="btn btn-success" type="button"><i class="fa fa-phone"></i> </button>
-
-                                    @can('Asignar Agente')
-                                        <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
-                                    @endcan
-                                    @can('Estado Cliente')
-                                        @if ($customer->status == 0)
-                                            <button class="btn btn-info " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '1')"><i class="fa fa-check"></i></button>
-                                        @else
-                                            <button class="btn btn-danger " type="button" onclick="cambiarEstado('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient', '0')"><i class="fa fa-minus"></i></button>
-                                        @endif
-                                    @endcan
-                                    @can('Editar Cliente')
-                                    <button class="btn btn-warning " type="button" onclick="editarCliente(
-                                        '{{ $customer->id }}',
-                                        '{{ $customer->code }}',
-                                        '{{ $customer->name }}',
-                                        '{{ $customer->lastname }}',
-                                        '{{ $customer->dni }}',
-                                        '{{ $customer->user->email }}',
-                                        '#modalEditarCliente',
-                                        '#eId',
-                                        '#eCode',
-                                        '#eName',
-                                        '#eLastname',
-                                        '#ePhone',
-                                        '#eEmail'
-                                        )"><i class="fa fa-pencil"></i></button>
-                                    @endcan
-                                    @can('Eliminar Cliente')
-                                        <button class="btn btn-danger " type="button" onclick="eliminarCliente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#tabClient')"><i class="fa fa-trash"></i></button>
-                                    @endcan
-                                </td>
-                            </tr>
-                        @endforeach
-                      </tbody>
-                  </table>
-                <div class="pagination justify-content-center">
-                    {{ $customers->links() }}
                 </div>
-              </div>
-          </div>
-      </div>
-  </div>
-
-
-  <div class="modal inmodal fade" id="modalChargeGroup" tabindex="-1" role="dialog"  aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Cargar Clientes de Manera Masiva</h4>
+                <div class="ibox-tools">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-wrench"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li>
+                            <a href="#" class="dropdown-item"
+                                onclick="mostrarNuevoModal('#modalConfigTableLocal')">Configurar Tabla</a>
+                            <!-- <a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalConfigTable')">Configurar Tabla</a> -->
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <div class="modal-body">
-
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label">Formato</label>
-                    <div class="input-group col-lg-9">
-                        <button type="button" class="btn btn-primary"><i class="fa fa-download"></i></button>
+            {{-- <a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalAsignar')">Asignar</a> --}}
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-sm-5 m-b-xs">
+                        <select class="form-control-sm form-control input-s-sm inline" id="statusCustomerId" onchange="searchStatus({ customerStatusId: '#statusCustomerId', tableName: '#tabClient' })">
+                            <option>Seleccione un estado</option>
+                            @foreach ($statusCustomers as $statusCustomer)
+                                <option value="{{ $statusCustomer->id }}">{{ $statusCustomer->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label">Subir Archivo</label>
-                    <div class="col-lg-9">
-                        <input type="file" placeholder="Nombre del agente" class="form-control" readonly>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="assignGroupAgent('#idGroupClientes', '#dniGroupAgent', '#modalAsignAgent', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
-                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-  <div class="modal inmodal fade" id="modalAsignAgent" tabindex="-1" role="dialog"  aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Asignar Clientes</h4>
-            </div>
-            <div class="modal-body">
-
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label">Agente</label>
-                    <div class="input-group col-lg-9">
-                        <input type="text" class="form-control" id="dniGroupAgent" placeholder="Ingrese el DNI o Código del agente">
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-primary" onclick="searchAgent('#dniGroupAgent', '#nameGroupAgent')"><i class="fa fa-search"></i></button>
+                    {{-- <div class="col-sm-4 m-b-xs">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-sm btn-white ">
+                                <input type="radio" name="options" id="option1" autocomplete="off" checked> Day
+                            </label>
+                            <label class="btn btn-sm btn-white active">
+                                <input type="radio" name="options" id="option2" autocomplete="off"> Week
+                            </label>
+                            <label class="btn btn-sm btn-white">
+                                <input type="radio" name="options" id="option3" autocomplete="off"> Month
+                            </label>
                         </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label">Datos del Agente</label>
-                    <div class="col-lg-9">
-                        <input type="text" placeholder="Nombre del agente" class="form-control" id='nameGroupAgent' readonly>
-                    </div>
-                </div>
+                    <div class="col-sm-3">
+                        <div class="input-group"><input placeholder="Search" type="text" class="form-control form-control-sm"> <span class="input-group-append"> <button type="button" class="btn btn-sm btn-primary">Go!
+                        </button> </span></div>
 
-                <table class="table m-b-xs">
-                    <tbody>
-                        <tr>
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Cod.</th>
-                                        <th>Clientes</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($asignCustomers as $asignCustomer)
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" class="i-checks flat chekboxses" name="idGroupClientes[]" value="{{ $asignCustomer->id }}" id="idGroupClientes">
-                                        </td>
-                                        <td> {{ $asignCustomer->code }} </td>
-                                        <td> {{ $asignCustomer->name }} </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </tr>
-                    </tbody>
-                </table>
+                    </div> --}}
+                </div>
+                <div class="table-responsive" id="tabClient">
+                    @include('cliente.list.listCustomer')
+                </div>
             </div>
 
-            <div class="modal-footer">
-                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="assignGroupAgent('#idGroupClientes', '#dniGroupAgent', '#modalAsignAgent', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
-                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
-            </div>
         </div>
     </div>
 </div>
 
-  <div class="modal inmodal fade" id="modalCliente" tabindex="-1" role="dialog"  aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Nuevo Cliente</h4>
-                <small class="font-bold">Registre su nuevo cliente</small>
-            </div>
-            <div class="modal-body">
-                <table class="table m-b-xs">
-                    <tbody>
-                        <tr>
-                            <td>
-                                <strong>Código</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su código" id='code'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Nombre</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su nombre" id='name'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Apellidos</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su apellido" id='lastname'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Teléfono</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su teléfono" id='dni'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Correo</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su correo" id='email'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                  <strong>Asignar un Rol</strong>
-                            </td>
-                            <td>
-                                  <select class="form-control m-b" name="account" id="rol_id">
-                                        <option>Seleccione su Rol</option>
-                                        @foreach($roles as $rol)
-                                        <option value = "{{ $rol->id }}">{{ $rol->name }}</option>
-                                        @endforeach
-                                    </select>
-                            </td>
-                      </tr>
-                    </tbody>
-                </table>
-            </div>
+@include('cliente.modal.modalChargeGroup')
+@include('cliente.modal.modalAsignAgent')
+@include('cliente.modal.modalGuardarNuevoCliente')
+@include('cliente.modal.modalEditarCliente')
+@include('cliente.modal.modalAsignarAgente')
+@include('cliente.modal.callModal')
+@include('cliente.modal.modalConfigTable')
+@include('cliente.modal.modalConfigTableLocal')
+@include('cliente.modal.modalCrearComentario')
+@include('cliente.modal.modalChangeStatus')
+@include('cliente.modal.modalAsignFolder')
 
-            <div class="modal-footer">
-                <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button" onclick="guardarNuevoCliente('#name', '#lastname', '#dni', '#email', '#code', '#rol_id', '#modalCliente', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
-                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal inmodal fade" id="modalEditarCliente" tabindex="-1" role="dialog"  aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Editar Cliente</h4>
-                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Id Cliente" id='eId' hidden>
-            </div>
-            <div class="modal-body">
-                <table class="table m-b-xs">
-                    <tbody>
-                        <tr>
-                            <td>
-                                <strong>Código</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su código" id='eCode'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Nombre</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su nombre" id='eName'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Apellidos</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su apellido" id='eLastname'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Teléfono</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su teléfono" id='ePhone'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Correo</strong>
-                            </td>
-                            <td>
-                                <input style='font-size: large;' type='email' class='form-control text-success' placeholder="Ingrese su correo" id='eEmail'>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                  <strong>Asignar un Rol</strong>
-                            </td>
-                            <td>
-                                  <select class="form-control m-b" name="account" id="eRol_id">
-                                        <option>Seleccione su Rol</option>
-                                        @foreach($roles as $rol)
-                                        <option value = "{{ $rol->id }}">{{ $rol->name }}</option>
-                                        @endforeach
-                                    </select>
-                            </td>
-                      </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="updateClient(
-                    '#modalEditarCliente',
-                    '#eId',
-                    '#eCode',
-                    '#eName',
-                    '#eLastname',
-                    '#ePhone',
-                    '#eEmail',
-                    '#eRol_id',
-                    '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
-                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal inmodal fade" id="modalAsignarAgente" tabindex="-1" role="dialog"  aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Asignar Agente</h4>
-                <input type="text" placeholder="Nombre del cliente" class="form-control" id='aId' readonly hidden>
-            </div>
-            <div class="modal-body">
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label">Cliente</label>
-                    <div class="col-lg-9">
-                        <input type="text" placeholder="Nombre del agente" class="form-control" id='nameClient' readonly>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label">Agente</label>
-                    <div class="input-group col-lg-9">
-                        <input type="text" class="form-control" id="dniAgent" placeholder="Ingrese el DNI o Código del agente">
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-primary" onclick="searchAgent('#dniAgent', '#nameAgent')"><i class="fa fa-search"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label">Datos del Agente</label>
-                    <div class="col-lg-9">
-                        <input type="text" placeholder="Nombre del agente" class="form-control" id='nameAgent' readonly>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="guardarAsignacionAgente('#aId', '#dniAgent', '#modalAsignarAgente', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
-                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
 @section('script')
 <script>
@@ -390,56 +104,20 @@
     var changeStatusClienteRoute = '{{ Route("changeStatusClient") }}';
     var asignAgentRoute = '{{ route("asignAgent") }}';
     var assignGroupAgentRoute = '{{ route("assignGroupAgent") }}';
+    var changeStatusGroupRoute = '{{ route("changeStatusGroup") }}';
     var token = '{{ csrf_token() }}';
+    var initiateCallRoute = '{{ route("initiateCall") }}';
+    var uploadExcelRoute = '{{ route("uploadExcel") }}';
+    var saveConfigTableRoute = '{{ route("saveConfigTable") }}';
+    var saveComentarioRoute = '{{ route("saveComentario") }}';
+    var searchStatusRoute = '{{ route("searchStatus") }}';
+
+    var asignFolderGroupRoute = '{{ route("addGroupClientFolder") }}';
+
+    var filterOrderRoute = '{{ route("filterOrder") }}';
+    var filterByAttrRoute = '{{ route("filterByAttr") }}';
+    var filterByDateRoute = '{{ route("filterByDate") }}';
 </script>
-
-<script>
-    // Selecciona el botón por su id
-    const clickToCallButton = document.getElementById('clickToCallButton');
-
-    // Agrega un event listener para escuchar el evento de clic en el botón
-    clickToCallButton.addEventListener('click', function() {
-        // Datos para la solicitud
-        const requestData = {
-            agent: 347,
-            number: '16461572020',
-            account_id: 12345678,
-            crm: 'my_crm'
-        };
-
-        // URL de la solicitud (reemplaza {cluster_id} y {contact_center_api_key} con los valores correctos)
-        const url = `https://cc-dal01.voiso.com/api/v1/2a517cb66609906663cf7e5bd337ff168286eeacb0364d1d/click2call`;
-
-        // Realiza la solicitud AJAX al servidor
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams(requestData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                mostrarMensaje("Error", "Network response was not ok", error);
-                throw new Error('Network response was not ok');
-            }
-            // Maneja la respuesta de la API si es necesario
-            mostrarMensaje("Llamando", "Se encuentra en llamada", success);
-            return response.json();
-        })
-        .then(data => {
-            // Realiza cualquier acción necesaria con los datos de la respuesta
-            mostrarMensaje("Error Data", data, error);
-            console.log(data);
-        })
-        .catch(error => {
-            // Maneja cualquier error que ocurra durante la solicitud AJAX
-            mostrarMensaje("Error Fetch", "Hubo un problema con la operación de búsqueda: " + error.message, error);
-            console.error('There was a problem with the fetch operation:', error.message);
-        });
-    });
-</script>
-
 
 <script src="{{asset('js/agent/assignAgent.js')}}"></script>
 <script src="{{asset('js/agent/searchAgent.js')}}"></script>
@@ -447,8 +125,78 @@
 <script src="{{ asset('js/customer/editClient.js') }}"></script>
 <script src="{{ asset('js/customer/changeStatusClient.js') }}"></script>
 <script src="{{ asset('js/customer/deleteClient.js') }}"></script>
+<script src="{{ asset('js/customer/changeStatusGroup.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
 <script src="{{ asset('js/utils/getIp.js') }}"></script>
 <script src="{{ asset('js/agent/assignGroupAgent.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+<script src="{{ asset('js/voiso/initiateCall.js') }}"></script>
+<script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
+<script src="{{ asset('js/customer/saveConfigTable.js') }}"></script>
+<script src="{{ asset('js/customer/saveConfigTableLocal.js') }}"></script>
+<script src="{{ asset('js/comentario/guardarComentario.js') }}"></script>
+<script src="{{ asset('js/customer/searchStatus.js') }}"></script>
+<script src="{{ asset('js/customer/freeClient.js') }}"></script>
+<script src="{{ asset('js/folder/asignFolderGroup.js') }}"></script>
+
+<script src="{{ asset('js/customer/filterAdvance.js') }}"></script>
+
+
+<script>
+    $(document).ready(function() {
+        // Cargar datos iniciales con el limit actual
+        let initialLimit = $('#limit').val();
+        fetch_data(1, initialLimit);
+
+        // Cambiar cantidad de registros por página
+        $(document).on('change', '#limit', function() {
+            let limit = $(this).val();
+            fetch_data(1, limit); // Cargar la primera página cuando cambia el límite
+        });
+
+        // Paginación
+        $(document).on('click', '.pagination a', function(event) {
+            event.preventDefault();
+            let page = $(this).attr('href').split('page=')[1];
+            let limit = $('#limit').val();
+            fetch_data(page, limit);
+        });
+
+        function fetch_data(page, limit) {
+            $.ajax({
+                url: "/clientsPagination?page=" + page + "&limit=" + limit,
+                success: function(data) {
+                    $('#tabClient').html(data);
+                }
+            });
+        }
+
+        $('.dataTables-example').DataTable({
+            pageLength: 25,
+            responsive: true,
+            dom: '<"html5buttons"B>lTfgitp',
+            buttons: [
+                { extend: 'copy'},
+                {extend: 'csv'},
+                {extend: 'excel', title: 'ExampleFile'},
+                {extend: 'pdf', title: 'ExampleFile'},
+
+                {extend: 'print',
+                 customize: function (win){
+                        $(win.document.body).addClass('white-bg');
+                        $(win.document.body).css('font-size', '10px');
+
+                        $(win.document.body).find('table')
+                                .addClass('compact')
+                                .css('font-size', 'inherit');
+                }
+                }
+            ]
+
+        });
+
+    });
+
+</script>
+<script src="{{ asset('js/utils/viewCheck.js') }}"></script>
 @endsection

@@ -3,12 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Interfaces\ComunicationInterface;
+use App\Models\Agent;
+use App\Models\Customers;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class VoisoController extends Controller
 {
+
+    protected $comunicationService;
+
+    public function __construct(
+        ComunicationInterface $comunicationService
+    ) {
+        $this->comunicationService = $comunicationService;
+    }
+
     public function clickToCall(Request $request)
     {
         $client = new Client();
@@ -34,24 +47,30 @@ class VoisoController extends Controller
 
     public function initiateCall(Request $request)
     {
-        $response = Http::post('https://{cluster_id}.voiso.com/api/v1/{contact_center_api_key}/click2call', [
-            'agent' => 347,
-            'number' => '16461572020',
-            'account_id' => 12345678,
-            'crm' => 'my_crm',
-        ]);
+        $user_id = Auth::user()->id;
+        $codeVoiso = Agent::where('user_id', $user_id)->first();
+        $data = [
+            'agent' => $codeVoiso->code,
+            'number' => $request->phone,
+        ];
 
+        $client = Customers::where('phone', $request->phone)->first();
+
+        $dataCustomer = [
+            'customer_id' => $client->id,
+            'description' => '',
+            'comment' => ''
+        ];
+
+        $response = Http::post('https://cc-dal01.voiso.com/api/v1/2a517cb66609906663cf7e5bd337ff168286eeacb0364d1d/click2call', $data);
         if ($response->successful()) {
-            // La solicitud fue exitosa, puedes acceder a los datos de la respuesta si es necesario
-            $responseData = $response->json();
-            // Realiza las operaciones necesarias con $responseData
-            return response()->json($responseData);
+            $comunicationData = $this->comunicationService->saveComunication($dataCustomer);
+            return response()->json(["errorMessage"=>$response->json(), "errorStatus"=>"", "status"=>$response->status(), "data"=>$comunicationData['data']]);
         } else {
-            // La solicitud falló
-            $errorCode = $response->status();
-            $errorMessage = $response->body();
-            // Maneja el error según sea necesario
-            return response()->json(['error' => $errorMessage], $errorCode);
+            $errorResponse = json_decode($response->body(), true);
+            $errorMessage = $errorResponse['error'] ?? 'Error desconocido';
+            $errorStatus = $errorResponse['status'] ?? 'Error de estado';
+            return response()->json(["errorMessage"=>$errorMessage, "errorStatus"=>$errorStatus, "status"=>$response->status(), "data"=>""]);
         }
     }
 }

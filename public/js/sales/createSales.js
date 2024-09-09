@@ -1,4 +1,6 @@
 function createSales(options) {
+    var l = Ladda.create(document.querySelector('.ladda-button-save'));
+    l.start();
     var dniCustomer = options.dniCustomer !== undefined ? $(options.dniCustomer).val() : '';
     var dniAgent = options.dniAgent !== undefined ? $(options.dniAgent).val() : '';
     var amount = options.amount !== undefined ? $(options.amount).val() : '';
@@ -14,6 +16,8 @@ function createSales(options) {
         $(tableName).html(data.view);
         $(modal).modal('hide');
         mostrarMensaje(data.title, data.text, data.status);
+    }).always(function() {
+        l.stop();
     });
 }
 /*
