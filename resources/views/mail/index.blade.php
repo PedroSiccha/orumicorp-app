@@ -12,15 +12,15 @@
                     <div class="space-25"></div>
                     <h5>Folders</h5>
                     <ul class="folder-list m-b-md" style="padding: 0">
-                        <li><a href="mailbox.html"> <i class="fa fa-inbox "></i> Inbox
+                        <li><a href="{{ route('mail') }}"> <i class="fa fa-inbox "></i> Inbox
                             {{-- <span class="label label-warning float-right">16</span>  --}}
                         </a></li>
-                        <li><a href="mailbox.html"> <i class="fa fa-envelope-o"></i> Enviados</a></li>
-                        <li><a href="mailbox.html"> <i class="fa fa-certificate"></i> Importantes</a></li>
-                        <li><a href="mailbox.html"> <i class="fa fa-file-text-o"></i> Documentos
+                        <li><a href="{{ route('mail') }}"> <i class="fa fa-envelope-o"></i> Enviados</a></li>
+                        <li><a href="{{ route('mail') }}"> <i class="fa fa-certificate"></i> Importantes</a></li>
+                        <li><a href="{{ route('mail') }}"> <i class="fa fa-file-text-o"></i> Documentos
                             {{-- <span class="label label-danger float-right">2</span></a> --}}
                         </li>
-                        <li><a href="mailbox.html"> <i class="fa fa-trash-o"></i> Basura</a></li>
+                        <li><a href="{{ route('mail') }}"> <i class="fa fa-trash-o"></i> Basura</a></li>
                     </ul>
                     {{-- <h5>Categories</h5>
                     <ul class="category-list" style="padding: 0">
