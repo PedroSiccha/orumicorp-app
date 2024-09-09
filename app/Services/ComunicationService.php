@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Interfaces\ComunicationInterface;
 use App\Models\Agent;
 use App\Models\Comunications;
+use App\Models\CustomerStatus;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -20,6 +21,14 @@ class ComunicationService implements ComunicationInterface {
         $mensaje = "Error desconocido";
         $status = "error";
         $data = "";
+        // $statusCustomer_id = $request['customerStatusId'];
+        // $statusCommunicationName = "";
+
+        // if ($statusCustomer_id) {
+        //     $statusCommunication = CustomerStatus::find($request['customerStatusId']);
+        //     $statusCommunicationName = $statusCommunication->name;
+        // }
+
 
         try {
             $user_id = Auth::user()->id;
@@ -32,6 +41,7 @@ class ComunicationService implements ComunicationInterface {
             $comunication->date = Carbon::now();
             $comunication->descripcion = $request['description'];
             $comunication->comment = $request['comment'];
+            $comunication->status = "NUEVO";
             if ($comunication->save()) {
                 $title = "Correcto";
                 $mensaje = "Comunication Success";
@@ -53,6 +63,14 @@ class ComunicationService implements ComunicationInterface {
         $mensaje = "Error desconocido";
         $status = "error";
 
+        $statusCustomer_id = $request['customerStatusId'];
+        $statusCommunicationName = "";
+
+        if ($statusCustomer_id) {
+            $statusCommunication = CustomerStatus::find($request['customerStatusId']);
+            $statusCommunicationName = $statusCommunication->name;
+        }
+
         try {
 
             $user_id = Auth::user()->id;
@@ -60,6 +78,7 @@ class ComunicationService implements ComunicationInterface {
 
             $comunication = Comunications::find($request['comunicationId']);
             $comunication->comment = $request['comment'];
+            $comunication->status = $statusCommunicationName;
 
             if ($comunication->save()) {
                 $title = "Correcto";
@@ -113,7 +132,7 @@ class ComunicationService implements ComunicationInterface {
     public function getLocationByCustomer($request) {
         try {
             $communications = Comunications::where('customer_id', $request['customer_id'])
-                ->with('agent')
+                ->with(['agent', 'customer'])
                 ->orderBy('date', 'desc')
                 ->get();
 
