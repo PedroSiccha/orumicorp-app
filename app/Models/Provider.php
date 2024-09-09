@@ -13,12 +13,13 @@ class Provider extends Model
         'name',
         'phone',
         'email',
+        'user_id',
         'created_at',
         'updated_at',
     ];
     public function campaigns()
     {
-        return $this->hasMany(Campaign::class, 'id_proveedor');
+        return $this->hasMany(Campaing::class, 'id_proveedor');
     }
 
     public function customers()

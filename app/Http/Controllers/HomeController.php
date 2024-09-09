@@ -6,7 +6,10 @@ use App\Models\Agent;
 use App\Models\Assistance;
 use App\Models\Customers;
 use App\Models\Premio;
+use App\Models\Provider;
 use App\Models\Sales;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,10 +33,14 @@ class HomeController extends Controller
     public function index()
     {
         $user_id = Auth::user()->id;
-
+        $rouletteSpin = 0;
+        $dateIn = null;
         $agent = Agent::where('user_id', $user_id)->first();
         $client = Customers::where('user_id', $user_id)->first();
-        $rouletteSpin = $agent->number_turns ?: 0;
+        if ($agent) {
+            $rouletteSpin = $agent->number_turns ?: 0;
+        }
+
 
         $dataUser = null;
 
@@ -68,8 +75,38 @@ class HomeController extends Controller
                                 ->take(10)
                                 ->get();
 
-        $dateIn = Assistance::where('date', date('Y-m-d'))->where('type', 'IN')->where('agent_id', $agent->id)->first();
+        if ($agent) {
+            $dateIn = Assistance::where('date', date('Y-m-d'))->where('type', 'IN')->where('agent_id', $agent->id)->first();
+        }
 
-        return view('home', compact('premios1', 'premios2', 'dataUser', 'rouletteSpin', 'cantAgents', 'cantClients', 'montoVenta', 'montoRetencion', 'montosPorAgente', 'dateIn'));
+        $cantClientsRegisterProvider = 0;
+        $percentClientsRegisterProvider = 0;
+        $cantClientsActiveProvider = 0;
+        $percentClientsActiveProvider = 0;
+        $cantClientsProvider = 0;
+        $listClientsProvider = [];
+
+        $user = User::where('id', $user_id)->first();
+        $roles = $user->getRoleNames()->first();
+
+        if ($roles == 'PROVEEDOR') {
+            $providerId = Provider::where('user_id', $user_id)->first()->id;
+            $cantClientsRegisterProvider = Customers::where('id_provider', $providerId)->whereMonth('date_admission', Carbon::now()->month)->whereYear('date_admission', Carbon::now()->year)->count();
+            $cantClientsActiveProvider = Customers::where('id_provider', $providerId)->whereHas('deposits', function($query) {
+                                                        $query->whereMonth('date', Carbon::now()->month)
+                                                            ->whereYear('date', Carbon::now()->year);
+                                                    })->distinct('id')->count();
+            $cantClientsProvider = Customers::where('id_provider', $providerId)->whereYear('date_admission', Carbon::now()->year)->count();
+            if ($cantClientsRegisterProvider > 0) {
+                $percentClientsActiveProvider = round(($cantClientsActiveProvider / $cantClientsRegisterProvider) * 100, 2);
+            }
+            if ($cantClientsProvider > 0) {
+                $percentClientsRegisterProvider = round(($cantClientsRegisterProvider / $cantClientsProvider) * 100, 2);
+            }
+            $listClientsProvider = Customers::where('id_provider', $providerId)->whereMonth('date_admission', Carbon::now()->month)->whereYear('date_admission', Carbon::now()->year)->with('statusCustomer')->get();
+        }
+
+
+        return view('home', compact('premios1', 'premios2', 'dataUser', 'rouletteSpin', 'cantAgents', 'cantClients', 'montoVenta', 'montoRetencion', 'montosPorAgente', 'dateIn', 'cantClientsRegisterProvider', 'cantClientsActiveProvider', 'cantClientsProvider', 'listClientsProvider', 'percentClientsActiveProvider', 'percentClientsRegisterProvider'));
     }
 }

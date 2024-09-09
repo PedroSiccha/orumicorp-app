@@ -107,4 +107,9 @@ class Customers extends Model
         return $this->hasOne(Deposit::class, 'customer_id')->with(['agent', 'transactionType'])->latest('date')->take(1);
     }
 
+    public function deposits()
+    {
+        return $this->hasMany(Deposit::class, 'customer_id');
+    }
+
 }

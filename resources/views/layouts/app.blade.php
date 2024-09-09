@@ -173,13 +173,22 @@
                         </li>
                         <li class="dropdown">
                             <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                                @if (isset($dataUser) && $dataUser->img != null)
                                 <img alt="image" class="rounded-circle"
-                                    src="{{  asset($dataUser->img) ?: asset('img/logo/basic_logo.png') }}"
+                                    src="{{  asset($dataUser->img) }}"
                                     style="width: 40px; height: auto; max-width: 100%;" />
+                                @else
+                                <img alt="image" class="rounded-circle"
+                                src="{{  asset('img/logo/basic_logo.png') }}"
+                                style="width: 40px; height: auto; max-width: 100%;" />
+                                @endif
+
                             </a>
                             <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                @if (auth()->check() && !auth()->user()->hasRole('PROVEEDOR'))
                                 <li><a class="dropdown-item"
-                                        href="{{ route('perfilUsuario', ['id' => Auth::user()->id]) }}">Perfil</a></li>
+                                    href="{{ route('perfilUsuario', ['id' => Auth::user()->id]) }}">Perfil</a></li>
+                                @endif
                                 <li><a class="dropdown-item" href="">Manuales</a></li>
                                 <li><a class="dropdown-item" href="">Correos</a></li>
                                 <li class="dropdown-divider"></li>
