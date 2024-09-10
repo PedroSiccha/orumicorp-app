@@ -266,8 +266,20 @@ class ClientService implements ClientInterface {
             $user->password = Hash::make($request->dni);
             if ($user->save()) {
                 $user->assignRole($role->id);
+
+                $getInitials = function($name) {
+                    $words = explode(' ', trim($name));
+                    $initials = '';
+                    foreach ($words as $word) {
+                        $initials .= strtoupper(substr($word, 0, 1));
+                    }
+                    return $initials;
+                };
+
+                $code = !empty($request->code) ? $request->code : $getInitials($request->name) . $getInitials($request->lastname) . '_' . $user->id;
+
                 $client = new Customers();
-                $client->code = $request->code;
+                $client->code = $code;
                 $client->name = $request->name;
                 $client->lastname = $request->lastname;
                 $client->phone = $request->phone;

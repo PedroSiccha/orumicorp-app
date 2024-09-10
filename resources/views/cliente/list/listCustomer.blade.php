@@ -380,7 +380,7 @@
                         @endcan --}}
                         @can('Editar Cliente')
                         <button class="btn btn-warning " type="button" onclick="editarCliente(
-                            '{{ $customer->customer_id }}',
+                            '{{ $customer->id }}',
                             '{{ $customer->code }}',
                             '{{ $customer->name }}',
                             '{{ $customer->lastname }}',

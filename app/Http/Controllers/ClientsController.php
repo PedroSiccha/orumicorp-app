@@ -331,9 +331,47 @@ class ClientsController extends Controller
     public function changeStatusClient(Request $request)
     {
         $data = $this->clientService->changeStatusClient($request);
-        $customers = Customers::orderBy('date_admission')->get();
+        $myRoles = $this->rolesService->getMyRoles();
 
-        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(50);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(50);
+        }
+
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
 
     }
 
@@ -341,18 +379,94 @@ class ClientsController extends Controller
     {
         $data = $this->clientService->updateClient($request);
 
-        $customers = Customers::orderBy('date_admission')->get();
+        $myRoles = $this->rolesService->getMyRoles();
 
-        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(50);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(50);
+        }
+
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }
 
     public function deleteClient(Request $request)
     {
         $data = $this->clientService->deleteClient($request);
 
-        $customers = Customers::orderBy('date_admission')->get();
+        $myRoles = $this->rolesService->getMyRoles();
 
-        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(50);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(50);
+        }
+
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
 
     }
 
