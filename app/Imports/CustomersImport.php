@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Customers;
 use App\Models\CustomerStatus;
+use App\Models\Platform;
 use App\Models\Provider;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -17,10 +18,12 @@ class CustomersImport implements ToModel, WithHeadingRow, WithBatchInserts, With
 {
     private $providers;
     private $status;
+    private $platform;
     public function __construct()
     {
         $this->providers = Provider::pluck('id', 'name');
         $this->status = CustomerStatus::pluck('id', 'name');
+        $this->platform = Platform::pluck('id', 'name');
     }
     /**
     * @param array $row
@@ -45,8 +48,9 @@ class CustomersImport implements ToModel, WithHeadingRow, WithBatchInserts, With
             'country' => $row['pais'],
             'comment' => $row['comentarios'],
             'email' => $row['correo'],
-            'id_provider' => $this->providers[$row['provedor']],
-            'id_status' => $this->status[$row['estado']]
+            'id_provider' => $this->providers[trim($row['provedor'])],
+            'id_status' => $this->status[!empty(trim($row['estado'])) ? trim($row['estado']) : 'NEW'],
+            // 'platform_id' => $this->platform[trim($row['plataforma'])]
         ]);
     }
 
