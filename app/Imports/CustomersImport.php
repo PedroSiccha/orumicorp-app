@@ -33,9 +33,19 @@ class CustomersImport implements ToModel, WithHeadingRow, WithBatchInserts, With
     public function model(array $row)
     {
         $user = Auth::user();
+        $getInitials = function($name) {
+            $words = explode(' ', trim($name));
+            $initials = '';
+            foreach ($words as $word) {
+                $initials .= strtoupper(substr($word, 0, 1));
+            }
+            return $initials;
+        };
+
+        $code = !empty($row['codigo']) ? $row['codigo'] : $getInitials($row['nombres']) . $getInitials($row['apellidos']) . '_' . $user->id;
 
         return new Customers([
-            'code' => $row['codigo'],
+            'code' => $code,
             'name' => $row['nombres'],
             'lastname' => $row['apellidos'],
             'user_id' => $user->id,
