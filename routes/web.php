@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MailchimpController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -167,5 +168,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/addClientFolder', [App\Http\Controllers\FolderController::class, 'addClientFolder'])->name('addClientFolder');
 
     Route::get('/mail', [App\Http\Controllers\MailController::class, 'index'])->name('mail');
+    Route::post('/enviar-correo-mailchimp', [MailchimpController::class, 'crearYEnviarCorreo'])->name('enviarCorreo');
 });
 
