@@ -38,7 +38,10 @@
     <div class="clearfix"></div>
                             </div>
                         <div class="mail-body text-right tooltip-demo">
-                            <a data-dismiss="modal" onclick="sendMail()" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Send"><i class="fa fa-reply"></i> Enviar</a>
+                            {{-- <a data-dismiss="modal" onclick="sendMail()" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Send"><i class="fa fa-reply"></i> Enviar</a> --}}
+                            <a href="#" class="btn btn-sm btn-primary enviar-correo" data-toggle="tooltip" data-placement="top" title="Send">
+                                <i class="fa fa-reply"></i> Enviar
+                            </a>
                             <a data-dismiss="modal" class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Discard email"><i class="fa fa-times"></i> Cancelar</a>
                             <a  class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Move to draft folder"><i class="fa fa-pencil"></i> Papeleria</a>
                         </div>

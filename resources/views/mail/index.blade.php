@@ -266,6 +266,33 @@
 
     $('.summernote').summernote();
 
+    $('.enviar-correo').on('click', function(e) {
+            e.preventDefault();
+
+            // Aquí puedes capturar datos si es necesario
+            let data = {
+                email: 'pedro.d.siccha@gmail.com', // Cambia este valor dinámicamente si es necesario
+                subject: 'Asunto del correo',
+                body: 'Cuerpo del correo'
+            };
+
+            // Hacer la petición AJAX
+            $.ajax({
+                url: '{{ route("enviarCorreo") }}',  // Ruta definida en web.php
+                type: 'POST',
+                data: data,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'  // Token CSRF de Laravel
+                },
+                success: function(response) {
+                    alert('Correo enviado con éxito.');
+                },
+                error: function(response) {
+                    alert('Error al enviar el correo.');
+                }
+            });
+        });
+
     });
 
     function sendMail() {
