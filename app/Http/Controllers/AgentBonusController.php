@@ -53,6 +53,7 @@ class AgentBonusController extends Controller
             $bonusAgent = Sales::where('status', true)
                                 ->where('action_id', 2)
                                 ->orWhere('action_id', 3)
+                                ->orWhere('action_id', 1)
                                 ->orderBy('created_at', 'desc')
                                 ->get();
         } else {
@@ -61,7 +62,8 @@ class AgentBonusController extends Controller
                                 ->where('agent_id', $agent->id)
                                 ->where(function ($query) {
                                     $query->where('action_id', 2)
-                                        ->orWhere('action_id', 3);
+                                        ->orWhere('action_id', 3)
+                                        ->orWhere('action_id', 1);
                                 })
                                 ->orderByDesc('created_at')
                                 ->get();
