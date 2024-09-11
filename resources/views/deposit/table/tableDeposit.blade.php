@@ -42,7 +42,7 @@
                         S/. {{ $deposit->amount }}
                     </th>
                     <th>
-                        $ {{ number_format($deposit->amount / 3.5, 2) }}
+                        $ {{ number_format($deposit->amount, 2) }}
                     </th>
                     <th>
                         {{ $deposit->tipo }}
