@@ -8,7 +8,14 @@
         <div class="ibox ">
             <div class="ibox-content">
                 <div class="file-manager">
-                    <h5>Ver Carpetas:</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Ver Carpetas:</h5>
+                        @can('Crear Categoria Folder')
+                            <button class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearCategory')">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        @endcan
+                    </div>
                     @foreach ($categoryFolders as $categoryFolder)
                         <a onclick="viewFolder({categoryId: '{{ $categoryFolder->id }}', tableName: '#folders'})" class="file-control active">{{ $categoryFolder->name }}</a>
                     @endforeach
@@ -71,6 +78,7 @@
 @include('shooter.modal.modalEditarFolder')
 @include('shooter.modal.modalAddClient')
 @include('shooter.modal.modalCargaMasivaShooter')
+@include('shooter.modal.modalCrearCategory')
 
 @endsection
 @section('script')
@@ -84,6 +92,7 @@
     var addClientFolderRoute = '{{ route("addClientFolder") }}';
     var searchClientRoute = '{{ Route("searchCustomer") }}';
     var viewResumClientRoute = '{{ Route("viewResumClient") }}';
+    var saveCategoryFolderRoute = '{{ Route("saveCategoryFolder") }}';
     var token = '{{ csrf_token() }}';
 </script>
 
@@ -99,5 +108,7 @@
 <script src="{{ asset('js/folder/assignedClientFolder.js') }}"></script>
 <script src="{{ asset('js/folder/changeNameFolder.js') }}"></script>
 <script src="{{ asset('js/customer/searchClient.js') }}"></script>
+
+<script src="{{ asset('js/categoryFolder/saveCategoryFolder.js') }}"></script>
 
 @endsection

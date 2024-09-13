@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CategoryFolder;
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\Request;
 
 class CategoryFolderController extends Controller
@@ -23,9 +24,32 @@ class CategoryFolderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function saveCategoryFolder(Request $request)
     {
-        //
+        $name = $request->name;
+        $title = 'Error';
+        $mensaje = 'Error desconocido';
+        $status = 'error';
+
+        try {
+            $categoryFolder = new CategoryFolder();
+            $categoryFolder->name = $name;
+            $categoryFolder->status = true;
+            if ($categoryFolder->save()) {
+                $title = "Correcto";
+                $mensaje = "Categoría de folder creado correctamente";
+                $status = "success";
+            } else {
+                $title = 'Error';
+                $mensaje = 'Error desconocido';
+                $status = 'error';
+            }
+        } catch (Exception $e) {
+            $title = 'Error';
+            $mensaje = 'Ocurrió un error: '.$e->getMessage();
+            $status = 'error';
+        }
+        return response()->json(["title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
     /**
