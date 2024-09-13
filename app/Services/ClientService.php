@@ -78,8 +78,6 @@ class ClientService implements ClientInterface {
         }
 
         if ($myRoles['roles'] == 'ADMINISTRADOR') {
-            //$customers = Customers::orderBy('date_admission')->get();
-            // $customers = CustomerSummary::orderBy('date_admission')->get();
             $customers = Customers::with([
                 'user',
                 'agent',
@@ -97,8 +95,7 @@ class ClientService implements ClientInterface {
             // dd($customers);
 
         } else {
-            //$customers = Customers::where('agent_id', $agent->id)->orderBy('date_admission')->get();
-            // $customers = CustomerSummary::where('agent_id', $agent->id)->orderBy('date_admission')->get();
+
             $customers = Customers::with([
                 'user',
                 'agent',
@@ -108,10 +105,16 @@ class ClientService implements ClientInterface {
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('agent_id', $agent->id)->orderBy('date_admission', 'desc')->paginate(10);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
+
+
+            // dd($customers);
         }
 
         $asignCustomers = Customers::where('agent_id', null)->where('status', 1)->orderBy('date_admission')->get();

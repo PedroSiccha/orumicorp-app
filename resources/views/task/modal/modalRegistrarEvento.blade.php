@@ -33,6 +33,25 @@
                         <textarea type="text" placeholder="Descripción del evento" class="form-control" id='descripcionEvento'></textarea>
                     </div>
                 </div>
+                @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Código del Agente</label>
+                    <div class="col-lg-9">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="codeAgent" placeholder="Ingrese el código del agente">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-primary ladda-button-agent-new-deposit" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#codeAgent', inputName: '#nameAgent', alertError: '#alertErrorNuevoDeposito', alertErrorText: '#alertErrorTextNuevoDeposito', btnLadda: '.ladda-button-agent-new-deposit' })"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Nombre del Agente</label>
+                    <div class="col-lg-9">
+                        <input type="text" placeholder="Nombre del Agente" class="form-control" id='nameAgent' readonly>
+                    </div>
+                </div>
+                @endif
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Código del Cliente</label>
                     <div class="col-lg-9">
@@ -75,7 +94,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success " type="button" onclick="saveEvent('#id', '#dateEvent', '#nombreEvento', '#descripcionEvento', '#dniCustomer', '#horaInicio', '#horaFin', '#priority_id', '#modalRegistrarEvento', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-success " type="button" onclick="saveEvent('#id', '#dateEvent', '#nombreEvento', '#descripcionEvento', '#dniCustomer', '#codeAgent', '#horaInicio', '#horaFin', '#priority_id', '#modalRegistrarEvento', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-warning " type="button" onclick="editEvent('#id', '#dateEvent', '#nombreEvento', '#descripcionEvento', '#dniCustomer', '#horaInicio', '#horaFin', '#priority_id', '#modalRegistrarEvento')"><i class="fa fa-pencil"></i> Modificar</button>
                 <button class="btn btn-danger " type="button" onclick="deleteEvent('#id', '#modalRegistrarEvento')"><i class="fa fa-trash"></i> Eliminar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-close"></i> Cancelar</button>
