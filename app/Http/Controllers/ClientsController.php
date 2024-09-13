@@ -80,10 +80,13 @@ class ClientsController extends Controller
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('agent_id', $agent->id)->orderBy('date_admission', 'desc')->paginate($limit);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate($limit);
         }
 
         $agents = Agent::all();
@@ -131,10 +134,13 @@ class ClientsController extends Controller
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('agent_id', $agent->id)->orderBy('date_admission', 'desc')->paginate(10);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
         }
 
         $agents = Agent::all();
@@ -191,10 +197,14 @@ class ClientsController extends Controller
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('agent_id', $agent->id)->orderBy('date_admission', 'desc')->paginate(10);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
+
         }
 
         $agents = Agent::all();
@@ -264,10 +274,13 @@ class ClientsController extends Controller
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('agent_id', $agent->id)->orderBy('date_admission', 'desc')->paginate(10);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
         }
 
         $agents = Agent::all();
@@ -313,10 +326,14 @@ class ClientsController extends Controller
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('agent_id', $agent->id)->where('id_status', $customerStatusId)->orderBy('date_admission', 'desc')->paginate(50);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->where('id_status', $customerStatusId)->orderBy('date_admission', 'desc')->paginate(10);
+
         }
 
         $agents = Agent::all();
@@ -332,6 +349,9 @@ class ClientsController extends Controller
     {
         $data = $this->clientService->changeStatusClient($request);
         $myRoles = $this->rolesService->getMyRoles();
+
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
 
@@ -360,10 +380,13 @@ class ClientsController extends Controller
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->orderBy('date_admission', 'desc')->paginate(50);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
         }
 
         $agents = Agent::all();
@@ -381,6 +404,9 @@ class ClientsController extends Controller
 
         $myRoles = $this->rolesService->getMyRoles();
 
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
         if ($myRoles['roles']== 'ADMINISTRADOR') {
 
             $customers = Customers::with([
@@ -408,10 +434,13 @@ class ClientsController extends Controller
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->orderBy('date_admission', 'desc')->paginate(50);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
         }
 
         $agents = Agent::all();
@@ -428,6 +457,9 @@ class ClientsController extends Controller
 
         $myRoles = $this->rolesService->getMyRoles();
 
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
         if ($myRoles['roles']== 'ADMINISTRADOR') {
 
             $customers = Customers::with([
@@ -455,10 +487,13 @@ class ClientsController extends Controller
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->orderBy('date_admission', 'desc')->paginate(50);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
         }
 
         $agents = Agent::all();
@@ -536,10 +571,13 @@ class ClientsController extends Controller
                     'statusCustomer',
                     'platform',
                     'traiding',
+                    'assignaments',
                     'latestComunication',
                     'latestAssignamet',
                     'latestDeposit'
-                ])->where('agent_id', $agent->id)->orderBy('date_admission', 'desc')->paginate(50);
+                ])->whereHas('assignaments', function($query) use ($agent) {
+                    $query->where('agent_id', $agent->id);
+                })->orderBy('date_admission', 'desc')->paginate(10);
             }
 
             $agents = Agent::all();
@@ -763,10 +801,14 @@ class ClientsController extends Controller
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('agent_id', $agent->id)->orderBy($order, $type)->paginate(50);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy($order, $type)->paginate(10);
+
         }
 
         $agents = Agent::all();
@@ -804,6 +846,7 @@ class ClientsController extends Controller
 
         } else {
 
+
             $customers = Customers::with([
                 'user',
                 'agent',
@@ -813,10 +856,14 @@ class ClientsController extends Controller
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('agent_id', $agent->id)->where($type, $id)->paginate(50);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->where($type, $id)->orderBy('date_admission', 'desc')->paginate(10);
+
         }
 
         $agents = Agent::all();
@@ -867,10 +914,14 @@ class ClientsController extends Controller
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('agent_id', $agent->id)->whereBetween($order, [$formattedDate, $formattedDate])->paginate(50);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->whereBetween($order, [$formattedDate, $formattedDate])->orderBy('date_admission', 'desc')->paginate(10);
+
         }
 
         $agents = Agent::all();

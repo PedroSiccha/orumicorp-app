@@ -32,7 +32,7 @@ class Customers extends Model
 
     public function assignaments()
     {
-        return $this->hasMany(Assignment::class);
+        return $this->hasMany(Assignment::class, 'customer_id');
     }
 
     public function campaigns()

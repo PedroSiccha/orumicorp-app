@@ -17,6 +17,7 @@
 @section('script')
 <script src="{{ asset('js/calendar/script.js') }}"></script>
 <script src="{{ asset('js/customer/searchClient.js') }}"></script>
+<script src="{{asset('js/agent/searchAgent.js')}}"></script>
 <script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
 <script src="{{ asset('js/task/saveEvent.js') }}"></script>
 <script src="{{ asset('js/task/editEvent.js') }}"></script>
@@ -30,6 +31,7 @@
     var editEventRoute = '{{ route("editEvent") }}';
     var deleteEventRoute = '{{ route("deleteEvent") }}';
     var getEventByIdRoute = '{{ route("getEventById") }}';
+    var searchAgentRoute = '{{ route("searchAgent") }}';
     var token = '{{ csrf_token() }}';
   </script>
 @endsection
