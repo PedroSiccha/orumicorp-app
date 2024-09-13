@@ -61,7 +61,7 @@ class MailchimpController extends Controller
             ],
         ]);
 
-        dd($campaign);
+        // dd($campaign);
 
         // Verifica si la campaña se creó correctamente
         if (!isset($campaign['id'])) {
