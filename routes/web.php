@@ -167,6 +167,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/editFolder', [App\Http\Controllers\FolderController::class, 'editFolder'])->name('editFolder');
     Route::post('/addClientFolder', [App\Http\Controllers\FolderController::class, 'addClientFolder'])->name('addClientFolder');
 
+    Route::post('/saveCategoryFolder', [App\Http\Controllers\CategoryFolderController::class, 'saveCategoryFolder'])->name('saveCategoryFolder');
+
     Route::get('/mail', [App\Http\Controllers\MailController::class, 'index'])->name('mail');
     Route::post('/enviar-correo-mailchimp', [MailchimpController::class, 'crearYEnviarCorreo'])->name('enviarCorreo');
 });
