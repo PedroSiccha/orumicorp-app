@@ -16,6 +16,7 @@ use App\Models\Target;
 use App\Models\User;
 use Carbon\Carbon;
 use DateTime;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -110,30 +111,51 @@ class AgentBonusController extends Controller
      */
     public function saveBonus(Request $request)
     {
-        $client = Customers::where('dni', $request->dniCustomer)
-                  ->orWhere('code', $request->dniCustomer)
-                  ->first();
+        $title = 'Error';
+        $mensaje = 'Error desconocido';
+        $status = 'error';
+
+        $client_id = "";
+        if ($request->dniCustomer > 0) {
+            $client = Customers::where('code', $request->dniCustomer)->first();
+            $client_id = $client->id;
+        }
 
         $agent = Agent::where('user_id', Auth::user()->id)->first();
 
-        $bonusAgent = new BonusAgent();
-        $bonusAgent->date_admission = Carbon::now();
-        $bonusAgent->amount = $request->amount;
-        $bonusAgent->observation = $request->observation;
-        $bonusAgent->status = true;
-        $bonusAgent->customer_id = $client->id;
-        $bonusAgent->percent_id = $request->percent_id;
-        $bonusAgent->commission_id = $request->commission_id;
-        $bonusAgent->exchange_rate_id = $request->exchange_rate_id;
-        $bonusAgent->agent_id = $agent->id;
-        $bonusAgent->action_id = 1;
-        if ($bonusAgent->save()) {
-            $resp = 1;
+        try {
+            $bonusAgent = new BonusAgent();
+            $bonusAgent->date_admission = Carbon::now();
+            $bonusAgent->amount = $request->amount;
+            $bonusAgent->observation = $request->observation;
+            $bonusAgent->status = true;
+            $bonusAgent->customer_id = $client_id;
+            if ($request->percent_id > 0) {
+                $bonusAgent->percent_id = $request->percent_id;
+            }
+            if ($request->commission_id > 0) {
+                $bonusAgent->commission_id = $request->commission_id;
+            }
+            if ($request->exchange_rate_id > 0) {
+                $bonusAgent->exchange_rate_id = $request->exchange_rate_id;
+            }
+            $bonusAgent->agent_id = $agent->id;
+            $bonusAgent->action_id = 1;
+            if ($bonusAgent->save()) {
+                $title = "Correcto";
+                $mensaje = "Registrado correctamente";
+                $status = "success";
+            }
+        } catch (Exception $e) {
+            $title = 'Error';
+            $mensaje = 'Ocurrió un error: '.$e->getMessage();
+            $status = 'error';
         }
+
 
         $bonusAgent = BonusAgent::where('status', true)->orderBy('date_admission', 'desc')->get();
 
-        return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "resp"=>$resp]);
+        return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
     public function saveRetiro(Request $request)

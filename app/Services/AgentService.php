@@ -218,7 +218,7 @@ class AgentService implements AgentInterface {
                         ->where(function ($query) use ($search) {
                             $query->whereRaw('CONCAT(name, " ", lastname) LIKE ?', ['%'.$search.'%'])
                                 ->orWhere('code', 'like', '%'.$search.'%');
-                        })->get();
+                        })->paginate(10);
 
         return $agents;
     }
