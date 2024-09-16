@@ -94,6 +94,7 @@
     var viewResumClientRoute = '{{ Route("viewResumClient") }}';
     var saveCategoryFolderRoute = '{{ Route("saveCategoryFolder") }}';
     var token = '{{ csrf_token() }}';
+    var uploadExcelRoute = '{{ route("uploadExcel") }}';
 </script>
 
 <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
@@ -110,5 +111,7 @@
 <script src="{{ asset('js/customer/searchClient.js') }}"></script>
 
 <script src="{{ asset('js/categoryFolder/saveCategoryFolder.js') }}"></script>
+
+<script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
 
 @endsection

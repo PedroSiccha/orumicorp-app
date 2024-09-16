@@ -137,7 +137,9 @@ Clientes
 <script src="{{ asset('js/comentario/guardarComentario.js') }}"></script>
 <script src="{{ asset('js/customer/searchStatus.js') }}"></script>
 <script src="{{ asset('js/customer/freeClient.js') }}"></script>
-<script src="{{ asset('js/folder/asignFolderGroup.js') }}"></script>
+{{-- <script src="{{ asset('js/folder/asignFolderGroup.js') }}"></script> --}}
+
+<script src="{{ asset('js/folder/addGroupClientFolder.js') }}"></script>
 
 <script src="{{ asset('js/customer/filterAdvance.js') }}"></script>
 
