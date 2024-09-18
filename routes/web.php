@@ -131,6 +131,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/viewFolder', [App\Http\Controllers\ShooterController::class, 'viewFolder'])->name('viewFolder');
     Route::post('/viewListClients', [App\Http\Controllers\ShooterController::class, 'viewListClients'])->name('viewListClients');
     Route::post('/viewResumClient', [App\Http\Controllers\ShooterController::class, 'viewResumClient'])->name('viewResumClient');
+    Route::post('/activeShooter', [App\Http\Controllers\ShooterController::class, 'activeShooter'])->name('activeShooter');
+    Route::post('/disableShooter', [App\Http\Controllers\ShooterController::class, 'disableShooter'])->name('disableShooter');
 
     Route::get('/deposit', [App\Http\Controllers\DepositController::class, 'index'])->name('deposit');
     Route::post('/deposit/save', [App\Http\Controllers\DepositController::class, 'saveDeposit'])->name('saveDeposit');
