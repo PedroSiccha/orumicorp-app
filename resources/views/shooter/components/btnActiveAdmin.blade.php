@@ -1,9 +1,3 @@
-@extends('layouts.app')
-@section('title')
-Shooter
-@endsection
-@section('content')
-<div class="wrapper wrapper-content animated fadeInRight d-flex justify-content-center" id="btnActiveAdmin">
     @can('Activar Shooter')
         @if ($shooter)
             <div class="widget red-bg p-lg text-center col-lg-4 m-2" onclick="disableShooter({ shooter_id: '{{ $shooter->id }}', tableName: '#btnActiveAdmin', secondTableName: '#tabShooter'})">
@@ -40,28 +34,3 @@ Shooter
         </a>
         @endif
     @endcan
-</div>
-<div class="ibox-content">
-    @can('Lista Shooter')
-    <div class="table-responsive" id="tabShooter">
-        @include('shooter.table.tableShooter')
-    </div>
-    @endcan
-</div>
-@include('shooter.modal.modalActivarShooter')
-
-@endsection
-@section('script')
-<script src="{{ asset('js/shooter/activarShooter.js') }}"></script>
-<script src="{{ asset('js/shooter/disableShooter.js') }}"></script>
-<script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
-<script src="{{ asset('js/voiso/initiateCall.js') }}"></script>
-
-<script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
-<script>
-    var activeShooterRoute = '{{ route("activeShooter") }}';
-    var disableShooterRoute = '{{ route("disableShooter") }}';
-    var initiateCallRoute = '{{ route("initiateCall") }}';
-    var token = '{{ csrf_token() }}';
-</script>
-@endsection

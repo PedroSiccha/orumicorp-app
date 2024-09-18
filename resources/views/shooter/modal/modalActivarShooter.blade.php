@@ -20,7 +20,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="activeShooter({folder_id: '#folder_id', modal: '#modalActivarShooter', tableName: '#tabShooter'})"><i class="fa fa-save"></i> Activar</button>
+                <button class="btn btn-info " type="button" onclick="activeShooter({folder_id: '#folder_id', modal: '#modalActivarShooter', tableName: '#btnActiveAdmin', secondTableName: '#tabShooter'})"><i class="fa fa-save"></i> Activar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
