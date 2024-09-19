@@ -49,6 +49,7 @@ Shooter
     @endcan
 </div>
 @include('shooter.modal.modalActivarShooter')
+@include('cliente.modal.modalCrearComentario')
 
 @endsection
 @section('script')
@@ -56,12 +57,14 @@ Shooter
 <script src="{{ asset('js/shooter/disableShooter.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
 <script src="{{ asset('js/voiso/initiateCall.js') }}"></script>
+<script src="{{ asset('js/comentario/guardarComentario.js') }}"></script>
 
 <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
 <script>
     var activeShooterRoute = '{{ route("activeShooter") }}';
     var disableShooterRoute = '{{ route("disableShooter") }}';
     var initiateCallRoute = '{{ route("initiateCall") }}';
+    var saveComentarioRoute = '{{ route("saveComentario") }}';
     var token = '{{ csrf_token() }}';
 </script>
 @endsection

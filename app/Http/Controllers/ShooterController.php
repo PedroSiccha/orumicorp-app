@@ -7,6 +7,7 @@ use App\Models\Agent;
 use App\Models\CategoryFolder;
 use App\Models\Comunications;
 use App\Models\Customers;
+use App\Models\CustomerStatus;
 use App\Models\Folder;
 use App\Models\Premio;
 use App\Models\Shooter;
@@ -36,14 +37,21 @@ class ShooterController extends Controller
         $clients = Customers::where('id_status', 1)->with(['latestComunication', 'latestCampaign', 'latestSupplier'])->get();
 
         $shooter = Shooter::where('status', 1)->first();
+        $na = CustomerStatus::where('name', 'NA')->first();
+        $na_1 = CustomerStatus::where('name', 'NA 1')->first();
+        $na_2 = CustomerStatus::where('name', 'NA 2')->first();
+        $na_3 = CustomerStatus::where('name', 'NA 3')->first();
+
+        //dd($na_1);
 
         if ($shooter) {
-            $clients = Customers::where('folder_id', $shooter->folder_id)->where('status', true)->get();
+            $clients = Customers::where('folder_id', $shooter->folder_id)->whereNotIn('id_status', [$na->id, $na_1->id, $na_2->id, $na_3->id])->get();
         }
 
         $folders = Folder::where('status', 1)->get();
+        $statusCustomers = CustomerStatus::all();
 
-        return view('shooter.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'clients', 'shooter', 'folders'));
+        return view('shooter.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'clients', 'shooter', 'folders', 'statusCustomers'));
     }
 
     public function administrarShoter()
@@ -115,8 +123,12 @@ class ShooterController extends Controller
             echo("Error: " . $e->getMessage());
         }
         $shooter = Shooter::where('status', true)->first();
+        $na = CustomerStatus::where('name', 'NA')->first();
+        $na_1 = CustomerStatus::where('name', 'NA 1')->first();
+        $na_2 = CustomerStatus::where('name', 'NA 2')->first();
+        $na_3 = CustomerStatus::where('name', 'NA 3')->first();
         if ($shooter) {
-            $clients = Customers::where('folder_id', $shooter->folder_id)->where('status', true)->get();
+            $clients = Customers::where('folder_id', $shooter->folder_id)->whereNotIn('id_status', [$na->id, $na_1->id, $na_2->id, $na_3->id])->get();
         }
         return response()->json(["view"=>view('shooter.components.btnActiveAdmin', compact('shooter'))->render(), "viewClients"=>view('shooter.table.tableShooter', compact('clients', 'shooter'))->render(), "shooter_id" => $shooter_id, "title" => $title, "text" => $mensaje, "status" => $status]);
     }
@@ -145,8 +157,12 @@ class ShooterController extends Controller
             echo("Error: " . $e->getMessage());
         }
         $shooter = Shooter::where('status', true)->first();
+        $na = CustomerStatus::where('name', 'NA')->first();
+        $na_1 = CustomerStatus::where('name', 'NA 1')->first();
+        $na_2 = CustomerStatus::where('name', 'NA 2')->first();
+        $na_3 = CustomerStatus::where('name', 'NA 3')->first();
         if ($shooter) {
-            $clients = Customers::where('folder_id', $shooter->folder_id)->where('status', true)->get();
+            $clients = Customers::where('folder_id', $shooter->folder_id)->whereNotIn('id_status', [$na->id, $na_1->id, $na_2->id, $na_3->id])->get();
         }
         return response()->json(["view"=>view('shooter.components.btnActiveAdmin', compact('shooter'))->render(), "viewClients"=>view('shooter.table.tableShooter', compact('clients', 'shooter'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
