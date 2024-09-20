@@ -133,6 +133,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/viewResumClient', [App\Http\Controllers\ShooterController::class, 'viewResumClient'])->name('viewResumClient');
     Route::post('/activeShooter', [App\Http\Controllers\ShooterController::class, 'activeShooter'])->name('activeShooter');
     Route::post('/disableShooter', [App\Http\Controllers\ShooterController::class, 'disableShooter'])->name('disableShooter');
+    Route::post('/uploadExcelByFolder', [App\Http\Controllers\ShooterController::class, 'uploadExcelByFolder'])->name('uploadExcelByFolder');
 
     Route::get('/deposit', [App\Http\Controllers\DepositController::class, 'index'])->name('deposit');
     Route::post('/deposit/save', [App\Http\Controllers\DepositController::class, 'saveDeposit'])->name('saveDeposit');

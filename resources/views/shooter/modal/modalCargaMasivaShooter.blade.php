@@ -7,7 +7,7 @@
                 <h4 class="modal-title">Cargar Clientes de Manera Masiva</h4>
             </div>
             <div class="modal-body">
-
+                <input id="inputFolderId" hidden/>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Formato</label>
                     <div class="input-group col-lg-9">
@@ -25,7 +25,7 @@
 
             <div class="modal-footer">
                 <button class="ladda-button ladda-button-demo btn btn-info" data-style="zoom-in" type="button"
-                    onclick="uploadExcel('fileExcel')"><i class="fa fa-save"></i> Guardar</button>
+                    onclick="uploadExcelbyFolder('fileExcel', document.getElementById('inputFolderId').value)"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i>
                     Cancelar</button>
             </div>

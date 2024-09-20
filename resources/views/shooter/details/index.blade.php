@@ -112,6 +112,7 @@
 
 <script src="{{ asset('js/categoryFolder/saveCategoryFolder.js') }}"></script>
 
-<script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
+<script src="{{ asset('js/shooter/uploadExcelbyFolder.js') }}"></script>
+<script src="{{ asset('js/shooter/modalCargaMasiva.js') }}"></script>
 
 @endsection
