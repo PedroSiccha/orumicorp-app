@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Imports\CustomersByFolderImport;
 use App\Models\Agent;
 use App\Models\CategoryFolder;
 use App\Models\Comunications;
@@ -16,6 +17,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ShooterController extends Controller
 {
@@ -165,5 +167,29 @@ class ShooterController extends Controller
             $clients = Customers::where('folder_id', $shooter->folder_id)->whereNotIn('id_status', [$na->id, $na_1->id, $na_2->id, $na_3->id])->get();
         }
         return response()->json(["view"=>view('shooter.components.btnActiveAdmin', compact('shooter'))->render(), "viewClients"=>view('shooter.table.tableShooter', compact('clients', 'shooter'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
+    }
+
+    public function uploadExcelByFolder(Request $request)
+    {
+        if (!$request->hasFile('file')) {
+            return response()->json(["title" => 'Error', "text" => 'No file uploaded', "status" => 'error']);
+        }
+
+        $file = $request->file('file');
+        $folder_id = $request->folder_id;
+
+        if (!$file->isValid()) {
+            return response()->json(["title" => 'Error', "text" => 'Invalid file upload', "status" => 'error']);
+        }
+
+        try {
+            Excel::import(new CustomersByFolderImport($folder_id), $file);
+            $clients = Customers::where('status', 1)->where('folder_id', $request->folderId)->get();
+            return response()->json(["view"=>view('shooter.components.listClient', compact('clients'))->render(), "title" => 'Correcto', "text" => 'Clientes agregados', "status" => 'success']);
+        } catch (Exception $e) {
+            return response()->json(["title" => 'Error', "text" => 'Failed to upload file', "status" => 'error']);
+        }
+
+
     }
 }

@@ -15,7 +15,7 @@
                 <li><a onclick="mostrarAddClient({ inputFolderId: '#idAssignFolderClient', folderId: '{{ $folder->id }}', inputNameFolder: '#nameFolderEdit', folderName: '{{ $folder->name }}', modal: '#modalAddClient' })" class="dropdown-item">Agregar Cliente</a></li>
                 @endcan
                 @can('Carga Masiva a Carpetas')
-                <li><a onclick="mostrarNuevoModal('#modalCargaMasivaShooter')" class="dropdown-item">Agregar Varios Clientes</a></li>
+                <li><a onclick="modalCargaMasiva({ folderId: '{{ $folder->id }}', modal: '#modalCargaMasivaShooter', inputFolderId: '#inputFolderId' })" class="dropdown-item">Agregar Varios Clientes </a></li>
                 @endcan
             </ul>
         </li>
