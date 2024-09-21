@@ -187,7 +187,7 @@ class ShooterController extends Controller
             $clients = Customers::where('status', 1)->where('folder_id', $request->folderId)->get();
             return response()->json(["view"=>view('shooter.components.listClient', compact('clients'))->render(), "title" => 'Correcto', "text" => 'Clientes agregados', "status" => 'success']);
         } catch (Exception $e) {
-            return response()->json(["title" => 'Error', "text" => 'Failed to upload file', "status" => 'error']);
+            return response()->json(["title" => 'Error', "text" => 'Failed to upload file: '.$e->getMessage(), "status" => 'error']);
         }
 
 

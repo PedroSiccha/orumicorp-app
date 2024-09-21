@@ -1,5 +1,7 @@
 function uploadExcelbyFolder(inputExcel, folderId) {
     const fileInput = document.getElementById(inputExcel);
+    const folder_id = $(folderId).val();
+    console.log(folder_id);
 
     if (!fileInput || fileInput.files.length === 0) {
         console.error('No se ha seleccionado ningún archivo');
@@ -13,7 +15,7 @@ function uploadExcelbyFolder(inputExcel, folderId) {
     formData.append('file', file);
 
     // Agregar el folder_id al FormData
-    formData.append('folder_id', folderId);
+    formData.append('folder_id', folder_id);
 
     // Enviar la solicitud con fetch
     fetch('/uploadExcelByFolder', {
@@ -37,7 +39,8 @@ function uploadExcelbyFolder(inputExcel, folderId) {
     })
     .then(data => {
         console.log('Formato Subido:', data);
-        location.reload();  // Puedes descomentar la alerta si quieres
+        mostrarMensaje(data.title, data.text, data.status);
+        //location.reload();  // Puedes descomentar la alerta si quieres
     })
     .catch(error => {
         console.error('Error:', error);
