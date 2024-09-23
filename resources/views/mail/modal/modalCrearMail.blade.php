@@ -14,27 +14,19 @@
                         <form method="get">
                             <div class="form-group row"><label class="col-sm-2 col-form-label">Para:</label>
 
-                                <div class="col-sm-10"><input type="text" class="form-control" value="mail@orumicorp.com"></div>
+                                <div class="col-sm-10"><input id="inputEmail" type="text" class="form-control" value="mail@orumicorp.com"></div>
                             </div>
                             <div class="form-group row"><label class="col-sm-2 col-form-label">Asunto:</label>
-
-                                <div class="col-sm-10"><input type="text" class="form-control" value=""></div>
+                                <div class="col-sm-10"><input type="text" class="form-control" value="" id="inputAsunto"></div>
                             </div>
                             </form>
 
                     </div>
 
                         <div class="mail-text h-200">
+                            <textarea name="txtMessage" id="inputMensaje" rows="10"></textarea>
 
-                            <div class="summernote">
-                                {{-- <h3>Hello Jonathan! </h3>
-                                dummy text of the printing and typesetting industry. <strong>Lorem Ipsum has been the industry's</strong> standard dummy text ever since the 1500s,
-                                when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic
-                                typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with
-                                <br/>
-                                <br/> --}}
 
-                            </div>
     <div class="clearfix"></div>
                             </div>
                         <div class="mail-body text-right tooltip-demo">

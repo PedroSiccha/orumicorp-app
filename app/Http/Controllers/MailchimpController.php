@@ -40,7 +40,7 @@ class MailchimpController extends Controller
             }
         }
 
-        $campaign = $this->mailchimp->post('campaigns', [
+        $campaign = $this->mailchimp->post('pedro', [
             'type' => 'regular',
             'recipients' => [
                 'list_id' => env('MAILCHIMP_LIST_ID'),

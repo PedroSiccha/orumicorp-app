@@ -268,12 +268,15 @@
 
     $('.enviar-correo').on('click', function(e) {
             e.preventDefault();
+            let email = $('#inputEmail').val();
+            let subject = $('#inputAsunto').val();
+            let text = $('#inputMensaje').val();
 
             // Aquí puedes capturar datos si es necesario
             let data = {
-                email: 'pedro.d.siccha@gmail.com', // Cambia este valor dinámicamente si es necesario
-                subject: 'Asunto del correo',
-                body: 'Cuerpo del correo'
+                email: email, // Cambia este valor dinámicamente si es necesario
+                subject: subject,
+                body: text
             };
 
             // Hacer la petición AJAX
