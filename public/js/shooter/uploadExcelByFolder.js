@@ -1,4 +1,4 @@
-function uploadExcelbyFolder(inputExcel, folderId) {
+function uploadExcelByFolder(inputExcel, folderId) {
     const fileInput = document.getElementById(inputExcel);
     const folder_id = $(folderId).val();
     console.log(folder_id);
