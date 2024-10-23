@@ -11,6 +11,7 @@ Clientes
             <div class="ibox-title d-flex justify-content-between align-items-center">
                 <h5>Tabla Clientes </h5>
                 <div>
+                    <button id="changeFolderBtn" type="button" class="btn btn-primary" type="button" onclick="mostrarNuevoModal('#modalAsignFolder')" style="display: none;"><i class="fa fa-refresh"></i> Mover de Folder</button>
                     @can('Asignar Folder')
                     <button id="asignarFolderBtn" type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalAsignFolder')" style="display: none;"><i class="fa fa-folder-open"></i> Asignar Folder</button>
                     @endcan
@@ -53,6 +54,21 @@ Clientes
                                 <option value="{{ $statusCustomer->id }}">{{ $statusCustomer->name }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div class="form-group" id="data_5">
+                        <div class="input-daterange input-group" id="datepicker">
+                            <input type="text" class="form-control-sm form-control" name="start" value="05/14/2014"/>
+                            <span class="input-group-addon">-</span>
+                            <input type="text" class="form-control-sm form-control" name="end" value="05/22/2014" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <input placeholder="Search" type="text" class="form-control form-control-sm">
+                            <span class="input-group-append">
+                                <button type="button" class="btn btn-sm btn-primary">Buscar!</button>
+                            </span>
+                        </div>
                     </div>
                     {{-- <div class="col-sm-4 m-b-xs">
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
