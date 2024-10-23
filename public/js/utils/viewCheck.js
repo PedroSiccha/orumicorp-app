@@ -12,11 +12,13 @@ $(document).ready(function () {
             $('#changeStatusBtn').show();
             $('#liberarClienteBtn').show();
             $('#asignarFolderBtn').show();
+            $('#changeFolderBtn').show();
         } else {
             $('#asignarBtn').hide();
             $('#changeStatusBtn').hide();
             $('#liberarClienteBtn').hide();
             $('#asignarFolderBtn').hide();
+            $('#changeFolderBtn').hide();
         }
     });
 

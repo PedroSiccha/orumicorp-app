@@ -18,6 +18,18 @@
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
                         <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Hoy</a>
+                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
+                            <input type="date" placeholder="Seleccione una fecha" class="form-control" id='uLlDecha'>
+                        </a>
+                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
+                            <div class="form-group" id="data_5">
+                                <div class="input-daterange input-group" id="datepicker">
+                                    <input type="text" class="form-control-sm form-control" name="start" value="05/14/2014"/>
+                                    <span class="input-group-addon">-</span>
+                                    <input type="text" class="form-control-sm form-control" name="end" value="05/22/2014" />
+                                </div>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </th>
@@ -29,6 +41,9 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" onclick="filterOrder({ order: 'code', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'code', type: 'ASC', tableName: '#tabClient' })">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'code', type: 'ASC', tableName: '#tabClient' })">
+                            <input type="text" class="form-control-sm form-control" name="end" placeholder="Buscar..."/>
+                        </a>
                     </div>
                 </div>
             </th>
@@ -41,6 +56,18 @@
                         <a class="dropdown-item" onclick="filterOrder({ order: 'date_admission', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'date_admission', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
                         <a href="#" class="dropdown-item">Hoy</a>
+                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
+                            <input type="date" placeholder="Seleccione una fecha" class="form-control" id='uLlDecha'>
+                        </a>
+                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
+                            <div class="form-group" id="data_5">
+                                <div class="input-daterange input-group" id="datepicker">
+                                    <input type="text" class="form-control-sm form-control" name="start" value="05/14/2014"/>
+                                    <span class="input-group-addon">-</span>
+                                    <input type="text" class="form-control-sm form-control" name="end" value="05/22/2014" />
+                                </div>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </th>
@@ -53,6 +80,18 @@
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
                         <a href="#" class="dropdown-item">Hoy</a>
+                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
+                            <input type="date" placeholder="Seleccione una fecha" class="form-control" id='uLlDecha'>
+                        </a>
+                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
+                            <div class="form-group" id="data_5">
+                                <div class="input-daterange input-group" id="datepicker">
+                                    <input type="text" class="form-control-sm form-control" name="start" value="05/14/2014"/>
+                                    <span class="input-group-addon">-</span>
+                                    <input type="text" class="form-control-sm form-control" name="end" value="05/22/2014" />
+                                </div>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </th>
@@ -65,6 +104,18 @@
                         <a class="dropdown-item" onclick="filterOrder({ order: 'latestAssignamet.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'latestAssignamet.date', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
                         <a href="#" class="dropdown-item">Hoy</a>
+                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
+                            <input type="date" placeholder="Seleccione una fecha" class="form-control" id='uLlDecha'>
+                        </a>
+                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
+                            <div class="form-group" id="data_5">
+                                <div class="input-daterange input-group" id="datepicker">
+                                    <input type="text" class="form-control-sm form-control" name="start" value="05/14/2014"/>
+                                    <span class="input-group-addon">-</span>
+                                    <input type="text" class="form-control-sm form-control" name="end" value="05/22/2014" />
+                                </div>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </th>
@@ -112,6 +163,9 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'code', type: 'ASC', tableName: '#tabClient' })">
+                            <input type="text" class="form-control-sm form-control" name="end" placeholder="Buscar..."/>
+                        </a>
                     </div>
                 </div>
             </th>
@@ -123,6 +177,9 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'code', type: 'ASC', tableName: '#tabClient' })">
+                            <input type="text" class="form-control-sm form-control" name="end" placeholder="Buscar..."/>
+                        </a>
                     </div>
                 </div>
             </th>
@@ -134,6 +191,9 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'code', type: 'ASC', tableName: '#tabClient' })">
+                            <input type="text" class="form-control-sm form-control" name="end" placeholder="Buscar..."/>
+                        </a>
                     </div>
                 </div>
             </th>
@@ -145,6 +205,9 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Ascedente</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Descendente</a>
+                        <a class="dropdown-item" onclick="filterOrder({ order: 'code', type: 'ASC', tableName: '#tabClient' })">
+                            <input type="text" class="form-control-sm form-control" name="end" placeholder="Buscar..."/>
+                        </a>
                     </div>
                 </div>
             </th>
@@ -365,6 +428,8 @@
                 </td>
                 <td>
                     <div class="d-flex align-items-center">
+                        <button class="btn btn-primary" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}', modal: '#modalCrearComentario', input: '#idComunication'})"><i class="fa fa-refresh"></i> </button>
+                        <button class="btn btn-info" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}', modal: '#modalCrearComentario', input: '#idComunication'})"><i class="fa fa-paper-plane"></i> </button>
                         @can('Llamadas VOISO')
                         <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}', modal: '#modalCrearComentario', input: '#idComunication'})"><i class="fa fa-phone"></i> </button>
                         @endcan
@@ -433,6 +498,21 @@
 {{ $customers->appends(['limit' => request('limit')])->links() }}
 
 <script src="{{ asset('js/utils/viewCheck.js') }}"></script>
+<script src="{{ asset('js/plugins/daterangepicker/daterangepicker.js') }}"></script>
+<script src="{{ asset('js/plugins/ionRangeSlider/ion.rangeSlider.min.js') }}"></script>
+
+<script>
+    $(document).ready(function(){
+
+        $('#data_5 .input-daterange').datepicker({
+            keyboardNavigation: false,
+            forceParse: false,
+            autoclose: true
+        });
+
+    });
+
+</script>
 {{-- <script>
     document.addEventListener('DOMContentLoaded', function () {
         const selectAllCheckbox = $('#selectAllCheckboxes');
