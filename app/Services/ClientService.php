@@ -335,26 +335,31 @@ class ClientService implements ClientInterface {
         $status = "error";
 
         $agent = Agent::where('dni', $request->dni_agent)
-                  ->orWhere('code', $request->dni_agent)
-                  ->first();
+                        ->orWhere('code', $request->dni_agent)
+                        ->first();
 
-        $client = Customers::find($request->id);
+        $user_id = Auth::user()->id;
 
         try {
-            $client->agent_id = $agent->id;
-            if ($client->save()) {
-                $title = "Correcto";
-                $mensaje = "Se asignó correctamente el agente";
-                $status = "success";
-            } else {
-                $title = "Error";
-                $mensaje = "Error desconocido";
-                $status = "error";
-            }
+
+            $assignament = new Assignment();
+            $assignament->agent_id = $agent->id;
+            $assignament->customer_id = $request->id;
+            $assignament->date = Carbon::now();
+            $assignament->assignated_by_id = $user_id;
+            $assignament->status = 1;
+            $assignament->save();
+
+            $title = "Correcto";
+            $mensaje = "Se asignó correctamente el agente";
+            $status = "success";
+
         } catch (Exception $e) {
+
             $title = "Error";
             $mensaje = "Ocurrió un error: " . $e->getMessage();
             $status = "error";
+
         }
 
         return [
@@ -370,8 +375,6 @@ class ClientService implements ClientInterface {
         $mensaje = "Error desconocido";
         $status = "error";
 
-        // dd($request->idGroupClientes);
-
         $agent = Agent::where('code_voiso', $request->dni_agent)
                   ->orWhere('code', $request->dni_agent)
                   ->first();
@@ -386,11 +389,9 @@ class ClientService implements ClientInterface {
                 $assignament->customer_id = $idClient;
                 $assignament->date = Carbon::now();
                 $assignament->assignated_by_id = $user_id;
+                $assignament->status = 1;
                 $assignament->save();
 
-                // $client = Customers::find($idClient);
-                // $client->agent_id = $agent->id;
-                // $client->save();
             }
 
             $title = "Correcto";

@@ -8,6 +8,7 @@ use App\Interfaces\ClientInterface;
 use App\Interfaces\RolesInterface;
 use App\Interfaces\UserInterface;
 use App\Models\Agent;
+use App\Models\Assignment;
 use App\Models\Campaing;
 use App\Models\Configuration;
 use App\Models\Customers;
@@ -43,6 +44,8 @@ class ClientsController extends Controller
     public function index()
     {
         $data = $this->clientService->index();
+
+        //dd($data['customers']);
         return view('cliente.index', $data);
     }
 
@@ -930,5 +933,223 @@ class ClientsController extends Controller
         $statusCustomers = CustomerStatus::all();
 
         return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render()]);
+    }
+
+    public function searchGeneralClient(Request $request) {
+
+        $customerStatusId = $request->customerStatusId;
+        $dateInit = Carbon::createFromFormat('m/d/Y', $request->dateInit)->format('Y-m-d');
+        $dateEnd = Carbon::createFromFormat('m/d/Y', $request->dateEnd)->format('Y-m-d');
+
+        $data = $request->data;
+        $myRoles = $this->rolesService->getMyRoles();
+        $myRolesId = $myRoles['rolesId'];
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $query = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ]);
+
+            // Filtro por rango de fechas si ambos parámetros están presentes
+            if ($dateInit && $dateEnd) {
+                $query->whereBetween('date_admission', [$dateInit, $dateEnd]);
+            }
+
+            // Filtro por estado del cliente si está presente
+            if ($customerStatusId !== "Seleccione un estado") {
+                $query->where('id_status', $customerStatusId);
+            }
+
+            // Filtro por coincidencia en id, code, name o lastname si 'data' tiene un valor
+            if ($data) {
+                $query->where(function($q) use ($data) {
+                    $q->where('id', 'like', "%$data%")
+                    ->orWhere('code', 'like', "%$data%")
+                    ->orWhere('name', 'like', "%$data%")
+                    ->orWhere('lastname', 'like', "%$data%");
+                });
+            }
+
+            // Ejecutar la consulta y paginar los resultados
+            $customers = $query->paginate(50);
+
+        } else {
+            /*
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'assignaments',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->whereBetween($order, [$formattedDate, $formattedDate])->orderBy('date_admission', 'desc')->paginate(10);
+            */
+
+            // Crear una consulta base
+            $query = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'assignaments',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ]);
+
+            // Filtro por asignación del agente si está presente
+            if ($agent->id) {
+                $query->whereHas('assignaments', function($q) use ($agent) {
+                    $q->where('agent_id', $agent->id);
+                });
+            }
+
+            // Filtro por rango de fechas si ambos parámetros están presentes
+            if ($dateInit && $dateEnd) {
+                $query->whereBetween('date_admission', [$dateInit, $dateEnd]);
+            }
+
+            // Filtro por estado del cliente si está presente y es una relación
+            // Filtro por estado del cliente si está presente y es una relación
+            // Filtro por estado del cliente si está presente
+            if ($customerStatusId !== "Seleccione un estado") {
+                $query->where('id_status', $customerStatusId);
+            }
+
+
+            // Filtro por coincidencia en id, code, name o lastname si 'data' tiene un valor
+            if ($data) {
+                $query->where(function($q) use ($data) {
+                    $q->where('id', 'like', "%$data%")
+                    ->orWhere('code', 'like', "%$data%")
+                    ->orWhere('name', 'like', "%$data%")
+                    ->orWhere('lastname', 'like', "%$data%");
+                });
+            }
+
+            // Ordenar por fecha de admisión y paginar los resultados
+            $customers = $query->orderBy('date_admission', 'desc')->paginate(10);
+
+        }
+
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render()]);
+
+    }
+
+    public function liberarCliente(Request $request) {
+        $title = 'Error';
+        $mensaje = 'Error desconocido';
+        $status = 'error';
+
+        try {
+
+            foreach ($request->idGroupClientes as $idClient) {
+
+                $assignment = Assignment::where('customer_id', $idClient)
+                                        ->where('status', 1)
+                                        ->first();
+
+                if ($assignment) {
+                    $assignment->status = 0;
+                    $assignment->save();
+
+                    $title = "Correcto";
+                    $mensaje = "Actualización correcta";
+                    $status = "success";
+
+                } else {
+
+                    $title = "Error";
+                    $mensaje = "Asignación erronea";
+                    $status = "error";
+
+                }
+
+            }
+
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Ocurrió un error: " . $e->getMessage();
+            $status = "error";
+        }
+
+        $myRoles = $this->rolesService->getMyRoles();
+        $myRolesId = $myRoles['rolesId'];
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(10);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'assignaments',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
+        }
+
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
+
     }
 }

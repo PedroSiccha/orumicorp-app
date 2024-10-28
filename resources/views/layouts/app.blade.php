@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('js/calendar/style.css') }}">
     {{-- <link href="{{asset('ruleta/styles.css')}}" rel="stylesheet"> --}}
     <link href="{{ asset('css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/plugins/summernote/summernote-bs4.css') }}" rel="stylesheet">
 </head>
 
 <body>

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MailDevelop;
 use DrewM\MailChimp\MailChimp;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class MailchimpController extends Controller
 {
@@ -73,6 +76,29 @@ class MailchimpController extends Controller
             return response()->json(['error' => 'Error al enviar el correo.'], 500);
         }
 
+    }
+
+    public function sendMailClient(Request $request) {
+
+        $title = 'Error';
+        $mensaje = 'Error desconocido';
+        $status = 'error';
+
+        $mensaje = $request->mensaje;
+        $asunto = $request->asunto;
+
+        try {
+            Mail::to($request->email)->send(new MailDevelop($mensaje, $asunto));
+            $title = "Correcto";
+            $mensaje = "Correo enviado correctamente ";
+            $status = "success";
+        } catch (Exception $e) {
+            $title = 'Error';
+            $mensaje = 'Ocurrió un error: '.$e->getMessage();
+            $status = 'error';
+        }
+
+        return response()->json(["title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
 }

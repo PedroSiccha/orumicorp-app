@@ -62,6 +62,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/filterOrder', [App\Http\Controllers\ClientsController::class, 'filterOrder'])->name('filterOrder');
     Route::post('/filterByAttr', [App\Http\Controllers\ClientsController::class, 'filterByAttr'])->name('filterByAttr');
     Route::post('/filterByDate', [App\Http\Controllers\ClientsController::class, 'filterByDate'])->name('filterByDate');
+    Route::post('/searchGeneralClient', [App\Http\Controllers\ClientsController::class, 'searchGeneralClient'])->name('searchGeneralClient');
+    Route::post('/liberarCliente', [App\Http\Controllers\ClientsController::class, 'liberarCliente'])->name('liberarCliente');
 
     Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
     Route::post('/searchCustomer', [App\Http\Controllers\SalesController::class, 'searchCustomer'])->name('searchCustomer');
@@ -169,10 +171,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/saveFolder', [App\Http\Controllers\FolderController::class, 'saveFolder'])->name('saveFolder');
     Route::post('/editFolder', [App\Http\Controllers\FolderController::class, 'editFolder'])->name('editFolder');
     Route::post('/addClientFolder', [App\Http\Controllers\FolderController::class, 'addClientFolder'])->name('addClientFolder');
+    Route::post('/changeFolderClient', [App\Http\Controllers\FolderController::class, 'changeFolderClient'])->name('changeFolderClient');
 
     Route::post('/saveCategoryFolder', [App\Http\Controllers\CategoryFolderController::class, 'saveCategoryFolder'])->name('saveCategoryFolder');
 
     Route::get('/mail', [App\Http\Controllers\MailController::class, 'index'])->name('mail');
     Route::post('/enviar-correo-mailchimp', [MailchimpController::class, 'crearYEnviarCorreo'])->name('enviarCorreo');
+    Route::post('/sendMailClient', [MailchimpController::class, 'sendMailClient'])->name('sendMailClient');
 });
 
