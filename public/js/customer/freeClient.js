@@ -1,4 +1,15 @@
-function liberarCliente() {
+function liberarCliente(options) {
+
+    var idGroupClientes = [];
+    var tableName = options.tableName !== undefined ? options.tableName : '';
+
+    $('.chekboxses:checked').each(function() {
+        var val = $(this).val();
+        if (val && val !== "on") {
+            idGroupClientes.push(val);
+        }
+    });
+
     Swal.fire({
         title: "¿Desea liberar estos clientes?",
         text: "Confirme",
@@ -10,7 +21,7 @@ function liberarCliente() {
         cancelButtonText: "Cancelar"
     }).then((result) => {
         if (result.isConfirmed) {
-            $.post(deleteClientRoute, {id: id, _token: token}).done(function(data) {
+            $.post(liberarClienteRoute, {idGroupClientes: idGroupClientes, _token: token}).done(function(data) {
                 $(tableName).empty();
                 $(tableName).html(data.view);
                 mostrarMensaje(data.title, data.text, data.status);

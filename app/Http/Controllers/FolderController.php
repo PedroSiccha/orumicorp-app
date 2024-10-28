@@ -4,12 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\Folder;
 use App\Http\Controllers\Controller;
+use App\Interfaces\RolesInterface;
+use App\Models\Agent;
+use App\Models\Campaing;
 use App\Models\Customers;
+use App\Models\CustomerStatus;
+use App\Models\Provider;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FolderController extends Controller
 {
+
+    protected $rolesService;
+
+    public function __construct(
+        RolesInterface $rolesService,
+    ) {
+        $this->rolesService = $rolesService;
+    }
 
     public function deleteFolder(Request $request)
     {
@@ -38,6 +52,77 @@ class FolderController extends Controller
 
     public function addGroupClientFolder(Request $request)
     {
+        $title = 'Error';
+        $mensaje = 'Error desconocido';
+        $status = 'error';
+
+        try {
+
+            foreach ($request->idGroupClientes as $idClient) {
+
+                $client = Customers::find($idClient);
+                $client->folder_id = $request->folderId;
+                $client->save();
+
+                $title = "Correcto";
+                $mensaje = "Actualización correcta";
+                $status = "success";
+
+            }
+
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Ocurrió un error: " . $e->getMessage();
+            $status = "error";
+        }
+
+        $myRoles = $this->rolesService->getMyRoles();
+        $myRolesId = $myRoles['rolesId'];
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(10);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'assignaments',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
+        }
+
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
 
     }
 
@@ -148,8 +233,78 @@ class FolderController extends Controller
         return response()->json(["view"=>view('shooter.components.listFolder', compact('folders'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
-    public function destroy(Folder $folder)
+    public function changeFolderClient(Request $request)
     {
-        //
+        $title = 'Error';
+        $mensaje = 'Error desconocido';
+        $status = 'error';
+
+        //dd($request);
+
+        try {
+
+            $customer = Customers::find($request->clienteId);
+
+            $customer->folder_id = $request->folderId;
+
+            if ($customer->save()) {
+                $title = "Correcto";
+                $mensaje = "Cliente asignado correctamente";
+                $status = "success";
+            }
+
+        } catch (Exception $e) {
+            $title = 'Error';
+            $mensaje = 'Ocurrió un error: '.$e->getMessage();
+            $status = 'error';
+        }
+
+        $myRoles = $this->rolesService->getMyRoles();
+        $myRolesId = $myRoles['rolesId'];
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(10);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'assignaments',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
+        }
+
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 }

@@ -9,7 +9,8 @@ function addGroupClientFolder(params) {
             idGroupClientes.push(val);
         }
     });
-    $.post(addGroupClientFolderRoute, {folderId: folderId, idGroupClientes: idGroupClientes, _token: token}).done(function(data) {
+
+    $.post(asignFolderGroupRoute, {folderId: folderId, idGroupClientes: idGroupClientes, _token: token}).done(function(data) {
         $(tableName).empty();
         $(tableName).html(data.view);
         $(modal).modal('hide');

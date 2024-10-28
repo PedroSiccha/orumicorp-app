@@ -11,24 +11,38 @@ Clientes
             <div class="ibox-title d-flex justify-content-between align-items-center">
                 <h5>Tabla Clientes </h5>
                 <div>
-                    <button id="changeFolderBtn" type="button" class="btn btn-primary" type="button" onclick="mostrarNuevoModal('#modalAsignFolder')" style="display: none;"><i class="fa fa-refresh"></i> Mover de Folder</button>
+                    <button id="changeFolderBtn" type="button" class="btn btn-primary" type="button" onclick="mostrarNuevoModal('#modalChangeGroupFolder')" style="display: none;">
+                        <i class="fa fa-refresh"></i> Mover de Folder
+                    </button>
                     @can('Asignar Folder')
-                    <button id="asignarFolderBtn" type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalAsignFolder')" style="display: none;"><i class="fa fa-folder-open"></i> Asignar Folder</button>
+                    <button id="asignarFolderBtn" type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalAsignFolder')" style="display: none;">
+                        <i class="fa fa-folder-open"></i> Asignar Folder
+                    </button>
                     @endcan
                     @can('Liberar Cliente')
-                    <button id="liberarClienteBtn" type="button" class="btn btn-danger" type="button" onclick="liberarCliente()" style="display: none;"><i class="fa fa-minus-square"></i> Liberar Cliente</button>
+                    <button id="liberarClienteBtn" type="button" class="btn btn-danger" type="button" onclick="liberarCliente({ tableName: '#tabClient' })" style="display: none;">
+                        <i class="fa fa-minus-square"></i> Liberar Cliente
+                    </button>
                     @endcan
                     @can('Asignar Agente')
-                    <button id="asignarBtn" type="button" class="btn btn-info" type="button" onclick="mostrarNuevoModal('#modalAsignAgent')" style="display: none;"><i class="fa fa-group"></i> Asignar Agente</button>
+                    <button id="asignarBtn" type="button" class="btn btn-info" type="button" onclick="mostrarNuevoModal('#modalAsignAgent')" style="display: none;">
+                        <i class="fa fa-group"></i> Asignar Agente
+                    </button>
                     @endcan
                     @can('Cambiar Estado Cliente')
-                    <button id="changeStatusBtn" type="button" class="btn btn-warning" type="button" onclick="mostrarNuevoModal('#modalChangeStatus')" style="display: none;"><i class="fa fa-retweet"></i> Cambiar Estado</button>
+                    <button id="changeStatusBtn" type="button" class="btn btn-warning" type="button" onclick="mostrarNuevoModal('#modalChangeStatus')" style="display: none;">
+                        <i class="fa fa-retweet"></i> Cambiar Estado
+                    </button>
                     @endcan
                     @can('Crear Cliente')
-                    <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalCliente')"><i class="fa fa-plus"></i> Nuevo Cliente</button>
+                    <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalCliente')">
+                        <i class="fa fa-plus"></i> Nuevo Cliente
+                    </button>
                     @endcan
                     @can('Carga Masiva de Cliente')
-                    <button type="button" class="btn btn-success" type="button" onclick="mostrarNuevoModal('#modalChargeGroup')"><i class="fa fa-upload"></i> Carga Masiva</button>
+                    <button type="button" class="btn btn-success" type="button" onclick="mostrarNuevoModal('#modalChargeGroup')">
+                        <i class="fa fa-upload"></i> Carga Masiva
+                    </button>
                     @endcan
                 </div>
                 <div class="ibox-tools">
@@ -57,16 +71,16 @@ Clientes
                     </div>
                     <div class="form-group" id="data_5">
                         <div class="input-daterange input-group" id="datepicker">
-                            <input type="text" class="form-control-sm form-control" name="start" value="05/14/2014"/>
+                            <input type="text" class="form-control-sm form-control"  id="dateInitSearchGeneral"/>
                             <span class="input-group-addon">-</span>
-                            <input type="text" class="form-control-sm form-control" name="end" value="05/22/2014" />
+                            <input type="text" class="form-control-sm form-control"  id="dateEndSearchGeneral" onchange="searchGeneral({ customerStatusId: '#statusCustomerId', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', data: '#dataSearchGeneral', tableName: '#tabClient' })"/>
                         </div>
                     </div>
                     <div class="col-sm-3">
                         <div class="input-group">
-                            <input placeholder="Search" type="text" class="form-control form-control-sm">
+                            <input placeholder="Buscar..." type="text" class="form-control form-control-sm" id="dataSearchGeneral" onchange="searchGeneral({ customerStatusId: '#statusCustomerId', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', data: '#dataSearchGeneral', tableName: '#tabClient' })">
                             <span class="input-group-append">
-                                <button type="button" class="btn btn-sm btn-primary">Buscar!</button>
+                                <button type="button" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button>
                             </span>
                         </div>
                     </div>
@@ -109,6 +123,9 @@ Clientes
 @include('cliente.modal.modalCrearComentario')
 @include('cliente.modal.modalChangeStatus')
 @include('cliente.modal.modalAsignFolder')
+@include('cliente.modal.modalSendMail')
+@include('cliente.modal.modalChangeFolder')
+@include('cliente.modal.modalChangeGroupFolder')
 
 @endsection
 @section('script')
@@ -133,6 +150,12 @@ Clientes
     var filterOrderRoute = '{{ route("filterOrder") }}';
     var filterByAttrRoute = '{{ route("filterByAttr") }}';
     var filterByDateRoute = '{{ route("filterByDate") }}';
+
+    var searchGeneralRoute = '{{ route("searchGeneralClient") }}';
+    var sendMailRoute = '{{ route("sendMailClient") }}';
+    var changeFolderRoute = '{{ route("changeFolderClient") }}';
+    var liberarClienteRoute = '{{ route("liberarCliente") }}';
+    const folders = @json($folders);
 </script>
 
 <script src="{{asset('js/agent/assignAgent.js')}}"></script>
@@ -159,9 +182,19 @@ Clientes
 
 <script src="{{ asset('js/customer/filterAdvance.js') }}"></script>
 
+<script src="{{ asset('js/customer/client.js') }}"></script>
+<script src="{{ asset('js/mail/mail.js') }}"></script>
+<script src="{{ asset('js/folder/folder.js') }}"></script>
+
+<!-- SUMMERNOTE -->
+<script src="{{ asset('js/plugins/summernote/summernote-bs4.js') }}"></script>
+
+
 
 <script>
     $(document).ready(function() {
+
+        $('.summernote').summernote();
         // Cargar datos iniciales con el limit actual
         let initialLimit = $('#limit').val();
         fetch_data(1, initialLimit);
@@ -188,6 +221,7 @@ Clientes
                 }
             });
         }
+
 
         $('.dataTables-example').DataTable({
             pageLength: 25,
