@@ -64,6 +64,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/filterByDate', [App\Http\Controllers\ClientsController::class, 'filterByDate'])->name('filterByDate');
     Route::post('/searchGeneralClient', [App\Http\Controllers\ClientsController::class, 'searchGeneralClient'])->name('searchGeneralClient');
     Route::post('/liberarCliente', [App\Http\Controllers\ClientsController::class, 'liberarCliente'])->name('liberarCliente');
+    Route::post('/saveEventClient', [App\Http\Controllers\ClientsController::class, 'saveEventClient'])->name('saveEventClient');
 
     Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
     Route::post('/searchCustomer', [App\Http\Controllers\SalesController::class, 'searchCustomer'])->name('searchCustomer');
@@ -178,5 +179,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/mail', [App\Http\Controllers\MailController::class, 'index'])->name('mail');
     Route::post('/enviar-correo-mailchimp', [MailchimpController::class, 'crearYEnviarCorreo'])->name('enviarCorreo');
     Route::post('/sendMailClient', [MailchimpController::class, 'sendMailClient'])->name('sendMailClient');
+
+    Route::post('/saveViews', [App\Http\Controllers\ViewsController::class, 'saveViews'])->name('saveViews');
 });
 

@@ -377,9 +377,16 @@
                     @endif
                 </td>
                 <td>
-                    <a href="{{ route('profileClient', ['id' => $customer->id]) }}">
-                        {{ $customer->name }} {{ $customer->lastname }}
-                    </a>
+                    @can('Ver Perfil Cliente')
+                        <a onclick="saveVista({ client_id: '{{ $customer->id }}' })" href="{{ route('profileClient', ['id' => $customer->id]) }}">
+                        {{-- <a onclick="saveVista({ client_id: '{{ $customer->id }}' })"> --}}
+                            {{ $customer->name }} {{ $customer->lastname }}
+                        </a>
+                    @else
+                        <a>
+                            {{ $customer->name }} {{ $customer->lastname }}
+                        </a>
+                    @endcan
                 </td>
                 <td>{{ $customer->email }}</td>
                 <td>{{ $customer->phone }}</td>
