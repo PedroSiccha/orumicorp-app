@@ -148,6 +148,7 @@ class SecurityController extends Controller
         // $permission = Permission::create(['name' => 'Carga Masiva a Carpetas']);
 
         //Agregar Actualizacion Noviembre
+
         $permission = Permission::create(['name' => 'Ver Perfil Cliente']);
         $permission = Permission::create(['name' => 'Perfil Cliente - Ver Codigo']);
         $permission = Permission::create(['name' => 'Perfil Cliente - Ver Nombre']);
