@@ -18,9 +18,12 @@ use App\Models\CustomerSummary;
 use App\Models\Folder;
 use App\Models\Platform;
 use App\Models\Premio;
+use App\Models\Priority;
 use App\Models\Provider;
+use App\Models\Task;
 use App\Models\Traiding;
 use App\Models\User;
+use App\Models\Views;
 use App\Rules\PhoneNumberFormat;
 use Carbon\Carbon;
 use Exception;
@@ -571,9 +574,14 @@ class ClientService implements ClientInterface {
         // dd($campaings['name']);
         $lastProvider = $this->providerService->getLastProviderByCustomer($dataCommunication);
         $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
-        // dd($communication->agent);
+        $priorities = Priority::all();
+        $eventos = Task::with('customer')->where('customer_id', $id)->get();
 
-        return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers');
+        $vistas = Views::with('agent')
+                        ->where('customer_id', $dataCustomer->id)
+                        ->get();
+
+        return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers', 'priorities', 'eventos', 'vistas');
 
     }
 

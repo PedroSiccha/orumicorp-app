@@ -14,7 +14,9 @@ use App\Models\Configuration;
 use App\Models\Customers;
 use App\Models\CustomerStatus;
 use App\Models\Premio;
+use App\Models\Priority;
 use App\Models\Provider;
+use App\Models\Task;
 use App\Models\User;
 use App\Rules\PhoneNumberFormat;
 use Exception;
@@ -1151,5 +1153,58 @@ class ClientsController extends Controller
 
         return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
 
+    }
+
+    public function saveEventClient(Request $request) {
+        $title = 'Error';
+        $mensaje = 'Error desconocido';
+        $status = 'error';
+
+        $idClient = $request->idClient;
+        $date = date("Y-m-d", strtotime($request->date));
+        $nameEvent = $request->nameEvent;
+        $description = $request->description;
+        $dniClient = $request->dniClient;
+        $codeAgent = $request->codeAgent;
+        $hourInit = $request->hourInit;
+        $hourEnd = $request->hourEnd;
+        $idPriority = $request->idPriority;
+        $resp = 0;
+        $user_id = Auth::user()->id;
+        $agentRegister = Agent::where('user_id', $user_id)->first();
+        $priority = Priority::where('id', $request->idPriority)->first();
+        $client = Customers::where('code', $request->dniClient)->first();
+
+        if ($codeAgent) {
+            $agent = Agent::where('code_voiso', $request->codeAgent)->first();
+        }
+
+        try {
+            $task = new Task();
+            $task->name = $nameEvent;
+            $task->description = $description;
+            $task->document = '';
+            $task->timeStart = $hourInit;
+            $task->timeEnd = $hourEnd;
+            $task->date = $date;
+            $task->agent_id = $agent->id;
+            $task->priority_id = $priority->id;
+            $task->customer_id = $idClient;
+            $task->start = $date ." ".$hourInit;
+            $task->end = $date ." ".$hourEnd;
+            if ($task->save()) {
+                $title = "Correcto";
+                $mensaje = "El evento se creó correctamente";
+                $status = "success";
+            }
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        }
+
+        $eventos = Task::with('customer')->where('customer_id', $idClient)->get();
+
+        return response()->json(["view"=>view('cliente.list.tabTaskClient', compact('eventos'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 }

@@ -155,6 +155,7 @@ Clientes
     var sendMailRoute = '{{ route("sendMailClient") }}';
     var changeFolderRoute = '{{ route("changeFolderClient") }}';
     var liberarClienteRoute = '{{ route("liberarCliente") }}';
+    var saveViewsRoute = '{{ route("saveViews") }}';
     const folders = @json($folders);
 </script>
 
@@ -176,6 +177,7 @@ Clientes
 <script src="{{ asset('js/comentario/guardarComentario.js') }}"></script>
 <script src="{{ asset('js/customer/searchStatus.js') }}"></script>
 <script src="{{ asset('js/customer/freeClient.js') }}"></script>
+<script src="{{ asset('js/views/vistas.js') }}"></script>
 {{-- <script src="{{ asset('js/folder/asignFolderGroup.js') }}"></script> --}}
 
 <script src="{{ asset('js/folder/addGroupClientFolder.js') }}"></script>

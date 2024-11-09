@@ -28,3 +28,25 @@ function searchGeneral(options) {
     });
 
 }
+
+//Registrar Evento desde perfil del cliente
+function saveEventClient(options) {
+    var idClient = options.inputIdClient !== undefined ? $(options.inputIdClient).val(): '';
+    var date = options.inputDateEvent !== undefined ? $(options.inputDateEvent).val(): '';
+    var nameEvent = options.inputNombreEvent !== undefined ? $(options.inputNombreEvent).val(): '';
+    var description = options.inputDescriptionEvent !== undefined ? $(options.inputDescriptionEvent).val(): '';
+    var dniClient = options.inputDniClient !== undefined ? $(options.inputDniClient).val(): '';
+    var codeAgent = options.inputCodeAgent !== undefined ? $(options.inputCodeAgent).val(): '';
+    var hourInit = options.inputHourInit !== undefined ? $(options.inputHourInit).val(): '';
+    var hourEnd = options.inputHourEnd !== undefined ? $(options.inputHourEnd).val(): '';
+    var idPriority = options.inputIdPriority !== undefined ? $(options.inputIdPriority).val(): '';
+    var tableName = options.tableName !== undefined ? options.tableName: '';
+    var modal = options.modal !== undefined ? options.modal: '';
+
+    $.post(saveEventClientRoute, {idClient: idClient, date: date, nameEvent: nameEvent, description: description, dniClient: dniClient, codeAgent: codeAgent, hourInit: hourInit, hourEnd: hourEnd, idPriority: idPriority, _token: token}).done(function(data) {
+        $(tableName).empty();
+        $(tableName).html(data.view);
+        $(modal).modal('hide');
+        mostrarMensaje(data.title, data.text, data.status);
+    });
+}
