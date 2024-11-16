@@ -144,6 +144,10 @@ class CommentController extends Controller
             $customer->save();
         }
 
+        if ($request->customerStatusId == 18) {
+            # code...
+        }
+
         $data = $this->comentarioService->updateComunication($dataCustomer);
         $customers = $this->clientService->index();
         return response()->json(["view"=>view('cliente.list.listCustomer', $customers)->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);

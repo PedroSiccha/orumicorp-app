@@ -28,4 +28,9 @@ class Agent extends Model
     public function views() {
         return $this->hasMany(Views::class);
     }
+
+    public function emails()
+    {
+        return $this->hasMany(Email::class);
+    }
 }

@@ -112,4 +112,9 @@ class Customers extends Model
         return $this->hasMany(Deposit::class, 'customer_id');
     }
 
+    public function emails()
+    {
+        return $this->hasMany(Email::class);
+    }
+
 }
