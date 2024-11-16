@@ -1,51 +1,65 @@
-<div class="modal inmodal fade" id="modalCrearMail" tabindex="-1" role="dialog"  aria-hidden="true">
+<div class="modal inmodal fade" id="modalCrearMail" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title">Crear Mail</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title">Enviar Correo</h4>
+                <input type="text" placeholder="Folder Actual" class="form-control" id='idCustomerSendMail' hidden>
+                <input type="text" placeholder="Folder Actual" class="form-control" id='imputMail' hidden>
             </div>
             <div class="modal-body">
-                <div class="mail-box">
-
-
-                    <div class="mail-body">
-
-                        <form method="get">
-                            <div class="form-group row"><label class="col-sm-2 col-form-label">Para:</label>
-
-                                <div class="col-sm-10"><input id="inputEmail" type="text" class="form-control" value="mail@orumicorp.com"></div>
+                <div id="alertError" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorText"></span>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Código del Cliente</label>
+                    <div class="col-lg-9">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="dniCustomer" placeholder="Ingrese el DNI o Código del cliente">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-primary ladda-button-client-new-deposit" data-style="zoom-in" onclick="searchClient({ inputDni: '#dniCustomer', inputName: '#nameCustomer', alertError: '#alertErrorNuevoDeposito', alertErrorText: '#alertErrorTextNuevoDeposito', btnLadda: '.ladda-button-client-new-deposit' })"><i class="fa fa-search"></i></button>
                             </div>
-                            <div class="form-group row"><label class="col-sm-2 col-form-label">Asunto:</label>
-                                <div class="col-sm-10"><input type="text" class="form-control" value="" id="inputAsunto"></div>
-                            </div>
-                            </form>
-
-                    </div>
-
-                        <div class="mail-text h-200">
-                            <textarea name="txtMessage" id="inputMensaje" rows="10"></textarea>
-
-
-    <div class="clearfix"></div>
-                            </div>
-                        <div class="mail-body text-right tooltip-demo">
-                            {{-- <a data-dismiss="modal" onclick="sendMail()" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Send"><i class="fa fa-reply"></i> Enviar</a> --}}
-                            <a href="#" class="btn btn-sm btn-primary enviar-correo" data-toggle="tooltip" data-placement="top" title="Send">
-                                <i class="fa fa-reply"></i> Enviar
-                            </a>
-                            <a data-dismiss="modal" class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Discard email"><i class="fa fa-times"></i> Cancelar</a>
-                            <a  class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Move to draft folder"><i class="fa fa-pencil"></i> Papeleria</a>
                         </div>
-                        <div class="clearfix"></div>
-
-
-
                     </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Nombre del Cliente</label>
+                    <div class="col-lg-9">
+                        <input type="text" placeholder="Nombre del Cliente" class="form-control" id='nameCustomer' readonly>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Asunto</label>
+                    <div class="col-lg-9">
+                        <input type="text" class="form-control-sm form-control"  id="subjectMail"/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="ibox-content no-padding col-lg-12">
+                        <div class="summernote">
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                {{-- <button class="btn btn-info " type="button" onclick="saveDeposit({ codeClient: '#dniCli', codeAgent: '#codeAgent', transaction_type_id: '#transaction_type_id', codeReceipt: '#codeReceipt', amount: '#amount', modal: '#modalNuevoDeposito', tableName: '#tabDeposit'})"><i class="fa fa-save"></i> Guardar</button>
-                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button> --}}
+                {{-- <button class="btn btn-info " type="button"
+                    onclick="asignFolderGroup('#idGroupClientes', '#folder_id', '#modalAsignFolder', '#tabClient')"><i
+                        class="fa fa-save"></i> Guardar</button> --}}
+                <button class="btn btn-info " type="button"
+                    onclick="enviarCorreoMail({ modal: '#modalCrearMail', cliente: '#dniCustomer', email: '#imputMail', mensaje: '#subjectMail', asunto: '#summernote' })"><i
+                        class="fa fa-save"></i> Enviar</button>
+                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i>
+                    Cancelar</button>
             </div>
         </div>
     </div>

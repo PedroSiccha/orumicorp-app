@@ -179,6 +179,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/mail', [App\Http\Controllers\MailController::class, 'index'])->name('mail');
     Route::post('/enviar-correo-mailchimp', [MailchimpController::class, 'crearYEnviarCorreo'])->name('enviarCorreo');
     Route::post('/sendMailClient', [MailchimpController::class, 'sendMailClient'])->name('sendMailClient');
+    Route::post('/sendMail', [MailchimpController::class, 'sendMail'])->name('sendMail');
+    Route::post('/verEnviados', [MailchimpController::class, 'verEnviados'])->name('verEnviados');
 
     Route::post('/saveViews', [App\Http\Controllers\ViewsController::class, 'saveViews'])->name('saveViews');
 });
