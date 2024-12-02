@@ -43,9 +43,9 @@ Shooter
 </div>
 <div class="ibox-content">
     @can('Lista Shooter')
-    <div class="table-responsive" id="tabShooter">
+    {{-- <div class="table-responsive" id="tabShooter">
         @include('shooter.table.tableShooter')
-    </div>
+    </div> --}}
     @endcan
 </div>
 @include('shooter.modal.modalActivarShooter')
@@ -66,5 +66,10 @@ Shooter
     var initiateCallRoute = '{{ route("initiateCall") }}';
     var saveComentarioRoute = '{{ route("saveComentario") }}';
     var token = '{{ csrf_token() }}';
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('shooter');
+    });
 </script>
 @endsection

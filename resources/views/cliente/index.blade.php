@@ -252,5 +252,10 @@ Clientes
     });
 
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('clients');
+    });
+</script>
 <script src="{{ asset('js/utils/viewCheck.js') }}"></script>
 @endsection

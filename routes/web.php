@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MailchimpController;
+use App\Models\NotificationOnUpdateModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -27,7 +28,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('agents', [\App\Http\Controllers\AgentController::class, 'index'])->name('agents');
+    Route::get('agents', [\App\Http\Controllers\AgentController::class, 'index'])->middleware('markAsSeen:agents')->name('agents');
     Route::post('/saveAgent', [App\Http\Controllers\AgentController::class, 'saveAgent'])->name('saveAgent');
     Route::post('/searchAgent', [App\Http\Controllers\AgentController::class, 'searchAgent'])->name('searchAgent');
     Route::post('/updateAgent', [App\Http\Controllers\AgentController::class, 'updateAgent'])->name('updateAgent');
@@ -39,13 +40,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/changePassword', [App\Http\Controllers\AgentController::class, 'changePassword'])->name('changePassword');
     Route::get('/agentsPagination', [App\Http\Controllers\AgentController::class, 'agentsPagination'])->name('agentsPagination');
 
-    Route::get('areas', [\App\Http\Controllers\AreaController::class, 'index'])->name('areas');
+    Route::get('areas', [\App\Http\Controllers\AreaController::class, 'index'])->middleware('markAsSeen:areas')->name('areas');
     Route::post('/saveArea', [App\Http\Controllers\AreaController::class, 'saveArea'])->name('saveArea');
     Route::post('/updateArea', [App\Http\Controllers\AreaController::class, 'updateArea'])->name('updateArea');
     Route::post('/changeStatusArea', [App\Http\Controllers\AreaController::class, 'changeStatusArea'])->name('changeStatusArea');
     Route::post('/deleteArea', [App\Http\Controllers\AreaController::class, 'deleteArea'])->name('deleteArea');
 
-    Route::get('/clients', [App\Http\Controllers\ClientsController::class, 'index'])->name('clients');
+    Route::get('/clients', [App\Http\Controllers\ClientsController::class, 'index'])->middleware('markAsSeen:clients')->name('clients');
     Route::post('/saveCustomer', [App\Http\Controllers\ClientsController::class, 'saveCustomer'])->name('saveCustomer');
     Route::post('/asignAgent', [App\Http\Controllers\ClientsController::class, 'asignAgent'])->name('asignAgent');
     Route::post('/changeStatusClient', [App\Http\Controllers\ClientsController::class, 'changeStatusClient'])->name('changeStatusClient');
@@ -66,22 +67,22 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/liberarCliente', [App\Http\Controllers\ClientsController::class, 'liberarCliente'])->name('liberarCliente');
     Route::post('/saveEventClient', [App\Http\Controllers\ClientsController::class, 'saveEventClient'])->name('saveEventClient');
 
-    Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->name('sales');
+    Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->middleware('markAsSeen:sales')->name('sales');
     Route::post('/searchCustomer', [App\Http\Controllers\SalesController::class, 'searchCustomer'])->name('searchCustomer');
     Route::post('/saveSale', [App\Http\Controllers\SalesController::class, 'saveSale'])->name('saveSale');
     Route::post('/updateSale', [App\Http\Controllers\SalesController::class, 'updateSale'])->name('updateSale');
     Route::post('/filterSales', [App\Http\Controllers\SalesController::class, 'filterSales'])->name('filterSales');
     Route::get('/obtener-datos-ventas', [App\Http\Controllers\SalesController::class, 'obtenerDatosVentas'])->name('obtenerDatosVentas');
 
-    Route::get('/agentbonus', [App\Http\Controllers\AgentBonusController::class, 'index'])->name('agentBonus');
+    Route::get('/agentbonus', [App\Http\Controllers\AgentBonusController::class, 'index'])->middleware('markAsSeen:agentbonus')->name('agentBonus');
     Route::post('/saveBonus', [App\Http\Controllers\AgentBonusController::class, 'saveBonus'])->name('saveBonus');
     Route::post('/saveRetiro', [App\Http\Controllers\AgentBonusController::class, 'saveRetiro'])->name('saveRetiro');
     Route::post('/filterBonus', [App\Http\Controllers\AgentBonusController::class, 'filterBonus'])->name('filterBonus');
 
-    Route::get('/statisticstoday', [App\Http\Controllers\StatisticsTodayController::class, 'index'])->name('statisticsToday');
+    Route::get('/statisticstoday', [App\Http\Controllers\StatisticsTodayController::class, 'index'])->middleware('markAsSeen:statisticstoday')->name('statisticsToday');
     Route::post('/filterStatistics', [App\Http\Controllers\StatisticsTodayController::class, 'filterStatistics'])->name('filterStatistics');
 
-    Route::get('/parttime', [App\Http\Controllers\PartTimeController::class, 'index'])->name('partTime');
+    Route::get('/parttime', [App\Http\Controllers\PartTimeController::class, 'index'])->middleware('markAsSeen:parttime')->name('partTime');
     Route::post('/registerAssistance', [App\Http\Controllers\PartTimeController::class, 'registerAssistance'])->name('registerAssistance');
     Route::post('/filterAssistance', [App\Http\Controllers\PartTimeController::class, 'filterAssistance'])->name('filterAssistance');
     Route::get('/descargar-asistencia-pdf',  [App\Http\Controllers\PartTimeController::class, 'descargarReportePDF'])->name('descargar-asistencia-pdf');
@@ -93,12 +94,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/updateTarget', [App\Http\Controllers\TargetController::class, 'updateTarget'])->name('updateTarget');
     Route::post('/addTarget', [App\Http\Controllers\TargetController::class, 'addTarget'])->name('addTarget');
 
-    Route::get('/gestionRuleta', [App\Http\Controllers\GestionRuletaController::class, 'index'])->name('gestionRuleta');
+    Route::get('/gestionRuleta', [App\Http\Controllers\GestionRuletaController::class, 'index'])->middleware('markAsSeen:gestionruleta')->name('gestionRuleta');
     Route::post('/savePremio', [App\Http\Controllers\GestionRuletaController::class, 'savePremio'])->name('savePremio');
     Route::post('/updateGiro', [App\Http\Controllers\GestionRuletaController::class, 'updateGiro'])->name('updateGiro');
     Route::post('/getPremio', [App\Http\Controllers\GestionRuletaController::class, 'getPremio'])->name('getPremio');
 
-    Route::get('/security', [App\Http\Controllers\SecurityController::class, 'index'])->name('security');
+    Route::get('/security', [App\Http\Controllers\SecurityController::class, 'index'])->middleware('markAsSeen:security')->name('security');
     Route::post('/saveRol', [App\Http\Controllers\SecurityController::class, 'saveRol'])->name('saveRol');
     Route::post('/verPermisos', [App\Http\Controllers\SecurityController::class, 'verPermisos'])->name('verPermisos');
     Route::post('/asignarPermisoRol', [App\Http\Controllers\SecurityController::class, 'asignarPermisoRol'])->name('asignarPermisoRol');
@@ -106,7 +107,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/perfilUsuario/{id}', [App\Http\Controllers\PerfilController::class, 'perfilUsuario'])->name('perfilUsuario');
 
-    Route::get('/task', [App\Http\Controllers\TaskController::class, 'index'])->name('task');
+    Route::get('/task', [App\Http\Controllers\TaskController::class, 'index'])->middleware('markAsSeen:task')->name('task');
     Route::post('/guardarTask', [App\Http\Controllers\TaskController::class, 'guardarTask'])->name('guardarTask');
     Route::get('/obtenerEventos', [App\Http\Controllers\TaskController::class, 'obtenerEventos'])->name('obtenerEventos');
     Route::post('/saveEvent', [App\Http\Controllers\TaskController::class, 'saveEvent'])->name('saveEvent');
@@ -114,7 +115,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/editEvent', [App\Http\Controllers\TaskController::class, 'editEvent'])->name('editEvent');
     Route::post('/deleteEvent', [App\Http\Controllers\TaskController::class, 'deleteEvent'])->name('deleteEvent');
 
-    Route::get('/audit', [App\Http\Controllers\TaskController::class, 'index'])->name('audit');
+    Route::get('/audit', [App\Http\Controllers\TaskController::class, 'index'])->middleware('markAsSeen:audit')->name('audit');
 
     Route::post('/click-to-call', [App\Http\Controllers\VoisoController::class, 'clickToCall'])->name('clickToCall');
     Route::post('/initiateCall', [App\Http\Controllers\VoisoController::class, 'initiateCall'])->name('initiateCall');
@@ -123,13 +124,16 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('/saveComentario', [App\Http\Controllers\CommentController::class, 'saveComentario'])->name('saveComentario');
 
-    Route::get('/whatsapp', [App\Http\Controllers\CommentController::class, 'whatsapp'])->name('whatsapp');
+    Route::get('/whatsapp', [App\Http\Controllers\CommentController::class, 'whatsapp'])->middleware('markAsSeen:whatsapp')->name('whatsapp');
     Route::post('/whatsapp/chat', [App\Http\Controllers\CommentController::class, 'getChatDetails'])->name('getChatDetails');
-    Route::post('/whatsapp/send', [App\Http\Controllers\CommentController::class, 'sendMessage'])->name('sendMessage');
+    // Route::post('/whatsapp/send', [App\Http\Controllers\CommentController::class, 'sendMessage'])->name('sendMessage');
 
-    Route::get('/email', [App\Http\Controllers\CommentController::class, 'email'])->name('email');
+    Route::get('/callbell/history', [App\Http\Controllers\CallbellController::class, 'viewHistory'])->name('viewHistory');
+    Route::post('/callbell/send', [App\Http\Controllers\CallbellController::class, 'sendMessage'])->name('sendMessage');
 
-    Route::get('/shooter', [App\Http\Controllers\ShooterController::class, 'index'])->name('shooter');
+    Route::get('/email', [App\Http\Controllers\CommentController::class, 'email'])->middleware('markAsSeen:email')->name('email');
+
+    Route::get('/shooter', [App\Http\Controllers\ShooterController::class, 'index'])->middleware('markAsSeen:shooter')->name('shooter');
     Route::get('/administrarShoter', [App\Http\Controllers\ShooterController::class, 'administrarShoter'])->name('administrarShoter');
     Route::post('/viewFolder', [App\Http\Controllers\ShooterController::class, 'viewFolder'])->name('viewFolder');
     Route::post('/viewListClients', [App\Http\Controllers\ShooterController::class, 'viewListClients'])->name('viewListClients');
@@ -137,11 +141,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/activeShooter', [App\Http\Controllers\ShooterController::class, 'activeShooter'])->name('activeShooter');
     Route::post('/disableShooter', [App\Http\Controllers\ShooterController::class, 'disableShooter'])->name('disableShooter');
     Route::post('/uploadExcelByFolder', [App\Http\Controllers\ShooterController::class, 'uploadExcelByFolder'])->name('uploadExcelByFolder');
+    Route::post('/notiffyShooter', [App\Http\Controllers\ShooterController::class, 'notiffyShooter'])->name('notiffyShooter');
 
-    Route::get('/deposit', [App\Http\Controllers\DepositController::class, 'index'])->name('deposit');
+    Route::get('/deposit', [App\Http\Controllers\DepositController::class, 'index'])->middleware('markAsSeen:deposit')->name('deposit');
     Route::post('/deposit/save', [App\Http\Controllers\DepositController::class, 'saveDeposit'])->name('saveDeposit');
 
-    Route::get('/maintenance', [App\Http\Controllers\MaintenanceController::class, 'index'])->name('maintenance');
+    Route::get('/maintenance', [App\Http\Controllers\MaintenanceController::class, 'index'])->middleware('markAsSeen:maintenance')->name('maintenance');
 
     Route::post('/saveCustomerStatus', [App\Http\Controllers\CustomerStatusController::class, 'saveCustomerStatus'])->name('saveCustomerStatus');
     Route::post('/updateCustomerStatus', [App\Http\Controllers\CustomerStatusController::class, 'updateCustomerStatus'])->name('updateCustomerStatus');
@@ -176,12 +181,22 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('/saveCategoryFolder', [App\Http\Controllers\CategoryFolderController::class, 'saveCategoryFolder'])->name('saveCategoryFolder');
 
-    Route::get('/mail', [App\Http\Controllers\MailController::class, 'index'])->name('mail');
+    Route::get('/mail', [App\Http\Controllers\MailController::class, 'index'])->middleware('markAsSeen:mail')->name('mail');
     Route::post('/enviar-correo-mailchimp', [MailchimpController::class, 'crearYEnviarCorreo'])->name('enviarCorreo');
     Route::post('/sendMailClient', [MailchimpController::class, 'sendMailClient'])->name('sendMailClient');
     Route::post('/sendMail', [MailchimpController::class, 'sendMail'])->name('sendMail');
     Route::post('/verEnviados', [MailchimpController::class, 'verEnviados'])->name('verEnviados');
 
     Route::post('/saveViews', [App\Http\Controllers\ViewsController::class, 'saveViews'])->name('saveViews');
+
+    Route::post('/notifications/mark-as-seen/{module}', function ($module) {
+        NotificationOnUpdateModel::where('user_id', auth()->id())
+            ->where('module', $module)
+            ->where('is_seen', false)
+            ->update(['is_seen' => true]);
+
+        return response()->json(['message' => 'Notificaciones actualizadas']);
+    })->name('notifications.markAsSeen');
+
 });
 

@@ -149,4 +149,9 @@
     var token = '{{ csrf_token() }}';
 </script>
 <script src="{{ asset('js/statisticsToday/filterStatistics.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('todaystatistics');
+    });
+</script>
 @endsection

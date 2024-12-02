@@ -292,5 +292,10 @@
 <script src="{{ asset('js/partTime/createVacations.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('parttime');
+    });
+</script>
 
 @endsection

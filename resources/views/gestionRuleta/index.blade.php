@@ -104,5 +104,10 @@
 
 <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
 <script src="{{ asset('js/rouletteManagement/createAward.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('gestionruleta');
+    });
+</script>
 
 @endsection

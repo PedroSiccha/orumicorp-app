@@ -34,4 +34,9 @@
     var searchAgentRoute = '{{ route("searchAgent") }}';
     var token = '{{ csrf_token() }}';
   </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('task');
+    });
+</script>
 @endsection

@@ -262,5 +262,10 @@ Mantenimiento
     <script src="{{ asset('js/transactionType/createTransactionType.js') }}"></script>
     <script src="{{ asset('js/transactionType/editTransactionType.js') }}"></script>
     <script src="{{ asset('js/transactionType/deleteTransactionType.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            markNotificationsAsSeen('maintenance');
+        });
+    </script>
 @endsection
 
