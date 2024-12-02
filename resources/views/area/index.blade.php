@@ -282,4 +282,9 @@
         }
 
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            markNotificationsAsSeen('areas');
+        });
+    </script>
 @endsection

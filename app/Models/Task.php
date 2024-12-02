@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Task extends Model
 {
     use HasFactory;
-    protected $table = 'task';
+    protected $table = 'task_local';
     protected $fillable = ['name', 'description', 'document', 'timeStart', 'timeEnd', 'date', 'agent_id', 'priority_id', 'customer_id', 'start', 'end'];
 
     public function agent()

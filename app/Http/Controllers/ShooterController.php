@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\RealTimeNotification;
 use App\Http\Controllers\Controller;
 use App\Imports\CustomersByFolderImport;
 use App\Models\Agent;
@@ -13,6 +14,7 @@ use App\Models\Folder;
 use App\Models\Premio;
 use App\Models\Shooter;
 use App\Models\User;
+use App\Notifications\InitNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -30,6 +32,9 @@ class ShooterController extends Controller
         $agent = Agent::where('user_id', $user_id)->first();
         $dataUser = $agent;
         $clients = [];
+
+        $user = User::find($user_id); // Usuario al que enviarás la notificación
+        $user->notify(new InitNotification(['message' => '¡Notificación en tiempo real  SEND!']));
 
 
         $agent = Agent::where('user_id', $user_id)->first();
@@ -86,7 +91,6 @@ class ShooterController extends Controller
     {
 
         $clients = Customers::where('status', 1)->where('folder_id', $request->folderId)->get();
-        // dd($clients);
         return response()->json(["view"=>view('shooter.components.listClient', compact('clients'))->render()]);
     }
 
@@ -94,7 +98,6 @@ class ShooterController extends Controller
     {
         $client = Customers::with(['latestComunication', 'latestAssignamet', 'statusCustomer', 'latestCampaign', 'latestSupplier', 'traiding'])->find($request->clientId);
         $comunications = Comunications::where('customer_id', $client->id)->get();
-        // dd($comunications);
         return response()->json(["view"=>view('shooter.components.detailClient', compact('client', 'comunications'))->render()]);
     }
 
@@ -106,6 +109,14 @@ class ShooterController extends Controller
         $status = "error";
         $shooter_id = 0;
         $clients = [];
+
+        try {
+            $message = "Este es un mensaje de notificación en tiempo real!";
+            broadcast(new RealTimeNotification($message));
+        } catch (Exception $e) {
+        }
+
+
 
         try {
             $shooter = new Shooter();
@@ -190,6 +201,33 @@ class ShooterController extends Controller
             return response()->json(["title" => 'Error', "text" => 'Failed to upload file: '.$e->getMessage(), "status" => 'error']);
         }
 
+    }
+
+    public function notiffyShooter() {
+        $type = "";
+        $message = "";
+        $shooter = "0";
+        $phone = "";
+
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        $shooter = Shooter::where('status', 1)->first();
+
+        if ($shooter) {
+            $clients = Customers::where('folder_id', $shooter->folder_id)->get();
+
+            if ($clients->isNotEmpty()) {
+                $randomClient = $clients->random();
+                $message = "Llamada activa con " . $randomClient->name;
+                $phone = $randomClient->phone;
+                $type = "info";
+                $shooter = "1";
+            }
+
+        }
+
+        return response()->json(["type" => $type, "message" => $message, "shooter" => $shooter, "phone" => $phone]);
 
     }
 }

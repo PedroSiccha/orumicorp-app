@@ -106,5 +106,10 @@
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
 <script src="{{ asset('js/mail/mail.js') }}"></script>
 <script src="{{ asset('js/customer/searchClient.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('mail');
+    });
+</script>
 
 @endsection

@@ -300,5 +300,9 @@
 <script src="{{ asset('js/bonusAgent/createDiscount.js') }}"></script>
 <script src="{{ asset('js/sales/createSales.js') }}"></script>
 <script src="{{ asset('js/bonusAgent/filterBonus.js') }}"></script>
-
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('bonusagent');
+    });
+</script>
 @endsection

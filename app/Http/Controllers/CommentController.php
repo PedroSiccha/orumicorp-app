@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Interfaces\ClientInterface;
 use App\Interfaces\ComunicationInterface;
 use App\Models\Agent;
+use App\Models\Assignment;
 use App\Models\Comunications;
 use App\Models\Customers;
+use App\Models\Folder;
 use App\Models\Premio;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -144,8 +147,49 @@ class CommentController extends Controller
             $customer->save();
         }
 
-        if ($request->customerStatusId == 18) {
-            # code...
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        if ($request->customerStatusId == 18) { //Estado = Interesado
+
+            $assignment = Assignment::where('customer_id', $comunication->customer_id)
+                                        ->where('status', 1)
+                                        ->first();
+
+            if ($assignment) {
+                $assignment->status = 0;
+                $assignment->save();
+            }
+
+
+            try {
+                $assignament = new Assignment();
+                $assignament->agent_id = $agent->id;
+                $assignament->customer_id = $comunication->customer_id;
+                $assignament->date = Carbon::now();
+                $assignament->assignated_by_id = $user_id;
+                $assignament->status = 1;
+                $assignament->save();
+            } catch (Exception $e) {
+                echo($e->getMessage());
+            }
+
+        }
+
+        if ($request->customerStatusId == 17) { //Estado = NA
+            $customer = Customers::find($comunication->customer_id);
+            $customer->call_black = true;
+            $customer->save();
+        }
+
+        $countClientesNA = Customers::where('status', '!=', 17)
+                                    ->where('folder_id', 6)
+                                    ->count();
+
+        if ($countClientesNA == 0) {
+            $folder = Folder::find(6);
+            $folder->status = false;
+            $folder->save();
         }
 
         $data = $this->comentarioService->updateComunication($dataCustomer);
