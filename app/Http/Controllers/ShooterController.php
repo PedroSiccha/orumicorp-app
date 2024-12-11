@@ -112,7 +112,7 @@ class ShooterController extends Controller
 
         try {
             $message = "Este es un mensaje de notificación en tiempo real!";
-            broadcast(new RealTimeNotification($message));
+            // broadcast(new RealTimeNotification($message));
         } catch (Exception $e) {
         }
 
