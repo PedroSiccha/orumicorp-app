@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\RealTimeNotification;
+// use App\Events\RealTimeNotification;
 use App\Http\Controllers\Controller;
 use App\Imports\CustomersByFolderImport;
 use App\Models\Agent;
@@ -14,7 +14,7 @@ use App\Models\Folder;
 use App\Models\Premio;
 use App\Models\Shooter;
 use App\Models\User;
-use App\Notifications\InitNotification;
+// use App\Notifications\InitNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -33,8 +33,8 @@ class ShooterController extends Controller
         $dataUser = $agent;
         $clients = [];
 
-        $user = User::find($user_id); // Usuario al que enviarás la notificación
-        $user->notify(new InitNotification(['message' => '¡Notificación en tiempo real  SEND!']));
+        // $user = User::find($user_id); // Usuario al que enviarás la notificación
+        // $user->notify(new InitNotification(['message' => '¡Notificación en tiempo real  SEND!']));
 
 
         $agent = Agent::where('user_id', $user_id)->first();
@@ -112,7 +112,7 @@ class ShooterController extends Controller
 
         try {
             $message = "Este es un mensaje de notificación en tiempo real!";
-            broadcast(new RealTimeNotification($message));
+            // broadcast(new RealTimeNotification($message));
         } catch (Exception $e) {
         }
 
