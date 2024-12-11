@@ -33,8 +33,8 @@ class ShooterController extends Controller
         $dataUser = $agent;
         $clients = [];
 
-        $user = User::find($user_id); // Usuario al que enviarás la notificación
-        $user->notify(new InitNotification(['message' => '¡Notificación en tiempo real  SEND!']));
+        // $user = User::find($user_id); // Usuario al que enviarás la notificación
+        // $user->notify(new InitNotification(['message' => '¡Notificación en tiempo real  SEND!']));
 
 
         $agent = Agent::where('user_id', $user_id)->first();
