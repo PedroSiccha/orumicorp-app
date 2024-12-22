@@ -200,3 +200,4 @@ Route::group(['middleware' => 'auth'], function () {
 
 });
 
+Route::post('/filterAdvanced', [App\Http\Controllers\FilterController::class, 'filterAdvanced'])->name('filterAdvanced');

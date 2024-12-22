@@ -15,7 +15,12 @@ use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 class AgentService implements AgentInterface {
-    public function __construct() {}
+    protected $utils;
+    public function __construct(
+        Utils $utils,
+    ) {
+        $this->utils = $utils;
+    }
 
     public function index()
     {
@@ -221,5 +226,12 @@ class AgentService implements AgentInterface {
                         })->paginate(10);
 
         return $agents;
+    }
+
+    public function getAgent()
+    {
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+        return $agent;
     }
 }

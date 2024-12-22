@@ -19,6 +19,7 @@ use App\Models\Provider;
 use App\Models\Task;
 use App\Models\User;
 use App\Rules\PhoneNumberFormat;
+use App\Services\AgentService;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
@@ -33,21 +34,21 @@ use Webpatser\Countries\Countries;
 
 class ClientsController extends Controller
 {
-    protected $clientService, $userService, $rolesService;
+    protected $clientService, $userService, $rolesService, $agentService;
 
     public function __construct(
         ClientInterface $clientService,
         RolesInterface $rolesService,
+        AgentService $agentService,
     ) {
         $this->clientService = $clientService;
         $this->rolesService = $rolesService;
+        $this->agentService = $agentService;
     }
 
     public function index()
     {
         $data = $this->clientService->index();
-
-        //dd($data['customers']);
         return view('cliente.index', $data);
     }
 
@@ -107,13 +108,19 @@ class ClientsController extends Controller
     {
         $myRoles = $this->rolesService->getMyRoles();
         $myRolesId = $myRoles['rolesId'];
-
         $data = $this->clientService->saveClient($request);
-        $user_id = Auth::user()->id;
-        $agent = Agent::where('user_id', $user_id)->first();
+        $agent = $this->agentService->getAgent();
+        $customers = $this->getClients($myRoles['roles'], $agent);
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+    }
 
-        if ($myRoles['roles']== 'ADMINISTRADOR') {
-
+    public function getClients($roles, $agent)
+    {
+        if ($roles== 'ADMINISTRADOR') {
             $customers = Customers::with([
                 'user',
                 'agent',
@@ -127,7 +134,6 @@ class ClientsController extends Controller
                 'latestAssignamet',
                 'latestDeposit'
             ])->orderBy('date_admission', 'desc')->paginate(10);
-
         } else {
 
             $customers = Customers::with([
@@ -147,13 +153,7 @@ class ClientsController extends Controller
                 $query->where('agent_id', $agent->id);
             })->orderBy('date_admission', 'desc')->paginate(10);
         }
-
-        $agents = Agent::all();
-        $campaings = Campaing::all();
-        $providers = Provider::all();
-        $statusCustomers = CustomerStatus::all();
-
-        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+        return $customers;
     }
 
     public function asignAgent(Request $request)
@@ -169,49 +169,8 @@ class ClientsController extends Controller
         $data = $this->clientService->assignGroupAgent($request);
 
         $myRoles = $this->rolesService->getMyRoles();
-        $myRolesId = $myRoles['rolesId'];
-
-        // $data = $this->clientService->saveClient($request);
-        $user_id = Auth::user()->id;
-        $agent = Agent::where('user_id', $user_id)->first();
-
-        if ($myRoles['roles']== 'ADMINISTRADOR') {
-
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit'
-            ])->orderBy('date_admission', 'desc')->paginate(10);
-
-        } else {
-
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'assignaments',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit'
-            ])->whereHas('assignaments', function($query) use ($agent) {
-                $query->where('agent_id', $agent->id);
-            })->orderBy('date_admission', 'desc')->paginate(10);
-
-        }
-
+        $agent = $this->agentService->getAgent();
+        $customers = $this->getClients($myRoles['roles'], $agent);
         $agents = Agent::all();
         $campaings = Campaing::all();
         $providers = Provider::all();
@@ -525,85 +484,62 @@ class ClientsController extends Controller
 
     public function uploadExcel(Request $request)
     {
-        //dd($request);
-        // Verificar que se ha enviado un archivo
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $myRoles = $this->rolesService->getMyRoles();
+        $agent = $this->agentService->getAgent();
+        $customers = $this->getClients($myRoles['roles'], $agent);
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
+
         if (!$request->hasFile('file')) {
-            return response()->json(['error' => 'No file uploaded'], 400);
+            return response()->json([
+                "view" => view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(),
+                "title" => "Error",
+                "text" => "Adjuntar un archivo",
+                "status" => "error"
+            ]);
         }
 
         $file = $request->file('file');
 
-        // Verificar que el archivo es válido
         if (!$file->isValid()) {
-            return response()->json(['error' => 'Invalid file upload'], 400);
+            return response()->json([
+                "view" => view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(),
+                "title" => "Error",
+                "text" => "Archivo Invalido",
+                "status" => "error"
+            ]);
         }
 
         try {
             Excel::import(new CustomersImport, $file);
-
-            // Lógica post-importación
-            // $customers = Customers::orderBy('date_admission')->get();
-
-            $myRoles = $this->rolesService->getMyRoles();
-            $myRolesId = $myRoles['rolesId'];
-            $user_id = Auth::user()->id;
-            $agent = Agent::where('user_id', $user_id)->first();
-
-            if ($myRoles['roles']== 'ADMINISTRADOR') {
-
-                $customers = Customers::with([
-                    'user',
-                    'agent',
-                    'latestCampaign',
-                    'latestSupplier',
-                    'provider',
-                    'statusCustomer',
-                    'platform',
-                    'traiding',
-                    'latestComunication',
-                    'latestAssignamet',
-                    'latestDeposit'
-                ])->orderBy('date_admission', 'desc')->paginate(50);
-
-            } else {
-
-                $customers = Customers::with([
-                    'user',
-                    'agent',
-                    'latestCampaign',
-                    'latestSupplier',
-                    'provider',
-                    'statusCustomer',
-                    'platform',
-                    'traiding',
-                    'assignaments',
-                    'latestComunication',
-                    'latestAssignamet',
-                    'latestDeposit'
-                ])->whereHas('assignaments', function($query) use ($agent) {
-                    $query->where('agent_id', $agent->id);
-                })->orderBy('date_admission', 'desc')->paginate(10);
-            }
-
-            $agents = Agent::all();
-            $campaings = Campaing::all();
-            $providers = Provider::all();
-            $statusCustomers = CustomerStatus::all();
-
-            $title = "Correcto";
-            $mensaje = "El cliente se importó correctamente";
-            $status = "success";
+            return response()->json([
+                "view" => view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(),
+                "title" => "Correcto",
+                "text" => "El cliente se importó correctamente",
+                "status" => "success"
+            ]);
+        } catch (ValidationException $e) {
+            $errors = $e->errors();
 
             return response()->json([
                 "view" => view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(),
-                "title" => $title,
-                "text" => $mensaje,
-                "status" => $status
-            ], 200);
+                "title" => "Error en la validación",
+                "text" => "Errores encontrados: " . implode(', ', array_merge(...array_values($errors))),
+                "status" => "error"
+            ]);
         } catch (Exception $e) {
-            // Manejo de errores
-            //dd($e->getMessage());
-            return response()->json(['error' => 'Failed to upload file', 'message' => $e->getMessage()], 500);
+            return response()->json([
+                "view" => view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(),
+                "title" => "Error",
+                "text" => $e->getMessage(),
+                "status" => "error"
+            ]);
         }
     }
 

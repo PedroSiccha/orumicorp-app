@@ -11,10 +11,8 @@ class UserService implements UserInterface {
         $user = Auth::user();
 
         if ($user === null) {
-
             return null;
         } else {
-            dd($user);
             return redirect('/login');
         }
     }

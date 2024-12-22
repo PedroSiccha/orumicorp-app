@@ -13,6 +13,7 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Validation\ValidationException;
 
 class CustomersImport implements ToModel, WithHeadingRow, WithBatchInserts, WithChunkReading
 {
@@ -44,6 +45,24 @@ class CustomersImport implements ToModel, WithHeadingRow, WithBatchInserts, With
 
         $code = !empty($row['codigo']) ? $row['codigo'] : $getInitials($row['nombres']) . $getInitials($row['apellidos']) . '_' . $user->id;
 
+        if (empty($row['correo'])) {
+            throw ValidationException::withMessages(['correo' => 'El correo no puede ser vacío.']);
+        }
+        if (empty($row['telefono'])) {
+            throw ValidationException::withMessages(['telefono' => 'El teléfono no puede ser vacío.']);
+        }
+
+        if (Customers::where('email', $row['correo'])->exists()) {
+            throw ValidationException::withMessages(['correo' => "El correo {$row['correo']} ya existe."]);
+        }
+
+        if (Customers::where('phone', $row['telefono'])->exists()) {
+            throw ValidationException::withMessages(['telefono' => "El teléfono {$row['telefono']} ya existe."]);
+        }
+
+        $providerId = $this->providers[strtolower(trim($row['provedor']))] ?? null;
+        $statusId = $this->status[strtolower(trim($row['estado']))] ?? $this->status['NEW'];
+
         return new Customers([
             'code' => $code,
             'name' => $row['nombres'],
@@ -58,9 +77,8 @@ class CustomersImport implements ToModel, WithHeadingRow, WithBatchInserts, With
             'country' => $row['pais'],
             'comment' => $row['comentarios'],
             'email' => $row['correo'],
-            'id_provider' => $this->providers[trim($row['provedor'])],
-            'id_status' => $this->status[!empty(trim($row['estado'])) ? trim($row['estado']) : 'NEW'],
-            // 'platform_id' => $this->platform[trim($row['plataforma'])]
+            'id_provider' => $providerId,
+            'id_status' => $statusId,
         ]);
     }
 
