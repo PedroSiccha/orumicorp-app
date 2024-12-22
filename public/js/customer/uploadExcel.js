@@ -1,4 +1,4 @@
-function uploadExcel(inputExcel) {
+function uploadExcel(inputExcel, modal, tableName) {
 
     const fileInput = document.getElementById(inputExcel);
 
@@ -32,11 +32,16 @@ function uploadExcel(inputExcel) {
     })
     .then(data => {
         console.log('Formato Subido:', data);
-        location.reload();
-        //alert('Archivo subido correctamente'); // Puedes descomentar esto si necesitas la alerta
+        $(modal).modal('hide');
+        mostrarMensaje(data.title, data.text, data.status);
+        $(tableName).empty();
+        $(tableName).html(data.view);
     })
     .catch(error => {
         console.error('Error:', error);
-        //alert('Error al subir el archivo'); // Puedes descomentar esto si necesitas la alerta
+        $(modal).modal('hide');
+        mostrarMensaje(data.title, data.text, data.status);
+        $(tableName).empty();
+        $(tableName).html(data.view);
     });
 }

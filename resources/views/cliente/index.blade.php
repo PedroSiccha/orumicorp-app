@@ -8,6 +8,86 @@ Clientes
 <div class="row">
     <div class="col-lg-12">
         <div class="ibox ">
+            <div class="ibox-title">
+                <h5>Filtros</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="input-group m-b">
+                            <div class="input-group-prepend">
+                                <button id="filterButton" data-toggle="dropdown" class="btn btn-white dropdown-toggle" type="button">Filtrar Por: </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#" class="dropdown-item">Cod. Cliente</a></li>
+                                    <li><a href="#" class="dropdown-item">Asignado Por</a></li>
+                                    <li><a href="#" class="dropdown-item">Proveedor</a></li>
+                                    {{-- <li class="dropdown-divider"></li> --}}
+                                    <li><a href="#" class="dropdown-item">Nombre Cliente</a></li>
+                                    <li><a href="#" class="dropdown-item">Correo</a></li>
+                                    <li><a href="#" class="dropdown-item">Teléfono</a></li>
+                                    <li><a href="#" class="dropdown-item">Teléfono Opcional</a></li>
+                                    <li><a href="#" class="dropdown-item">Ciudad</a></li>
+                                    <li><a href="#" class="dropdown-item">País</a></li>
+                                    <li><a href="#" class="dropdown-item">Agente</a></li>
+                                    <li><a href="#" class="dropdown-item">Comentario</a></li>
+                                    <li><a href="#" class="dropdown-item">última Visita</a></li>
+                                    <li><a href="#" class="dropdown-item">N° Depósito</a></li>
+                                    <li><a href="#" class="dropdown-item">Total Depósito</a></li>
+                                </ul>
+                            </div>
+                            <input id="inputFilterAdvance" type="text" class="form-control" oninput="filterAdvanced({ buttonFilter: '#filterButton', inputFilter: '#inputFilterAdvance', selectStatus: '#statusCustomerId', selectTypeRange: '#typeRange', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', tableName: '#tabClient' })">
+                        </div>
+                    </div>
+                    <div class="col-sm-3 m-b-xs">
+                        <select class="form-control-sm form-control input-s-sm inline" id="statusCustomerId" onchange="filterAdvanced({ buttonFilter: '#filterButton', inputFilter: '#inputFilterAdvance', selectStatus: '#statusCustomerId', selectTypeRange: '#typeRange', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', tableName: '#tabClient' })">
+                            <option>Seleccione un estado</option>
+                            @foreach ($statusCustomers as $statusCustomer)
+                                <option value="{{ $statusCustomer->id }}">{{ $statusCustomer->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-sm-2 m-b-xs">
+                        <select class="form-control m-b" name="typeRange" id="typeRange">
+                            <option>Seleccione Rango:</option>
+                            <option>Última Llamada</option>
+                            <option>Fecha de Ingreso</option>
+                            <option>Fecha de Última Llamada</option>
+                            <option>Fecha de Última Asignación</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-4 m-b-xs">
+                        <div class="form-group" id="data_5">
+                            <div class="input-daterange input-group" id="datepicker">
+                                <input type="text" class="form-control-sm form-control"  id="dateInitSearchGeneral"/>
+                                <span class="input-group-addon"> hasta </span>
+                                <input type="text" class="form-control-sm form-control"  id="dateEndSearchGeneral" onchange="filterAdvanced({ buttonFilter: '#filterButton', inputFilter: '#inputFilterAdvance', selectStatus: '#statusCustomerId', selectTypeRange: '#typeRange', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', tableName: '#tabClient' })"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+
+                    {{-- <div class="col-sm-3">
+                        <div class="input-group">
+                            <input placeholder="Buscar..." type="text" class="form-control form-control-sm" id="dataSearchGeneral" onchange="searchGeneral({ customerStatusId: '#statusCustomerId', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', data: '#dataSearchGeneral', tableName: '#tabClient' })">
+                            <span class="input-group-append">
+                                <button type="button" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </div> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12">
+        <div class="ibox ">
             <div class="ibox-title d-flex justify-content-between align-items-center">
                 <h5>Tabla Clientes </h5>
                 <div>
@@ -61,29 +141,7 @@ Clientes
             {{-- <a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalAsignar')">Asignar</a> --}}
             <div class="ibox-content">
                 <div class="row">
-                    <div class="col-sm-5 m-b-xs">
-                        <select class="form-control-sm form-control input-s-sm inline" id="statusCustomerId" onchange="searchStatus({ customerStatusId: '#statusCustomerId', tableName: '#tabClient' })">
-                            <option>Seleccione un estado</option>
-                            @foreach ($statusCustomers as $statusCustomer)
-                                <option value="{{ $statusCustomer->id }}">{{ $statusCustomer->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group" id="data_5">
-                        <div class="input-daterange input-group" id="datepicker">
-                            <input type="text" class="form-control-sm form-control"  id="dateInitSearchGeneral"/>
-                            <span class="input-group-addon">-</span>
-                            <input type="text" class="form-control-sm form-control"  id="dateEndSearchGeneral" onchange="searchGeneral({ customerStatusId: '#statusCustomerId', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', data: '#dataSearchGeneral', tableName: '#tabClient' })"/>
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <div class="input-group">
-                            <input placeholder="Buscar..." type="text" class="form-control form-control-sm" id="dataSearchGeneral" onchange="searchGeneral({ customerStatusId: '#statusCustomerId', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', data: '#dataSearchGeneral', tableName: '#tabClient' })">
-                            <span class="input-group-append">
-                                <button type="button" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button>
-                            </span>
-                        </div>
-                    </div>
+
                     {{-- <div class="col-sm-4 m-b-xs">
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-sm btn-white ">
@@ -156,6 +214,7 @@ Clientes
     var changeFolderRoute = '{{ route("changeFolderClient") }}';
     var liberarClienteRoute = '{{ route("liberarCliente") }}';
     var saveViewsRoute = '{{ route("saveViews") }}';
+    var filterAdvancedRoute = '{{ route("filterAdvanced") }}';
     const folders = @json($folders);
 </script>
 
@@ -178,6 +237,7 @@ Clientes
 <script src="{{ asset('js/customer/searchStatus.js') }}"></script>
 <script src="{{ asset('js/customer/freeClient.js') }}"></script>
 <script src="{{ asset('js/views/vistas.js') }}"></script>
+<script src="{{ asset('js/filter/filter.js') }}"></script>
 {{-- <script src="{{ asset('js/folder/asignFolderGroup.js') }}"></script> --}}
 
 <script src="{{ asset('js/folder/addGroupClientFolder.js') }}"></script>
@@ -191,7 +251,12 @@ Clientes
 <!-- SUMMERNOTE -->
 <script src="{{ asset('js/plugins/summernote/summernote-bs4.js') }}"></script>
 
-
+<script>
+    $(document).on('click', '.dropdown-item', function(e) {
+        e.preventDefault();
+        $('#filterButton').text($(this).text());
+    });
+</script>
 
 <script>
     $(document).ready(function() {

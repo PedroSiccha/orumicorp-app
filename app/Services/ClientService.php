@@ -27,8 +27,10 @@ use App\Models\Views;
 use App\Rules\PhoneNumberFormat;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -41,6 +43,7 @@ class ClientService implements ClientInterface {
     protected $assignamentService;
     protected $campaingService;
     protected $providerService;
+    protected $utils;
 
     public function __construct(
         UserInterface $userService,
@@ -49,7 +52,8 @@ class ClientService implements ClientInterface {
         ComunicationInterface $communicationService,
         AssignamentInterface $assignamentService,
         CampaingInterface $campaingService,
-        ProviderInterface $providerService
+        ProviderInterface $providerService,
+        Utils $utils,
     ) {
         $this->userService = $userService;
         $this->rolesService = $rolesService;
@@ -58,6 +62,7 @@ class ClientService implements ClientInterface {
         $this->assignamentService = $assignamentService;
         $this->campaingService = $campaingService;
         $this->providerService = $providerService;
+        $this->utils = $utils;
     }
 
     public function index() {
@@ -252,84 +257,69 @@ class ClientService implements ClientInterface {
     }
 
     public function saveClient($request) {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-
         try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email|unique:customers,email',
+                'phone' => 'required|string|unique:customers,phone',
+                'name'  => 'required|string',
+                'lastname' => 'required|string',
+            ], [
+                'email.required' => 'El correo electrónico es obligatorio.',
+                'email.unique' => 'El correo electrónico ya está registrado.',
+                'phone.required' => 'El número de teléfono es obligatorio.',
+                'phone.unique' => 'El número de teléfono ya está registrado.',
+                'name.required' => 'El nombre es obligatorio.',
+                'lastname.required' => 'El apellido es obligatorio.',
+            ]);
+
+            if ($validator->fails()) {
+                $errorMessages = implode(' ', $validator->errors()->all());
+                return [
+                    'title' => 'Error',
+                    'mensaje' => $errorMessages,
+                    'status' => 'error'
+                ];
+            }
 
             $role = Role::where('name', 'CLIENTE')->first();
             $statusClient = CustomerStatus::where('name', 'NUEVO')->first();
-
-            $request->validate([
-                'phone' => ['required', new PhoneNumberFormat],
-                'optionalPhone' => ['nullable', 'sometimes', new PhoneNumberFormat],
-            ]);
 
             $user = new User();
             $user->name = $request->name;
             $user->email = $request->email;
             $user->password = Hash::make($request->dni);
+
             if ($user->save()) {
                 $user->assignRole($role->id);
 
-                $getInitials = function($name) {
-                    $words = explode(' ', trim($name));
-                    $initials = '';
-                    foreach ($words as $word) {
-                        $initials .= strtoupper(substr($word, 0, 1));
-                    }
-                    return $initials;
-                };
-
-                $code = !empty($request->code) ? $request->code : $getInitials($request->name) . $getInitials($request->lastname) . '_' . $user->id;
+                $code = $this->utils->getInitials($request->name) . $this->utils->getInitials($request->lastname) . '_' . $user->id;
 
                 $client = new Customers();
                 $client->code = $code;
                 $client->name = $request->name;
                 $client->lastname = $request->lastname;
                 $client->phone = $request->phone;
-                $client->optional_phone = $request->optionalPhone;
-                $client->city = $request->city;
-                $client->country = $request->country;
-                $client->date_admission = Carbon::now();
+                $client->email = $request->email;
+                $client->date_admission = now();
                 $client->status = true;
                 $client->user_id = $user->id;
-                $client->email = $request->email;
-                if ($request->provide_id != 'Seleccione un proveedor') {
-                    $client->id_provider = $request->provide_id;
-                }
-                if ($request->platform_id != 'Seleccione su platform') {
-                    $client->platform_id = $request->platform_id;
-                }
                 $client->id_status = $statusClient->id;
-                if ($request->traiding_id != 'Seleccione su Traiding') {
-                    $client->traiding_id = $request->traiding_id;
-                }
 
                 if ($client->save()) {
-                    $title = "Correcto";
-                    $mensaje = "El cliente se registró correctamente";
-                    $status = "success";
+                    return [
+                        'title' => 'Correcto',
+                        'mensaje' => 'El cliente se registró correctamente.',
+                        'status' => 'success'
+                    ];
                 }
             }
-
-        } catch (ValidationException $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            return [
+                'title' => 'Error',
+                'mensaje' => 'Error inesperado',
+                'status' => 'error'
+            ];
         }
-
-        return [
-            'title' => $title,
-            'mensaje' => $mensaje,
-            'status' => $status
-        ];
-
     }
 
     public function asignAgent($request) {
@@ -379,13 +369,21 @@ class ClientService implements ClientInterface {
         $status = "error";
 
         $agent = Agent::where('code_voiso', $request->dni_agent)
-                  ->orWhere('code', $request->dni_agent)
-                  ->first();
+                        ->orWhere('code', $request->dni_agent)
+                        ->first();
 
         $user_id = Auth::user()->id;
 
         try {
             foreach ($request->idGroupClientes as $idClient) {
+
+                $existAssign = Assignment::where('customer_id', $idClient);
+
+                if ($existAssign) {
+                    $oldAssign = Assignment::where('customer_id', $idClient)->first();
+                    $oldAssign->status = 0;
+                    $oldAssign->save();
+                }
 
                 $assignament = new Assignment();
                 $assignament->agent_id = $agent->id;

@@ -17,19 +17,6 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
-                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Hoy</a>
-                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
-                            <input type="date" placeholder="Seleccione una fecha" class="form-control" id='uLlDecha'>
-                        </a>
-                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
-                            <div class="form-group" id="data_5">
-                                <div class="input-daterange input-group" id="datepicker">
-                                    <input type="text" class="form-control-sm form-control" name="start" value="01/01/2024"/>
-                                    <span class="input-group-addon">-</span>
-                                    <input type="text" class="form-control-sm form-control" name="end" value="01/02/2024" />
-                                </div>
-                            </div>
-                        </a>
                     </div>
                 </div>
             </th>
@@ -57,19 +44,6 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" onclick="filterOrder({ order: 'date_admission', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'date_admission', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
-                        <a href="#" class="dropdown-item">Hoy</a>
-                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
-                            <input type="date" placeholder="Seleccione una fecha" class="form-control" id='uLlDecha'>
-                        </a>
-                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
-                            <div class="form-group" id="data_5">
-                                <div class="input-daterange input-group" id="datepicker">
-                                    <input type="text" class="form-control-sm form-control" name="start" value="01/01/2024"/>
-                                    <span class="input-group-addon">-</span>
-                                    <input type="text" class="form-control-sm form-control" name="end" value="01/02/2024" />
-                                </div>
-                            </div>
-                        </a>
                     </div>
                 </div>
             </th>
@@ -81,19 +55,6 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
-                        <a href="#" class="dropdown-item">Hoy</a>
-                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
-                            <input type="date" placeholder="Seleccione una fecha" class="form-control" id='uLlDecha'>
-                        </a>
-                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
-                            <div class="form-group" id="data_5">
-                                <div class="input-daterange input-group" id="datepicker">
-                                    <input type="text" class="form-control-sm form-control" name="start" value="01/01/2024"/>
-                                    <span class="input-group-addon">-</span>
-                                    <input type="text" class="form-control-sm form-control" name="end" value="01/02/2024" />
-                                </div>
-                            </div>
-                        </a>
                     </div>
                 </div>
             </th>
@@ -105,19 +66,6 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" onclick="filterOrder({ order: 'latestAssignamet.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'latestAssignamet.date', type: 'ASC', tableName: '#tabClient' })">Más Antigüos</a>
-                        <a href="#" class="dropdown-item">Hoy</a>
-                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
-                            <input type="date" placeholder="Seleccione una fecha" class="form-control" id='uLlDecha'>
-                        </a>
-                        <a class="dropdown-item" onclick="filterByDate({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">
-                            <div class="form-group" id="data_5">
-                                <div class="input-daterange input-group" id="datepicker">
-                                    <input type="text" class="form-control-sm form-control" name="start" value="01/01/2024"/>
-                                    <span class="input-group-addon">-</span>
-                                    <input type="text" class="form-control-sm form-control" name="end" value="01/02/2024" />
-                                </div>
-                            </div>
-                        </a>
                     </div>
                 </div>
             </th>
@@ -145,7 +93,7 @@
                     </div>
                 </div>
             </th>
-            <th>
+            {{-- <th>
                 <div class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         Campaña
@@ -156,7 +104,7 @@
                         @endforeach
                     </div>
                 </div>
-            </th>
+            </th> --}}
             <th>
                 <div class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -274,7 +222,6 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Antigüos</a>
-                        <a href="#" class="dropdown-item">Hoy</a>
                     </div>
                 </div>
             </th>
@@ -286,7 +233,6 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Recientes</a>
                         <a class="dropdown-item" onclick="filterOrder({ order: 'comunications.date', type: 'DESC', tableName: '#tabClient' })">Más Antigüos</a>
-                        <a href="#" class="dropdown-item">Hoy</a>
                     </div>
                 </div>
             </th>
@@ -369,13 +315,13 @@
                         Sin Proveedor
                     @endif
                 </td>
-                <td>
+                {{-- <td>
                     @if ($customer->latestCampaign)
                         {{ $customer->latestCampaign }}
                     @else
                         Sin Campaña
                     @endif
-                </td>
+                </td> --}}
                 <td>
                     @can('Ver Perfil Cliente')
                         <a onclick="saveVista({ client_id: '{{ $customer->id }}' })" href="{{ route('profileClient', ['id' => $customer->id]) }}">

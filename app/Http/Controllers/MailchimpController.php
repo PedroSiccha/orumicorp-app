@@ -141,7 +141,6 @@ class MailchimpController extends Controller
         $correo->status = "PENDIENTE";
         $correo->save();
 
-
         return response()->json(["title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
