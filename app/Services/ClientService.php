@@ -377,10 +377,12 @@ class ClientService implements ClientInterface {
         try {
             foreach ($request->idGroupClientes as $idClient) {
 
-                $existAssign = Assignment::where('customer_id', $idClient);
+                $oldAssignments = Assignment::where('customer_id', $idClient)
+                                        ->where('status', 1)
+                                        ->get();
 
-                if ($existAssign) {
-                    $oldAssign = Assignment::where('customer_id', $idClient)->first();
+
+                foreach ($oldAssignments as $oldAssign) {
                     $oldAssign->status = 0;
                     $oldAssign->save();
                 }

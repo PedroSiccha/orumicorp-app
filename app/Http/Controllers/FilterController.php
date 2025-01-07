@@ -156,11 +156,12 @@ class FilterController extends Controller
                     $query->whereHas('assignaments', function ($q) use ($dateInit, $dateEnd) {
                         $q->whereBetween('date', [$dateInit, $dateEnd]);
                     });
+
                 }
             }
 
 
-            $query->where('id_status', $statusId);
+            // $query->where('id_status', $statusId);
         }
 
         $customers = $query->paginate(10);
