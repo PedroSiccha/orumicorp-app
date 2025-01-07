@@ -64,9 +64,9 @@ Clientes
                     <div class="col-sm-4 m-b-xs">
                         <div class="form-group" id="data_5">
                             <div class="input-daterange input-group" id="datepicker">
-                                <input type="text" class="form-control-sm form-control"  id="dateInitSearchGeneral"/>
+                                <input type="text" class="form-control-sm form-control"  id="dateInitSearchGeneral" autocomplete="off"/>
                                 <span class="input-group-addon"> hasta </span>
-                                <input type="text" class="form-control-sm form-control"  id="dateEndSearchGeneral" onchange="filterAdvanced({ buttonFilter: '#filterButton', inputFilter: '#inputFilterAdvance', selectStatus: '#statusCustomerId', selectTypeRange: '#typeRange', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', tableName: '#tabClient' })"/>
+                                <input type="text" class="form-control-sm form-control"  id="dateEndSearchGeneral" onchange="filterAdvanced({ buttonFilter: '#filterButton', inputFilter: '#inputFilterAdvance', selectStatus: '#statusCustomerId', selectTypeRange: '#typeRange', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', tableName: '#tabClient' })" autocomplete="off"/>
                             </div>
                         </div>
                     </div>

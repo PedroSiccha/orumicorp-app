@@ -27,7 +27,7 @@ class Customers extends Model
 
     public function comunications()
     {
-        return $this->hasMany(Comunications::class);
+        return $this->hasMany(Comunications::class, 'customer_id');
     }
 
     public function assignaments()
@@ -86,10 +86,7 @@ class Customers extends Model
 
     public function latestSupplier()
     {
-        return $this->belongsToMany(Supplier::class, 'supplier_customers', 'customer_id', 'supplier_id')
-                    ->withPivot('status')
-                    ->latest('supplier_customers.created_at')
-                    ->take(1);
+        return $this->belongsToMany(Supplier::class, 'supplier_customers', 'customer_id', 'supplier_id')->withPivot('status')->latest('supplier_customers.created_at')->take(1);
     }
 
     public function latestComunication()
@@ -99,7 +96,12 @@ class Customers extends Model
 
     public function latestAssignamet()
     {
-        return $this->hasOne(Assignment::class, 'customer_id')->with(['agent'])->latest('date')->take(1);
+        return $this->hasOne(Assignment::class, 'customer_id')->with(['agent'])->latest('date');
+    }
+
+    public function latestAssignametBy()
+    {
+        return $this->hasOne(Assignment::class, 'customer_id')->with(['assignedBy'])->latest('date');
     }
 
     public function latestDeposit()

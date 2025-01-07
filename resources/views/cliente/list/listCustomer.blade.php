@@ -302,8 +302,8 @@
                     @endif
                 </td>
                 <td>
-                    @if ($customer->latestAssignamet)
-                        {{ date("d/m/Y", strtotime($customer->latestAssignamet->date)) }}
+                    @if ($customer->latestAssignametBy)
+                        {{ $customer->latestAssignametBy->assignedBy->name }}
                     @else
                         Sin Asignacion
                     @endif
