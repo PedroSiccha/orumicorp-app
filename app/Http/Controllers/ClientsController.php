@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Imports\CustomersImport;
 use App\Imports\UsersImport;
+use App\Interfaces\AssignamentInterface;
 use App\Interfaces\ClientInterface;
 use App\Interfaces\RolesInterface;
 use App\Interfaces\UserInterface;
@@ -34,16 +35,18 @@ use Webpatser\Countries\Countries;
 
 class ClientsController extends Controller
 {
-    protected $clientService, $userService, $rolesService, $agentService;
+    protected $clientService, $userService, $rolesService, $agentService, $assignamentService;
 
     public function __construct(
         ClientInterface $clientService,
         RolesInterface $rolesService,
         AgentService $agentService,
+        AssignamentInterface $assignamentService,
     ) {
         $this->clientService = $clientService;
         $this->rolesService = $rolesService;
         $this->agentService = $agentService;
+        $this->assignamentService = $assignamentService;
     }
 
     public function index()
@@ -177,6 +180,18 @@ class ClientsController extends Controller
         $statusCustomers = CustomerStatus::all();
 
         return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+    }
+
+    public function asignAgentByProfile(Request $request)
+    {
+        // dd($request);
+        $data = $this->clientService->asignAgent($request);
+
+        // $lastAssignament = Assignment::with('Agent')->where('customer_id', $request->id)->orderBy('status', 'asc')->first();
+        $lastAssignament = $this->assignamentService->getLastAssignamentByCustomer($request);
+
+
+        return response()->json(["view"=>view('cliente.components.assignedAgent', compact('lastAssignament'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }
 
     public function changeStatusGroup(Request $request)

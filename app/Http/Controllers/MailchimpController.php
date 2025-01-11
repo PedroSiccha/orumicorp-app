@@ -7,6 +7,7 @@ use App\Mail\MailDevelop;
 use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\Email;
+use App\Services\BrevoService;
 use Carbon\Carbon;
 use DrewM\MailChimp\MailChimp;
 use Exception;
@@ -17,10 +18,14 @@ use Illuminate\Support\Facades\Mail;
 class MailchimpController extends Controller
 {
     protected $mailchimp;
+    protected $brevoEmailService;
 
-    public function __construct()
+    public function __construct(
+        BrevoService $brevoEmailService
+    )
     {
         $this->mailchimp = new MailChimp(env('MAILCHIMP_APIKEY'));
+        $this->brevoEmailService = $brevoEmailService;
     }
 
     public function crearYEnviarCorreo(Request $request)
@@ -86,30 +91,64 @@ class MailchimpController extends Controller
     public function sendMailClient(Request $request) {
 
         $title = 'Error';
-        $mensaje = 'Error desconocido';
+        $mensajeResp = 'Error desconocido';
         $status = 'error';
 
         $mensaje = $request->mensaje;
         $asunto = $request->asunto;
 
+        $emailData = [
+            "sender" => [
+                "name" => "OrumiCorp",
+                "email" => "francisco.siccha.07@gmail.com",
+            ],
+            "to" => [
+                [
+                    "email" => $request->email,
+                    "name" => $request->name,
+                ]
+            ],
+            "htmlContent" => "<!DOCTYPE html> <html> <body> <h1>$mensaje</h1> </html>",
+            "subject" => $asunto,
+        ];
+
+
         try {
-            Mail::to($request->email)->send(new MailDevelop($mensaje, $asunto));
-            $title = "Correcto";
-            $mensaje = "Correo enviado correctamente ";
-            $status = "success";
+            $response = $this->brevoEmailService->sendTransactionalEmail($emailData);
+            $messageId = $response['messageId'];
+
+            if ($messageId) {
+                $title = 'Correcto';
+                $mensajeResp = 'Mensaje enviado correctamente';
+                $status = 'success';
+            }
         } catch (Exception $e) {
             $title = 'Error';
-            $mensaje = 'Ocurrió un error: '.$e->getMessage();
+            $mensajeResp = 'Ocurrió un error: '.$e->getMessage();
             $status = 'error';
+            $messageId = 'Ocurrió un error: '.$e->getMessage();
         }
 
-        return response()->json(["title" => $title, "text" => $mensaje, "status" => $status]);
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        $correo = new Email();
+        $correo->customer_id = $request->clienteId;
+        $correo->agent_id = $agent->id;
+        $correo->subject = $asunto;
+        $correo->body = $mensaje;
+        $correo->sent_at = Carbon::now();
+        $correo->status = "PENDIENTE";
+        $correo->responseEmail = $messageId;
+        $correo->save();
+
+        return response()->json(["title" => $title, "text" => $mensajeResp, "status" => $status]);
     }
 
     public function sendMail(Request $request) {
 
         $title = 'Error';
-        $mensaje = 'Error desconocido';
+        $mensajeResp = 'Error desconocido';
         $status = 'error';
 
         $mensaje = $request->mensaje;
@@ -118,15 +157,35 @@ class MailchimpController extends Controller
 
         $client = Customers::where('code', $clienteData)->orWhere('id', $clienteData)->first();
 
+        $emailData = [
+            "sender" => [
+                "name" => "OrumiCorp",
+                "email" => "francisco.siccha.07@gmail.com",
+            ],
+            "to" => [
+                [
+                    "email" => $client->email,
+                    "name" => $client->name,
+                ]
+            ],
+            "htmlContent" => "<!DOCTYPE html> <html> <body> <h1>$mensaje</h1> </html>",
+            "subject" => $asunto,
+        ];
+
         try {
-            Mail::to($client->email)->send(new MailDevelop($mensaje, $asunto));
-            $title = "Correcto";
-            $mensaje = "Correo enviado correctamente ";
-            $status = "success";
+            $response = $this->brevoEmailService->sendTransactionalEmail($emailData);
+            $messageId = $response['messageId'];
+
+            if ($messageId) {
+                $title = 'Correcto';
+                $mensajeResp = 'Mensaje enviado correctamente';
+                $status = 'success';
+            }
         } catch (Exception $e) {
             $title = 'Error';
-            $mensaje = 'Ocurrió un error: '.$e->getMessage();
+            $mensajeResp = 'Ocurrió un error: '.$e->getMessage();
             $status = 'error';
+            $messageId = 'Ocurrió un error: '.$e->getMessage();
         }
 
         $user_id = Auth::user()->id;
@@ -135,13 +194,14 @@ class MailchimpController extends Controller
         $correo = new Email();
         $correo->customer_id = $client->id;
         $correo->agent_id = $agent->id;
-        $correo->subject = $mensaje;
+        $correo->subject = $asunto;
         $correo->body = $mensaje;
         $correo->sent_at = Carbon::now();
         $correo->status = "PENDIENTE";
+        $correo->responseEmail = $messageId;
         $correo->save();
 
-        return response()->json(["title" => $title, "text" => $mensaje, "status" => $status]);
+        return response()->json(["title" => $title, "text" => $mensajeResp, "status" => $status]);
     }
 
     public function verEnviados() {
