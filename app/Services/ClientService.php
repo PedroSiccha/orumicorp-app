@@ -327,13 +327,21 @@ class ClientService implements ClientInterface {
         $mensaje = "Error desconocido";
         $status = "error";
 
-        $agent = Agent::where('dni', $request->dni_agent)
+        $agent = Agent::where('code_voiso', $request->dni_agent)
                         ->orWhere('code', $request->dni_agent)
                         ->first();
 
         $user_id = Auth::user()->id;
 
         try {
+
+            $oldAssignments = Assignment::where('customer_id', $request->id)
+                                        ->where('status', 1)
+                                        ->get();
+            foreach ($oldAssignments as $oldAssign) {
+                $oldAssign->status = 0;
+                $oldAssign->save();
+            }
 
             $assignament = new Assignment();
             $assignament->agent_id = $agent->id;
@@ -342,6 +350,7 @@ class ClientService implements ClientInterface {
             $assignament->assignated_by_id = $user_id;
             $assignament->status = 1;
             $assignament->save();
+            // dd($assignament);
 
             $title = "Correcto";
             $mensaje = "Se asignó correctamente el agente";

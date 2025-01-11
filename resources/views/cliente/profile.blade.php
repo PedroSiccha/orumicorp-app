@@ -108,31 +108,8 @@
                                         <div class="ibox-content">
                                             <div class="tab-content">
                                                 <div id="contact-1" class="tab-pane active">
-                                                    <div class="row m-b-lg">
-                                                        @if(isset($lastAssignament) && isset($lastAssignament->agent))
-                                                            <div class="col-lg-4 text-center">
-                                                                <h2>{{ $lastAssignament->agent->name }}</h2>
-                                                                <div class="m-b-sm">
-                                                                    <img alt="image" class="rounded-circle" src="{{ $lastAssignament->agent->img ?? asset('img/logo/basic_logo.png') }}" style="width: 62px">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-8">
-                                                                <strong>Fecha de Asignación: {{ $lastAssignament->date->format('d/m/Y H:i:s') }}</strong>
-                                                                <p>
-                                                                    {{ $lastAssignament->comment }}
-                                                                </p>
-                                                                <button type="button" class="btn btn-primary btn-sm btn-block">
-                                                                    <i class="fa fa-envelope"></i> Send Message
-                                                                </button>
-                                                            </div>
-                                                        @else
-                                                            <div class="col-lg-12 text-center">
-                                                                <h2>Aun no tiene agente asignado</h2>
-                                                                <button type="button" class="btn btn-primary btn-sm btn-block">
-                                                                    <i class="fa fa-plus"></i> Asignar
-                                                                </button>
-                                                            </div>
-                                                        @endif
+                                                    <div class="row m-b-lg" id="agentAssignament">
+                                                        @include('cliente.components.assignedAgent')
                                                     </div>
 
                                                     <div class="client-detail">
@@ -424,12 +401,19 @@
 
 </div>
 @include('cliente.modal.modalNuevaTarea')
+@include('cliente.modal.modalAsignAgentByProfile')
 @endsection
 @section('script')
 <script>
     var saveEventClientRoute = '{{ route("saveEventClient") }}';
+    var searchAgentRoute = '{{ route("searchAgent") }}';
+    var searchClientRoute = '{{ route("searchCustomer") }}';
+    var asignAgentByProfileRoute = '{{ route("asignAgentByProfile") }}';
 </script>
 <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
 <script src="{{ asset('js/customer/client.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+<script src="{{ asset('js/agent/searchAgent.js') }}"></script>
+<script src="{{ asset('js/customer/searchClient.js') }}"></script>
+<script src="{{ asset('js/agent/assignGroupAgentByProfile.js') }}"></script>
 @endsection
