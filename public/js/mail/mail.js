@@ -13,7 +13,7 @@ function enviarCorreo(options) {
     var modal = options.modal !== undefined ? options.modal: '';
     var clienteId = options.clienteId !== undefined ? $(options.clienteId).val(): '';
     var email = options.email !== undefined ? $(options.email).val(): '';
-    var mensaje = options.mensaje !== undefined ? $(options.mensaje).val(): '';
+    var mensaje = options.mensaje !== undefined ? $(options.mensaje).summernote('code'): '';
     var asunto = options.asunto !== undefined ? $(options.asunto).val(): '';
 
     $.post(sendMailRoute, {clienteId: clienteId, email: email, mensaje: mensaje, asunto: asunto, _token: token}).done(function(data) {
@@ -27,8 +27,8 @@ function enviarCorreoMail(options) {
     var modal = options.modal !== undefined ? options.modal: '';
     var cliente = options.cliente !== undefined ? $(options.cliente).val(): '';
     var email = options.email !== undefined ? $(options.email).val(): '';
-    var mensaje = options.mensaje !== undefined ? $(options.mensaje).val(): '';
     var asunto = options.asunto !== undefined ? $(options.asunto).val(): '';
+    var mensaje = options.mensaje !== undefined ? $(options.mensaje).summernote('code'): '';
 
     $.post(sendMailRoute, {cliente: cliente, email: email, mensaje: mensaje, asunto: asunto, _token: token}).done(function(data) {
         $(modal).modal('hide');

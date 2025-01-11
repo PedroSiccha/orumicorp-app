@@ -33,11 +33,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                {{-- <button class="btn btn-info " type="button"
-                    onclick="asignFolderGroup('#idGroupClientes', '#folder_id', '#modalAsignFolder', '#tabClient')"><i
-                        class="fa fa-save"></i> Guardar</button> --}}
                 <button class="btn btn-info " type="button"
-                    onclick="enviarCorreo({ modal: '#modalSendMail', clienteId: '#idCustomerSendMail', email: '#imputMail', mensaje: '#subjectMail', asunto: '#summernote' })"><i
+                    onclick="enviarCorreo({ modal: '#modalSendMail', clienteId: '#idCustomerSendMail', email: '#imputMail', mensaje: '.summernote', asunto: '#subjectMail' })"><i
                         class="fa fa-save"></i> Enviar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i>
                     Cancelar</button>
