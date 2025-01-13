@@ -1,6 +1,8 @@
 <?php
 namespace App\Services;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Http;
 
 class CallbellService
@@ -8,44 +10,90 @@ class CallbellService
     protected $baseUrl;
     protected $token;
 
+    protected $client;
+
     public function __construct()
     {
-        $this->baseUrl = config('services.callbell.url');
-        $this->token = config('services.callbell.token');
+        $this->client = new Client();
+        $this->baseUrl = 'https://api.callbell.eu/v1'; // URL base de la API
+        $this->token = env('CALLBELL_API_TOKEN'); // Token desde .env
+
+        // $this->baseUrl = config('services.callbell.url');
+        // $this->token = config('services.callbell.token');
     }
 
     public function sendMessage($phone, $message)
     {
-        // dd("BASE URL: ".$this->baseUrl. "\n TOKEN".$this->token);
-        if (!$this->baseUrl || !$this->token) {
-            throw new \Exception('Callbell API URL o Token no configurados.');
-        }
 
-        $url = "{$this->baseUrl}/send";
-
-        $response = Http::withToken($this->token)
-                    ->post($url, [
-                        'to' => $phone,
-                        'from' => 'whatsapp', // Cambia 'whatsapp' si usas otro canal
-                        'type' => 'text',
-                        'content' => [
-                            'text' => $message,
-                        ],
-        ]);
-
-            if ($response->failed()) {
-                \Log::error('Error al enviar mensaje a Callbell', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                    'data_sent' => [
-                        'phone' => $phone,
-                        'text' => $message,
+        try {
+            $response = $this->client->post("{$this->baseUrl}/messages/send", [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->token}",
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'from' => 'whatsapp', // Origen del mensaje
+                    'to' => $phone, // Número de teléfono del destinatario
+                    'type' => 'text', // Tipo de mensaje
+                    'content' => [
+                        'text' => $message // Contenido del mensaje
                     ],
-                ]);
-                throw new \Exception('Error al enviar el mensaje a la API de Callbell. Verifica los logs para más detalles.');
+                ],
+            ]);
+
+            // Decodificar la respuesta para obtener el UUID
+            $responseData = json_decode($response->getBody(), true);
+            $uuid = $responseData['message']['uuid'] ?? null;
+
+            if (!$uuid) {
+                return [
+                    'error' => true,
+                    'message' => 'No se pudo obtener el UUID del mensaje enviado.',
+                ];
             }
 
-        return $response->json();
+            // Consultar el estado del mensaje
+            $status = $this->getMessageNewStatus($uuid);
+
+            return [
+                'message' => $responseData,
+                'status' => $status,
+            ];
+
+        } catch (RequestException $e) {
+            return [
+                'error' => true,
+                'message' => $e->getResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage(),
+            ];
+        }
+
+    }
+
+    public function getMessageNewStatus($uuid)
+    {
+        try {
+            $response = $this->client->get("{$this->baseUrl}/messages/{$uuid}", [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->token}",
+                ],
+            ]);
+
+            return json_decode($response->getBody(), true);
+
+        } catch (RequestException $e) {
+            return [
+                'error' => true,
+                'message' => $e->getResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage(),
+            ];
+        }
+    }
+
+
+    public function handleIncomingMessages($data)
+    {
+        // Procesar respuestas según los datos recibidos
+        // Ejemplo: guardar el mensaje en la base de datos
+        return $data;
     }
 
     public function sendMessageAndWaitForDelivery($phone, $message)
