@@ -18,7 +18,7 @@ class CallbellController extends Controller
 
     public function sendMessage(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'phone' => 'required',
             'message' => 'required',
         ]);
@@ -40,7 +40,7 @@ class CallbellController extends Controller
         //     ], 500);
         // }
 
-        $response = $this->callbellService->sendMessage($request->phone, $request->message);
+        $response = $this->callbellService->sendMessage($validated['phone'], $validated['message']/*$request->phone, $request->message*/);
 
         MessageWhatsappModel::create([
             'phone' => $request->phone,

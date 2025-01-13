@@ -9,7 +9,7 @@ use App\Models\Customers;
 use App\Models\Email;
 use App\Services\BrevoService;
 use Carbon\Carbon;
-use DrewM\MailChimp\MailChimp;
+// use DrewM\MailChimp\MailChimp;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +24,7 @@ class MailchimpController extends Controller
         BrevoService $brevoEmailService
     )
     {
-        $this->mailchimp = new MailChimp(env('MAILCHIMP_APIKEY'));
+        // $this->mailchimp = new MailChimp(env('MAILCHIMP_APIKEY'));
         $this->brevoEmailService = $brevoEmailService;
     }
 
