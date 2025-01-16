@@ -60,7 +60,7 @@
                     <label class="col-lg-3 col-form-label">Monto</label>
                     <div class="col-lg-9 input-group m-b">
                         <div class="input-group-append">
-                            <a type="button" class="btn btn-default">S/.</a>
+                            <a type="button" class="btn btn-default">$.</a>
                         </div>
                         <input type="number" placeholder="Ingrese monto" class="form-control" id="amount">
                     </div>

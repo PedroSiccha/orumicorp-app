@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Configuration extends Model
 {
     use HasFactory;
+    protected $table = 'config_local';
     protected $fillable = [
         'user_id', 'name', 'view', 'status',
     ];

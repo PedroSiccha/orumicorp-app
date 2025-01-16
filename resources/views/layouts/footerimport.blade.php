@@ -1,7 +1,15 @@
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
+
+ <!-- Toastr JS -->
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script src="{{ mix('js/app.js') }}" defer></script>
     <script src="{{ asset('js/utils/updateClockMenu.js') }}"></script>
+    <script src="{{ asset('js/utils/getNotify.js') }}"></script>
     <script src="{{ asset('js/utils/dateMenu.js') }}"></script>
     <script src="{{ asset('js/task/task.js') }}" defer></script>
+    <script src="{{ asset('js/utils/notifications.js') }}"></script>
     <!-- Mainly scripts -->
     <script src="{{asset('js/jquery-3.1.1.min.js')}}"></script>
     <script src="{{asset('js/popper.min.js')}}"></script>
@@ -54,17 +62,21 @@
     <script src="{{ asset('js/rouletteManagement/getPremio.js') }}"></script>
     <script src="{{asset('js/ruleta.js')}}"></script>
     <script src="{{ asset('js/plugins/jasny/jasny-bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/voiso/initiateCall.js') }}"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script src="{{asset('js/plugins/iCheck/icheck.min.js')}}"></script>
     <script src="{{ asset('js/plugins/chartJs/Chart.min.js') }}"></script>
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
 
 
     <script>
-        var updateGiroRoute = '{{ route("updateGiro") }}';
+            var updateGiroRoute = '{{ route("updateGiro") }}';
             var getPremioRoute = '{{ route("getPremio") }}';
+            var notiffyShooterRoute = '{{ route("notiffyShooter") }}';
             var token = '{{ csrf_token() }}';
+            var initiateCallRoute = '{{ route("initiateCall") }}';
             $(document).ready(function() {
 
                 $('#date_added').datepicker({
@@ -233,5 +245,45 @@
                     },
                 });
             });
+
+            const pusher = new Pusher('ddfeb8029c8fce193f9a', {
+                cluster: 'us2',
+                encrypted: true
+            });
+
+            const userId = 1;
+
+            const channel = pusher.subscribe(`private-App.Models.User.${userId}`);
+
+            channel.bind('Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', function(data) {
+                console.log('Notificación recibida:', data);
+                const notificaciones = document.getElementById('notificaciones');
+                notificaciones.innerHTML += `<div class="alert alert-info">${data.message}</div>`;
+            });
+
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "progressBar": true,
+                "preventDuplicates": false,
+                "positionClass": "toast-top-center",
+                "onclick": null,
+                "showDuration": "400",
+                "hideDuration": "1000",
+                "timeOut": "10000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+
+            const notifications = [
+                { type: 'success', message: '¡Bienvenido! Esto es un mensaje de éxito.' },
+                { type: 'info', message: 'Nueva actualización disponible.' },
+                { type: 'warning', message: 'Tu suscripción está a punto de vencer.' },
+                { type: 'error', message: 'Ha ocurrido un error en el sistema.' }
+            ];
+
     </script>
 @yield('script')

@@ -35,35 +35,35 @@ class AgentController extends Controller
     public function saveAgent(Request $request)
     {
         $resp = $this->agentService->saveAgent($request);
-        $agents = Agent::orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->paginate(10);
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
     public function updateAgent(Request $request)
     {
         $resp = $this->agentService->updateAgent($request);
-        $agents = Agent::orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->paginate(10);
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
     public function cambiarEstadoAgente(Request $request)
     {
         $resp = $this->agentService->cambiarEstadoAgente($request->id, $request->status);
-        $agents = Agent::orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->paginate(10);
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
     public function eliminarAgente(Request $request)
     {
         $resp = $this->agentService->eliminarAgente($request->id);
-        $agents = Agent::orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->paginate(10);
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
     public function saveNumberTurns(Request $request)
     {
         $resp = $this->agentService->saveNumberTurns($request->id, $request->cant);
-        $agents = Agent::orderBy('lastname')->get();
+        $agents = Agent::orderBy('lastname')->paginate(10);
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
@@ -79,7 +79,7 @@ class AgentController extends Controller
     }
 
     public function filterAgent(Request $request) {
-        $data = $this->agentService->filterAgent($request);
-        return response()->json($data);
+        $agents = $this->agentService->filterAgent($request);
+        return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render()]);
     }
 }

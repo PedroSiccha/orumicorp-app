@@ -377,5 +377,11 @@
     <script src="{{ asset('js/sales/filterSales.js') }}"></script>
     <script src="{{ asset('js/sales/editSale.js') }}"></script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            markNotificationsAsSeen('sales');
+        });
+    </script>
+
 
 @endsection

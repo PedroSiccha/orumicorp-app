@@ -121,7 +121,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="createSales({dniAgent: '#dniAgent', commission: '#commission', modal: '#modalBonus', tableName: '#tabBonus', typeSales: '2'})"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="createBonus({dniAgent: '#dniAgent', commission: '#commission', modal: '#modalBonus', tableName: '#tabBonus', typeSales: '2'})"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -165,7 +165,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="createSales({dniAgent: '#dniDiscountAgent', commission: '#amountDiscount', modal: '#modalDescuento', tableName: '#tabBonus', typeSales: '3'})"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="createDiscount({dniAgent: '#dniDiscountAgent', commission: '#amountDiscount', modal: '#modalDescuento', tableName: '#tabBonus', typeSales: '3'})"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -300,5 +300,9 @@
 <script src="{{ asset('js/bonusAgent/createDiscount.js') }}"></script>
 <script src="{{ asset('js/sales/createSales.js') }}"></script>
 <script src="{{ asset('js/bonusAgent/filterBonus.js') }}"></script>
-
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('bonusagent');
+    });
+</script>
 @endsection

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Customers extends Model
 {
     protected $table = 'customers';
-    protected $fillable = ['id', 'code', 'name', 'lastname', 'phone', 'date_admission', 'status', 'img', 'user_id', 'agent_id', 'optional_phone', 'city', 'country', 'comment', 'email', 'id_provider', 'id_status', 'platform_id', 'traiding_id'];
+    protected $fillable = ['id', 'code', 'name', 'lastname', 'phone', 'date_admission', 'status', 'img', 'user_id', 'agent_id', 'optional_phone', 'city', 'country', 'comment', 'email', 'id_provider', 'id_status', 'platform_id', 'traiding_id', 'folder_id', 'call_black'];
 
     public function sales()
     {
@@ -27,12 +27,12 @@ class Customers extends Model
 
     public function comunications()
     {
-        return $this->hasMany(Comunications::class);
+        return $this->hasMany(Comunications::class, 'customer_id');
     }
 
     public function assignaments()
     {
-        return $this->hasMany(Assignment::class);
+        return $this->hasMany(Assignment::class, 'customer_id');
     }
 
     public function campaigns()
@@ -86,10 +86,7 @@ class Customers extends Model
 
     public function latestSupplier()
     {
-        return $this->belongsToMany(Supplier::class, 'supplier_customers', 'customer_id', 'supplier_id')
-                    ->withPivot('status')
-                    ->latest('supplier_customers.created_at')
-                    ->take(1);
+        return $this->belongsToMany(Supplier::class, 'supplier_customers', 'customer_id', 'supplier_id')->withPivot('status')->latest('supplier_customers.created_at')->take(1);
     }
 
     public function latestComunication()
@@ -99,7 +96,12 @@ class Customers extends Model
 
     public function latestAssignamet()
     {
-        return $this->hasOne(Assignment::class, 'customer_id')->with(['agent'])->latest('date')->take(1);
+        return $this->hasOne(Assignment::class, 'customer_id')->with(['agent'])->latest('date');
+    }
+
+    public function latestAssignametBy()
+    {
+        return $this->hasOne(Assignment::class, 'customer_id')->with(['assignedBy'])->latest('date');
     }
 
     public function latestDeposit()
@@ -110,6 +112,11 @@ class Customers extends Model
     public function deposits()
     {
         return $this->hasMany(Deposit::class, 'customer_id');
+    }
+
+    public function emails()
+    {
+        return $this->hasMany(Email::class);
     }
 
 }

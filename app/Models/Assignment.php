@@ -17,6 +17,7 @@ class Assignment extends Model
         'tipo',
         'descripcion',
         'comment',
+        'status'
     ];
 
     protected $casts = [

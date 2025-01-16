@@ -18,14 +18,19 @@ use App\Models\CustomerSummary;
 use App\Models\Folder;
 use App\Models\Platform;
 use App\Models\Premio;
+use App\Models\Priority;
 use App\Models\Provider;
+use App\Models\Task;
 use App\Models\Traiding;
 use App\Models\User;
+use App\Models\Views;
 use App\Rules\PhoneNumberFormat;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -38,6 +43,7 @@ class ClientService implements ClientInterface {
     protected $assignamentService;
     protected $campaingService;
     protected $providerService;
+    protected $utils;
 
     public function __construct(
         UserInterface $userService,
@@ -46,7 +52,8 @@ class ClientService implements ClientInterface {
         ComunicationInterface $communicationService,
         AssignamentInterface $assignamentService,
         CampaingInterface $campaingService,
-        ProviderInterface $providerService
+        ProviderInterface $providerService,
+        Utils $utils,
     ) {
         $this->userService = $userService;
         $this->rolesService = $rolesService;
@@ -55,6 +62,7 @@ class ClientService implements ClientInterface {
         $this->assignamentService = $assignamentService;
         $this->campaingService = $campaingService;
         $this->providerService = $providerService;
+        $this->utils = $utils;
     }
 
     public function index() {
@@ -78,8 +86,6 @@ class ClientService implements ClientInterface {
         }
 
         if ($myRoles['roles'] == 'ADMINISTRADOR') {
-            //$customers = Customers::orderBy('date_admission')->get();
-            // $customers = CustomerSummary::orderBy('date_admission')->get();
             $customers = Customers::with([
                 'user',
                 'agent',
@@ -97,8 +103,7 @@ class ClientService implements ClientInterface {
             // dd($customers);
 
         } else {
-            //$customers = Customers::where('agent_id', $agent->id)->orderBy('date_admission')->get();
-            // $customers = CustomerSummary::where('agent_id', $agent->id)->orderBy('date_admission')->get();
+
             $customers = Customers::with([
                 'user',
                 'agent',
@@ -108,10 +113,16 @@ class ClientService implements ClientInterface {
                 'statusCustomer',
                 'platform',
                 'traiding',
+                'assignaments',
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('agent_id', $agent->id)->orderBy('date_admission', 'desc')->paginate(10);
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
+
+
+            // dd($customers);
         }
 
         $asignCustomers = Customers::where('agent_id', null)->where('status', 1)->orderBy('date_admission')->get();
@@ -246,72 +257,69 @@ class ClientService implements ClientInterface {
     }
 
     public function saveClient($request) {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-
         try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email|unique:customers,email',
+                'phone' => 'required|string|unique:customers,phone',
+                'name'  => 'required|string',
+                'lastname' => 'required|string',
+            ], [
+                'email.required' => 'El correo electrónico es obligatorio.',
+                'email.unique' => 'El correo electrónico ya está registrado.',
+                'phone.required' => 'El número de teléfono es obligatorio.',
+                'phone.unique' => 'El número de teléfono ya está registrado.',
+                'name.required' => 'El nombre es obligatorio.',
+                'lastname.required' => 'El apellido es obligatorio.',
+            ]);
+
+            if ($validator->fails()) {
+                $errorMessages = implode(' ', $validator->errors()->all());
+                return [
+                    'title' => 'Error',
+                    'mensaje' => $errorMessages,
+                    'status' => 'error'
+                ];
+            }
 
             $role = Role::where('name', 'CLIENTE')->first();
             $statusClient = CustomerStatus::where('name', 'NUEVO')->first();
-
-            $request->validate([
-                'phone' => ['required', new PhoneNumberFormat],
-                'optionalPhone' => ['nullable', 'sometimes', new PhoneNumberFormat],
-            ]);
 
             $user = new User();
             $user->name = $request->name;
             $user->email = $request->email;
             $user->password = Hash::make($request->dni);
+
             if ($user->save()) {
                 $user->assignRole($role->id);
+
+                $code = $this->utils->getInitials($request->name) . $this->utils->getInitials($request->lastname) . '_' . $user->id;
+
                 $client = new Customers();
-                $client->code = $request->code;
+                $client->code = $code;
                 $client->name = $request->name;
                 $client->lastname = $request->lastname;
                 $client->phone = $request->phone;
-                $client->optional_phone = $request->optionalPhone;
-                $client->city = $request->city;
-                $client->country = $request->country;
-                $client->date_admission = Carbon::now();
+                $client->email = $request->email;
+                $client->date_admission = now();
                 $client->status = true;
                 $client->user_id = $user->id;
-                $client->email = $request->email;
-                if ($request->provide_id != 'Seleccione un proveedor') {
-                    $client->id_provider = $request->provide_id;
-                }
-                if ($request->platform_id != 'Seleccione su platform') {
-                    $client->platform_id = $request->platform_id;
-                }
                 $client->id_status = $statusClient->id;
-                if ($request->traiding_id != 'Seleccione su Traiding') {
-                    $client->traiding_id = $request->traiding_id;
-                }
 
                 if ($client->save()) {
-                    $title = "Correcto";
-                    $mensaje = "El cliente se registró correctamente";
-                    $status = "success";
+                    return [
+                        'title' => 'Correcto',
+                        'mensaje' => 'El cliente se registró correctamente.',
+                        'status' => 'success'
+                    ];
                 }
             }
-
-        } catch (ValidationException $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            return [
+                'title' => 'Error',
+                'mensaje' => 'Error inesperado',
+                'status' => 'error'
+            ];
         }
-
-        return [
-            'title' => $title,
-            'mensaje' => $mensaje,
-            'status' => $status
-        ];
-
     }
 
     public function asignAgent($request) {
@@ -319,27 +327,41 @@ class ClientService implements ClientInterface {
         $mensaje = "Error desconocido";
         $status = "error";
 
-        $agent = Agent::where('dni', $request->dni_agent)
-                  ->orWhere('code', $request->dni_agent)
-                  ->first();
+        $agent = Agent::where('code_voiso', $request->dni_agent)
+                        ->orWhere('code', $request->dni_agent)
+                        ->first();
 
-        $client = Customers::find($request->id);
+        $user_id = Auth::user()->id;
 
         try {
-            $client->agent_id = $agent->id;
-            if ($client->save()) {
-                $title = "Correcto";
-                $mensaje = "Se asignó correctamente el agente";
-                $status = "success";
-            } else {
-                $title = "Error";
-                $mensaje = "Error desconocido";
-                $status = "error";
+
+            $oldAssignments = Assignment::where('customer_id', $request->id)
+                                        ->where('status', 1)
+                                        ->get();
+            foreach ($oldAssignments as $oldAssign) {
+                $oldAssign->status = 0;
+                $oldAssign->save();
             }
+
+            $assignament = new Assignment();
+            $assignament->agent_id = $agent->id;
+            $assignament->customer_id = $request->id;
+            $assignament->date = Carbon::now();
+            $assignament->assignated_by_id = $user_id;
+            $assignament->status = 1;
+            $assignament->save();
+            // dd($assignament);
+
+            $title = "Correcto";
+            $mensaje = "Se asignó correctamente el agente";
+            $status = "success";
+
         } catch (Exception $e) {
+
             $title = "Error";
             $mensaje = "Ocurrió un error: " . $e->getMessage();
             $status = "error";
+
         }
 
         return [
@@ -355,27 +377,33 @@ class ClientService implements ClientInterface {
         $mensaje = "Error desconocido";
         $status = "error";
 
-        // dd($request->idGroupClientes);
-
         $agent = Agent::where('code_voiso', $request->dni_agent)
-                  ->orWhere('code', $request->dni_agent)
-                  ->first();
+                        ->orWhere('code', $request->dni_agent)
+                        ->first();
 
         $user_id = Auth::user()->id;
 
         try {
             foreach ($request->idGroupClientes as $idClient) {
 
+                $oldAssignments = Assignment::where('customer_id', $idClient)
+                                        ->where('status', 1)
+                                        ->get();
+
+
+                foreach ($oldAssignments as $oldAssign) {
+                    $oldAssign->status = 0;
+                    $oldAssign->save();
+                }
+
                 $assignament = new Assignment();
                 $assignament->agent_id = $agent->id;
                 $assignament->customer_id = $idClient;
                 $assignament->date = Carbon::now();
                 $assignament->assignated_by_id = $user_id;
+                $assignament->status = 1;
                 $assignament->save();
 
-                // $client = Customers::find($idClient);
-                // $client->agent_id = $agent->id;
-                // $client->save();
             }
 
             $title = "Correcto";
@@ -555,9 +583,14 @@ class ClientService implements ClientInterface {
         // dd($campaings['name']);
         $lastProvider = $this->providerService->getLastProviderByCustomer($dataCommunication);
         $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
-        // dd($communication->agent);
+        $priorities = Priority::all();
+        $eventos = Task::with('customer')->where('customer_id', $id)->get();
 
-        return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers');
+        $vistas = Views::with('agent')
+                        ->where('customer_id', $dataCustomer->id)
+                        ->get();
+
+        return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers', 'priorities', 'eventos', 'vistas');
 
     }
 

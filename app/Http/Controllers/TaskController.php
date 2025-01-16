@@ -51,12 +51,13 @@ class TaskController extends Controller
 
     public function obtenerEventos()
     {
-        $eventos = Task::all();
+        $eventos = Task::with('agent')->get();
+
         $eventos_formateados = [];
         foreach ($eventos as $evento) {
             $eventos_formateados[] = [
                 'id' => $evento->id,
-                'title' => $evento->name,
+                'title' => $evento->agent->name . " " . $evento->agent->lastname . " - " . $evento->name,
                 'start' => $evento->start,
                 'end' => $evento->end,
                 'backgroundColor' => $evento->priority->color,
@@ -133,6 +134,10 @@ class TaskController extends Controller
         $agent = Agent::where('user_id', $user_id)->first();
         $priority = Priority::where('id', $request->priorityEvent)->first();
         $client = Customers::where('code', $request->codCustomer)->first();
+
+        if ($request->codAgent) {
+            $agent = Agent::where('code_voiso', $request->codAgent)->first();
+        }
 
         try {
             $task = new Task();

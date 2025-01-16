@@ -33,39 +33,54 @@
             <div class="ibox">
                 <div class="ibox-content">
                     <h3>Datos Personales</h3>
-
-                    <div class="form-group">
-                        <label>Código</label>
-                        <input type="text" class="form-control" placeholder="Ingrese su código" id="code" value="{{ $dataCustomer->code }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre</label>
-                        <input type="text" class="form-control" placeholder="Ingrese su nómbre" id="name" value="{{ $dataCustomer->name }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Apellido</label>
-                        <input type="text" class="form-control" placeholder="Ingrese su apellido" id="lastname" value="{{ $dataCustomer->lastname }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Corréo</label>
-                        <input type="email" class="form-control" placeholder="Ingrese su corréo" id="email" value="{{ $dataCustomer->email }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Teléfono</label>
-                        <input type="text" class="form-control" placeholder="Ingrese su teléfono" id="phone" value="{{ $dataCustomer->phone }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Teléfono Opcional</label>
-                        <input type="text" class="form-control" placeholder="Ingrese su teléfono opcional" id="optionalPhone" value="{{ $dataCustomer->optional_phone }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Ciudad</label>
-                        <input type="text" class="form-control" placeholder="Ingrese su ciudad" id="city" value="{{ $dataCustomer->city }}">
-                    </div>
-                    <div class="form-group">
-                        <label>País</label>
-                        <input type="text" class="form-control" placeholder="Ingrese su país" id="country" value="{{ $dataCustomer->country }}">
-                    </div>
+                    @can('Perfil Cliente - Ver Codigo')
+                        <div class="form-group">
+                            <label>Código</label>
+                            <input type="text" class="form-control" placeholder="Ingrese su código" id="code" value="{{ $dataCustomer->code }}">
+                        </div>
+                    @endcan
+                    @can('Perfil Cliente - Ver Nombre')
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input type="text" class="form-control" placeholder="Ingrese su nómbre" id="name" value="{{ $dataCustomer->name }}">
+                        </div>
+                    @endcan
+                    @can('Perfil Cliente - Ver Apellido')
+                        <div class="form-group">
+                            <label>Apellido</label>
+                            <input type="text" class="form-control" placeholder="Ingrese su apellido" id="lastname" value="{{ $dataCustomer->lastname }}">
+                        </div>
+                    @endcan
+                    @can('Perfil Cliente - Ver Correo')
+                        <div class="form-group">
+                            <label>Corréo</label>
+                            <input type="email" class="form-control" placeholder="Ingrese su corréo" id="email" value="{{ $dataCustomer->email }}">
+                        </div>
+                    @endcan
+                    @can('Perfil Cliente - Ver Telefono')
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="text" class="form-control" placeholder="Ingrese su teléfono" id="phone" value="{{ $dataCustomer->phone }}">
+                        </div>
+                    @endcan
+                    @can('Perfil Cliente - Ver Telefono Opcional')
+                        <div class="form-group">
+                            <label>Teléfono Opcional</label>
+                            <input type="text" class="form-control" placeholder="Ingrese su teléfono opcional" id="optionalPhone" value="{{ $dataCustomer->optional_phone }}">
+                        </div>
+                    @endcan
+                    @can('Perfil Cliente - Ver Ciudad')
+                        <div class="form-group">
+                            <label>Ciudad</label>
+                            <input type="text" class="form-control" placeholder="Ingrese su ciudad" id="city" value="{{ $dataCustomer->city }}">
+                        </div>
+                    @endcan
+                    @can('Perfil Cliente - Ver Pais')
+                        <div class="form-group">
+                            <label>País</label>
+                            <input type="text" class="form-control" placeholder="Ingrese su país" id="country" value="{{ $dataCustomer->country }}">
+                        </div>
+                    @endcan
                     <button class="btn btn-primary btn-block">Actualizar</button>
                 </div>
             </div>
@@ -81,6 +96,7 @@
                         <li><a class="nav-link" data-toggle="tab" href="#tab-task"><i class="fa fa-calendar"></i> Task</a></li>
                         <li><a class="nav-link" data-toggle="tab" href="#tab-campaing"><i class="fa fa-cc"></i> Campañas</a></li>
                         <li><a class="nav-link" data-toggle="tab" href="#tab-provider"><i class="fa fa-group"></i> Proveedores</a></li>
+                        <li><a class="nav-link" data-toggle="tab" href="#tab-views"><i class="fa fa-group"></i> Visualización</a></li>
                     </ul>
                     <div class="tab-content">
                         <div id="tab-resum" class="tab-pane active">
@@ -92,31 +108,8 @@
                                         <div class="ibox-content">
                                             <div class="tab-content">
                                                 <div id="contact-1" class="tab-pane active">
-                                                    <div class="row m-b-lg">
-                                                        @if(isset($lastAssignament) && isset($lastAssignament->agent))
-                                                            <div class="col-lg-4 text-center">
-                                                                <h2>{{ $lastAssignament->agent->name }}</h2>
-                                                                <div class="m-b-sm">
-                                                                    <img alt="image" class="rounded-circle" src="{{ $lastAssignament->agent->img ?? asset('img/logo/basic_logo.png') }}" style="width: 62px">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-8">
-                                                                <strong>Fecha de Asignación: {{ $lastAssignament->date->format('d/m/Y H:i:s') }}</strong>
-                                                                <p>
-                                                                    {{ $lastAssignament->comment }}
-                                                                </p>
-                                                                <button type="button" class="btn btn-primary btn-sm btn-block">
-                                                                    <i class="fa fa-envelope"></i> Send Message
-                                                                </button>
-                                                            </div>
-                                                        @else
-                                                            <div class="col-lg-12 text-center">
-                                                                <h2>Aun no tiene agente asignado</h2>
-                                                                <button type="button" class="btn btn-primary btn-sm btn-block">
-                                                                    <i class="fa fa-plus"></i> Asignar
-                                                                </button>
-                                                            </div>
-                                                        @endif
+                                                    <div class="row m-b-lg" id="agentAssignament">
+                                                        @include('cliente.components.assignedAgent')
                                                     </div>
 
                                                     <div class="client-detail">
@@ -257,7 +250,10 @@
                         </div>
                         <div id="tab-task" class="tab-pane">
                             <div class="panel-body">
-                                <div class="ibox-content">
+                                <button type="button" class="btn btn-primary btn-sm btn-block" onclick="mostrarNuevoModal('#modalNuevaTarea')">
+                                    <i class="fa fa-plus"></i> Agregar Tarea
+                                </button>
+                                <div class="ibox-content" id="tabTaskClient">
                                     <table class="table table-hover">
                                         <thead>
                                         <tr>
@@ -273,17 +269,19 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>13/05/2024</td>
-                                            <td>13:30</td>
-                                            <td>14:30</td>
-                                            <td>Evento de Prueba</td>
-                                            <td>Agente Prueba</td>
-                                            <td>BAJO</td>
-                                            <td>Esto es una prueba</td>
-                                            <td>Pendiente</td>
-                                        </tr>
+                                            @foreach ($eventos as $evento)
+                                                <tr>
+                                                    <td>{{ $evento->id }}</td>
+                                                    <td>13/05/2024</td>
+                                                    <td>13:30</td>
+                                                    <td>14:30</td>
+                                                    <td>Evento de Prueba</td>
+                                                    <td>Agente Prueba</td>
+                                                    <td>BAJO</td>
+                                                    <td>Esto es una prueba</td>
+                                                    <td>Pendiente</td>
+                                                </tr>
+                                            @endforeach
                                         </tbody>
                                     </table>
                                 </div>
@@ -363,6 +361,38 @@
                             </div>
                         </div>
 
+                        <div id="tab-views" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="ibox-content">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Agente</th>
+                                                <th>Fecha Y Hora de Visita</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($vistas as $vista)
+                                                @if(is_object($vista))
+                                                    <tr>
+                                                        <td>{{ $loop->iteration }}</td>
+                                                        <td>{{ $vista->agent->name.' '.$vista->agent->lastname ?? 'Sin Agente' }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($vista->viewed_at)->format('d/m/Y H:i:s') }}</td>
+                                                    </tr>
+                                                @else
+                                                    <tr>
+                                                        <td colspan="4">Datos inválidos: {{ var_dump($vista) }}</td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -370,7 +400,20 @@
     </div>
 
 </div>
-
+@include('cliente.modal.modalNuevaTarea')
+@include('cliente.modal.modalAsignAgentByProfile')
 @endsection
 @section('script')
+<script>
+    var saveEventClientRoute = '{{ route("saveEventClient") }}';
+    var searchAgentRoute = '{{ route("searchAgent") }}';
+    var searchClientRoute = '{{ route("searchCustomer") }}';
+    var asignAgentByProfileRoute = '{{ route("asignAgentByProfile") }}';
+</script>
+<script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
+<script src="{{ asset('js/customer/client.js') }}"></script>
+<script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+<script src="{{ asset('js/agent/searchAgent.js') }}"></script>
+<script src="{{ asset('js/customer/searchClient.js') }}"></script>
+<script src="{{ asset('js/agent/assignGroupAgentByProfile.js') }}"></script>
 @endsection

@@ -263,4 +263,9 @@
         }
 
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            markNotificationsAsSeen('security');
+        });
+    </script>
 @endsection

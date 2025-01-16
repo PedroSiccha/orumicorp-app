@@ -64,11 +64,12 @@
                 <!-- Aquí se cargarán los mensajes del chat -->
             </div>
             <div class="mt-3">
-                <form>
+                <form id="send-message-form">
                     <div class="input-group">
-                        <input id="inptuMessage" type="text" class="form-control" placeholder="Escribe tu mensaje...">
+                        <input id="inputMessage" name="message" type="text" class="form-control" placeholder="Escribe tu mensaje...">
+                        <input id="inputPhone" name="phone" type="hidden" value="+51910832955">
                         <div class="input-group-append">
-                            <button class="btn btn-primary" type="button" onclick="sendMessage('', '', '')">Enviar</button>
+                            <button class="btn btn-primary" type="button" onclick="submitMessage()">Enviar</button>
                         </div>
                     </div>
                 </form>
@@ -134,5 +135,42 @@
         })
         .catch(error => console.error('Error al cargar más contactos:', error));
     }
+
+    function submitMessage() {
+        const message = document.getElementById('inputMessage').value;
+        const phone = document.getElementById('inputPhone').value;
+
+        if (message.trim() === "" || phone.trim() === "") {
+            alert('El mensaje o el número de teléfono no pueden estar vacíos.');
+            return;
+        }
+
+        fetch("{{ route('sendMessage') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ phone, message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message.status === 'enqueued') {
+                document.getElementById('inputMessage').value = "";
+                alert('Mensaje enviado con éxito');
+            } else {
+                alert('Error al enviar el mensaje. Inténtalo de nuevo.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Hubo un problema al enviar el mensaje.');
+        });
+    }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('whatsapp');
+    });
 </script>
 @endsection

@@ -37,4 +37,9 @@ Depósito
 <script src="{{ asset('js/deposit/saveDeposit.js') }}"></script>
 <script src="{{asset('js/agent/searchAgent.js')}}"></script>
 <script src="{{ asset('js/customer/searchClient.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('deposit');
+    });
+</script>
 @endsection

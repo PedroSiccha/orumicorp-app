@@ -147,6 +147,18 @@ class SecurityController extends Controller
         // $permission = Permission::create(['name' => 'Agregar Cliente a Carpeta']);
         // $permission = Permission::create(['name' => 'Carga Masiva a Carpetas']);
 
+        //Agregar Actualizacion Noviembre
+
+        // $permission = Permission::create(['name' => 'Ver Perfil Cliente']);
+        // $permission = Permission::create(['name' => 'Perfil Cliente - Ver Codigo']);
+        // $permission = Permission::create(['name' => 'Perfil Cliente - Ver Nombre']);
+        // $permission = Permission::create(['name' => 'Perfil Cliente - Ver Apellido']);
+        // $permission = Permission::create(['name' => 'Perfil Cliente - Ver Correo']);
+        // $permission = Permission::create(['name' => 'Perfil Cliente - Ver Telefono']);
+        // $permission = Permission::create(['name' => 'Perfil Cliente - Ver Telefono Opcional']);
+        // $permission = Permission::create(['name' => 'Perfil Cliente - Ver Ciudad']);
+        // $permission = Permission::create(['name' => 'Perfil Cliente - Ver Pais']);
+
         $user_id = Auth::user()->id;
 
         $agent = Agent::where('user_id', $user_id)->first();

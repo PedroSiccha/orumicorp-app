@@ -15,7 +15,12 @@ use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 class AgentService implements AgentInterface {
-    public function __construct() {}
+    protected $utils;
+    public function __construct(
+        Utils $utils,
+    ) {
+        $this->utils = $utils;
+    }
 
     public function index()
     {
@@ -80,12 +85,14 @@ class AgentService implements AgentInterface {
     public function saveAgent($requestData) {
         $resp = 0;
 
+        $pass = $requestData->code . $requestData->codeVoiso;
+
         $role = Role::find($requestData->rol_id);
 
         $user = new User();
         $user->name = $requestData->name;
         $user->email = $requestData->email;
-        $user->password = Hash::make($requestData->dni);
+        $user->password = Hash::make($pass);
 
         if ($user->save()) {
             $user->assignRole($role);
@@ -216,8 +223,15 @@ class AgentService implements AgentInterface {
                         ->where(function ($query) use ($search) {
                             $query->whereRaw('CONCAT(name, " ", lastname) LIKE ?', ['%'.$search.'%'])
                                 ->orWhere('code', 'like', '%'.$search.'%');
-                        })->get();
+                        })->paginate(10);
 
         return $agents;
+    }
+
+    public function getAgent()
+    {
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+        return $agent;
     }
 }
