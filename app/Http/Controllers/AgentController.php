@@ -34,9 +34,9 @@ class AgentController extends Controller
 
     public function saveAgent(Request $request)
     {
-        $resp = $this->agentService->saveAgent($request);
+        $data = $this->agentService->saveAgent($request);
         $agents = Agent::orderBy('lastname')->paginate(10);
-        return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
+        return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }
 
     public function updateAgent(Request $request)

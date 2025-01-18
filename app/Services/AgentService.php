@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 
 class AgentService implements AgentInterface {
@@ -83,11 +84,52 @@ class AgentService implements AgentInterface {
     }
 
     public function saveAgent($requestData) {
-        $resp = 0;
-
-        $pass = $requestData->code . $requestData->codeVoiso;
 
         $role = Role::find($requestData->rol_id);
+        if (!$role) {
+            return [
+                'title' => 'Error',
+                'mensaje' => 'El rol proporcionado no existe.',
+                'status' => 'error'
+            ];
+        }
+
+        $validator = Validator::make($requestData->all(), [
+            'name' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'code' => 'required|string|unique:agents,code|max:50',
+            'codeVoiso' => 'required|string|unique:agents,code_voiso|max:50',
+            'area_id' => 'required|integer|exists:areas,id',
+        ], [
+            'name.required' => 'El nombre es obligatorio.',
+            'name.string' => 'El nombre debe ser una cadena de texto.',
+            'lastname.required' => 'El apellido es obligatorio.',
+            'lastname.string' => 'El apellido debe ser una cadena de texto.',
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.email' => 'El correo electrónico no tiene un formato válido.',
+            'email.unique' => 'El correo electrónico ya está registrado.',
+            'code.required' => 'El código es obligatorio.',
+            'code.string' => 'El código debe ser una cadena de texto.',
+            'code.unique' => 'El código ya está registrado.',
+            'codeVoiso.required' => 'El código Voiso es obligatorio.',
+            'codeVoiso.string' => 'El código Voiso debe ser una cadena de texto.',
+            'codeVoiso.unique' => 'El código Voiso ya está registrado.',
+            'area_id.required' => 'El área es obligatoria.',
+            'area_id.integer' => 'El área proporcionada no existe.',
+            'area_id.exists' => 'El área proporcionada no existe.',
+        ]);
+
+        if ($validator->fails()) {
+            $errorMessages = implode(' ', $validator->errors()->all());
+            return [
+                'title' => 'Error',
+                'mensaje' => $errorMessages,
+                'status' => 'error'
+            ];
+        }
+
+        $pass = $requestData->code . $requestData->codeVoiso;
 
         $user = new User();
         $user->name = $requestData->name;
@@ -106,11 +148,32 @@ class AgentService implements AgentInterface {
             $agent->user_id = $user->id;
             $agent->status_voiso = 'LIBRE';
             if ($agent->save()) {
-                $resp = 1;
+                return [
+                    'title' => 'Correcto',
+                    'mensaje' => 'Se guardó el agente correctamente.',
+                    'status' => 'success'
+                ];
+            } else {
+                $user->delete();
+                return [
+                    'title' => 'Error',
+                    'mensaje' => 'Error al guardar el agente.',
+                    'status' => 'error'
+                ];
             }
+        } else {
+            return [
+                'title' => 'Error',
+                'mensaje' => 'Error al guardar el usuario.',
+                'status' => 'error'
+            ];
         }
 
-        return $resp;
+        return [
+            'title' => 'Correcto',
+            'mensaje' => 'Se guardó el agente correctamente.',
+            'status' => 'success'
+        ];
     }
 
     public function updateAgent($requestData) {

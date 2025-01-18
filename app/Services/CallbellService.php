@@ -24,6 +24,9 @@ class CallbellService
 
     public function sendMessage($phone, $message)
     {
+        $templateName = 'bienvenida';
+        $templateVariables = ['María', $message];
+        $templateUuid = '6a8c731f534e4b898d3b97356cafa732';
 
         try {
             $response = $this->client->post("{$this->baseUrl}/messages/send", [
@@ -32,12 +35,15 @@ class CallbellService
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'from' => 'whatsapp', // Origen del mensaje
-                    'to' => $phone, // Número de teléfono del destinatario
+                    'from' => 'whatsapp', // Canal desde el que envías el mensaje
+                    'to' => $phone, // Número del destinatario (incluye el código de país)
                     'type' => 'text', // Tipo de mensaje
                     'content' => [
-                        'text' => $message // Contenido del mensaje
+                        'text' => $message, // Contenido del mensaje
+                        'url' => $mediaUrl ?? null, // URL del archivo multimedia (si aplica, opcional)
                     ],
+                    'template_uuid' => $templateUuid, // UUID de la plantilla aprobada
+                    'optin_contact' => true, // Confirmar si el destinatario ha optado por recibir mensajes
                 ],
             ]);
 
@@ -114,7 +120,7 @@ class CallbellService
             $statusResponse = $this->getMessageStatus($uuid);
             $status = $statusResponse['message']['status'] ?? 'unknown';
 
-            \Log::info("Estado del mensaje: {$status}", ['uuid' => $uuid]);
+            // \Log::info("Estado del mensaje: {$status}", ['uuid' => $uuid]);
 
             // Opcional: Si el estado no progresa en un tiempo razonable, lanzar excepción
             if ($status === 'failed' || $status === 'unknown') {
@@ -140,11 +146,11 @@ class CallbellService
             ->get($url);
 
         if ($response->failed()) {
-            \Log::error('Error al obtener estado del mensaje', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-                'uuid' => $uuid,
-            ]);
+            // \Log::error('Error al obtener estado del mensaje', [
+            //     'status' => $response->status(),
+            //     'body' => $response->body(),
+            //     'uuid' => $uuid,
+            // ]);
             throw new \Exception('Error al obtener el estado del mensaje en la API de Callbell.');
         }
 
