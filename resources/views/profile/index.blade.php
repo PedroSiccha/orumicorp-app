@@ -127,6 +127,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="text-center">
+                        {{ $clients->links() }}
+                    </div>
                 </div>
             </div>
 
@@ -156,6 +159,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="text-center">
+                        {{ $targets->links() }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -191,6 +197,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="text-center">
+                        {{ $sales->links() }}
+                    </div>
                 </div>
             </div>
         </div>
