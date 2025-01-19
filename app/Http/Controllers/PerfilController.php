@@ -48,14 +48,15 @@ class PerfilController extends Controller
         $dateBreakIn = Assistance::where('date', date('Y-m-d'))->where('type', 'IN-BREAK')->where('agent_id', $agent->id)->first();
         $dateBreakOut = Assistance::where('date', date('Y-m-d'))->where('type', 'OUT-BREAK')->where('agent_id', $agent->id)->first();
         $dateOut = Assistance::where('date', date('Y-m-d'))->where('type', 'OUT')->where('agent_id', $agent->id)->first();
-        $clients = Customers::where('agent_id', $agent->id)->get();
+        $clients = Customers::where('agent_id', $agent->id)->paginate(5, ['*'], 'clients_page')->withQueryString();
         $targets = Target::select('id', 'amount', 'agent_id')
                         ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
-                        ->get();
+                        ->paginate(5, ['*'], 'targets_page')->withQueryString();
+
         $sales = Sales::select('sales.*', 'c.name', 'c.lastname')
                         ->join('customers as c', 'sales.customer_id', '=', 'c.id')
-                        ->where('sales.user_id', $id)
-                        ->get();
+                        ->where('sales.agent_id', $agent->id)
+                        ->paginate(5, ['*'], 'sales_page')->withQueryString();
 
         $targetMensual = Target::where('status', true)
                         ->where('month', date("m"))
