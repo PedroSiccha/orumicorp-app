@@ -133,14 +133,21 @@ class CommentController extends Controller
      */
     public function saveComentario(Request $request)
     {
+
+        if (empty($request->idComunication)) {
+            $idComunication = '1';
+        } else {
+            $idComunication = $request->idComunication;
+        }
+
         $dataCustomer = [
-            'comunicationId' => $request->idComunication,
+            'comunicationId' => $idComunication,
             'comment' => $request->txtComentario,
             'customerStatusId' => $request->customerStatusId
         ];
 
         if ($request->customerStatusId) {
-            $comunication = Comunications::find($request->idComunication);
+            $comunication = Comunications::find($idComunication);
 
             $customer = Customers::find($comunication->customer_id);
             $customer->id_status = $request->customerStatusId;
