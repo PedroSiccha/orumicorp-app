@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\CustomerStatus;
 use App\Models\Provider;
@@ -32,6 +33,7 @@ class CustomersByFolderImport implements ToModel, WithGroupedHeadingRow, WithBat
     {
 
         $user = Auth::user();
+        $agent = Agent::where('user_id', $user->id)->first();
         $getInitials = function($name) {
             $words = explode(' ', trim($name));
             $initials = '';
@@ -48,7 +50,7 @@ class CustomersByFolderImport implements ToModel, WithGroupedHeadingRow, WithBat
             'name' => $row['nombres'],
             'lastname' => $row['apellidos'],
             'user_id' => $user->id,
-            'agent_id' => $user->id,
+            'agent_id' => $agent->id,
             'phone' => $row['telefono'],
             'date_admission' => date('Y-m-d'),
             'status' => true,

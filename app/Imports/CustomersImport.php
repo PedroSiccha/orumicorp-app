@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\CustomerStatus;
 use App\Models\Platform;
@@ -60,6 +61,12 @@ class CustomersImport implements ToModel, WithHeadingRow, WithBatchInserts, With
             throw ValidationException::withMessages(['telefono' => "El teléfono {$row['telefono']} ya existe."]);
         }
 
+        $agent = Agent::where('user_id', $user->id)->first();
+
+        if (!$agent) {
+            throw ValidationException::withMessages(['agente' => "No se encontró un agente asociado al usuario."]);
+        }
+
         $providerId = $this->providers[strtolower(trim($row['provedor']))] ?? null;
         $statusId = $this->status[strtolower(trim($row['estado']))] ?? $this->status['NEW'];
 
@@ -68,7 +75,7 @@ class CustomersImport implements ToModel, WithHeadingRow, WithBatchInserts, With
             'name' => $row['nombres'],
             'lastname' => $row['apellidos'],
             'user_id' => $user->id,
-            'agent_id' => $user->id,
+            'agent_id' => $agent->id,
             'phone' => $row['telefono'],
             'date_admission' => date('Y-m-d'),
             'status' => true,
