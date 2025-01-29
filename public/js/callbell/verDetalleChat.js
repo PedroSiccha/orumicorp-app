@@ -104,6 +104,7 @@ function iniciarNuevoMensaje() {
             </div>
             <div class="input-group">
                 <input id="inputMessage" name="message" type="text" class="form-control" placeholder="Escribe tu mensaje...">
+                <input id="inputUuid" name="phone" type="hidden">
                 <div class="input-group-append">
                     <button class="btn btn-primary" type="button" onclick="submitMessage()">Enviar</button>
                 </div>
