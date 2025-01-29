@@ -23,10 +23,17 @@
 <div class="row">
     <div class="col-md-4">
         <div class="ibox ">
-            <div class="ibox-title">
+            <div class="ibox-title d-flex justify-content-between align-items-center">
                 <h5>Clientes</h5>
+                <input type="text" id="search-phone" class="form-control form-control-sm" placeholder="Buscar por teléfono">
+                <button id="search-button" class="btn btn-primary btn-sm">
+                    <i class="fa fa-search"></i>
+                </button>
             </div>
             <div class="ibox-content">
+                <div id="loading-indicator" style="display: none; text-align: center;">
+                    <img src="https://i.gifer.com/VAyR.gif" alt="Cargando..." width="50" height="50">
+                </div>
                 <div>
                     <div class="feed-activity-list" id="contacts-list">
                         @foreach ($contacts as $contact)
@@ -57,22 +64,14 @@
 
     <div class="col-md-8" id="chat-details">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 id="chat-client-name">Cliente</h5>
+                <button class="btn btn-success btn-sm" onclick="iniciarNuevoMensaje()">
+                    <i class="fa fa-plus"></i> Nuevo Mensaje
+                </button>
             </div>
             <div class="card-body" id="chat-messages">
                 <!-- Aquí se cargarán los mensajes del chat -->
-            </div>
-            <div class="mt-3">
-                <form id="send-message-form">
-                    <div class="input-group">
-                        <input id="inputMessage" name="message" type="text" class="form-control" placeholder="Escribe tu mensaje...">
-                        <input id="inputPhone" name="phone" type="hidden" value="+51910832955">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="button" onclick="submitMessage()">Enviar</button>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -84,6 +83,7 @@
 <script>
     var getChatDetailsRoute = '{{ route("getChatDetails") }}';
     var sendMessageRoute = '{{ route("sendMessage") }}';
+    var searchContactRoute = '{{ route("searchContact") }}';
 </script>
 
 <script src="{{asset('js/callbell/verDetalleChat.js')}}"></script>
@@ -139,6 +139,7 @@
     function submitMessage() {
         const message = document.getElementById('inputMessage').value;
         const phone = document.getElementById('inputPhone').value;
+        const uuid = document.getElementById('inputUuid').value;
 
         if (message.trim() === "" || phone.trim() === "") {
             alert('El mensaje o el número de teléfono no pueden estar vacíos.');
@@ -155,16 +156,25 @@
         })
         .then(response => response.json())
         .then(data => {
+            console.log(data.message);
+
             if (data.message.status === 'enqueued') {
                 document.getElementById('inputMessage').value = "";
-                alert('Mensaje enviado con éxito');
+                // alert('Mensaje enviado con éxito');
             } else {
-                alert('Error al enviar el mensaje. Inténtalo de nuevo.');
+                document.getElementById('inputMessage').value = "";
+                // alert('Error al enviar el mensaje. Inténtalo de nuevo.');
+            }
+            if (!uuid) {
+                location.reload();
+            } else {
+                verDetalleChat(uuid, phone);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Hubo un problema al enviar el mensaje.');
+            document.getElementById('inputMessage').value = "";
+            // alert('Hubo un problema al enviar el mensaje.');
         });
     }
 </script>
