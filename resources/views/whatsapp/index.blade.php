@@ -139,18 +139,25 @@
     function submitMessage() {
         const message = document.getElementById('inputMessage').value;
         const phone = document.getElementById('inputPhone').value;
-        const uuid = document.getElementById('inputUuid').value;
+        let uuid = "";
+
+        // Intentamos obtener el UUID sin que bloquee la ejecución si no existe
+        try {
+            uuid = document.getElementById('inputUuid')?.value || "";
+        } catch (error) {
+            console.warn("No se encontró inputUuid, se usará un valor vacío.");
+        }
 
         if (message.trim() === "" || phone.trim() === "") {
             alert('El mensaje o el número de teléfono no pueden estar vacíos.');
             return;
         }
 
-        fetch("{{ route('sendMessage') }}", {
+        fetch("https://sytecrm.com/callbell/send", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': 'Lslzd6m8dZyqjUOO5puo38zmB4ruL04sq3u0IT5E'
             },
             body: JSON.stringify({ phone, message })
         })
@@ -158,14 +165,16 @@
         .then(data => {
             console.log(data.message);
 
+            document.getElementById('inputMessage').value = "";
+
             if (data.message.status === 'enqueued') {
-                document.getElementById('inputMessage').value = "";
                 // alert('Mensaje enviado con éxito');
             } else {
-                document.getElementById('inputMessage').value = "";
                 // alert('Error al enviar el mensaje. Inténtalo de nuevo.');
             }
-            if (uuid === '000') {
+
+            // Si UUID es '000' o no existe, recarga la página
+            if (uuid === '000' || uuid === "") {
                 location.reload();
             } else {
                 verDetalleChat(uuid, phone);
@@ -175,8 +184,10 @@
             console.error('Error:', error);
             document.getElementById('inputMessage').value = "";
             // alert('Hubo un problema al enviar el mensaje.');
+            location.reload(); // En caso de error también recargar la página
         });
     }
+
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
