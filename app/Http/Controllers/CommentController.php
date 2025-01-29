@@ -45,11 +45,30 @@ class CommentController extends Controller
         $baseUrl = env('CALLBELL_API_BASE_URL');
         $token = env('CALLBELL_API_TOKEN');
 
+        if (!$baseUrl) {
+            throw new \Exception('CALLBELL_API_BASE_URL no está definido en el .env');
+        }
+
+        if (!$token) {
+            throw new \Exception('CALLBELL_API_TOKEN no está definido en el .env');
+        }
+
+        $body = [
+            'team_uuid' => '7929cea82d3745d38287b02877d49214'
+        ];
+
         $page = $request->input('page', 1);
-        $response = Http::withToken($token)->get("{$baseUrl}/contacts?page={$page}");
+        $response = Http::withToken($token)->withBody(json_encode($body), 'application/json')->get("{$baseUrl}/contacts?page={$page}");
+
+        //dd($response);
 
         if ($response->successful()) {
             $contacts = $response->json()['contacts'];
+            // dd($contacts);
+            // Ordenar los contactos por 'createdAt' de forma descendente
+            usort($contacts, function ($a, $b) {
+                return strtotime($b['createdAt']) - strtotime($a['createdAt']);
+            });
 
             foreach ($contacts as &$contact) {
                 if (isset($contact['createdAt'])) {
@@ -75,11 +94,16 @@ class CommentController extends Controller
     {
         $baseUrl = env('CALLBELL_API_BASE_URL');
         $token = env('CALLBELL_API_TOKEN');
+        // dd($request->uuid);
 
         $response = Http::withToken($token)->get("{$baseUrl}/contacts/{$request->uuid}/messages");
 
         if ($response->successful()) {
             $messages = $response->json()['messages'];
+
+            usort($messages, function ($a, $b) {
+                return strtotime($a['createdAt']) - strtotime($b['createdAt']);
+            });
 
             foreach ($messages as &$message) {
                 $message['createdAt'] = Carbon::parse($message['createdAt'])->format('d/m/Y H:i:s');
