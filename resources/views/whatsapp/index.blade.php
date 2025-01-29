@@ -165,7 +165,7 @@
                 document.getElementById('inputMessage').value = "";
                 // alert('Error al enviar el mensaje. Inténtalo de nuevo.');
             }
-            if (!uuid) {
+            if (uuid === '000') {
                 location.reload();
             } else {
                 verDetalleChat(uuid, phone);
