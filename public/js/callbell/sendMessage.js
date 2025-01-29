@@ -3,30 +3,16 @@ function sendMessage(uuid, phone, inputMessage) {
     $.post(sendMessageRoute, { uuid: uuid, phone: phone, message: message, _token: token })
         .done(function(data) {
             console.log("DAta " + data.message.status);
+            console.log("DAta " + data);
             if (data.message.status === 'enqueued') {
                 $(inputMessage).val("");
-                // let messagesHtml = '';
-                // data.messages.forEach(function(message) {
-                //     let formattedPhoneNumber = formatPhoneNumber(phone);
-                //     let alignment = message.from === formattedPhoneNumber ? "justify-content-end" : "justify-content-start";
-                //     let bgClass = message.from === formattedPhoneNumber ? "bg-primary text-white" : "bg-light";
-
-                //     messagesHtml += `
-                //     <div class="d-flex ${alignment} mb-2">
-                //         <div class="${bgClass} p-3 rounded position-relative">
-                //             <h5 class="mb-1">${message.text}</h5>
-                //             <div class="position-absolute" style="bottom: 5px; right: 10px;">
-                //                 <small>${message.createdAt}</small>
-                //             </div>
-                //         </div>
-                //     </div>`;
-                // });
-                // $('#chat-messages').html(messagesHtml);  // Assuming #chat-messages is the container for messages
             }
+            verDetalleChat(uuid, phone);
         })
         .fail(function() {
-            alert('Error al obtener los detalles del chat');
+            $(inputMessage).val("");
         });
+        verDetalleChat(uuid, phone);
 }
 
 function formatPhoneNumber(phoneNumber) {
