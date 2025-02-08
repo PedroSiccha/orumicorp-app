@@ -45,48 +45,107 @@ class CommentController extends Controller
         $baseUrl = env('CALLBELL_API_BASE_URL');
         $token = env('CALLBELL_API_TOKEN');
 
-        if (!$baseUrl) {
-            throw new \Exception('CALLBELL_API_BASE_URL no está definido en el .env');
+        // if (!$baseUrl) {
+        //     throw new \Exception('CALLBELL_API_BASE_URL no está definido en el .env');
+        // }
+
+        // if (!$token) {
+        //     throw new \Exception('CALLBELL_API_TOKEN no está definido en el .env');
+        // }
+
+        // $body = [
+        //     'team_uuid' => '7929cea82d3745d38287b02877d49214'
+        // ];
+
+        // $page = $request->input('page', 1);
+        // $response = Http::withToken($token)->withBody(json_encode($body), 'application/json')->get("{$baseUrl}/contacts?page={$page}");
+
+        $contacts = Customers::all()->map(function ($customer) {
+            return [
+                "id" => $customer->id,  // Suponiendo que `id` es el identificador único
+                "uuid" => $customer->callbell_uuid,  // Suponiendo que `id` es el identificador único
+                "name" => $customer->name,
+                "lastname" => $customer->lastname,
+                "phoneNumber" => $customer->phone, // Ajusta según el nombre del campo en la DB
+                "avatarUrl" => $customer->img ?? null,
+                "createdAt" => $customer->created_at->format('d/m/Y'),
+                "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                "source" => $customer->callbel_source ?? "unknown",
+                "href" => $customer->callbell_href,
+                "conversationHref" => $customer->callbell_conversationHref,
+                "tags" => $customer->callbel_tags ?? [],
+                "assignedUser" => $customer->assigned_user_email ?? null,
+                "customFields" => $customer->callbel_custom_fields ?? [],
+                "team" => $customer->callbel_team ?? [],
+                "channel" => $customer->callbel_channel ?? [],
+                "blockedAt" => $customer->callbel_blocked_at ?? null,
+            ];
+        });
+
+        if ($request->ajax()) {
+            return response()->json(['contacts' => $contacts]);
         }
 
-        if (!$token) {
-            throw new \Exception('CALLBELL_API_TOKEN no está definido en el .env');
-        }
+        // $contacts = Customers::all();
 
-        $body = [
-            'team_uuid' => '7929cea82d3745d38287b02877d49214'
-        ];
+        // dd($contacts);
 
-        $page = $request->input('page', 1);
-        $response = Http::withToken($token)->withBody(json_encode($body), 'application/json')->get("{$baseUrl}/contacts?page={$page}");
+        return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token'));
 
         //dd($response);
 
-        if ($response->successful()) {
-            $contacts = $response->json()['contacts'];
-            // dd($contacts);
-            // Ordenar los contactos por 'createdAt' de forma descendente
-            usort($contacts, function ($a, $b) {
-                return strtotime($b['createdAt']) - strtotime($a['createdAt']);
-            });
+        // if ($response->successful()) {
+        //     // $contacts = $response->json()['contacts'];
+        //     // dd($contacts);
+        //     // Ordenar los contactos por 'createdAt' de forma descendente
 
-            foreach ($contacts as &$contact) {
-                if (isset($contact['createdAt'])) {
-                    $contact['createdAt'] = Carbon::parse($contact['createdAt'])->format('d/m/Y');
-                }
-                if (isset($contact['closedAt'])) {
-                    $contact['closedAt'] = Carbon::parse($contact['closedAt'])->format('d/m/Y');
-                }
-            }
+        //     $contacts = Customers::all()->map(function ($customer) {
+        //         return [
+        //             "uuid" => $customer->callbell_uuid,  // Suponiendo que `id` es el identificador único
+        //             "name" => $customer->name,
+        //             "phoneNumber" => $customer->phone, // Ajusta según el nombre del campo en la DB
+        //             "avatarUrl" => $customer->img ?? null,
+        //             "createdAt" => $customer->created_at->format('d/m/Y'),
+        //             "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+        //             "source" => $customer->callbel_source ?? "unknown",
+        //             "href" => $customer->callbell_href,
+        //             "conversationHref" => $customer->callbell_conversationHref,
+        //             "tags" => $customer->callbel_tags ?? [],
+        //             "assignedUser" => $customer->assigned_user_email ?? null,
+        //             "customFields" => $customer->callbel_custom_fields ?? [],
+        //             "team" => $customer->callbel_team ?? [],
+        //             "channel" => $customer->callbel_channel ?? [],
+        //             "blockedAt" => $customer->callbel_blocked_at ?? null,
+        //         ];
+        //     });
 
-            if ($request->ajax()) {
-                return response()->json(['contacts' => $contacts]);
-            }
+        //     // $contacts = $contacts->json();
 
-            return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token'));
-        } else {
-            return abort(500, 'Error al obtener los contactos');
-        }
+        //     // usort($contacts, function ($a, $b) {
+        //     //     return strtotime($b['createdAt']) - strtotime($a['createdAt']);
+        //     // });
+
+        //     // foreach ($contacts as &$contact) {
+        //     //     if (isset($contact['createdAt'])) {
+        //     //         $contact['createdAt'] = Carbon::parse($contact['createdAt'])->format('d/m/Y');
+        //     //     }
+        //     //     if (isset($contact['closedAt'])) {
+        //     //         $contact['closedAt'] = Carbon::parse($contact['closedAt'])->format('d/m/Y');
+        //     //     }
+        //     // }
+
+        //     if ($request->ajax()) {
+        //         return response()->json(['contacts' => $contacts]);
+        //     }
+
+        //     // $contacts = Customers::all();
+
+        //     // dd($contacts);
+
+        //     return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token'));
+        // } else {
+        //     return abort(500, 'Error al obtener los contactos');
+        // }
     }
 
 

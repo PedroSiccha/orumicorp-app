@@ -1,17 +1,20 @@
 function getNotify() {
+    if (typeof notiffyShooterRoute === "undefined" || typeof token === "undefined") {
+        console.error("Error: notiffyShooterRoute o token no están definidos.");
+        return;
+    }
 
-    $.post(notiffyShooterRoute, {_token: token}).done(function(data) {
-
+    $.post(notiffyShooterRoute, { _token: token }).done(function(data) {
         toastr.options.onclick = function() {
-            // handleNotificationClick({ phone: data.phone, modal: '#modalCrearComentario', input: '#idComunication' });
-            initiateCall({phone: data.phone, modal: '#modalCrearComentario', input: '#idComunication'})
+            initiateCall({ phone: data.phone, modal: '#modalCrearComentario', input: '#idComunication' });
         };
 
         if (data.shooter === "1") {
             toastr[data.type](data.message);
         }
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        console.error("Error en la petición AJAX:", textStatus, errorThrown);
     });
-
 }
 setInterval(getNotify, 60000);
 getNotify();

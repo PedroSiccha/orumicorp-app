@@ -34,6 +34,8 @@
     var searchAgentRoute = '{{ route("searchAgent") }}';
     var token = '{{ csrf_token() }}';
   </script>
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
+  <script src="{{ asset('js/task/task.js') }}" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
         markNotificationsAsSeen('task');

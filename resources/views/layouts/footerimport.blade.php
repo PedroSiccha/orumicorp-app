@@ -1,4 +1,4 @@
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
+{{-- <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script> --}}
 
  <!-- Toastr JS -->
  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -6,9 +6,9 @@
 
 <script src="{{ mix('js/app.js') }}" defer></script>
     <script src="{{ asset('js/utils/updateClockMenu.js') }}"></script>
-    <script src="{{ asset('js/utils/getNotify.js') }}"></script>
+    
     <script src="{{ asset('js/utils/dateMenu.js') }}"></script>
-    <script src="{{ asset('js/task/task.js') }}" defer></script>
+    {{-- <script src="{{ asset('js/task/task.js') }}" defer></script> --}}
     <script src="{{ asset('js/utils/notifications.js') }}"></script>
     <!-- Mainly scripts -->
     <script src="{{asset('js/jquery-3.1.1.min.js')}}"></script>
@@ -68,7 +68,7 @@
 
     <script src="{{asset('js/plugins/iCheck/icheck.min.js')}}"></script>
     <script src="{{ asset('js/plugins/chartJs/Chart.min.js') }}"></script>
-    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+    {{-- <script src="https://js.pusher.com/7.2/pusher.min.js"></script> --}}
 
 
     <script>
@@ -77,6 +77,7 @@
             var notiffyShooterRoute = '{{ route("notiffyShooter") }}';
             var token = '{{ csrf_token() }}';
             var initiateCallRoute = '{{ route("initiateCall") }}';
+            
             $(document).ready(function() {
 
                 $('#date_added').datepicker({
@@ -246,20 +247,20 @@
                 });
             });
 
-            const pusher = new Pusher('ddfeb8029c8fce193f9a', {
-                cluster: 'us2',
-                encrypted: true
-            });
+            // const pusher = new Pusher('ddfeb8029c8fce193f9a', {
+            //     cluster: 'us2',
+            //     encrypted: true
+            // });
 
-            const userId = 1;
+            // const userId = 1;
 
-            const channel = pusher.subscribe(`private-App.Models.User.${userId}`);
+            // const channel = pusher.subscribe(`private-App.Models.User.${userId}`);
 
-            channel.bind('Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', function(data) {
-                console.log('Notificación recibida:', data);
-                const notificaciones = document.getElementById('notificaciones');
-                notificaciones.innerHTML += `<div class="alert alert-info">${data.message}</div>`;
-            });
+            // channel.bind('Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', function(data) {
+            //     console.log('Notificación recibida:', data);
+            //     const notificaciones = document.getElementById('notificaciones');
+            //     notificaciones.innerHTML += `<div class="alert alert-info">${data.message}</div>`;
+            // });
 
             toastr.options = {
                 "closeButton": true,
@@ -286,4 +287,5 @@
             ];
 
     </script>
+    <script src="{{ asset('js/utils/getNotify.js') }}"></script>
 @yield('script')
