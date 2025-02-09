@@ -37,8 +37,6 @@ class Customers extends Model
 
     public function campaigns()
     {
-        // return $this->belongsToMany(Campaing::class, 'campaign_customers', 'customer_id', 'campaign_id')
-        //             ->withPivot('status');
         return $this->belongsToMany(Campaing::class, 'campaign_customers');
     }
 
@@ -47,7 +45,7 @@ class Customers extends Model
         return $this->belongsToMany(Supplier::class, 'supplier_customers', 'customer_id', 'supplier_id')
                     ->withPivot('status');
     }
-
+ 
     public function provider()
     {
         return $this->belongsTo(Provider::class, 'id_provider');
@@ -60,6 +58,10 @@ class Customers extends Model
 
     public function platform() {
         return $this->belongsTo(Platform::class);
+    }
+
+    public function folder() {
+        return $this->belongsTo(Folder::class);
     }
 
     public function traiding() {
@@ -91,12 +93,12 @@ class Customers extends Model
 
     public function latestComunication()
     {
-        return $this->hasOne(Comunications::class, 'customer_id')->latest('date')->take(1);
+        return $this->hasOne(Comunications::class, 'customer_id')->where('status', 1)->latest('date')->take(1);
     }
 
     public function latestAssignamet()
     {
-        return $this->hasOne(Assignment::class, 'customer_id')->with(['agent'])->latest('date');
+        return $this->hasOne(Assignment::class, 'customer_id')->where('status', 1)->with(['agent'])->latest('date');
     }
 
     public function latestAssignametBy()

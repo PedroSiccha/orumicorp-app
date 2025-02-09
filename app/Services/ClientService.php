@@ -97,7 +97,8 @@ class ClientService implements ClientInterface {
                 'traiding',
                 'latestComunication',
                 'latestAssignamet',
-                'latestDeposit'
+                'latestDeposit',
+                'folder'
             ])->orderBy('date_admission', 'desc')->paginate(10);
 
             // dd($customers);
@@ -116,7 +117,8 @@ class ClientService implements ClientInterface {
                 'assignaments',
                 'latestComunication',
                 'latestAssignamet',
-                'latestDeposit'
+                'latestDeposit',
+                'folder'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
             })->orderBy('date_admission', 'desc')->paginate(10);

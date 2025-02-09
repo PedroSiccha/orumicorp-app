@@ -16,7 +16,7 @@ function getNotify() {
         console.error("Error en la petición AJAX:", textStatus, errorThrown);
     });
 }
-setInterval(getNotify, 60000);
+setInterval(getNotify, 15000);
 getNotify();
 
 // Función personalizada que se ejecutará al hacer clic

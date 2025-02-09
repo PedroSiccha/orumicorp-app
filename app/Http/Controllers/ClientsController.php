@@ -77,8 +77,10 @@ class ClientsController extends Controller
                 'traiding',
                 'latestComunication',
                 'latestAssignamet',
-                'latestDeposit'
+                'latestDeposit',
+                'folder'
             ])->orderBy('date_admission', 'desc')->paginate($limit);
+            
         } else {
             $customers = Customers::with([
                 'user',
@@ -92,12 +94,13 @@ class ClientsController extends Controller
                 'assignaments',
                 'latestComunication',
                 'latestAssignamet',
-                'latestDeposit'
+                'latestDeposit',
+                'folder'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
             })->orderBy('date_admission', 'desc')->paginate($limit);
         }
-
+        
         $agents = Agent::all();
         $campaings = Campaing::all();
         $providers = Provider::all();
@@ -721,59 +724,72 @@ class ClientsController extends Controller
     }
 
     public function filterOrder(Request $request) {
-
         $order = $request->order;
-        $type = $request->type;
-
+        $type = $request->type ?? 'asc'; // Orden ascendente por defecto
+    
         $myRoles = $this->rolesService->getMyRoles();
-        $myRolesId = $myRoles['rolesId'];
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
-
-        if ($myRoles['roles']== 'ADMINISTRADOR') {
-
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit'
-            ])->orderBy($order, $type)->paginate(50);
-
-        } else {
-
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'assignaments',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit'
-            ])->whereHas('assignaments', function($query) use ($agent) {
-                $query->where('agent_id', $agent->id);
-            })->orderBy($order, $type)->paginate(10);
-
+    
+        // Lista de columnas permitidas en customers
+        $allowedColumns = [
+            'id', 'code', 'name', 'lastname', 'phone', 'date_admission', 'status',
+            'email', 'created_at', 'updated_at'
+        ];
+    
+        // Validar que $order sea una columna válida
+        if (!in_array($order, $allowedColumns) && !in_array($order, ['comunications.date', 'latestAssignamet.date'])) {
+            $order = 'created_at'; // Orden por defecto
         }
-
+    
+        // Construir consulta base
+        $query = Customers::with([
+            'user', 'agent', 'latestCampaign', 'latestSupplier',
+            'provider', 'statusCustomer', 'platform', 'traiding',
+            'latestComunication', 'latestAssignamet', 'latestDeposit'
+        ]);
+    
+        // Si no es ADMIN, filtrar por agente
+        if ($myRoles['roles'] !== 'ADMINISTRADOR') {
+            $query->whereHas('assignaments', function ($q) use ($agent) {
+                $q->where('agent_id', $agent->id);
+            });
+        }
+    
+        // Manejo de ordenamiento especial para relaciones
+        if ($order == 'comunications.date') {
+            $query->orderByRaw("
+                (SELECT date FROM comunications 
+                WHERE comunications.customer_id = customers.id 
+                ORDER BY date DESC LIMIT 1) $type
+            ");
+        } elseif ($order == 'latestAssignamet.date') {
+            $query->orderByRaw("
+                (SELECT date FROM assignments 
+                WHERE assignments.customer_id = customers.id 
+                ORDER BY date DESC LIMIT 1) $type
+            ");
+        } else {
+            $query->orderBy($order, $type);
+        }
+    
+        // Paginar resultados
+        $customers = $query->paginate(50);
+    
         $agents = Agent::all();
         $campaings = Campaing::all();
         $providers = Provider::all();
         $statusCustomers = CustomerStatus::all();
-
-        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render()]);
+    
+        return response()->json([
+            "view" => view('cliente.list.listCustomer', compact(
+                'customers', 'agents', 'campaings', 'providers', 'statusCustomers'
+            ))->render()
+        ]);
     }
+    
+    
+    
 
     public function filterByAttr(Request $request) {
         $id = $request->id;

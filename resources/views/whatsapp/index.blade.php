@@ -22,7 +22,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <div class="ibox ">
+        <div class="ibox">
             <div class="ibox-title d-flex justify-content-between align-items-center">
                 <h5>Clientes</h5>
                 <input type="text" id="search-phone" class="form-control form-control-sm" placeholder="Buscar por teléfono">
@@ -30,6 +30,11 @@
                     <i class="fa fa-search"></i>
                 </button>
             </div>
+            <select class="form-control-sm form-control input-s-sm inline" id="filterChannel">
+                <option>Seleccione un canal</option>
+                <option value="whatsapp">Whatsapp</option>
+                <option value="telegram">Telegram</option>
+            </select>
             <div class="ibox-content">
                 <div id="loading-indicator" style="display: none; text-align: center;">
                     <img src="https://i.gifer.com/VAyR.gif" alt="Cargando..." width="50" height="50">
