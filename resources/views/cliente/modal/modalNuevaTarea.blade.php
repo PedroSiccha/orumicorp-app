@@ -57,7 +57,7 @@
                 </div>
                 @endif
 
-                <div class="form-group row">
+                {{-- <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Código del Cliente</label>
                     <div class="col-lg-9">
                         <div class="input-group">
@@ -73,7 +73,7 @@
                     <div class="col-lg-9">
                         <input type="text" placeholder="Nombre del Cliente" class="form-control" id='nameCustomer' readonly>
                     </div>
-                </div>
+                </div> --}}
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Desde</label>
                     <div class="col-lg-9">
@@ -99,7 +99,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success " type="button" onclick="saveEventClient({ inputIdClient: '#id', inputDateEvent: '#dateEvent', inputNombreEvent: '#nombreEvento', inputDescriptionEvent: '#descripcionEvento', inputDniClient: '#dniCustomer', inputCodeAgent: '#codeAgent', inputHourInit: '#horaInicio', inputHourEnd: '#horaFin', inputIdPriority: '#priority_id', modal: '#modalRegistrarEvento', tableName: '#tabTaskClient' })"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-success " type="button" onclick="saveEventClient({ inputIdClient: '#id', inputDateEvent: '#dateEvent', inputNombreEvent: '#nombreEvento', inputDescriptionEvent: '#descripcionEvento', inputDniClient: '#dniCustomer', inputCodeAgent: '#codeAgent', inputHourInit: '#horaInicio', inputHourEnd: '#horaFin', inputIdPriority: '#priority_id', modal: '#modalNuevaTarea', tableName: '#tabTaskClient' })"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i>
                     Cancelar</button>
             </div>

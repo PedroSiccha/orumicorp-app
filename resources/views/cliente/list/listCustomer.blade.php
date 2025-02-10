@@ -134,6 +134,11 @@
                     Total Depósito
                 </div>
             </th>
+            <th>
+                <div class="dropdown">
+                    Folder
+                </div>
+            </th>
             <th>Acción</th>
         </tr>
     </thead>
@@ -247,6 +252,13 @@
                     @endif
                 </td>
                 <td>
+                    @if ($customer->folder)
+                        {{ $customer->folder->name }}
+                    @else
+                        Sin Folder
+                    @endif
+                </td>
+                <td>
                     <div class="d-flex align-items-center">
                         <button class="btn btn-primary" type="button" onclick="changeFolder({customerId: '{{ $customer->id }}', folderId: '{{ $customer->folder_id }}', modal: '#modalChangeFolder'})"><i class="fa fa-refresh"></i> </button>
                         <button class="btn btn-info" type="button" onclick="sendMail({customerId: '{{ $customer->id }}', email: '{{ $customer->email }}', modal: '#modalSendMail'})"><i class="fa fa-paper-plane"></i> </button>
@@ -296,6 +308,7 @@
         @endforeach
     </tbody>
 </table>
+{{ $customers->appends(['limit' => request('limit')])->links() }}
 <label for="limit">Mostrar:</label>
 <div class="col-sm-1 m-b-xs">
     <select class="form-control-sm form-control input-s-sm inline" name="limit" id="limit">
@@ -308,7 +321,7 @@
         <option value="1000" {{ request('limit') == 1000 ? 'selected' : '' }}>1000</option>
     </select>
 </div>
-{{ $customers->appends(['limit' => request('limit')])->links() }}
+
 
 <script src="{{ asset('js/utils/viewCheck.js') }}"></script>
 <script src="{{ asset('js/plugins/daterangepicker/daterangepicker.js') }}"></script>

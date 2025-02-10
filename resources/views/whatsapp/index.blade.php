@@ -22,7 +22,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <div class="ibox ">
+        <div class="ibox">
             <div class="ibox-title d-flex justify-content-between align-items-center">
                 <h5>Clientes</h5>
                 <input type="text" id="search-phone" class="form-control form-control-sm" placeholder="Buscar por teléfono">
@@ -30,6 +30,11 @@
                     <i class="fa fa-search"></i>
                 </button>
             </div>
+            <select class="form-control-sm form-control input-s-sm inline" id="filterChannel" onchange="filterChannelCallbell({ selectChannel: '#filterChannel', tableName: '#contacts-list' })">
+                <option>Seleccione un canal</option>
+                <option value="whatsapp">Whatsapp</option>
+                <option value="telegram">Telegram</option>
+            </select>
             <div class="ibox-content">
                 <div id="loading-indicator" style="display: none; text-align: center;">
                     <img src="https://i.gifer.com/VAyR.gif" alt="Cargando..." width="50" height="50">
@@ -42,8 +47,10 @@
                                 <img alt="image" class="rounded-circle mr-3" src="{{ $contact['avatarUrl'] ?? 'img/logo/basic_logo.png' }}" width="40" height="40">
                                 @if ($contact['source'] === 'whatsapp')
                                     <img alt="overlay" class="overlay-icon" style="" src="img/logo/whatsappicon.png" width="20" height="20">
-                                @else
+                                @elseif ($contact['source'] === 'telegram')
                                     <img alt="overlay" class="overlay-icon" style="" src="img/logo/telegramicon.png" width="20" height="20">
+                                @else
+                                    <img alt="overlay" class="overlay-icon" style="" src="{{ $contact['avatarUrl'] ?? 'img/logo/basic_logo.png' }}" width="20" height="20">
                                 @endif
                             </a>
                             <div class="media-body ">
@@ -85,10 +92,12 @@
     var sendMessageRoute = '{{ route("sendMessage") }}';
     var searchContactRoute = '{{ route("searchContact") }}';
     var updateCallbellCustomerRoute = '{{ route("updateCallbellCustomer") }}';
+    var filterChannelRoute = '{{ route("filterChannel") }}';
 </script>
 
 <script src="{{asset('js/callbell/verDetalleChat.js')}}"></script>
 <script src="{{asset('js/callbell/sendMessage.js')}}"></script>
+<script src="{{asset('js/callbell/callbell.js')}}"></script>
 <script>
     var baseUrl = '{{ $baseUrl }}';
     var token_bearer = '{{ $token }}';

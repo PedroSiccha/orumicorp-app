@@ -33,7 +33,8 @@ class FilterController extends Controller
             'traiding',
             'latestComunication',
             'latestAssignamet',
-            'latestDeposit'
+            'latestDeposit',
+            'folder'
         ]);
 
         if ($filterFor !== 'Filtrar Por:' || $inputName !== '') {
@@ -121,6 +122,12 @@ class FilterController extends Controller
 
             if ($filterFor == 'Total Depósito') {
                 $dataSearch = 'code';
+            }
+
+            if ($filterFor == 'Folder') {
+                $query->whereHas('folder', function($q) use ($inputName) {
+                    $q->where('name', 'like', "%$inputName%");
+                });
             }
 
         }
