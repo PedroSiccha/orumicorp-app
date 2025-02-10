@@ -58,7 +58,7 @@ class ClientsController extends Controller
     public function clientsPagination(Request $request)
     {
         $myRoles = $this->rolesService->getMyRoles();
-        $myRolesId = $myRoles['rolesId'];
+        $myRolesId = $myRoles['rolesId']; 
 
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
