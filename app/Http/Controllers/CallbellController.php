@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\MessageWhatsappModel;
+use App\Models\Premio;
+use App\Models\User;
 use App\Services\CallbellService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -29,15 +33,104 @@ class CallbellController extends Controller
 
         $response = $this->callbellService->sendMessage($request->phone, $request->message);
 
+         // Acceder a los datos correctamente
+         $uuid = $response['message']['message']['uuid'] ?? null;
+         $status = $response['message']['message']['status'] ?? null;
+
+        // Verificar si UUID es válido antes de continuar
+        if (!$uuid) {
+            Log::error("No se recibió un UUID válido de Callbell.", ['response' => $response]);
+            return response()->json(['error' => 'No se pudo obtener un UUID válido'], 500);
+        }
+
+        $responseStatusMessage = $this->callbellService->getMessageStatus($uuid);
+        Log::info("responseStatusMessage:", $responseStatusMessage);
+        // 💡 Verifica si Callbell devolvió el estado correctamente
+        if (!isset($responseStatusMessage['message'])) {
+            Log::error("Error al obtener el estado del mensaje", ['response' => $responseStatusMessage]);
+            return response()->json(['error' => 'No se pudo obtener el estado del mensaje'], 500);
+        }
+
+        $contactUuid = $responseStatusMessage['message']['contact']['uuid'] ?? null;
+        $source = $responseStatusMessage['message']['conversation']['source'] ?? null;
+        $closed_at = $responseStatusMessage['message']['contact']['closedAt'] ?? null;
+        $href = $responseStatusMessage['message']['contact']['href'] ?? null;
+        $conversationHref = $responseStatusMessage['message']['contact']['conversationHref'] ?? null;
+        $tags = $responseStatusMessage['message']['contact']['tags'] ?? null;
+        $team = $responseStatusMessage['message']['contact']['team']['uuid'] ?? null;
+        $channel = $responseStatusMessage['message']['contact']['channel']['type'] ?? null;
+        $blockedAt = $responseStatusMessage['message']['contact']['blockedAt'] ?? null;
+        Log::info("contactUuid ". $contactUuid);
+
+        $client = Customers::where('phone', $request->phone)->first();
+        if (!$client) {
+            Log::error("Cliente no encontrado para el número: " . $request->phone);
+            return response()->json(['error' => 'Cliente no encontrado'], 404);
+        }
+        $client->uuid = $contactUuid;
+        // $client->call_black
+        $client->callbell_uuid = $contactUuid;
+        // $client->call_init
+        $client->closed_at = $closed_at;
+        $client->callbel_source = $source;
+        $client->callbell_href = $href;
+        $client->callbell_conversationHref = $conversationHref;
+        $client->callbel_tags = $tags;
+        $client->callbel_team = $team;
+        $client->callbel_channel = $channel;
+        $client->callbel_blocked_at = $blockedAt;
+        $client->save();
+
+        $user_id = Auth::user()->id;
+        $user = User::where('id', $user_id)->first();
+        $roles = $user->getRoleNames()->first();
+        $agent = Agent::where('user_id', $user_id)->first();
+        $dataUser = $agent;
+        $premios1 = Premio::where('status', true)->where('type', 1)->get();
+        $premios2 = Premio::where('status', true)->where('type', 2)->get();
+        $rouletteSpin = $agent->number_turns ?: 0;
+
+        $baseUrl = env('CALLBELL_API_BASE_URL');
+        $token = env('CALLBELL_API_TOKEN');
+
+
         MessageWhatsappModel::create([
             'phone' => $request->phone,
             'message' => $request->message,
-            'status' => $response['message']['status'] ?? 'unknown',
-            'agent_id' => 1,
-            'customer_id' => 1
+            'status' => $status,
+            'uuid' => $uuid,
+            'agent_id' => $agent->id,
+            'customer_id' => $client->id
         ]);
 
-        return response()->json($response);
+        $contacts = Customers::all()->map(function ($customer) {
+            return [
+                "id" => $customer->id,  // Suponiendo que `id` es el identificador único
+                "uuid" => $customer->callbell_uuid,  // Suponiendo que `id` es el identificador único
+                "name" => $customer->name,
+                "lastname" => $customer->lastname,
+                "phoneNumber" => $customer->phone, // Ajusta según el nombre del campo en la DB
+                "avatarUrl" => $customer->img ?? null,
+                "createdAt" => $customer->created_at->format('d/m/Y'),
+                "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                "source" => $customer->callbel_source ?? "unknown",
+                "href" => $customer->callbell_href,
+                "conversationHref" => $customer->callbell_conversationHref,
+                "tags" => $customer->callbel_tags ?? [],
+                "assignedUser" => $customer->assigned_user_email ?? null,
+                "customFields" => $customer->callbel_custom_fields ?? [],
+                "team" => $customer->callbel_team ?? [],
+                "channel" => $customer->callbel_channel ?? [],
+                "blockedAt" => $customer->callbel_blocked_at ?? null,
+            ];
+        });
+
+        if ($request->ajax()) {
+            // return response()->json(['contacts' => $contacts]);
+            return response()->json(["view"=>view('whatsapp.components.list.listContacts', compact('contacts'))->render()]);
+        }
+
+
     }
 
     public function searchContact(Request $request)
@@ -153,6 +246,49 @@ class CallbellController extends Controller
                 'message' => 'Hubo un error al procesar la solicitud.',
             ], 500);
         }
+    }
+
+    public function filterChannel(Request $request) {
+
+        $user_id = Auth::user()->id;
+        $user = User::where('id', $user_id)->first();
+        $roles = $user->getRoleNames()->first();
+        $agent = Agent::where('user_id', $user_id)->first();
+        $dataUser = $agent;
+        $premios1 = Premio::where('status', true)->where('type', 1)->get();
+        $premios2 = Premio::where('status', true)->where('type', 2)->get();
+        $rouletteSpin = $agent->number_turns ?: 0;
+
+        $baseUrl = env('CALLBELL_API_BASE_URL');
+        $token = env('CALLBELL_API_TOKEN');
+
+        $contacts = Customers::where('callbel_channel', $request->channel)->get()->map(function ($customer) {
+            return [
+                "id" => $customer->id,  // Suponiendo que `id` es el identificador único
+                "uuid" => $customer->callbell_uuid,  // Suponiendo que `id` es el identificador único
+                "name" => $customer->name,
+                "lastname" => $customer->lastname,
+                "phoneNumber" => $customer->phone, // Ajusta según el nombre del campo en la DB
+                "avatarUrl" => $customer->img ?? null,
+                "createdAt" => $customer->created_at->format('d/m/Y'),
+                "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                "source" => $customer->callbel_source ?? "unknown",
+                "href" => $customer->callbell_href,
+                "conversationHref" => $customer->callbell_conversationHref,
+                "tags" => $customer->callbel_tags ?? [],
+                "assignedUser" => $customer->assigned_user_email ?? null,
+                "customFields" => $customer->callbel_custom_fields ?? [],
+                "team" => $customer->callbel_team ?? [],
+                "channel" => $customer->callbel_channel ?? [],
+                "blockedAt" => $customer->callbel_blocked_at ?? null,
+            ];
+        });
+
+        if ($request->ajax()) {
+            return response()->json(['contacts' => $contacts]);
+        }
+
+        return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token'));
     }
 
 }
