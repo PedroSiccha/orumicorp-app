@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agent;
+use App\Models\Customers;
 use App\Models\Premio;
+use App\Models\Provider;
+use App\Models\Sales;
 use App\Models\User;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
@@ -18,11 +24,159 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        //$role = Role::create(['name' => 'AGENTE']); => Crear roles
-        //$permission = ModelsPermission::create(['name' => 'Ver Agentes']); => Crear Permisos
+
+        /*
+        $permission = Permission::create(['name' => 'Ver Agentes']);
+        $permission = Permission::create(['name' => 'Crear Agente']);
+        $permission = Permission::create(['name' => 'Estado Agente']);
+        $permission = Permission::create(['name' => 'Editar Agente']);
+        $permission = Permission::create(['name' => 'Eliminar Agente']);
+        $permission = Permission::create(['name' => 'Ver Area']);
+        $permission = Permission::create(['name' => 'Crear Area']);
+        $permission = Permission::create(['name' => 'Estado Area']);
+        $permission = Permission::create(['name' => 'Editar Area']);
+        $permission = Permission::create(['name' => 'Eliminar Area']);
+        $permission = Permission::create(['name' => 'Ver Cliente']);
+        $permission = Permission::create(['name' => 'Crear Cliente']);
+        $permission = Permission::create(['name' => 'Estado Cliente']);
+        $permission = Permission::create(['name' => 'Editar Cliente']);
+        $permission = Permission::create(['name' => 'Eliminar Cliente']);
+        $permission = Permission::create(['name' => 'Ver Ventas']);
+        $permission = Permission::create(['name' => 'Registrar Ventas']);
+        $permission = Permission::create(['name' => 'Ver Bonus']);
+        $permission = Permission::create(['name' => 'Registrar Descuento']);
+        $permission = Permission::create(['name' => 'Registrar Bonus']);
+        $permission = Permission::create(['name' => 'Ver Totales']);
+        $permission = Permission::create(['name' => 'Ver Today']);
+        $permission = Permission::create(['name' => 'Filtrar Today']);
+        $permission = Permission::create(['name' => 'Filtrar Area Today']);
+        $permission = Permission::create(['name' => 'Ver Gestión Ruleta']);
+        $permission = Permission::create(['name' => 'Registrar Premio Ruleta']);
+        $permission = Permission::create(['name' => 'Ver Part Time']);
+        $permission = Permission::create(['name' => 'Registrar Asistencia']);
+        $permission = Permission::create(['name' => 'Filtrar Historial de Asistencias']);
+        $permission = Permission::create(['name' => 'Ver Historial de Asistencias']);
+        $permission = Permission::create(['name' => 'Ver Seguridad']);
+        $permission = Permission::create(['name' => 'Registrar Roles']);
+        $permission = Permission::create(['name' => 'Ver Permisos de Roles']);
+        $permission = Permission::create(['name' => 'Asignar Permisos']);
+        $permission = Permission::create(['name' => 'Ver Auditorio']);
+        $user = User::find(1);
+        $role = Role::find(1);
+        $user->assignRole($role);
+        */
+
+        $user_id = Auth::user()->id;
+        $user = User::where('id', $user_id)->first();
+        $roles = $user->getRoleNames()->first();
+        $rouletteSpin = 0;
+
+        $agent = Agent::where('user_id', $user_id)->first();
+        $client = Customers::where('user_id', $user_id)->first();
+        if ($agent) {
+            $rouletteSpin = $agent->number_turns ?: 0;
+        }
+
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        $previousMonth = Carbon::now()->subMonth()->month;
+        $previousYear = Carbon::now()->subMonth()->year;
+
+        $dataUser = null;
+
+        if ($agent) {
+            $dataUser = $agent;
+        }
+
+        if ($client) {
+            $dataUser = $client;
+        }
+
+        //$role = Role::create(['name' => 'ADMINISTRADOR']);
+        //$permission = ModelsPermission::create(['name' => 'Ver Agentes']);
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        return view('tablero.index', compact('premios1', 'premios2'));
+        $sales = null;
+        $totalAmount = 0;
+
+        if ($roles == 'ADMINISTRADOR') {
+            $sales = Sales::where('status', true)
+                        ->where('action_id', 1)
+                        ->where(function ($query) use ($currentMonth, $currentYear, $previousMonth, $previousYear) {
+                            $query->whereYear('date_admission', $currentYear)->whereMonth('date_admission', $currentMonth)
+                                    ->orWhere(function ($query) use ($previousMonth, $previousYear) {
+                                        $query->whereYear('date_admission', $previousYear)->whereMonth('date_admission', $previousMonth);
+                                    });
+                        })
+                        ->orderBy('date_admission', 'desc')
+                        ->get();
+        } else {
+            if ($agent) {
+                $sales = Sales::where('status', true)
+                        ->where('action_id', 1)
+                        ->where('agent_id', $agent->id)
+                        ->where(function ($query) use ($currentMonth, $currentYear, $previousMonth, $previousYear) {
+                            $query->whereYear('date_admission', $currentYear)->whereMonth('date_admission', $currentMonth)
+                                    ->orWhere(function ($query) use ($previousMonth, $previousYear) {
+                                        $query->whereYear('date_admission', $previousYear)->whereMonth('date_admission', $previousMonth);
+                                    });
+                        })
+                        ->orderBy('date_admission', 'desc')
+                        ->get();
+            }
+        }
+
+        if ($agent) {
+            $totalAmount = $sales->sum('amount');
+        }
+
+        $agents = Agent::get();
+        $clients = Customers::get();
+        $cantAgents = count($agents);
+        $cantClients = count($clients);
+
+        $montoVenta = Sales::join('agents', 'sales.agent_id', '=', 'agents.id')
+                            ->where('agents.area_id', 1)
+                            ->sum('sales.amount');
+
+        $montoRetencion = Sales::join('agents', 'sales.agent_id', '=', 'agents.id')
+                                ->where('agents.area_id', 2)
+                                ->sum('sales.amount');
+
+        $montosPorAgente = Sales::selectRaw('SUM(sales.amount) AS monto, agents.name, agents.lastname, areas.name AS area')
+                                ->join('agents', 'sales.agent_id', '=', 'agents.id')
+                                ->join('areas', 'agents.area_id', '=', 'areas.id')
+                                ->groupBy('agents.id')
+                                ->orderBy('monto', 'desc')
+                                ->take(10)
+                                ->get();
+
+        $cantClientsRegisterProvider = 0;
+        $percentClientsRegisterProvider = 0;
+        $cantClientsActiveProvider = 0;
+        $percentClientsActiveProvider = 0;
+        $cantClientsProvider = 0;
+        $listClientsProvider = [];
+
+        if ($roles == 'PROVEEDOR') {
+            $providerId = Provider::where('user_id', $user_id)->first()->id;
+            $cantClientsRegisterProvider = Customers::where('id_provider', $providerId)->whereMonth('date_admission', Carbon::now()->month)->whereYear('date_admission', Carbon::now()->year)->count();
+            $cantClientsActiveProvider = Customers::where('id_provider', $providerId)->whereHas('deposits', function($query) {
+                                                        $query->whereMonth('date', Carbon::now()->month)
+                                                            ->whereYear('date', Carbon::now()->year);
+                                                    })->distinct('id')->count();
+            $cantClientsProvider = Customers::where('id_provider', $providerId)->whereYear('date_admission', Carbon::now()->year)->count();
+            if ($cantClientsRegisterProvider > 0) {
+                $percentClientsActiveProvider = round(($cantClientsActiveProvider / $cantClientsRegisterProvider) * 100, 2);
+            }
+            if ($cantClientsProvider > 0) {
+                $percentClientsRegisterProvider = round(($cantClientsRegisterProvider / $cantClientsProvider) * 100, 2);
+            }
+            $listClientsProvider = Customers::where('id_provider', $providerId)->whereMonth('date_admission', Carbon::now()->month)->whereYear('date_admission', Carbon::now()->year)->with('statusCustomer')->get();
+        }
+
+        return view('tablero.index', compact('premios1', 'premios2', 'dataUser', 'rouletteSpin', 'sales', 'totalAmount', 'cantAgents', 'cantClients', 'montoVenta', 'montoRetencion', 'montosPorAgente', 'cantClientsRegisterProvider', 'cantClientsActiveProvider', 'cantClientsProvider', 'listClientsProvider', 'percentClientsActiveProvider', 'percentClientsRegisterProvider'));
     }
 
     /**

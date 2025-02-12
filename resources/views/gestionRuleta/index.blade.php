@@ -12,7 +12,7 @@
                   <h5>Datos de Premios </h5>
                   <div>
                     @can('Registrar Premio Ruleta')
-                    <button type="button" class="btn btn-default" type="button" onclick="nuevoPremio()"><i class="fa fa-plus"></i> Registrar Premio</button>
+                    <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalPremio')"><i class="fa fa-plus"></i> Registrar Premio</button>
                     @endcan
                   </div>
               </div>
@@ -68,12 +68,28 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Valor del Premio</label>
                     <div class="col-lg-9">
-                        <input type="number" placeholder="Ingrese el valor del premio" class="form-control" id='valorPremio'>
+                        <input type="number" placeholder="Ingrese el valor del premio" class="form-control" id='valorPremio' style="@if($errors->has('valorPremio')) border-color: red; @endif" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Orden</label>
+                    <div class="col-lg-9">
+                        <select class="form-control m-b" name="orden" id="orden">
+                            <option value = "1">Seleccionar un orden</option>
+                            <option value = "1">Premio 01</option>
+                            <option value = "2">Premio 02</option>
+                            <option value = "3">Premio 03</option>
+                            <option value = "4">Premio 04</option>
+                            <option value = "5">Penalización 01</option>
+                            <option value = "6">Penalización 02</option>
+                            <option value = "7">Penalización 03</option>
+                            <option value = "8">Penalización 04</option>
+                        </select>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="guardarPremio()"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="createAward('#namePremio', '#description', '#valorPremio', '#orden', '#modalPremio', '#tabPremio')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -81,42 +97,17 @@
 </div>
 @endsection
 @section('script')
+<script>
+    var savePremioRoute = '{{ route("savePremio") }}';
+    var token = '{{ csrf_token() }}';
+</script>
 
-    <script>
-
-        function nuevoPremio() {
-            $('#modalPremio').modal('show');
-        }
-
-        function guardarPremio() {
-            var nombre = $("#namePremio").val();
-            var descripcion = $("#description").val();
-            var valor = $("#valorPremio").val();
-            $.post("{{ Route('savePremio') }}", {nombre: nombre, descripcion: descripcion, valor: valor, _token: '{{ csrf_token() }}'}).done(function(data) {
-                $('#modalPremio').modal('hide');
-                $("#tabPremio").empty();
-                $("#tabPremio").html(data.view);
-                if (data.resp == 1) {
-
-                    Swal.fire({
-                        title: "Correcto",
-                        text: "El premio se registró correctamente",
-                        icon: "success"
-                    });
-
-                } else {
-
-                    Swal.fire({
-                        title: "Error",
-                        text: "El premio no se pudo registrar",
-                        icon: "error"
-                    });
-
-                }
-
-            });
-        }
-
-    </script>
+<script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
+<script src="{{ asset('js/rouletteManagement/createAward.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('gestionruleta');
+    });
+</script>
 
 @endsection

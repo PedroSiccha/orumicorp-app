@@ -3,136 +3,83 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agent;
-use App\Http\Requests\StoreAgentRequest;
-use App\Http\Requests\UpdateAgentRequest;
-use App\Models\Area;
-use App\Models\Premio;
-use App\Models\User;
+use App\Interfaces\AgentInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
 
 class AgentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    protected $agentService;
+
+    public function __construct(AgentInterface $agentService) {
+        $this->agentService = $agentService;
+    }
+
     public function index()
     {
-        $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
-        $areas = Area::where('status', true)->get();
-        $premios1 = Premio::where('status', true)->where('type', 1)->get();
-        $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        $roles = Role::get();
-        return view('agent.index', compact('agents', 'areas', 'premios1', 'premios2', 'roles'));
+        $data = $this->agentService->index();
+        return view('agent.index', $data);
+    }
+
+    public function agentsPagination()
+    {
+        $agents = Agent::orderBy('lastname')->paginate(10);
+        return view('agent.list.listAgent', compact('agents'))->render();
     }
 
     public function searchAgent(Request $request)
     {
-        $agent = Agent::where('dni', $request->dni)
-                  ->orWhere('code', $request->dni)
-                  ->first();
-
-        $name = $agent->name . " " . $agent->lastname;
-        return response()->json(["name"=>$name]);
+        $data = $this->agentService->searchAgent($request);
+        return response()->json(["name" => $data['name'], "title" => $data['title'], "text" => $data['mensaje'], "status" => $data['status']]);
     }
 
     public function saveAgent(Request $request)
     {
-        $resp = 0;
-
-        $role = Role::find($request->rol_id);
-
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->dni);
-
-        if ($user->save()) {
-            $user->assignRole($role);
-            $agent = new Agent();
-            $agent->code = $request->code;
-            $agent->name = $request->name;
-            $agent->lastname = $request->lastname;
-            $agent->dni = $request->dni;
-            $agent->status = true;
-            $agent->area_id = $request->area_id;
-            $agent->user_id = $user->id;
-            if ($agent->save()) {
-                $resp = 1;
-            }
-        }
-
-        $agents = Agent::where('status', true)->orderBy('lastname')->take(10)->get();
-
-        return response()->json(["view"=>view('agent.list.listAgent', compact('agents'))->render(), "resp"=>$resp]);
+        $data = $this->agentService->saveAgent($request);
+        $agents = Agent::orderBy('lastname')->paginate(10);
+        return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function updateAgent(Request $request)
     {
-        //
+        $resp = $this->agentService->updateAgent($request);
+        $agents = Agent::orderBy('lastname')->paginate(10);
+        return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreAgentRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreAgentRequest $request)
+    public function cambiarEstadoAgente(Request $request)
     {
-        //
+        $resp = $this->agentService->cambiarEstadoAgente($request->id, $request->status);
+        $agents = Agent::orderBy('lastname')->paginate(10);
+        return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Agent  $agent
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Agent $agent)
+    public function eliminarAgente(Request $request)
     {
-        //
+        $resp = $this->agentService->eliminarAgente($request->id);
+        $agents = Agent::orderBy('lastname')->paginate(10);
+        return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Agent  $agent
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Agent $agent)
+    public function saveNumberTurns(Request $request)
     {
-        //
+        $resp = $this->agentService->saveNumberTurns($request->id, $request->cant);
+        $agents = Agent::orderBy('lastname')->paginate(10);
+        return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateAgentRequest  $request
-     * @param  \App\Models\Agent  $agent
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateAgentRequest $request, Agent $agent)
+    public function uploadImg(Request $request)
     {
-        //
+        $this->agentService->uploadImg($request);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Agent  $agent
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Agent $agent)
+    public function changePassword(Request $request)
     {
-        //
+        $data = $this->agentService->changePassword($request);
+        return response()->json($data);
+    }
+
+    public function filterAgent(Request $request) {
+        $agents = $this->agentService->filterAgent($request);
+        return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render()]);
     }
 }

@@ -21,10 +21,13 @@ return new class extends Migration
             $table->string('dni');
             $table->date('date_admission');
             $table->boolean('status');
+            $table->string('img');
             $table->unsignedBigInteger('user_id')->nullable(); // Agregar la columna para la clave foránea
+            $table->unsignedBigInteger('agent_id')->nullable(); // Agregar la columna para la clave foránea
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); // Definir la clave foránea
+            $table->foreign('agent_id')->references('id')->on('agents')->onDelete('cascade'); // Definir la clave foránea
         });
     }
 

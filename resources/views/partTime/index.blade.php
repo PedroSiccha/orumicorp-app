@@ -12,59 +12,60 @@
               <div class="ibox-title">
                   {{-- <h5>Data Picker <small>https://github.com/eternicode/bootstrap-datepicker</small></h5> --}}
                   <div class="ibox-tools">
-                      <a class="collapse-link">
-                          <i class="fa fa-chevron-up"></i>
-                      </a>
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                          <i class="fa fa-wrench"></i>
-                      </a>
-                      <ul class="dropdown-menu dropdown-user">
-                          <li><a href="#" class="dropdown-item">Config option 1</a>
-                          </li>
-                          <li><a href="#" class="dropdown-item">Config option 2</a>
-                          </li>
-                      </ul>
-                      <a class="close-link">
-                          <i class="fa fa-times"></i>
-                      </a>
                   </div>
               </div>
-              <div class="ibox-content">
+              <div class="ibox-content" id="panelButton">
                 @can('Registrar Asistencia')
                 <h3>
-                    Data picker
+                    Registro de Asistencia
                 </h3>
-                <p>
-                    Simple and easy select a time for a text input using your mouse.
-                </p>
-
-                <div class="form-group" id="data_1">
-                    <label class="font-normal">Simple data input format</label>
-                    <div class="input-group date">
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" value="03/04/2014">
-                    </div>
-                </div>
 
                 <div class="form-group" id="data_2">
                     <label class="font-normal">Entrada</label>
-                    <input type="text" placeholder="Entrada" class="form-control">
+                    @if ( $dateIn )
+                        <button class="btn btn-outline btn-success  dim form-control" type="button" @if($dateOut) onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN', '#panelButton', '#tabAssistance')" @endif><i class="fa fa-address-card-o"></i> {{ $dateIn->hour }}</button>
+                    @else
+                    <button class="btn btn-outline btn-success  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN', '#panelButton', '#tabAssistance')"><i class="fa fa-address-card-o"></i> Marcar Entrada</button>
+                    @endif
                 </div>
 
                 <div class="form-group" id="data_3">
                     <label class="font-normal">Break</label>
-                    <input type="text" placeholder="Break" class="form-control">
+                    @if ( $dateBreakIn )
+                        <button class="btn btn-outline btn-warning  dim form-control" type="button" @if($dateOut) onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN-BREAK', '#panelButton', '#tabAssistance')" @endif><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-left"></i> {{ $dateBreakIn->hour }}</button>
+                    @else
+                        <button class="btn btn-outline btn-warning  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN-BREAK', '#panelButton', '#tabAssistance')"><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-left"></i> Marcar Salia Break</button>
+                    @endif
+                </div>
+
+                <div class="form-group" id="data_3">
+                    <label class="font-normal">Break</label>
+                    @if ( $dateBreakOut )
+                        <button class="btn btn-outline btn-primary  dim form-control" type="button" @if($dateOut) onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'OUT-BREAK', '#panelButton', '#tabAssistance')" @endif><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-right"></i> {{ $dateBreakOut->hour }}</button>
+                    @else
+                        <button class="btn btn-outline btn-primary  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'OUT-BREAK', '#panelButton', '#tabAssistance')"><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-right"></i> Marcar Vuelta Break</button>
+                    @endif
                 </div>
 
                 <div class="form-group" id="data_4">
                     <label class="font-normal">Salida</label>
-                    <input type="text" placeholder="Salida" class="form-control">
+                    @if ( $dateOut )
+                        <button class="btn btn-outline btn-danger  dim form-control" type="button" @if($dateOut) onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'OUT', '#panelButton', '#tabAssistance')" @endif><i class="fa fa-bus"></i> {{ $dateOut->hour }}</button>
+                    @else
+                        <button class="btn btn-outline btn-danger  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'OUT', '#panelButton', '#tabAssistance')"><i class="fa fa-bus"></i> Marcar Salida</button>
+                    @endif
                 </div>
 
                 <div class="form-group row"><label class="col-lg-2 col-form-label">Comentarios</label>
                       <div class="col-lg-10">
-                            <input type="text" placeholder="Comentarios" class="form-control">
+                        <textarea class="form-control" placeholder="Ingrese su comentario" id="comentario"></textarea>
                       </div>
                   </div>
+
+                    <div class="form-group" id="data_4">
+                        <label class="font-normal">Vacaciones</label>
+                        <button class="btn btn-default  dim form-control" type="button" onclick="mostrarNuevoModal('#modalVacaciones')"><i class="fa fa-plane"></i> Registrar Vacaciones</button>
+                    </div>
                 @endcan
               </div>
           </div>
@@ -77,6 +78,7 @@
                           <i class="fa fa-clock-o fa-5x"></i>
                       </div>
                       <div class="col-8 text-right">
+                        <h1><b>{{ date('d/m/Y'); }}</b></h1>
                         <div id="clock" class="clock-style"></div>
                       </div>
                   </div>
@@ -84,23 +86,39 @@
           </div>
           </div>
           </div>
-
+          @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
           <div class="wrapper wrapper-content animated fadeInRight ecommerce">
             @can('Filtrar Historial de Asistencias')
             <div class="ibox-content m-b-sm border-bottom">
                 <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-sm-2">
                         <h3>Filtrar Fechas</h3>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-2">
                         <div class="input-group date">
-
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
                         </div>
                     </div>
-                    <div class="col-sm-4 text-right">
+                    <div class="col-sm-2 text-right">
                         <div class="input-group date">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added" type="text" class="form-control" value="03/04/2014">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterAssitance('#area', '#date_added_init', '#date_added_end', '#tabAssistance')">
+                        </div>
+                    </div>
+                    <div class="col-sm-2 text-right">
+                        @can('Filtrar Area Today')
+                            <select class="form-control m-b" name="area" id="area" onchange="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')" onclick="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')">
+                                @foreach($areas as $area)
+                                <option value = "{{ $area->id }}">{{ $area->name }}</option>
+                                @endforeach
+                            </select>
+                        @endcan
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar por nombre o código" id="inputCode" oninput="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')">
+                            <div class="input-group-append">
+                                <button class="btn btn-sm btn-default" type="button"><i class="fa fa-search"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -116,47 +134,43 @@
                 <div class="ibox-title">
                     <h5>Historial</h5>
                     <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <i class="fa fa-wrench"></i>
+                            <i class="fa fa-cloud-download"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
-                            <li><a href="#" class="dropdown-item">Config option 1</a>
-                            </li>
-                            <li><a href="#" class="dropdown-item">Config option 2</a>
-                            </li>
+                            @can('Descargar Part Time Excel')
+                                <li><a href="{{ route('descargar-asistencia-excel') }}" class="dropdown-item"><i class="fa fa-file-excel-o"></i> Descargar Excel</a></li>
+                            @endcan
+                            @can('Descargar Part Time PDF')
+                                <li><a href="{{ route('descargar-asistencia-pdf') }}" class="dropdown-item"><i class="fa fa-file-pdf-o"></i> Descargar PDF</a></li>
+                            @endcan
+
                         </ul>
-                        <a class="close-link" >
-                            <i class="fa fa-times"></i>
-                        </a>
                     </div>
                 </div>
-                <div class="ibox-content">
-
-                    <table class="table">
+                <div class="ibox-content" id="tabAssistance">
+                    <table class="table table-striped">
                         <thead>
-                        <tr>
-                            <td>Entrada</td>
-                            <td> - </td>
-                            <td>08:15:31 AM</td>
-                            <td>07/02/2024</td>
-                        </tr>
+                          <tr>
+                                <th>Fecha de Asistencia</th>
+                                <th>Nombre del Agente</th>
+                                <th>Hora de Ingreso</th>
+                                <th>Hora de Break</th>
+                                <th>Vuelta de Break</th>
+                                <th>Hora de Salida</th>
+                          </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>Break</td>
-                            <td> - </td>
-                            <td>13:07:22 PM</td>
-                            <td>07/02/2024</td>
-                        </tr>
-                        <tr>
-                            <td>Observación</td>
-                            <td> - </td>
-                            <td>13:25:14</td>
-                            <td>Permiso de emergencia</td>
-                        </tr>
+                          @foreach ($assistances as $assistance)
+                              <tr>
+                                <td>{{ $assistance->date }}</td>
+                                <td>{{ $assistance->name }} {{ $assistance->lastname }}</td>
+                                <td>{{ $assistance->IN }}</td>
+                                <td>{{ $assistance->INBREAK }}</td>
+                                <td>{{ $assistance->OUTBREAK }}</td>
+                                <td>{{ $assistance->OUT }}</td>
+                              </tr>
+                          @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -164,6 +178,52 @@
             </div>
         </div>
       </div>
+
+
+      <div class="modal inmodal fade" id="modalVacaciones" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Registrar Vacaciones</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table m-b-xs">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Fecha de Inicio</strong>
+                                </td>
+                                <td>
+                                    <div class="input-group date">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="dateInitVacations" type="text" class="form-control" value="01/01/2024">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Fecha de Fin</strong>
+                                </td>
+                                <td>
+                                    <div class="input-group date">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="dateEndVacations" type="text" class="form-control" value="01/01/2024">
+                                    </div>
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-info " type="button" onclick="createVacations({dateInitVacations: '#dateInitVacations', dateEndVacations: '#dateEndVacations', modal: '#modalVacaciones', tabAssistance: '#tabAssistance'})"><i class="fa fa-save"></i> Registrar</button>
+                    <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+      @endif
 
       <style>
             .clock-style {
@@ -185,12 +245,57 @@
                 const timeString = `${hours}:${minutes}:${seconds}`;
                 document.getElementById('clock').innerText = timeString;
             }
-
-            // Actualiza el reloj cada segundo
             setInterval(updateClock, 1000);
-
-            // Llama a updateClock para mostrar la hora actual inmediatamente
             updateClock();
         </script>
+
+@endsection
+@section('script')
+<script>
+    $(document).ready(function() {
+        $('#date_added_init').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+        });
+        $('#date_added_end').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+        });
+        $('#dateInitVacations').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+        });
+        $('#dateEndVacations').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+        });
+    });
+    var registerAssitanceRoute = '{{ route("registerAssistance") }}';
+    var filterAssitanceRoute = '{{ route("filterAssistance") }}';
+    var registerVacationsRoute = '{{ Route("registerVacations") }}';
+    var token = '{{ csrf_token() }}';
+</script>
+<script src="{{ asset('js/partTime/registerAssitance.js') }}"></script>
+<script src="{{ asset('js/partTime/filterAssitance.js') }}"></script>
+<script src="{{ asset('js/partTime/createVacations.js') }}"></script>
+<script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
+<script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        markNotificationsAsSeen('parttime');
+    });
+</script>
 
 @endsection

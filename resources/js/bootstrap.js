@@ -17,18 +17,22 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * allows your team to easily build robust real-time web applications.
  */
 
-// import Echo from 'laravel-echo';
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
 
-// import Pusher from 'pusher-js';
-// window.Pusher = Pusher;
+window.Pusher = Pusher;
 
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: import.meta.env.VITE_PUSHER_APP_KEY,
-//     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'mt1',
-//     wsHost: import.meta.env.VITE_PUSHER_HOST ?? `ws-${import.meta.env.VITE_PUSHER_APP_CLUSTER}.pusher.com`,
-//     wsPort: import.meta.env.VITE_PUSHER_PORT ?? 80,
-//     wssPort: import.meta.env.VITE_PUSHER_PORT ?? 443,
-//     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
-//     enabledTransports: ['ws', 'wss'],
-// });
+console.log(process.env.MIX_PUSHER_APP_KEY);
+console.log(process.env.MIX_PUSHER_APP_CLUSTER);
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: process.env.MIX_PUSHER_APP_KEY, // Cambiado a MIX_
+    cluster: process.env.MIX_PUSHER_APP_CLUSTER, // Cambiado a MIX_
+    wsHost: process.env.MIX_PUSHER_HOST || `ws-${process.env.MIX_PUSHER_APP_CLUSTER}.pusher.com`,
+    wsPort: process.env.MIX_PUSHER_PORT || 80,
+    wssPort: process.env.MIX_PUSHER_PORT || 443,
+    forceTLS: (process.env.MIX_PUSHER_SCHEME || 'https') === 'https',
+    enabledTransports: ['ws', 'wss'],
+});
+

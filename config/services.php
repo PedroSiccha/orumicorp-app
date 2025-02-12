@@ -30,4 +30,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'callbell' => [
+        'url' => env('CALLBELL_API_URL'),
+        'token' => env('CALLBELL_API_TOKEN'),
+    ],
+
 ];

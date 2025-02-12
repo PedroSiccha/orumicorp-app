@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Agent extends Model
 {
     protected $table = 'agents';
-    protected $fillable = ['id', 'code', 'name', 'lastname', 'dni', 'status'];
+    protected $fillable = ['id', 'code', 'name', 'lastname', 'code_voiso', 'status', 'number_turns', 'img'. 'status_voiso'];
 
     public function area()
     {
@@ -23,5 +23,14 @@ class Agent extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function views() {
+        return $this->hasMany(Views::class);
+    }
+
+    public function emails()
+    {
+        return $this->hasMany(Email::class);
     }
 }

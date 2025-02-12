@@ -13,8 +13,9 @@
               <td>{{ $permiso->name }}</td>
               <td>{{ $permiso->guard_name }}</td>
               <td>
-                  <button class="btn btn-warning " type="button"><i class="fa fa-pencil"></i></button>
-                  <button class="btn btn-danger " type="button"><i class="fa fa-trash"></i></button>
+                @can('Quitar Permiso')
+                    <button class="btn btn-danger " type="button" onclick="deletePermiso('{{ $permiso->id }}', '#idRol')"><i class="fa fa-trash"></i></button>
+                @endcan
               </td>
           </tr>
       @endforeach
