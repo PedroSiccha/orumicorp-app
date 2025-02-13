@@ -9,4 +9,6 @@ interface AgentRepositoryInterface
 {
     public function getAgentByUserId(int $userId): ?Agent;
     public function getAllAgents(): Collection;
+    public function findByCodeOrVoiso(string $code): ?Agent;
+
 }

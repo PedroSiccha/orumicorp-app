@@ -20,7 +20,6 @@ class ClientRepository implements ClientRepositoryInterface
         } catch (Exception $e) {
             throw new RepositoryException("Error al obtener los clientes: " . $e->getMessage());
         }
-
     }
 
     public function getClientsByAgent(int $agentId, int $limit = 10, array $relations = []): LengthAwarePaginator
@@ -65,7 +64,6 @@ class ClientRepository implements ClientRepositoryInterface
         } catch (Exception $e) {
             throw new RepositoryException("Error al obtener los clientes sin asignacion: " . $e->getMessage());
         }
-
     }
 
     public function createClient(array $data): Customers
@@ -75,7 +73,6 @@ class ClientRepository implements ClientRepositoryInterface
         } catch (Exception $e) {
             throw new RepositoryException("Error al crear el cliente: " . $e->getMessage());
         }
-
     }
 
     public function getClientByEmail(string $email): ?Customers
@@ -85,7 +82,6 @@ class ClientRepository implements ClientRepositoryInterface
         } catch (Exception $e) {
             throw new RepositoryException("Error no se pudo encontrar el cliente: " . $e->getMessage());
         }
-
     }
 
     public function getStatusByName(string $name): ?CustomerStatus
@@ -95,7 +91,42 @@ class ClientRepository implements ClientRepositoryInterface
         } catch (Exception $e) {
             throw new RepositoryException("Error no se pudo encontrar el estado: " . $e->getMessage());
         }
+    }
 
+    public function updateStatus(array $customerIds, int $statusId): void
+    {
+        try {
+            Customers::whereIn('id', $customerIds)->update(['id_status' => $statusId]);
+        } catch (Exception $e) {
+            throw new RepositoryException("Error al actualizar el estado: " . $e->getMessage());
+        }
+    }
+
+    public function searchClientsByStatus(int $statusId, int $limit = 10, array $relations = []): LengthAwarePaginator
+    {
+        try {
+            return Customers::with($relations)
+                            ->where('id_status', $statusId)
+                            ->orderBy('date_admission', 'desc')
+                            ->paginate($limit);
+        } catch (Exception $e) {
+            throw new RepositoryException("Error al obtener clientes del agente ID {$agentId}: " . $e->getMessage());
+        }
+    }
+
+    public function searchClientsByStatusByAgent(int $statusId, int $agentId, int $limit = 10, array $relations = []): LengthAwarePaginator
+    {
+        try {
+            return Customers::with(array_merge($relations, ['assignaments']))
+                            ->whereHas('assignaments', function ($query) use ($agentId) {
+                                $query->where('agent_id', $agentId);
+                            })
+                            ->where('id_status', $statusId)
+                            ->orderBy('date_admission', 'desc')
+                            ->paginate($limit);
+        } catch (Exception $e) {
+            throw new RepositoryException("Error al obtener clientes del agente ID {$agentId}: " . $e->getMessage());
+        }
     }
 
 }

@@ -37,6 +37,7 @@ use App\Interfaces\PlatformRepositoryInterface;
 use App\Interfaces\ProviderRepositoryInterface;
 use App\Interfaces\RolRepositoryInterface;
 use App\Interfaces\TraidingRepositoryInterface;
+use App\Repositories\Contracts\AssignmentRepositoryInterface;
 use App\Rules\PhoneNumberFormat;
 use Carbon\Carbon;
 use Exception;
@@ -62,6 +63,7 @@ class ClientService /*implements ClientInterface*/ {
     protected $folderRepository;
     protected $campaingRepository;
     protected $awardRepository;
+    protected $assignmentRepository;
 
     // protected $awardsService;
     // protected $communicationService;
@@ -84,6 +86,7 @@ class ClientService /*implements ClientInterface*/ {
         CampaingRepositoryInterface $campaingRepository,
         ConfigurationRepositoryInterface $configurationRepository,
         AwardRepositoryInterface $awardRepository,
+        AssignmentRepositoryInterface $assignmentRepository,
         // AwardsService $awardsService,
         // ComunicationInterface $communicationService,
         // AssignamentInterface $assignamentService,
@@ -104,6 +107,7 @@ class ClientService /*implements ClientInterface*/ {
         $this->campaingRepository = $campaingRepository;
         $this->configurationRepository = $configurationRepository;
         $this->awardRepository = $awardRepository;
+        $this->assignmentRepository = $assignmentRepository;
         // $this->awardsService = $awardsService;
         // $this->communicationService = $communicationService;
         // $this->assignamentService = $assignamentService;
@@ -273,106 +277,171 @@ class ClientService /*implements ClientInterface*/ {
     }
 
 
-    // public function asignAgent($request) {
-    //     $title = "Error";
-    //     $mensaje = "Error desconocido";
-    //     $status = "error";
+    public function assignAgent(array $data): array
+    {
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
 
-    //     $agent = Agent::where('code_voiso', $request->dni_agent)
-    //                     ->orWhere('code', $request->dni_agent)
-    //                     ->first();
+        DB::beginTransaction();
 
-    //     $user_id = Auth::user()->id;
+        try {
+            // Buscar el agente por código o código Voiso
+            $agent = $this->agentRepository->findByCodeOrVoiso($data['dni_agent']);
 
-    //     try {
+            if (!$agent) {
+                throw new Exception("Agente no encontrado.");
+            }
 
-    //         $oldAssignments = Assignment::where('customer_id', $request->id)
-    //                                     ->where('status', 1)
-    //                                     ->get();
-    //         foreach ($oldAssignments as $oldAssign) {
-    //             $oldAssign->status = 0;
-    //             $oldAssign->save();
-    //         }
+            $user_id = Auth::user()->id;
 
-    //         $assignament = new Assignment();
-    //         $assignament->agent_id = $agent->id;
-    //         $assignament->customer_id = $request->id;
-    //         $assignament->date = Carbon::now();
-    //         $assignament->assignated_by_id = $user_id;
-    //         $assignament->status = 1;
-    //         $assignament->save();
-    //         // dd($assignament);
+            // Obtener y desactivar asignaciones activas
+            $oldAssignments = $this->assignmentRepository->getActiveAssignments($data['id']);
+            $this->assignmentRepository->deactivateAssignments($oldAssignments);
 
-    //         $title = "Correcto";
-    //         $mensaje = "Se asignó correctamente el agente";
-    //         $status = "success";
+            // Crear nueva asignación
+            $this->assignmentRepository->createAssignment([
+                'agent_id' => $agent->id,
+                'customer_id' => $data['id'],
+                'date' => Carbon::now(),
+                'assignated_by_id' => $user_id,
+                'status' => 1
+            ]);
 
-    //     } catch (Exception $e) {
+            DB::commit();
 
-    //         $title = "Error";
-    //         $mensaje = "Ocurrió un error: " . $e->getMessage();
-    //         $status = "error";
+            $title = "Correcto";
+            $mensaje = "Se asignó correctamente el agente";
+            $status = "success";
 
-    //     }
+        } catch (Exception $e) {
+            DB::rollBack();
 
-    //     return [
-    //         'title' => $title,
-    //         'mensaje' => $mensaje,
-    //         'status' => $status
-    //     ];
+            $title = "Error";
+            $mensaje = "Ocurrió un error: " . $e->getMessage();
+            $status = "error";
+        }
 
-    // }
+        return [
+            'title' => $title,
+            'mensaje' => $mensaje,
+            'status' => $status
+        ];
+    }
 
-    // public function assignGroupAgent($request) {
-    //     $title = "Error";
-    //     $mensaje = "Error desconocido";
-    //     $status = "error";
+    public function assignGroupAgent(array $data): array
+    {
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
 
-    //     $agent = Agent::where('code_voiso', $request->dni_agent)
-    //                     ->orWhere('code', $request->dni_agent)
-    //                     ->first();
+        DB::beginTransaction();
 
-    //     $user_id = Auth::user()->id;
+        try {
+            // Buscar el agente por código o código Voiso
+            $agent = $this->agentRepository->findByCodeOrVoiso($data['dni_agent']);
 
-    //     try {
-    //         foreach ($request->idGroupClientes as $idClient) {
+            if (!$agent) {
+                throw new Exception("Agente no encontrado.");
+            }
 
-    //             $oldAssignments = Assignment::where('customer_id', $idClient)
-    //                                     ->where('status', 1)
-    //                                     ->get();
+            $user_id = Auth::user()->id;
 
+            // Proceso de asignación en batch
+            $assignments = [];
 
-    //             foreach ($oldAssignments as $oldAssign) {
-    //                 $oldAssign->status = 0;
-    //                 $oldAssign->save();
-    //             }
+            foreach ($data['idGroupClientes'] as $idClient) {
+                // Obtener y desactivar asignaciones activas
+                $oldAssignments = $this->assignmentRepository->getActiveAssignments($idClient);
+                $this->assignmentRepository->deactivateAssignments($oldAssignments);
 
-    //             $assignament = new Assignment();
-    //             $assignament->agent_id = $agent->id;
-    //             $assignament->customer_id = $idClient;
-    //             $assignament->date = Carbon::now();
-    //             $assignament->assignated_by_id = $user_id;
-    //             $assignament->status = 1;
-    //             $assignament->save();
+                // Agregar a la lista de asignaciones
+                $assignments[] = [
+                    'agent_id' => $agent->id,
+                    'customer_id' => $idClient,
+                    'date' => Carbon::now(),
+                    'assignated_by_id' => $user_id,
+                    'status' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            }
 
-    //         }
+            // Insertar en batch
+            $this->assignmentRepository->createAssignments($assignments);
 
-    //         $title = "Correcto";
-    //         $mensaje = "Se asignó correctamente el agente";
-    //         $status = "success";
+            DB::commit();
 
-    //     } catch (Exception $e) {
-    //         $title = "Error";
-    //         $mensaje = "Ocurrió un error: " . $e->getMessage();
-    //         $status = "error";
-    //     }
+            $title = "Correcto";
+            $mensaje = "Se asignó correctamente el agente";
+            $status = "success";
 
-    //     return [
-    //         'title' => $title,
-    //         'mensaje' => $mensaje,
-    //         'status' => $status
-    //     ];
-    // }
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            $title = "Error";
+            $mensaje = "Ocurrió un error: " . $e->getMessage();
+            $status = "error";
+        }
+
+        return [
+            'title' => $title,
+            'mensaje' => $mensaje,
+            'status' => $status
+        ];
+    }
+
+    public function getLastAssignmentByCustomer(array $data)
+    {
+        try {
+            $customerId = $data['customer_id'];
+
+            $lastAssignment = $this->assignmentRepository->getLastAssignmentByCustomer($customerId);
+
+            if ($lastAssignment) {
+                return [
+                    'status' => 'success',
+                    'data' => $lastAssignment,
+                ];
+            }
+
+            return [
+                'status' => 'error',
+                'message' => 'No assignments found for this customer',
+            ];
+        } catch (Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
+
+    public function changeStatusGroup(array $data)
+    {
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        try {
+            // Actualizar estado de los clientes
+            $this->customerRepository->updateStatus($data['idGroupClientes'], $data['statusId']);
+
+            $title = "Correcto";
+            $mensaje = "Actualización correcta";
+            $status = "success";
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Ocurrió un error: " . $e->getMessage();
+            $status = "error";
+        }
+
+        return [
+            "title" => $title,
+            "text" => $mensaje,
+            "status" => $status
+        ];
+    }
 
     // public function changeStatusClient($request) {
 

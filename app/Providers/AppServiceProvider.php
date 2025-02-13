@@ -31,6 +31,7 @@ use App\Repositories\RolRepository;
 use App\Interfaces\RolRepositoryInterface;
 use App\Repositories\TraidingRepository;
 use App\Interfaces\TraidingRepositoryInterface;
+use App\Repositories\Contracts\AssignmentRepositoryInterface;
 use App\Services\AgentService;
 use App\Services\AssignamentService;
 use App\Services\AwardsService;
@@ -75,7 +76,9 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(CampaingRepositoryInterface::class),
                 $app->make(ConfigurationRepositoryInterface::class),
                 $app->make(AwardRepositoryInterface::class),
+                $app->make(AssignmentRepositoryInterface::class),
                 $app->make(ClientRepositoryInterface::class),
+
             );
         });
         $this->app->bind(AgentRepositoryInterface::class, AgentRepository::class);

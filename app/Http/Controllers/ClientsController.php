@@ -135,153 +135,69 @@ class ClientsController extends Controller
 
     }
 
-    // public function getClients($roles, $agent)
-    // {
-    //     if ($roles== 'ADMINISTRADOR') {
-    //         $customers = Customers::with([
-    //             'user',
-    //             'agent',
-    //             'latestCampaign',
-    //             'latestSupplier',
-    //             'provider',
-    //             'statusCustomer',
-    //             'platform',
-    //             'traiding',
-    //             'latestComunication',
-    //             'latestAssignamet',
-    //             'latestDeposit'
-    //         ])->orderBy('date_admission', 'desc')->paginate(10);
-    //     } else {
-
-    //         $customers = Customers::with([
-    //             'user',
-    //             'agent',
-    //             'latestCampaign',
-    //             'latestSupplier',
-    //             'provider',
-    //             'statusCustomer',
-    //             'platform',
-    //             'traiding',
-    //             'assignaments',
-    //             'latestComunication',
-    //             'latestAssignamet',
-    //             'latestDeposit'
-    //         ])->whereHas('assignaments', function($query) use ($agent) {
-    //             $query->where('agent_id', $agent->id);
-    //         })->orderBy('date_admission', 'desc')->paginate(10);
-    //     }
-    //     return $customers;
-    // }
-
     public function asignAgent(Request $request)
     {
-        $data = $this->clientService->asignAgent($request);
-        $customers = Customers::orderBy('date_admission')->get();
-        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+        try {
+
+            $data = $this->clientService->assignAgent($request->all());
+            $dataClients = $this->clientService->getClientsData();
+            $customers = $dataClients->customers;
+
+            return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+
+        } catch (Exception $e) {
+            Log::error("Error en ClientsController: " . $e->getMessage());
+        }
+        
 
     }
 
-    public function assignGroupAgent(Request $request)
+    public function assignGroupAgent(AssignGroupAgentRequest $request)
     {
-        $data = $this->clientService->assignGroupAgent($request);
-
-        $myRoles = $this->rolesService->getMyRoles();
-        $agent = $this->agentService->getAgent();
-        $customers = $this->getClients($myRoles['roles'], $agent);
-        $agents = Agent::all();
-        $campaings = Campaing::all();
-        $providers = Provider::all();
-        $statusCustomers = CustomerStatus::all();
-
-        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+        try {
+            $data = $this->clientService->assignGroupAgent($request->all());
+            $dataClients = $this->clientService->getClientsData();
+    
+            $customers = $dataClients->customers;
+            $agents = $dataClients->agents;
+            $campaings = $dataClients->campaigns;
+            $providers = $dataClients->providers;
+            $statusCustomers = $dataClients->statusCustomers;
+    
+            return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+        } catch (Exception $e) {
+            Log::error("Error en ClientsController: " . $e->getMessage());
+        }        
     }
 
     public function asignAgentByProfile(Request $request)
     {
-        // dd($request);
-        $data = $this->clientService->asignAgent($request);
-
-        // $lastAssignament = Assignment::with('Agent')->where('customer_id', $request->id)->orderBy('status', 'asc')->first();
-        $lastAssignament = $this->assignamentService->getLastAssignamentByCustomer($request);
-
-
-        return response()->json(["view"=>view('cliente.components.assignedAgent', compact('lastAssignament'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+        try {
+            $data = $this->clientService->assignAgent($request->all());
+            $lastAssignament = $this->clientService->getLastAssignmentByCustomer($request);
+            return response()->json(["view"=>view('cliente.components.assignedAgent', compact('lastAssignament'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+        } catch (Exception $e) {
+            Log::error("Error en ClientsController: " . $e->getMessage());
+        }
     }
 
-    public function changeStatusGroup(Request $request)
+    public function changeStatusGroup(ChangeStatusGroupRequest $request)
     {
-        $title = 'Error';
-        $mensaje = 'Error desconocido';
-        $status = 'error';
-
-        // dd($request);
-
-        $myRoles = $this->rolesService->getMyRoles();
-        $myRolesId = $myRoles['rolesId'];
-        $user_id = Auth::user()->id;
-        $agent = Agent::where('user_id', $user_id)->first();
-
         try {
-            foreach ($request->idGroupClientes as $idClient) {
+            $data = $this->clientService->changeStatusGroup($request->validated());
 
-                $client = Customers::find($idClient);
-                $client->id_status = $request->statusId;
-                $client->save();
-
-            }
-
-            $title = "Correcto";
-            $mensaje = "Actualización correcta";
-            $status = "success";
-
+            $dataClients = $this->clientService->getClientsData();
+    
+            $customers = $dataClients->customers;
+            $agents = $dataClients->agents;
+            $campaings = $dataClients->campaigns;
+            $providers = $dataClients->providers;
+            $statusCustomers = $dataClients->statusCustomers;
+    
+            return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title" => $dataClients['title'], "text" => $dataClients['mensaje'], "status" => $dataClients['status']]);
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = "Ocurrió un error: " . $e->getMessage();
-            $status = "error";
+            Log::error("Error en ClientsController: " . $e->getMessage());
         }
-
-        if ($myRoles['roles']== 'ADMINISTRADOR') {
-
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit'
-            ])->orderBy('date_admission', 'desc')->paginate(10);
-
-        } else {
-
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'assignaments',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit'
-            ])->whereHas('assignaments', function($query) use ($agent) {
-                $query->where('agent_id', $agent->id);
-            })->orderBy('date_admission', 'desc')->paginate(10);
-        }
-
-        $agents = Agent::all();
-        $campaings = Campaing::all();
-        $providers = Provider::all();
-        $statusCustomers = CustomerStatus::all();
-
-        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
     public function searchStatus(Request $request) {

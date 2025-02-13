@@ -29,4 +29,16 @@ class AgentRepository implements AgentRepositoryInterface
         }
     }
 
+    public function findByCodeOrVoiso(string $code): ?Agent
+    {
+        try {
+            return Agent::where('code_voiso', $code)
+                    ->orWhere('code', $code)
+                    ->first();
+        } catch (Exception $e) {
+            throw new RepositoryException("Error al obtener el agente: " . $e->getMessage());
+        }
+
+    }
+
 }

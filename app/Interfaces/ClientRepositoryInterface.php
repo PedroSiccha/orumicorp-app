@@ -16,5 +16,8 @@ interface ClientRepositoryInterface
     public function getClientByEmail(string $email): ?Customers;
     public function createClient(array $data): Customers;
     public function getStatusByName(string $name): ?CustomerStatus;
+    public function updateStatus(array $customerIds, int $statusId): void;
+    public function searchClientsByStatus(int $statusId, int $limit = 10, array $relations = []): LengthAwarePaginator;
+    public function searchClientsByStatusByAgent(int $statusId, int $agentId, int $limit = 10, array $relations = []): LengthAwarePaginator;
 
 }
