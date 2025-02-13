@@ -1,6 +1,6 @@
-function guardarNuevoAgente(inputCode, inputName, inputLastname, inputCodeVoiso, inputEmail, inputAreaId, inputRolId, modal, tableName) {
+function guardarNuevoAgente(inputName, inputLastname, inputCodeVoiso, inputEmail, inputAreaId, inputRolId, modal, tableName) {
 
-    var code = $(inputCode).val();
+    // var code = $(inputCode).val();
     var name = $(inputName).val();
     var lastname = $(inputLastname).val();
     var codeVoiso = $(inputCodeVoiso).val();
@@ -8,7 +8,7 @@ function guardarNuevoAgente(inputCode, inputName, inputLastname, inputCodeVoiso,
     var area_id = $(inputAreaId).val();
     var rol_id = $(inputRolId).val();
 
-    $.post(saveAgentRoute, {code:code, name: name, lastname: lastname, codeVoiso: codeVoiso, email: email, area_id: area_id, rol_id: rol_id, _token: token}).done(function(data) {
+    $.post(saveAgentRoute, {name: name, lastname: lastname, codeVoiso: codeVoiso, email: email, area_id: area_id, rol_id: rol_id, _token: token}).done(function(data) {
 
         $(tableName).empty();
         $(tableName).html(data.view);

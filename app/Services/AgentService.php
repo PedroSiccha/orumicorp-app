@@ -98,7 +98,7 @@ class AgentService implements AgentInterface {
             'name' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'code' => 'required|string|unique:agents,code|max:50',
+            // 'code' => 'required|string|unique:agents,code|max:50',
             'codeVoiso' => 'required|string|unique:agents,code_voiso|max:50',
             'area_id' => 'required|integer|exists:areas,id',
         ], [
@@ -109,9 +109,9 @@ class AgentService implements AgentInterface {
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.email' => 'El correo electrónico no tiene un formato válido.',
             'email.unique' => 'El correo electrónico ya está registrado.',
-            'code.required' => 'El código es obligatorio.',
-            'code.string' => 'El código debe ser una cadena de texto.',
-            'code.unique' => 'El código ya está registrado.',
+            // 'code.required' => 'El código es obligatorio.',
+            // 'code.string' => 'El código debe ser una cadena de texto.',
+            // 'code.unique' => 'El código ya está registrado.',
             'codeVoiso.required' => 'El código Voiso es obligatorio.',
             'codeVoiso.string' => 'El código Voiso debe ser una cadena de texto.',
             'codeVoiso.unique' => 'El código Voiso ya está registrado.',
@@ -129,7 +129,7 @@ class AgentService implements AgentInterface {
             ];
         }
 
-        $pass = $requestData->code . $requestData->codeVoiso;
+        $pass = /*$requestData->code . */$requestData->codeVoiso;
 
         $user = new User();
         $user->name = $requestData->name;
@@ -139,7 +139,7 @@ class AgentService implements AgentInterface {
         if ($user->save()) {
             $user->assignRole($role);
             $agent = new Agent();
-            $agent->code = $requestData->code;
+            // $agent->code = $requestData->code;
             $agent->name = $requestData->name;
             $agent->lastname = $requestData->lastname;
             $agent->code_voiso = $requestData->codeVoiso;
@@ -180,7 +180,7 @@ class AgentService implements AgentInterface {
         $resp = 0;
 
         $agent = Agent::find($requestData->id);
-        $agent->code = $requestData->code;
+        // $agent->code = $requestData->code;
         $agent->name = $requestData->name;
         $agent->lastname = $requestData->lastname;
         $agent->area_id = $requestData->area_id;

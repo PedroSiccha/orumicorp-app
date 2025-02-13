@@ -56,14 +56,14 @@
             <div class="modal-body">
                 <table class="table m-b-xs">
                     <tbody>
-                        <tr>
+                        {{-- <tr>
                             <td>
                                 <strong>Código</strong>
                             </td>
                             <td>
                                 <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su código" id='eCode'>
                             </td>
-                        </tr>
+                        </tr> --}}
                         <tr>
                             <td>
                                 <strong>Nombre</strong>
@@ -171,6 +171,7 @@
 <script src="{{ asset('js/agent/filterAgent.js') }}"></script>
 <script src="{{ asset('js/agent/agent.js') }}"></script>
 
+
     <script>
 
     $(document).ready(function() {
@@ -228,14 +229,9 @@
             });
         }
 
-
-
-
-
-
-        function editarAgente(id, code, name, lastname, codeVoiso, email, area_id, roles) {
+        function editarAgente(id, name, lastname, codeVoiso, email, area_id, roles) {
             $("#eId").val(id);
-            $("#eCode").val(code);
+            // $("#eCode").val(code);
             $("#eName").val(name);
             $("#eLastname").val(lastname);
             $("#ecodeVoiso").val(codeVoiso);
@@ -250,7 +246,7 @@
 
         function updateAgente() {
             var id = $("#eId").val();
-            var code = $("#eCode").val();
+            // var code = $("#eCode").val();
             var name = $("#eName").val();
             var lastname = $("#eLastname").val();
             var codeVoiso = $("#ecodeVoiso").val();
@@ -258,7 +254,7 @@
             var area_id = $("#eArea_id").val();
             var rol_id = $("#eRol_id").val();
 
-            $.post("{{ Route('updateAgent') }}", {id: id, code: code, name: name, lastname: lastname, codeVoiso: codeVoiso, email: email, area_id: area_id, rol_id: rol_id, _token: '{{ csrf_token() }}'}).done(function(data) {
+            $.post("{{ Route('updateAgent') }}", {id: id, name: name, lastname: lastname, codeVoiso: codeVoiso, email: email, area_id: area_id, rol_id: rol_id, _token: '{{ csrf_token() }}'}).done(function(data) {
                 $('#modalEditAgente').modal('hide');
                 $("#tabAgente").empty();
                 $("#tabAgente").html(data.view);
