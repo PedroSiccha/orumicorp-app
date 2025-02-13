@@ -236,9 +236,8 @@ class AgentService implements AgentInterface {
         $dataImg = $request->image;
         $subido = "";
         $urlGuardar = "";
-        $user = Auth::user();
-        $agent = Agent::where('user_id', $user->id)->first();
-        $client = Customers::where('user_id', $user->id)->first();
+        $agent = Agent::where('user_id', $request->user_id)->first();
+        $client = Customers::where('user_id', $request->user_id)->first();
 
         if ($request->hasFile('image')) {
             $nombre = $dataImg->getClientOriginalName();
@@ -259,6 +258,13 @@ class AgentService implements AgentInterface {
             $client->img = $urlGuardar;
             $client->save();
         }
+
+        // Retornar una respuesta JSON para evitar el error en el frontend
+        return [
+            'success' => $subido,
+            'message' => $subido ? 'Imagen subida correctamente' : 'Error al subir la imagen',
+            'path' => $urlGuardar
+        ];
     }
 
     public function changePassword($request) {

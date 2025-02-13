@@ -13,7 +13,7 @@
         <div class="col-md-6">
 
             <div class="profile-image">
-                <img src="{{  $dataUser->img ?? asset('img/logo/basic_logo.png') }}" class="rounded-circle circle-border m-b-md" alt="profile"> 
+                <img id="profileImage" src="{{ !empty($dataUser->img) ? asset($dataUser->img) : asset('img/logo/basic_logo.png') }}" class="rounded-circle circle-border m-b-md" alt="profile">
             </div>
             <div class="profile-info">
                 <div class="">
@@ -75,27 +75,27 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-md-3" id="divTarg">
+        {{-- <div class="col-md-3" id="divTarg">
             <small>Target del Mes</small>
             <h2 class="no-margins">206 480</h2>
-        </div>
+        </div> --}}
 
 
     </div>
     <div class="row">
-
         <div class="col-lg-5">
-
             <div class="ibox">
                 <div class="ibox-content">
                     <h3>Opciones</h3>
                     <div class="btn-group">
-                        <label title="Upload image file" for="inputImage" class="btn btn-primary">
-                            <input type="file" accept="image/*" name="file" id="inputImage" class="hide">
-                            Subir Imagen
+                        <label title="Upload image file" for="inputImage" id="fileLabel" class="btn btn-primary">
+                            <input type="file" accept="image/*" name="file" id="inputImage" class="hidden" onchange="validateFile(this)">
                         </label>
-                        <label title="Donload image" id="download" class="btn btn-primary" onclick="uploadImg('inputImage')">Subir</label>
+                        <span id="fileName"> </span>
+                        <label title="Upload image" id="uploadButton" class="btn btn-primary" onclick="uploadImg('inputImage')">Subir</label>
                     </div>
+                    <!-- Mensaje de error -->
+                    <p id="errorMessage" style="color: red; display: none;">Archivo inválido. Debe ser una imagen y pesar menos de 2MB.</p>
                     {{-- @can('Cambiar Contraseña') --}}
                         <button class="btn btn-warning btn-block" onclick="mostrarNuevoModal('#modalChangePassword')">Cambiar Contraseña</button>
                     {{-- @endcan --}}
@@ -379,6 +379,7 @@
 <script src="{{ asset('js/agent/uploadImg.js') }}"></script>
 <script src="{{ asset('js/agent/changePassword.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+<script src="{{ asset('js/utils/utils.js') }}"></script>
 
 <script src="{{ asset('js/target/createTarget.js') }}"></script>
 <script src="{{ asset('js/target/updateTarget.js') }}"></script>
