@@ -13,7 +13,7 @@
         <div class="col-md-6">
 
             <div class="profile-image">
-                <img src="{{  asset($dataUser->img) ?: asset('img/logo/basic_logo.png') }}" class="rounded-circle circle-border m-b-md" alt="profile">
+                <img src="{{  $dataUser->img ?? asset('img/logo/basic_logo.png') }}" class="rounded-circle circle-border m-b-md" alt="profile"> 
             </div>
             <div class="profile-info">
                 <div class="">

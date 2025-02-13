@@ -15,8 +15,7 @@ class TargetController extends Controller
         $mensaje = "Error desconocido";
         $status = "error";
 
-        $user_id = Auth::user()->id;
-        $agent = Agent::where('id', $user_id)->first();
+        $agent = Agent::where('user_id', $request->user_id)->first();
 
         $target = new Target();
         $target->amount = $request->amount;

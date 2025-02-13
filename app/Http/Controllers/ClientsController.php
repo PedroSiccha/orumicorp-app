@@ -141,7 +141,6 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->orderBy('date_admission', 'desc')->paginate(10);
         } else {
-
             $customers = Customers::with([
                 'user',
                 'agent',
@@ -173,7 +172,6 @@ class ClientsController extends Controller
     public function assignGroupAgent(Request $request)
     {
         $data = $this->clientService->assignGroupAgent($request);
-
         $myRoles = $this->rolesService->getMyRoles();
         $agent = $this->agentService->getAgent();
         $customers = $this->getClients($myRoles['roles'], $agent);
@@ -181,19 +179,13 @@ class ClientsController extends Controller
         $campaings = Campaing::all();
         $providers = Provider::all();
         $statusCustomers = CustomerStatus::all();
-
         return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }
 
     public function asignAgentByProfile(Request $request)
     {
-        // dd($request);
         $data = $this->clientService->asignAgent($request);
-
-        // $lastAssignament = Assignment::with('Agent')->where('customer_id', $request->id)->orderBy('status', 'asc')->first();
         $lastAssignament = $this->assignamentService->getLastAssignamentByCustomer($request);
-
-
         return response()->json(["view"=>view('cliente.components.assignedAgent', compact('lastAssignament'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }
 
@@ -202,8 +194,6 @@ class ClientsController extends Controller
         $title = 'Error';
         $mensaje = 'Error desconocido';
         $status = 'error';
-
-        // dd($request);
 
         $myRoles = $this->rolesService->getMyRoles();
         $myRolesId = $myRoles['rolesId'];
@@ -491,8 +481,6 @@ class ClientsController extends Controller
     {
         $archivo = public_path('utils/CARGA_MASIVA_DE_CLNT.xlsx');
 
-        // return Response::download($archivo, 'CARGA_MASIVA_DE_CLNT.xlsx');
-
         return response()->download($archivo, 'CARGA_MASIVA_DE_CLNT.xlsx', [
             'Cache-Control' => 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
             'Pragma' => 'no-cache',
@@ -580,7 +568,6 @@ class ClientsController extends Controller
         if ($request->configTablesDateInit != "true") {
             $estadoDateInit = 'inactive';
         }
-
 
         try {
 
@@ -788,9 +775,6 @@ class ClientsController extends Controller
         ]);
     }
     
-    
-    
-
     public function filterByAttr(Request $request) {
         $id = $request->id;
         $type = $request->type;
@@ -956,24 +940,6 @@ class ClientsController extends Controller
             $customers = $query->paginate(50);
 
         } else {
-            /*
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'assignaments',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit'
-            ])->whereHas('assignaments', function($query) use ($agent) {
-                $query->where('agent_id', $agent->id);
-            })->whereBetween($order, [$formattedDate, $formattedDate])->orderBy('date_admission', 'desc')->paginate(10);
-            */
 
             // Crear una consulta base
             $query = Customers::with([
@@ -1004,8 +970,6 @@ class ClientsController extends Controller
             }
 
             // Filtro por estado del cliente si está presente y es una relación
-            // Filtro por estado del cliente si está presente y es una relación
-            // Filtro por estado del cliente si está presente
             if ($customerStatusId !== "Seleccione un estado") {
                 $query->where('id_status', $customerStatusId);
             }
