@@ -330,7 +330,7 @@ class ClientService implements ClientInterface {
         $status = "error";
 
         $agent = Agent::where('code_voiso', $request->dni_agent)
-                        ->orWhere('code', $request->dni_agent)
+                        // ->orWhere('code', $request->dni_agent)
                         ->first();
 
         $user_id = Auth::user()->id;
@@ -380,7 +380,7 @@ class ClientService implements ClientInterface {
         $status = "error";
 
         $agent = Agent::where('code_voiso', $request->dni_agent)
-                        ->orWhere('code', $request->dni_agent)
+                        // ->orWhere('code', $request->dni_agent)
                         ->first();
 
         $user_id = Auth::user()->id;
@@ -470,12 +470,10 @@ class ClientService implements ClientInterface {
         try {
 
             $client = Customers::find($request->id);
-            $client->code = $request->code;
             $client->name = $request->name;
             $client->lastname = $request->lastname;
             $client->phone = $request->phone;
             $client->optional_phone = $request->optionalPhone;
-            $client->city = $request->city;
             $client->country = $request->country;
             $client->comment = $request->comment;
             $client->email = $request->email;

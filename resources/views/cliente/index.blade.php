@@ -183,7 +183,7 @@ Clientes
 @include('cliente.modal.modalChangeStatus')
 @include('cliente.modal.modalAsignFolder')
 @include('cliente.modal.modalSendMail')
-@include('cliente.modal.modalChangeFolder')
+@include('cliente.modal.modalChangeFolder') 
 @include('cliente.modal.modalChangeGroupFolder')
 
 @endsection

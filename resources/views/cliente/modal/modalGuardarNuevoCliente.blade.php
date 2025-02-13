@@ -11,10 +11,10 @@
                 <div class="row">
                     <div class="col-sm-6 b-r">
                         <h3 class="m-t-none m-b">Datos Personales</h3>
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             <label>Código</label>
                             <input id="code" type="text" placeholder="Ingrese Código" class="form-control">
-                        </div>
+                        </div> --}}
                         <div class="form-group">
                             <label>Nombres</label>
                             <input id="name" type="text" placeholder="Ingrese Nombre" class="form-control">
@@ -38,10 +38,10 @@
                             <label>Correo</label>
                             <input id="email" type="email" placeholder="Ingrese Correo" class="form-control">
                         </div>
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             <label>Ciudad</label>
                             <input id="city" type="text" placeholder="Ingrese Ciudad" class="form-control">
-                        </div>
+                        </div> --}}
                         <div class="form-group">
                             <label>País</label>
                             <input id="country" type="text" placeholder="Ingrese País" class="form-control">
@@ -55,7 +55,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             <label>Platform</label>
                             <select name="platform" id="platform_id" class="form-control m-b">
                                 <option>Seleccione su platform</option>
@@ -72,13 +72,13 @@
                                 <option value="{{ $traiding->id }}">{{ $traiding->name }}</option>
                                 @endforeach
                             </select>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
 
                 <div class="modal-footer">
                     <button class="btn btn-info" type="button"
-                        onclick="guardarNuevoCliente('#code', '#name', '#lastname', '#phone', '#optionalPhone', '#email', '#city', '#country', '#provide_id', '#traiding_id', '#platform_id', '#modalCliente', '#tabClient')"><i
+                        onclick="guardarNuevoCliente('#name', '#lastname', '#phone', '#optionalPhone', '#email', '#country', '#provide_id', '#modalCliente', '#tabClient')"><i
                             class="fa fa-save"></i> Guardar</button>
                     <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i>
                         Cancelar</button>
