@@ -1,4 +1,4 @@
-function registerAssitance(date, inputObservation, type, tabButton, tableName) {
+function registerAssitance(date, inputObservation, type, tabButton, tableName, modal) {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
@@ -12,6 +12,7 @@ function registerAssitance(date, inputObservation, type, tabButton, tableName) {
         $(tabButton).html(data.view);
         $(tableName).empty();
         $(tableName).html(data.viewTable);
+        $(modal).modal('hide');
         Swal.fire({
             title: data.title,
             text: data.text,

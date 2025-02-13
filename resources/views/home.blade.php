@@ -318,7 +318,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-info " type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN', '#panelButton', '#tabAssistance')"><i class="fa fa-save"></i> MARCAR</button>
+                    <button class="btn btn-info " type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN', '#panelButton', '#tabAssistance', '#myModal')"><i class="fa fa-save"></i> MARCAR</button>
                 </div>
             </div>
         </div>
