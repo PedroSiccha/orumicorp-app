@@ -31,7 +31,6 @@ function searchGeneral(options) {
 
 //Registrar Evento desde perfil del cliente
 function saveEventClient(options) {
-    // var idClient = options.inputIdClient !== undefined ? $(options.inputIdClient).val(): '';
     var date = options.inputDateEvent !== undefined ? $(options.inputDateEvent).val(): '';
     var nameEvent = options.inputNombreEvent !== undefined ? $(options.inputNombreEvent).val(): '';
     var description = options.inputDescriptionEvent !== undefined ? $(options.inputDescriptionEvent).val(): '';

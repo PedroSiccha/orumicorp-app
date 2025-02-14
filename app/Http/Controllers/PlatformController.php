@@ -56,7 +56,6 @@ class PlatformController extends Controller
             $platform = Platform::find($request->id);
             $platform->name = $request->name;
             $platform->description = $request->description;
-            // $platform->status = $request->status;
 
             if ($platform->save()) {
                 $title = "Correcto";
