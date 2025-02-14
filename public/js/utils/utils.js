@@ -36,3 +36,8 @@ function validateFile(input) {
         }
     }
 }
+
+function getUserIdFromUrl() {
+    var pathArray = window.location.pathname.split('/');
+    return pathArray[pathArray.length - 1]; // Obtiene el último segmento de la URL
+}

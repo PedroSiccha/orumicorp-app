@@ -1,6 +1,5 @@
 function guardarNuevoAgente(inputName, inputLastname, inputCodeVoiso, inputEmail, inputAreaId, inputRolId, modal, tableName) {
 
-    // var code = $(inputCode).val();
     var name = $(inputName).val();
     var lastname = $(inputLastname).val();
     var codeVoiso = $(inputCodeVoiso).val();
@@ -14,27 +13,6 @@ function guardarNuevoAgente(inputName, inputLastname, inputCodeVoiso, inputEmail
         $(tableName).html(data.view);
         $(modal).modal('hide');
         mostrarMensaje(data.title, data.text, data.status);
-
-        // $('#modalAgente').modal('hide');
-        // $("#tabAgente").empty();
-        // $("#tabAgente").html(data.view);
-        // if (data.resp == 1) {
-
-        //     Swal.fire({
-        //         title: "Guardado",
-        //         text: "El agente se guardó correctamente",
-        //         icon: "success"
-        //     });
-
-        // } else {
-
-        //     Swal.fire({
-        //         title: "Guardado",
-        //         text: "El agente no pudo ser guardado",
-        //         icon: "error"
-        //     });
-
-        // }
 
     });
 

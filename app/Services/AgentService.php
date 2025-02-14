@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AgentService implements AgentInterface {
     protected $utils;
@@ -80,7 +82,6 @@ class AgentService implements AgentInterface {
             'status' => $status
         ];
 
-        // return response()->json(["name" => $name, "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
     public function saveAgent($requestData) {
@@ -212,13 +213,34 @@ class AgentService implements AgentInterface {
 
     public function eliminarAgente($agentId) {
         $resp = 0;
-        $agent = Agent::find($agentId);
-        $user = User::find($agent->user_id);
-        if ($agent->delete()) {
-            if ($user->delete()) {
-                $resp = 1;
-            }
+    
+        try {
+            DB::transaction(function () use ($agentId, &$resp) {
+                $agent = Agent::find($agentId);
+    
+                if (!$agent) {
+                    throw new \Exception("El agente no existe.");
+                }
+    
+                $user = User::find($agent->user_id);
+    
+                if (!$user) {
+                    throw new \Exception("El usuario asociado al agente no existe.");
+                }
+    
+                DB::table('notification_update')->where('user_id', $user->id)->delete();
+                
+                if ($agent->delete()) {
+                    if ($user->delete()) {
+                        $resp = 1;
+                    }
+                }
+            });
+    
+        } catch (\Exception $e) {
+            Log::error("Error eliminando agente: " . $e->getMessage());
         }
+    
         return $resp;
     }
 

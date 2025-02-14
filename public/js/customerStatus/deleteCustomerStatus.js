@@ -1,4 +1,4 @@
-function deleteCustomerStatus(options) { /*id, name, tableName) { */
+function deleteCustomerStatus(options) { 
 
     var id = options.id !== undefined ? options.id: '';
     var name = options.name !== undefined ? options.name: '';

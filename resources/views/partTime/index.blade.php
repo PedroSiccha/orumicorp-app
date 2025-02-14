@@ -10,7 +10,6 @@
       <div class="col-lg-5">
           <div class="ibox ">
               <div class="ibox-title">
-                  {{-- <h5>Data Picker <small>https://github.com/eternicode/bootstrap-datepicker</small></h5> --}}
                   <div class="ibox-tools">
                   </div>
               </div>

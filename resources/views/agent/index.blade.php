@@ -367,9 +367,9 @@
     }
 </script>
 
-<script>
+{{-- <script>
     document.addEventListener('DOMContentLoaded', function () {
         markNotificationsAsSeen('agents');
     });
-</script>
+</script> --}}
 @endsection
