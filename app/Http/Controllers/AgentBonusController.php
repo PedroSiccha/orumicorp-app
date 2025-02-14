@@ -83,18 +83,18 @@ class AgentBonusController extends Controller
         }
 
         $amount = Sales::join('actions', 'sales.action_id', '=', 'actions.id')
-              ->where('actions.movement_type_id', 1)
-              ->where('actions.status', 1)
-              ->where('sales.status', 1)
-              ->whereMonth('sales.created_at', date("m"))
-              ->sum('sales.amount');
+                        ->where('actions.movement_type_id', 1)
+                        ->where('actions.status', 1)
+                        ->where('sales.status', 1)
+                        ->whereMonth('sales.created_at', date("m"))
+                        ->sum('sales.amount');
 
         $amountRetiro = Sales::join('actions', 'sales.action_id', '=', 'actions.id')
-              ->where('actions.movement_type_id', 2)
-              ->where('actions.status', 1)
-              ->where('sales.status', 1)
-              ->whereMonth('sales.created_at', date("m"))
-              ->sum('sales.amount');
+                            ->where('actions.movement_type_id', 2)
+                            ->where('actions.status', 1)
+                            ->where('sales.status', 1)
+                            ->whereMonth('sales.created_at', date("m"))
+                            ->sum('sales.amount');
 
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
@@ -121,15 +121,19 @@ class AgentBonusController extends Controller
             $client_id = $client->id;
         }
 
-        $agent = Agent::where('user_id', Auth::user()->id)->first();
+        $codeAgt = $request->dniAgent;
+        $amount = $request->amount;
+        $observation = $request->observation;
+
+        $agent = Agent::where('code_voiso', $codeAgt)->first();
 
         try {
             $bonusAgent = new BonusAgent();
             $bonusAgent->date_admission = Carbon::now();
-            $bonusAgent->amount = $request->amount;
-            $bonusAgent->observation = $request->observation;
+            $bonusAgent->amount = $amount;
+            $bonusAgent->observation = $observation;
             $bonusAgent->status = true;
-            $bonusAgent->customer_id = $client_id;
+            // $bonusAgent->customer_id = $client_id;
             if ($request->percent_id > 0) {
                 $bonusAgent->percent_id = $request->percent_id;
             }
@@ -142,9 +146,20 @@ class AgentBonusController extends Controller
             $bonusAgent->agent_id = $agent->id;
             $bonusAgent->action_id = 1;
             if ($bonusAgent->save()) {
-                $title = "Correcto";
-                $mensaje = "Registrado correctamente";
-                $status = "success";
+
+                $sale = new Sales();
+                $sale->date_admission = Carbon::now();
+                $sale->amount = $amount;
+                $sale->observation = $observation;
+                $sale->status = true;
+                $sale->agent_id = $agent->id;
+                $sale->action_id = 2;
+                $sale->user_id = Auth::user()->id;
+                if ($sale->save()) {
+                    $title = "Correcto";
+                    $mensaje = "Registrado correctamente";
+                    $status = "success";
+                }
             }
         } catch (Exception $e) {
             $title = 'Error';

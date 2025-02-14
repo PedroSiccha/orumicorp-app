@@ -8,7 +8,46 @@ use Illuminate\Database\Eloquent\Model;
 class Customers extends Model
 {
     protected $table = 'customers';
-    protected $fillable = ['id', 'code', 'name', 'lastname', 'phone', 'date_admission', 'status', 'img', 'user_id', 'agent_id', 'optional_phone', 'city', 'country', 'comment', 'email', 'id_provider', 'id_status', 'platform_id', 'traiding_id', 'folder_id', 'uuid', 'call_black', 'callbell_uuid', 'call_init', 'closed_at', 'callbell_uuid', 'callbel_source', 'callbell_href', 'callbell_conversationHref', 'callbel_tags', 'callbel_custom_fields', 'callbel_team', 'callbel_channel', 'callbel_blocked_at'];
+    protected $fillable = [
+        'id', 
+        'code', 
+        'name', 
+        'lastname', 
+        'phone', 
+        'date_admission', 
+        'status', 
+        'img', 
+        'user_id', 
+        'agent_id', 
+        'optional_phone', 
+        'city', 
+        'country', 
+        'brand_id',
+        'is_lead',
+        'last_login',
+        'last_deposit_date', 
+        'comment', 
+        'email', 
+        'id_provider', 
+        'id_status', 
+        'platform_id', 
+        'traiding_id', 
+        'folder_id', 
+        'uuid', 
+        'call_black', 
+        'callbell_uuid', 
+        'call_init', 
+        'closed_at', 
+        'callbell_uuid', 
+        'callbel_source', 
+        'callbell_href', 
+        'callbell_conversationHref', 
+        'callbel_tags', 
+        'callbel_custom_fields', 
+        'callbel_team', 
+        'callbel_channel', 
+        'callbel_blocked_at'
+    ];
 
     public function sales()
     {
@@ -119,6 +158,31 @@ class Customers extends Model
     public function emails()
     {
         return $this->hasMany(Email::class);
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
+    }
+
+    public function tradingAccounts()
+    {
+        return $this->hasMany(TradingAccount::class, 'customer_id');
+    }
+
+    public function customerToken()
+    {
+        return $this->hasOne(CustomerToken::class, 'customer_id');
+    }
+
+    public function customerCalls()
+    {
+        return $this->hasMany(CustomerCall::class, 'customer_id');
+    }
+
+    public function callStatus()
+    {
+        return $this->hasManyThrough(CallStatus::class, CustomerCall::class, 'customer_id', 'id', 'id', 'call_status_id');
     }
 
 }
