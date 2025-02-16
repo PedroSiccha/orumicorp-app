@@ -12,4 +12,14 @@ class Brand extends Model
         'name', 'site_url'
     ];
     public $timestamps = true;
+    // 🔹 Un BRAND tiene muchos API_USERS
+    public function apiUsers()
+    {
+        return $this->hasMany(ApiUser::class, 'brand_id');
+    }
+    // 🔹 Un BRAND tiene muchos CUSTOMERS
+    public function customers()
+    {
+        return $this->hasMany(Customers::class, 'brand_id');
+    }
 }

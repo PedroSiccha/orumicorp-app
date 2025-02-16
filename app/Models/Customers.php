@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class Customers extends Model
 {
@@ -27,7 +30,8 @@ class Customers extends Model
         'last_login',
         'last_deposit_date', 
         'comment', 
-        'email', 
+        'email',
+        'password', 
         'id_provider', 
         'id_status', 
         'platform_id', 
@@ -46,7 +50,8 @@ class Customers extends Model
         'callbel_custom_fields', 
         'callbel_team', 
         'callbel_channel', 
-        'callbel_blocked_at'
+        'callbel_blocked_at',
+        'api_user_id'
     ];
 
     public function sales()
@@ -183,6 +188,37 @@ class Customers extends Model
     public function callStatus()
     {
         return $this->hasManyThrough(CallStatus::class, CustomerCall::class, 'customer_id', 'id', 'id', 'call_status_id');
+    }
+
+    public function apiUser()
+    {
+        return $this->belongsTo(ApiUser::class, 'api_user_id');
+    }
+
+    /**
+     * Método para verificar la contraseña del cliente
+     */
+    public function verifyPassword($password)
+    {
+        return Hash::check($password, $this->password);
+    }
+
+    /**
+     * Generar el token para acceso automático
+     */
+    public function generateCustomerToken()
+    {
+        $token = 'Bearer ' . Str::random(60);
+
+        $this->customerToken()->updateOrCreate(
+            ['customer_id' => $this->id],
+            [
+                'token' => $token,
+                'token_expiry' => Carbon::now()->addMinutes(15) // Expira en 15 minutos
+            ]
+        );
+
+        return $token;
     }
 
 }
