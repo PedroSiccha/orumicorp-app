@@ -27,4 +27,10 @@ class TradingAccount extends Model
     {
         return $this->belongsTo(Platform::class);
     }
+
+    // Relación: Un TradingAccount puede pertenecer a un grupo de cuentas de trading
+    public function tradingAccountGroup()
+    {
+        return $this->belongsTo(TradingAccountGroup::class, 'trading_account_group_id');
+    }
 }
