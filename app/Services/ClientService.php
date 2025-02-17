@@ -97,10 +97,9 @@ class ClientService implements ClientInterface {
                 'traiding',
                 'latestComunication',
                 'latestAssignamet',
-                'latestDeposit'
+                'latestDeposit',
+                'folder'
             ])->orderBy('date_admission', 'desc')->paginate(10);
-
-            // dd($customers);
 
         } else {
 
@@ -116,13 +115,12 @@ class ClientService implements ClientInterface {
                 'assignaments',
                 'latestComunication',
                 'latestAssignamet',
-                'latestDeposit'
+                'latestDeposit',
+                'folder'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
             })->orderBy('date_admission', 'desc')->paginate(10);
 
-
-            // dd($customers);
         }
 
         $asignCustomers = Customers::where('agent_id', null)->where('status', 1)->orderBy('date_admission')->get();
@@ -328,7 +326,7 @@ class ClientService implements ClientInterface {
         $status = "error";
 
         $agent = Agent::where('code_voiso', $request->dni_agent)
-                        ->orWhere('code', $request->dni_agent)
+                        // ->orWhere('code', $request->dni_agent)
                         ->first();
 
         $user_id = Auth::user()->id;
@@ -350,7 +348,6 @@ class ClientService implements ClientInterface {
             $assignament->assignated_by_id = $user_id;
             $assignament->status = 1;
             $assignament->save();
-            // dd($assignament);
 
             $title = "Correcto";
             $mensaje = "Se asignó correctamente el agente";
@@ -378,7 +375,7 @@ class ClientService implements ClientInterface {
         $status = "error";
 
         $agent = Agent::where('code_voiso', $request->dni_agent)
-                        ->orWhere('code', $request->dni_agent)
+                        // ->orWhere('code', $request->dni_agent)
                         ->first();
 
         $user_id = Auth::user()->id;
@@ -389,7 +386,6 @@ class ClientService implements ClientInterface {
                 $oldAssignments = Assignment::where('customer_id', $idClient)
                                         ->where('status', 1)
                                         ->get();
-
 
                 foreach ($oldAssignments as $oldAssign) {
                     $oldAssign->status = 0;
@@ -468,12 +464,10 @@ class ClientService implements ClientInterface {
         try {
 
             $client = Customers::find($request->id);
-            $client->code = $request->code;
             $client->name = $request->name;
             $client->lastname = $request->lastname;
             $client->phone = $request->phone;
             $client->optional_phone = $request->optionalPhone;
-            $client->city = $request->city;
             $client->country = $request->country;
             $client->comment = $request->comment;
             $client->email = $request->email;
@@ -572,15 +566,12 @@ class ClientService implements ClientInterface {
         $dataCustomer = Customers::where('id', $id)->first();
         $dataCommunication = [
             'customer_id' => $dataCustomer->id,
-            // 'customerStatusId' => $dataCustomer->customerStatusId
         ];
 
         $communications = $this->communicationService->getLocationByCustomer($dataCommunication);
         $lastAssignament = $this->assignamentService->getLastAssignamentByCustomer($dataCommunication);
         $lastCampaing = $this->campaingService->getLastCampaingByCustomer($dataCommunication);
-        // dd($lastCampaing);
         $campaings = $this->campaingService->getAllCampaingsByCustomer($dataCommunication);
-        // dd($campaings['name']);
         $lastProvider = $this->providerService->getLastProviderByCustomer($dataCommunication);
         $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
         $priorities = Priority::all();

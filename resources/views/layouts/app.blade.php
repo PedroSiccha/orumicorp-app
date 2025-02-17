@@ -68,7 +68,7 @@
 
                             <div>
                                 <div id="sonido" style="display: none;">
-                                    <iframe src="{{asset('ruleta/sonido/ruleta.mp3')}}" id="audio"></iframe>
+                                    <iframe id="audio"></iframe>
                                 </div>
                             </div>
 

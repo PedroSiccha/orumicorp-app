@@ -38,6 +38,7 @@ Clientes
                                     <li><a href="#" class="dropdown-item">última Visita</a></li>
                                     <li><a href="#" class="dropdown-item">N° Depósito</a></li>
                                     <li><a href="#" class="dropdown-item">Total Depósito</a></li>
+                                    <li><a href="#" class="dropdown-item">Folder</a></li>
                                 </ul>
                             </div>
                             <input id="inputFilterAdvance" type="text" class="form-control" oninput="filterAdvanced({ buttonFilter: '#filterButton', inputFilter: '#inputFilterAdvance', selectStatus: '#statusCustomerId', selectTypeRange: '#typeRange', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', tableName: '#tabClient' })">
@@ -72,15 +73,6 @@ Clientes
                     </div>
                 </div>
                 <div class="row">
-
-                    {{-- <div class="col-sm-3">
-                        <div class="input-group">
-                            <input placeholder="Buscar..." type="text" class="form-control form-control-sm" id="dataSearchGeneral" onchange="searchGeneral({ customerStatusId: '#statusCustomerId', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', data: '#dataSearchGeneral', tableName: '#tabClient' })">
-                            <span class="input-group-append">
-                                <button type="button" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button>
-                            </span>
-                        </div>
-                    </div> --}}
                 </div>
             </div>
         </div>
@@ -158,7 +150,7 @@ Clientes
                     <div class="col-sm-3">
                         <div class="input-group"><input placeholder="Search" type="text" class="form-control form-control-sm"> <span class="input-group-append"> <button type="button" class="btn btn-sm btn-primary">Go!
                         </button> </span></div>
-
+ 
                     </div> --}}
                 </div>
                 <div class="table-responsive" id="tabClient">
@@ -182,7 +174,7 @@ Clientes
 @include('cliente.modal.modalChangeStatus')
 @include('cliente.modal.modalAsignFolder')
 @include('cliente.modal.modalSendMail')
-@include('cliente.modal.modalChangeFolder')
+@include('cliente.modal.modalChangeFolder') 
 @include('cliente.modal.modalChangeGroupFolder')
 
 @endsection

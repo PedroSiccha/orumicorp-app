@@ -16552,23 +16552,23 @@
 
 // console.log('Frontend cargado sin Vue.');
 
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+// import Echo from 'laravel-echo';
+// import Pusher from 'pusher-js';
 
-window.Pusher = Pusher;
+// window.Pusher = Pusher;
 
-window.Echo = new Echo({
-    broadcaster: 'pusher',
-    key: 'ddfeb8029c8fce193f9a',
-    cluster: 'us2',
-    forceTLS: true,
-    authEndpoint: '/broadcasting/auth', // Asegúrate de que esta ruta sea correcta
-    auth: {
-        headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}` // Si usas tokens
-        }
-    }
-});
+// window.Echo = new Echo({
+//     broadcaster: 'pusher',
+//     key: 'ddfeb8029c8fce193f9a',
+//     cluster: 'us2',
+//     forceTLS: true,
+//     authEndpoint: '/broadcasting/auth', // Asegúrate de que esta ruta sea correcta
+//     auth: {
+//         headers: {
+//             Authorization: `Bearer ${localStorage.getItem('token')}` // Si usas tokens
+//         }
+//     }
+// });
 
 
 

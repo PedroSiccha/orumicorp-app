@@ -9,7 +9,7 @@ class MessageWhatsappModel extends Model
 {
     use HasFactory;
     protected $table = 'messages_whatsapp';
-    protected $fillable = ['agent_id', 'customer_id', 'content', 'status'];
+    protected $fillable = ['agent_id', 'customer_id', 'content', 'status', 'uuid'];
 
     public function agent()
     {

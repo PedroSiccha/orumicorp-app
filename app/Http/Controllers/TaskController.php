@@ -130,14 +130,9 @@ class TaskController extends Controller
         $mensaje = "Error desconocido";
         $status = "error";
 
-        $user_id = Auth::user()->id;
-        $agent = Agent::where('user_id', $user_id)->first();
+        $agent = Agent::where('code', $request->codAgent)->first();
         $priority = Priority::where('id', $request->priorityEvent)->first();
         $client = Customers::where('code', $request->codCustomer)->first();
-
-        if ($request->codAgent) {
-            $agent = Agent::where('code_voiso', $request->codAgent)->first();
-        }
 
         try {
             $task = new Task();

@@ -3,9 +3,8 @@
         <ul class="nav metismenu" id="side-menu">
             <li class="nav-header">
                 <div class="dropdown profile-element">
-                    <a data-toggle="dropdown" class="dropdown-toggle" href="{{ route('home') }}">
-                        <img alt="image" class="rounded" src="{{asset('img/logo/logo_horizontal_ab.png')}}"
-                            width="90%" height="90%" />
+                    <a data-bs-toggle="dropdown" class="dropdown-toggle" href="{{ url('/dashboard') }}">
+                        <img alt="image" class="rounded" src="{{ asset('img/logo/logo_horizontal_ab.png') }}" width="90%" height="90%" />
                     </a>
                 </div>
                 <div class="logo-element">

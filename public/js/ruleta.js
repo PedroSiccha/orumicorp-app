@@ -6,7 +6,7 @@ giro = () => {
       document.getElementById('box').style.transform = "rotate("+deg+"deg)";
       const element = document.getElementById('mainbox');
       var sonido = document.querySelector('#audio');
-      sonido.setAttribute('src', 'sonido/ruleta.mp3');
+    //   sonido.setAttribute('src', 'sonido/ruleta.mp3');
       setTimeout(() => {
           element.classList.add('animate');
           let position = Math.floor(deg / 45) % 8;

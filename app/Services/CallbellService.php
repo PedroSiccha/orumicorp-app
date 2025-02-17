@@ -4,6 +4,7 @@ namespace App\Services;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CallbellService
 {
@@ -98,20 +99,36 @@ class CallbellService
      */
 
      public function getMessageStatus($uuid)
-     {
-         try {
-             $response = $this->client->get("{$this->baseUrl}/messages/status/{$uuid}", [
-                 'headers' => [
-                     'Authorization' => "Bearer {$this->token}",
-                 ],
-             ]);
+    {
+        Log::info("UUID Callb el: " . $uuid);
+        try {
+            $response = $this->client->get("{$this->baseUrl}/messages/status/{$uuid}", [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->token}",
+                    'Accept' => 'application/json'
+                ],
+            ]);
 
-             return json_decode($response->getBody(), true);
+            // Obtener el cuerpo de la respuesta como texto
+            $responseBody = (string) $response->getBody();
 
-         } catch (RequestException $e) {
-             return $this->handleException($e);
-         }
-     }
+            // Depurar la respuesta cruda para verificar si es igual a Postman
+            Log::info("Respuesta cruda de Callbell API: " . $responseBody);
+
+            return json_decode($responseBody, true);
+
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                $errorResponse = (string) $e->getResponse()->getBody();
+                Log::error("Error en la API de Callbell: " . $errorResponse);
+                return json_decode($errorResponse, true);
+            }
+            Log::error("Error en la solicitud: " . $e->getMessage());
+            return ['error' => 'Error en la solicitud', 'details' => $e->getMessage()];
+        }
+    }
+
+
 
      /**
      * Envía un mensaje y espera hasta que se confirme su entrega.

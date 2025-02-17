@@ -22,7 +22,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <div class="ibox ">
+        <div class="ibox">
             <div class="ibox-title d-flex justify-content-between align-items-center">
                 <h5>Clientes</h5>
                 <input type="text" id="search-phone" class="form-control form-control-sm" placeholder="Buscar por teléfono">
@@ -30,6 +30,11 @@
                     <i class="fa fa-search"></i>
                 </button>
             </div>
+            <select class="form-control-sm form-control input-s-sm inline" id="filterChannel" onchange="filterChannelCallbell({ selectChannel: '#filterChannel', tableName: '#contacts-list' })">
+                <option>Seleccione un canal</option>
+                <option value="whatsapp">Whatsapp</option>
+                <option value="telegram">Telegram</option>
+            </select>
             <div class="ibox-content">
                 <div id="loading-indicator" style="display: none; text-align: center;">
                     <img src="https://i.gifer.com/VAyR.gif" alt="Cargando..." width="50" height="50">
@@ -42,8 +47,10 @@
                                 <img alt="image" class="rounded-circle mr-3" src="{{ $contact['avatarUrl'] ?? 'img/logo/basic_logo.png' }}" width="40" height="40">
                                 @if ($contact['source'] === 'whatsapp')
                                     <img alt="overlay" class="overlay-icon" style="" src="img/logo/whatsappicon.png" width="20" height="20">
-                                @else
+                                @elseif ($contact['source'] === 'telegram')
                                     <img alt="overlay" class="overlay-icon" style="" src="img/logo/telegramicon.png" width="20" height="20">
+                                @else
+                                    <img alt="overlay" class="overlay-icon" style="" src="{{ $contact['avatarUrl'] ?? 'img/logo/basic_logo.png' }}" width="20" height="20">
                                 @endif
                             </a>
                             <div class="media-body ">
@@ -84,10 +91,13 @@
     var getChatDetailsRoute = '{{ route("getChatDetails") }}';
     var sendMessageRoute = '{{ route("sendMessage") }}';
     var searchContactRoute = '{{ route("searchContact") }}';
+    var updateCallbellCustomerRoute = '{{ route("updateCallbellCustomer") }}';
+    var filterChannelRoute = '{{ route("filterChannel") }}';
 </script>
 
 <script src="{{asset('js/callbell/verDetalleChat.js')}}"></script>
 <script src="{{asset('js/callbell/sendMessage.js')}}"></script>
+<script src="{{asset('js/callbell/callbell.js')}}"></script>
 <script>
     var baseUrl = '{{ $baseUrl }}';
     var token_bearer = '{{ $token }}';
@@ -139,25 +149,19 @@
     function submitMessage() {
         const message = document.getElementById('inputMessage').value;
         const phone = document.getElementById('inputPhone').value;
-        let uuid = "";
-
-        // Intentamos obtener el UUID sin que bloquee la ejecución si no existe
-        try {
-            uuid = document.getElementById('inputUuid')?.value || "";
-        } catch (error) {
-            console.warn("No se encontró inputUuid, se usará un valor vacío.");
-        }
+        const uuid = document.getElementById('inputUuid').value;
+        const id = document.getElementById('inputId').value;
 
         if (message.trim() === "" || phone.trim() === "") {
             alert('El mensaje o el número de teléfono no pueden estar vacíos.');
             return;
         }
 
-        fetch("https://sytecrm.com/callbell/send", {
+        fetch("{{ route('sendMessage') }}", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': 'Lslzd6m8dZyqjUOO5puo38zmB4ruL04sq3u0IT5E'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({ phone, message })
         })
@@ -165,17 +169,16 @@
         .then(data => {
             console.log(data.message);
 
-            document.getElementById('inputMessage').value = "";
-
             if (data.message.status === 'enqueued') {
+                document.getElementById('inputMessage').value = "";
                 // alert('Mensaje enviado con éxito');
             } else {
+                document.getElementById('inputMessage').value = "";
                 // alert('Error al enviar el mensaje. Inténtalo de nuevo.');
             }
-
-            // Si UUID es '000' o no existe, recarga la página
             if (uuid === '000' || uuid === "") {
-                location.reload();
+                obtenerDatosContacto(phone, id);
+                // location.reload();
             } else {
                 verDetalleChat(uuid, phone);
             }
@@ -184,10 +187,8 @@
             console.error('Error:', error);
             document.getElementById('inputMessage').value = "";
             // alert('Hubo un problema al enviar el mensaje.');
-            location.reload(); // En caso de error también recargar la página
         });
     }
-
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {

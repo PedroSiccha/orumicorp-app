@@ -15,7 +15,7 @@
       @foreach ($agents as $agent)
           <tr @if($agent->status == 0) class="table-danger" @endif>
               <td><p @if($agent->status_voiso == 'LIBRE') class="text-navy" @else class="text-danger" @endif>{{ $agent->status_voiso }}</p></td>
-              <td>{{ $agent->code }}</td>
+              <td>{{ $agent->id }}</td>
               <td>
                   <a href="{{ route('perfilUsuario', ['id' => $agent->user->id]) }}">
                       {{ $agent->name }} {{ $agent->lastname }}
@@ -37,7 +37,7 @@
                       @endif
                   @endcan
                   @can('Editar Agente')
-                  <button class="btn btn-warning " type="button" onclick="editarAgente('{{ $agent->id }}', '{{ $agent->code }}', '{{ $agent->name }}', '{{ $agent->lastname }}', '{{ $agent->code_voiso }}', '{{ $agent->email }}', '{{ $agent->area->id }}', '{{ $agent->user->roles->first()->id ?? '1' }}')"><i class="fa fa-pencil"></i></button>
+                  <button class="btn btn-warning " type="button" onclick="editarAgente('{{ $agent->id }}', '{{ $agent->name }}', '{{ $agent->lastname }}', '{{ $agent->code_voiso }}', '{{ $agent->email }}', '{{ $agent->area->id }}', '{{ $agent->user->roles->first()->id ?? '1' }}')"><i class="fa fa-pencil"></i></button>
                   @endcan
                   @can('Eliminar Agente')
                   <button class="btn btn-danger " type="button" onclick="eliminarAgente('{{ $agent->id }}', '{{ $agent->name }} {{ $agent->lastname }}')"><i class="fa fa-trash"></i></button>

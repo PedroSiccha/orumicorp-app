@@ -9,9 +9,6 @@ function saveEvent(inputId, inputDateEvent, inputNameEvent, inputDescriptionEven
     var hasta = $(inputHasta).val();
     var priorityEvent = $(inputPriority).val();
     $.post(saveEventRoute, {idEvent: idEvent, dateEvent: dateEvent, nameEvent: nameEvent, descriptionEvent: descriptionEvent, codCustomer: codCustomer, codAgent: codAgent, desde: desde, hasta: hasta, priorityEvent: priorityEvent, _token: token}).done(function(data) {
-        //$(tableName).empty();
-        //$(tableName).html(data.view);
-        //calendar.refetchEvents();
         $(modal).modal('hide');
         mostrarMensaje(data.title, data.text, data.status);
         location.reload();
