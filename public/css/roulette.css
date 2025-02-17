@@ -1,0 +1,74 @@
+#roulette-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, #0b1b6a, #051235);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
+    max-width: 450px;
+    margin: auto;
+}
+
+#roulette {
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+}
+
+#spinButton {
+    margin-top: 20px;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(45deg, #ffbf00, #ff9000);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#spinButton:hover {
+    background: linear-gradient(45deg, #ff9000, #ff4500);
+    transform: scale(1.05);
+}
+
+#pointer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -80%);
+    width: 100px;
+    height: 100px;
+    background: url('/ruleta/es_wheel-spin-logo.png') no-repeat center;
+    background-size: contain;
+    z-index: 10;
+}
+
+#celebration {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 1050;
+    display: none; /* Importante: que esté oculto inicialmente */
+}
+
+.celebration-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    animation: pop 0.5s ease-in-out;
+}
+
+@keyframes pop {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
