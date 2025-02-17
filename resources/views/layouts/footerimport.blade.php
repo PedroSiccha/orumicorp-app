@@ -68,6 +68,8 @@
 
     <script src="{{asset('js/plugins/iCheck/icheck.min.js')}}"></script>
     <script src="{{ asset('js/plugins/chartJs/Chart.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
     {{-- <script src="https://js.pusher.com/7.2/pusher.min.js"></script> --}}
 
     <script>
@@ -272,4 +274,5 @@
 
     </script>
     <script src="{{ asset('js/utils/getNotify.js') }}"></script>
+    <script src="{{ asset('js/rouletteManagement/ruleta.js') }}"></script>
 @yield('script')

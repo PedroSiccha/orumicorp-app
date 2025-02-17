@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GestionRuletaController;
 use App\Http\Controllers\MailchimpController;
 use App\Models\NotificationOnUpdateModel;
 use Illuminate\Support\Facades\Auth;
@@ -205,3 +206,6 @@ Route::group(['middleware' => 'auth'], function () {
 });
 
 Route::post('/filterAdvanced', [App\Http\Controllers\FilterController::class, 'filterAdvanced'])->name('filterAdvanced');
+
+Route::get('/prizes', [GestionRuletaController::class, 'indexTest']);
+Route::post('/prizes/winner', [GestionRuletaController::class, 'storeWinner']);
