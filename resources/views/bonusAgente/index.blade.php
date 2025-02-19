@@ -60,10 +60,10 @@
                       </thead>
                       <tbody>
                         @foreach ($bonusAgent as $ba)
-                            <tr @if($ba->action_id == 3) class="table-danger" @endif>
+                            <tr @if(number_format($ba->amount, 2) <= 0) class="table-danger" @endif>
                                 <td>{{ date("d/m/Y", strtotime($ba->date_admission)) }}</td>
-                                <td> $ {{ number_format($ba->commission, 2) }}</td>
-                                <td>S/. {{ number_format($ba->commission*3.5, 2) }}</td>
+                                <td> $ {{ number_format($ba->amount, 2) }}</td>
+                                <td>S/. {{ number_format($ba->amount*3.5, 2) }}</td>
                                 <td>
                                     @can('Ver Perfil Agente')
                                     <a href="{{ route('perfilUsuario', ['id' => $ba->agent->id]) }}">
@@ -79,6 +79,83 @@
                         @endforeach
                       </tbody>
                   </table>
+
+                  <div class="col-lg-12">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Totales</h5>
+                            <div class="ibox-tools">
+                                @can('Registrar Target')
+                                <a onclick="mostrarNuevoModal('#modalCreateTarget')">
+                                    <i class="fa fa-plus"></i>
+                                </a>
+                                @endcan
+                            </div>
+                        </div>
+
+                            <div class="ibox-content navy-bg">
+                                <div class="row" id="tabTotalTarget">
+                                    <div class="col-4">
+                                        <h4>Target Mensual</h4>
+                                    </div>
+    
+                                    <div class="col-4">
+                                        <h4>$ {{ isset($reportTargetMensual) ? number_format(($reportTargetMensual), 2): '0.00' }}</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <h4>S/. {{ isset($reportTargetMensual) ? number_format(($reportTargetMensual)*3.5, 2): '0.00' }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <div class="ibox-content yellow-bg">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <h4>Ingresos Actuales</h4>
+                                    </div>
+    
+                                    <div class="col-4">
+                                        <h4>$ {{ isset($amount) ? number_format(($amount), 2): '0.00' }}</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <h4>S/. {{ isset($amount) ? number_format(($amount), 2): '0.00' }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <div class="ibox-content red-bg">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <h4>Retiros Actuales</h4>
+                                    </div>
+    
+                                    <div class="col-4">
+                                        <h4>$ {{ isset($amountRetiro) ? number_format(($amountRetiro), 2): '0.00' }}</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <h4>S/. {{ isset($amountRetiro) ? number_format(($amountRetiro)*3.5, 2): '0.00' }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="ibox-content lazur-bg">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <h4>Cuota Pendiente</h4>
+                                    </div>
+    
+                                    <div class="col-4">
+                                        <h4>$ {{ isset($reportTargetMensual) ? number_format(($reportTargetMensual - $amount), 2): '0.00' }}</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <h4>S/. {{ isset($reportTargetMensual) ? number_format(($reportTargetMensual - $amount)*3.5, 2): '0.00' }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+
               </div>
           </div>
       </div>
@@ -121,7 +198,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="createBonus({dniAgent: '#dniAgent', commission: '#commission', modal: '#modalBonus', tableName: '#tabBonus', typeSales: '2'})"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="createBonus({dniAgent: '#dniAgent', commission: '#commission', inputObservation: '#observation', modal: '#modalBonus', table: '#tabBonus', typeSales: '2'})"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
@@ -165,7 +242,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="createDiscount({dniAgent: '#dniDiscountAgent', commission: '#amountDiscount', modal: '#modalDescuento', tableName: '#tabBonus', typeSales: '3'})"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="createDiscount({dniAgent: '#dniDiscountAgent', commission: '#amountDiscount', inputObservation: '#observationDiscount', modal: '#modalDescuento', table: '#tabBonus', typeSales: '3'})"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>
