@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orumicorp - @yield('title')</title>
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Datrux - @yield('title')</title>
     <link href="{{asset('css/bootstrap.min.css')}}" rel="stylesheet">
     <link href="{{asset('font-awesome/css/font-awesome.css')}}" rel="stylesheet">
     <link href="{{asset('css/animate.css')}}" rel="stylesheet">
@@ -18,6 +18,7 @@
     <link href="{{ asset('css/plugins/summernote/summernote-bs4.css') }}" rel="stylesheet">
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="stylesheet" href="{{ asset('css/roulette.css') }}">
 </head>
 
 <body>
@@ -35,6 +36,16 @@
 
             {{-- Footer --}}
             @include('partials.footer')
+
+            
+
+        </div>
+
+        <div id="celebration" class="hidden">
+            <div class="celebration-content">
+                <h1 id="winner-message">🎉 ¡Ganaste! 🎉</h1>
+                <button onclick="closeCelebration()">Aceptar</button>
+            </div>
         </div>
 
         <div class="modal inmodal fade" id="myModal5" tabindex="-1" role="dialog" aria-hidden="true">
@@ -48,30 +59,18 @@
                     </div>
                     <div class="modal-body d-flex align-items-center justify-content-center">
                         <div id="mainbox" class="mainbox">
-                            <div id="mainbox-2" class="mainbox">
-                                <div id="box" class="box">
-                                    <div class="box1">
-                                        @foreach ($premios1 as $premio)
-                                        <span class="span{{ $premio->order }}"><b class="white">{{ $premio->name
-                                                }}</b></span>
-                                        @endforeach
-                                    </div>
-                                    <div class="box2">
-                                        @foreach ($premios2 as $premio)
-                                        <span class="span{{ $premio->order }}"><b>{{ $premio->name }}</b></span>
-                                        @endforeach
-                                    </div>
-
+                            <div id="roulette-container">
+                                <div id="pointer"></div>
+                                <canvas id="roulette" width="400" height="400"></canvas>
+                                <button id="spinButton">🎰 Girar</button>
+                            </div> 
+                                                                                
+                            <div id="celebration" class="hidden">
+                                <div class="celebration-content">
+                                    <h1 id="winner-message">🎉 ¡Ganaste! 🎉</h1>
+                                    <button onclick="closeCelebration()">Aceptar</button>
                                 </div>
-                                <img class="spin" src="{{asset('ruleta/es_wheel-spin-logo.png')}}" onclick="giro()"
-                                    alt="">
-                            </div>
-
-                            <div>
-                                <div id="sonido" style="display: none;">
-                                    <iframe id="audio"></iframe>
-                                </div>
-                            </div>
+                            </div>  
 
                         </div>
                     </div>

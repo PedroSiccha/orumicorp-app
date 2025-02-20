@@ -1,24 +1,38 @@
 <table class="table table-striped">
-    <thead>
+  <thead>
       <tr>
-            <th>Fecha de Asistencia</th>
-            <th>Nombre del Agente</th>
-            <th>Hora de Ingreso</th>
-            <th>Hora de Break</th>
-            <th>Vuelta de Break</th>
-            <th>Hora de Salida</th>
+          <th>Fecha</th>
+          <th>AGENTE</th>
+          <th>ÁREA</th>
+          <th>IN</th>
+          <th>IN-BREAK</th>
+          <th>OUT-BREAK</th>
+          <th>OUT</th>
       </tr>
-    </thead>
-    <tbody>
-      @foreach ($assistances as $assistance)
-          <tr>
-            <td>{{ $assistance->date }}</td>
-            <td>{{ $assistance->name }} {{ $assistance->lastname }}</td>
-            <td>{{ $assistance->IN }}</td>
-            <td>{{ $assistance->INBREAK }}</td>
-            <td>{{ $assistance->OUTBREAK }}</td>
-            <td>{{ $assistance->OUT }}</td>
-          </tr>
+  </thead>
+  <tbody>
+      @foreach ($formattedData as $date => $agents)
+          @foreach ($agents as $agentName => $records)
+              <tr>
+                  <td>{{ $date }}</td>
+                  <td>{{ $agentName }}</td>
+                  <td>{{ $records['area'] ?? '' }}</td> <!-- Mostrar el área del agente -->
+                  
+                  @foreach (['IN', 'IN-BREAK', 'OUT-BREAK', 'OUT'] as $type)
+                      <td>
+                          @if (isset($records[$type]))
+                              @foreach ($records[$type] as $entry)
+                                  {{ $entry['hour'] }} <br>
+                                  @if (!empty($entry['observation']))
+                                      <span style="font-size: small;">{{ $entry['observation'] }}</span>
+                                  @endif
+                                  <br>
+                              @endforeach
+                          @endif
+                      </td>
+                  @endforeach
+              </tr>
+          @endforeach
       @endforeach
-    </tbody>
+  </tbody>
 </table>

@@ -73,15 +73,6 @@ Clientes
                     </div>
                 </div>
                 <div class="row">
-
-                    {{-- <div class="col-sm-3">
-                        <div class="input-group">
-                            <input placeholder="Buscar..." type="text" class="form-control form-control-sm" id="dataSearchGeneral" onchange="searchGeneral({ customerStatusId: '#statusCustomerId', dateInit: '#dateInitSearchGeneral', dateEnd: '#dateEndSearchGeneral', data: '#dataSearchGeneral', tableName: '#tabClient' })">
-                            <span class="input-group-append">
-                                <button type="button" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button>
-                            </span>
-                        </div>
-                    </div> --}}
                 </div>
             </div>
         </div>
@@ -183,7 +174,7 @@ Clientes
 @include('cliente.modal.modalChangeStatus')
 @include('cliente.modal.modalAsignFolder')
 @include('cliente.modal.modalSendMail')
-@include('cliente.modal.modalChangeFolder')
+@include('cliente.modal.modalChangeFolder') 
 @include('cliente.modal.modalChangeGroupFolder')
 
 @endsection
