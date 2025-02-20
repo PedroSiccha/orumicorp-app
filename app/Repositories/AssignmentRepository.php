@@ -6,6 +6,7 @@ use App\Models\Assignment;
 use App\Repositories\Contracts\AssignmentRepositoryInterface;
 use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class AssignmentRepository implements AssignmentRepositoryInterface
 {
@@ -65,5 +66,18 @@ class AssignmentRepository implements AssignmentRepositoryInterface
             throw new RepositoryException("Error al obtener ultima asignación del cliente: " . $e->getMessage());
         }
         
+    }
+
+    public function getLocationsByCustomer(int $customerId): ?Assignment
+    {
+        try {
+            return Assignment::with(['agent', 'assignedBy'])
+                            ->where('customer_id', $customerId)
+                            ->where('status', true)
+                            ->orderBy('status', 'asc')
+                            ->first();
+        } catch (Exception $e) {
+            throw new RepositoryException("Error al obtener las asignaciones activas del cliente {$customerId}: " . $e->getMessage());
+        }
     }
 }

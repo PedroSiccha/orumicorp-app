@@ -8,6 +8,8 @@ use App\Models\CustomerStatus;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 
 class ClientRepository implements ClientRepositoryInterface
 {
@@ -110,7 +112,7 @@ class ClientRepository implements ClientRepositoryInterface
                             ->orderBy('date_admission', 'desc')
                             ->paginate($limit);
         } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener clientes del agente ID {$agentId}: " . $e->getMessage());
+            throw new RepositoryException("Error al obtener los clientes: " . $e->getMessage());
         }
     }
 
@@ -129,5 +131,92 @@ class ClientRepository implements ClientRepositoryInterface
         }
     }
 
-}
+    public function getClientById(int $clientId): ?Customers
+    {
+        try {
+            return Customers::find($clientId);
+        } catch (QueryException $e) {
+            Log::error("Error al obtener cliente por ID: " . $e->getMessage());    
+            return null;
+        } catch (Exception $e) {
+            Log::error("Error inesperado al obtener cliente por ID: " . $e->getMessage());
+            return null;
+        }
+    }
 
+    public function updateClientStatus(int $clientId, bool $status): bool
+    {
+        try {
+            $client = Customers::find($clientId);
+            if (!$client) {
+                return false;
+            }
+
+            $client->status = $status;
+            return $client->save();
+        } catch (QueryException $e) {
+            Log::error("Error al actualizar el estado del cliente: " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            Log::error("Error inesperado al actualizar el estado del cliente: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateClient(Customers $customers, array $data): bool
+    {
+        try {
+            return $customers->update($data);
+        } catch (QueryException $e) {
+            Log::error("Error al actualizar el cliente: " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            Log::error("Error inesperado al actualizar el cliente: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteClient(Customers $customer): bool
+    {
+        try {
+            return $customer->delete();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getCustomersByStatusAndRole($customerStatusId, $roles, $agentId, int $limit = 10): LengthAwarePaginator
+    {
+        $query = Customers::with([
+            'user',
+            'agent',
+            'latestCampaign',
+            'latestSupplier',
+            'provider',
+            'statusCustomer',
+            'platform',
+            'traiding',
+            'latestComunication',
+            'latestAssignamet',
+            'latestDeposit'
+        ]);
+
+        if ($roles !== 'ADMINISTRADOR') {
+            $query->whereHas('assignaments', function ($q) use ($agentId) {
+                $q->where('agent_id', $agentId);
+            });
+            return $query->where('id_status', $customerStatusId)
+                         ->orderBy('date_admission', 'desc')
+                         ->paginate($limit);
+        }
+
+        return $query->where('id_status', $customerStatusId)
+                     ->orderBy('date_admission', 'desc')
+                     ->paginate($limit);
+    }
+
+}

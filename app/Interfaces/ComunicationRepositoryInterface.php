@@ -1,0 +1,9 @@
+<?php
+namespace App\Interfaces;
+
+use Illuminate\Database\Eloquent\Collection;
+
+interface ComunicationRepositoryInterface
+{
+    public function getLocationByCustomer(int $clientId): Collection;
+}

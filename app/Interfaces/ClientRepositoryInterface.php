@@ -19,5 +19,11 @@ interface ClientRepositoryInterface
     public function updateStatus(array $customerIds, int $statusId): void;
     public function searchClientsByStatus(int $statusId, int $limit = 10, array $relations = []): LengthAwarePaginator;
     public function searchClientsByStatusByAgent(int $statusId, int $agentId, int $limit = 10, array $relations = []): LengthAwarePaginator;
+    public function getClientById(int $userId): ?Customers;
+    public function updateClientStatus(int $clientId, bool $status): bool;
+    public function updateClient(Customers $customer, array $data): bool;
+    public function deleteClient(Customers $customer): bool;
+
+    public function getCustomersByStatusAndRole($customerStatusId, $roles, $agentId): LengthAwarePaginator;
 
 }

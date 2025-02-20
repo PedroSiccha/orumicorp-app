@@ -19,6 +19,7 @@ use App\Interfaces\AgentRepositoryInterface;
 use App\Repositories\AwardRepository;
 use App\Repositories\CampaingRepository;
 use App\Interfaces\CampaingRepositoryInterface;
+use App\Interfaces\ComunicationRepositoryInterface;
 use App\Repositories\ClientRepository;
 use App\Repositories\ConfigurationRepository;
 use App\Repositories\FolderRepository;
@@ -77,6 +78,7 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(ConfigurationRepositoryInterface::class),
                 $app->make(AwardRepositoryInterface::class),
                 $app->make(AssignmentRepositoryInterface::class),
+                $app->make(ComunicationRepositoryInterface::class),
                 $app->make(ClientRepositoryInterface::class),
 
             );

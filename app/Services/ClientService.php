@@ -31,12 +31,15 @@ use App\Models\User;
 use App\Models\Views;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\CampaingRepositoryInterface;
-
+use App\Interfaces\ComunicationRepositoryInterface;
+use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\FolderRepositoryInterface;
 use App\Interfaces\PlatformRepositoryInterface;
+use App\Interfaces\PriorityRepositoryInterface;
 use App\Interfaces\ProviderRepositoryInterface;
 use App\Interfaces\RolRepositoryInterface;
 use App\Interfaces\TraidingRepositoryInterface;
+use App\Interfaces\ViewsRepositoryInterface;
 use App\Repositories\Contracts\AssignmentRepositoryInterface;
 use App\Rules\PhoneNumberFormat;
 use Carbon\Carbon;
@@ -51,8 +54,8 @@ use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
-class ClientService /*implements ClientInterface*/ {
-    // protected $userService;
+class ClientService {
+
     protected $rolesService;
     protected $agentRepository;
     protected $rolRepository;
@@ -64,18 +67,15 @@ class ClientService /*implements ClientInterface*/ {
     protected $campaingRepository;
     protected $awardRepository;
     protected $assignmentRepository;
-
-    // protected $awardsService;
-    // protected $communicationService;
-    // protected $assignamentService;
-    // protected $campaingService;
-    // protected $providerService;
-    // protected $utils;
+    protected $comunicationRepository;
+    protected $viewsRepository;
+    protected $priorityRepository;
+    protected $taskRepository;
 
     protected $clientRepository;
 
     public function __construct(
-        // UserInterface $userService,
+
         RolesInterface $rolesService,
         AgentRepositoryInterface $agentRepository,
         RolRepositoryInterface $rolRepository,
@@ -87,16 +87,14 @@ class ClientService /*implements ClientInterface*/ {
         ConfigurationRepositoryInterface $configurationRepository,
         AwardRepositoryInterface $awardRepository,
         AssignmentRepositoryInterface $assignmentRepository,
-        // AwardsService $awardsService,
-        // ComunicationInterface $communicationService,
-        // AssignamentInterface $assignamentService,
-        // CampaingInterface $campaingService,
-        // ProviderInterface $providerService,
-        // Utils $utils,
-
+        ComunicationRepositoryInterface $comunicationRepository,
+        ViewsRepositoryInterface $viewsRepository,
+        PriorityRepositoryInterface $priorityRepository,
+        EventRepositoryInterface $taskRepository,
         ClientRepositoryInterface $clientRepository
+
     ) {
-        // $this->userService = $userService;
+        
         $this->rolesService = $rolesService;
         $this->agentRepository = $agentRepository;
         $this->rolRepository = $rolRepository;
@@ -108,13 +106,10 @@ class ClientService /*implements ClientInterface*/ {
         $this->configurationRepository = $configurationRepository;
         $this->awardRepository = $awardRepository;
         $this->assignmentRepository = $assignmentRepository;
-        // $this->awardsService = $awardsService;
-        // $this->communicationService = $communicationService;
-        // $this->assignamentService = $assignamentService;
-        // $this->campaingService = $campaingService;
-        // $this->providerService = $providerService;
-        // $this->utils = $utils;
-
+        $this->comunicationRepository = $comunicationRepository;
+        $this->viewsRepository = $viewsRepository;
+        $this->priorityRepository = $priorityRepository;
+        $this->taskRepository = $taskRepository;
         $this->clientRepository = $clientRepository;
     }
 
@@ -425,7 +420,7 @@ class ClientService /*implements ClientInterface*/ {
 
         try {
             // Actualizar estado de los clientes
-            $this->customerRepository->updateStatus($data['idGroupClientes'], $data['statusId']);
+            $this->clientRepository->updateStatus($data['idGroupClientes'], $data['statusId']);
 
             $title = "Correcto";
             $mensaje = "Actualización correcta";
@@ -443,175 +438,159 @@ class ClientService /*implements ClientInterface*/ {
         ];
     }
 
-    // public function changeStatusClient($request) {
+    public function changeStatusClient(array $data): array
+    {
 
-    //     $title = "Error";
-    //     $mensaje = "Error desconocido";
-    //     $status = "error";
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
 
-    //     $idClient = $request->id;
-    //     $client = Customers::find($idClient);
-    //     if ($client == null) {
-    //         $title = "Error";
-    //         $mensaje = "Hubo un error con el cliente";
-    //         $status = "error";
-    //     }
-    //     try {
-    //         $client->status = $request->status;
-    //         if ($client->save()) {
-    //             $title = "Correcto";
-    //             $mensaje = "Se cambió el estado del cliente";
-    //             $status = "success";
-    //         } else {
-    //             $title = "Error";
-    //             $mensaje = "No se pudo cambiar el estado del cliente";
-    //             $status = "error";
-    //         }
-    //     } catch (Exception $e) {
-    //         $title = "Error";
-    //         $mensaje = "Ocurrió un error: " . $e->getMessage();
-    //         $status = "error";
-    //     }
+        
+        try {
+            $client = $this->clientRepository->getClientById($data['id']);
 
-    //     return [
-    //         'title' => $title,
-    //         'mensaje' => $mensaje,
-    //         'status' => $status
-    //     ];
-    // }
+            if (!$client) {
+                return [
+                    'title' => "Error",
+                    'mensaje' => "Cliente no encontrado",
+                    'status' => "error"
+                ];
+            }
 
-    // public function updateClient($request) {
-    //     $title = "Error";
-    //     $mensaje = "Error desconocido";
-    //     $status = "error";
+            $updated = $this->clientRepository->updateClientStatus($data['id'], $data['status']);
 
-    //     try {
+            if ($updated) {
+                $title = "Correcto";
+                $mensaje = "Se cambió el estado del cliente";
+                $status = "success";
+            } else {
+                $mensaje = "No se pudo cambiar el estado del cliente";
+            }
 
-    //         $client = Customers::find($request->id);
-    //         $client->code = $request->code;
-    //         $client->name = $request->name;
-    //         $client->lastname = $request->lastname;
-    //         $client->phone = $request->phone;
-    //         $client->optional_phone = $request->optionalPhone;
-    //         $client->city = $request->city;
-    //         $client->country = $request->country;
-    //         $client->comment = $request->comment;
-    //         $client->email = $request->email;
+        } catch (Exception $e) {
+            Log::error("Error en `changeStatusClient()`: " . $e->getMessage());
+            $mensaje = "Ocurrió un error inesperado. Por favor, contacte al soporte.";
+        }
 
-    //         $user = User::find($client->user_id);
-    //         $user->name = $request->name;
+        return [
+            'title' => $title,
+            'mensaje' => $mensaje,
+            'status' => $status
+        ];
+    }
 
-    //         if ($client->save()) {
-    //             if ($user->save()) {
-    //                 $title = "Correcto";
-    //                 $mensaje = "Se actualizó el cliente correctamente";
-    //                 $status = "success";
-    //             } else {
-    //                 $title = "Error";
-    //                 $mensaje = "Hubo un error al actualizar el usuario del cliente";
-    //                 $status = "error";
-    //             }
-    //         } else {
-    //             $title = "Error";
-    //             $mensaje = "Hubo un error al actualizar el cliente";
-    //             $status = "error";
-    //         }
+    public function updateClient($request)
+    {
+        DB::beginTransaction();
+        try {
+            $client = $this->clientRepository->getClientById($request->id);
+            $this->clientRepository->updateClient($client, [
+                'code' => $request->code,
+                'name' => $request->name,
+                'lastname' => $request->lastname,
+                'phone' => $request->phone,
+                'optional_phone' => $request->optionalPhone,
+                'city' => $request->city,
+                'country' => $request->country,
+                'comment' => $request->comment,
+                'email' => $request->email
+            ]);
 
-    //     } catch (ValidationException $e) {
-    //         $title = "Error";
-    //         $mensaje = $e->getMessage();
-    //         $status = "error";
-    //     } catch (Exception $e) {
-    //         $title = "Error";
-    //         $mensaje = "Verificar los datos del registro";
-    //         $status = "error";
-    //     }
+            DB::commit();
 
-    //     return [
-    //         'title' => $title,
-    //         'mensaje' => $mensaje,
-    //         'status' => $status
-    //     ];
+            return [
+                'title' => 'Correcto',
+                'mensaje' => 'Se actualizó el cliente correctamente',
+                'status' => 'success'
+            ];
 
-    // }
+        } catch (Exception $e) {
+            DB::rollBack();
+            return [
+                'title' => 'Error',
+                'mensaje' => 'Error al actualizar cliente: ' . $e->getMessage(),
+                'status' => 'error'
+            ];
+        }
+    }
 
-    // public function deleteClient($request) {
-    //     $title = "Error";
-    //     $mensaje = "Error desconocido";
-    //     $status = "error";
-    //     $client = Customers::find($request->id);
-    //     if ($client == null) {
-    //         $title = "Error";
-    //         $mensaje = "Hubo un error con el cliente";
-    //         $status = "error";
-    //     }
-    //     try {
-    //         if ($client->delete()) {
-    //             $title = "Correcto";
-    //             $mensaje = "El cliente se elimninó correctamente";
-    //             $status = "success";
-    //         } else {
-    //             $title = "Error";
-    //             $mensaje = "No se pudo eliminar el cliente";
-    //             $status = "error";
-    //         }
-    //     } catch (Exception $e) {
-    //         $title = "Error";
-    //         $mensaje = $e->getMessage();
-    //         $status = "error";
-    //     }
+    public function deleteClient($request)
+    {
+        DB::beginTransaction();
+        try {
+            $client = $this->clientRepository->getClientById($request->id);
+            if (!$client) { 
+                return [
+                    'title' => 'Error',
+                    'mensaje' => 'Cliente no encontrado',
+                    'status' => 'error'
+                ];
+            }
+            if ($this->clientRepository->deleteClient($client)) {
+                DB::commit();
+                return [
+                    'title' => 'Correcto',
+                    'mensaje' => 'El cliente se eliminó correctamente',
+                    'status' => 'success'
+                ];
+            } else {
+                DB::rollBack();
+                return [
+                    'title' => 'Error',
+                    'mensaje' => 'No se pudo eliminar el cliente',
+                    'status' => 'error'
+                ];
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
 
-    //     return [
-    //         'title' => $title,
-    //         'mensaje' => $mensaje,
-    //         'status' => $status
-    //     ];
-    // }
+            return [
+                'title' => 'Error',
+                'mensaje' => 'Error al eliminar el cliente: ' . $e->getMessage(),
+                'status' => 'error'
+            ];
+        }
+    }
 
-    // public function profileClient($id) {
-    //     $myRoles = $this->rolesService->getMyRoles();
+    public function profileClient($id) {
 
-    //     $user_id = Auth::user()->id;
-    //     $agent = Agent::where('user_id', $user_id)->first();
-    //     $client = Customers::where('user_id', $user_id)->first();
-    //     $rouletteSpin = $agent->number_turns ?: 0;
+        $myRoles = $this->rolesService->getMyRoles();
+        $client = $this->clientRepository->getClientByUserId($id);
+        $dataUser = $client;
 
-    //     $dataUser = null;
+        $communications = $this->comunicationRepository->getLocationByCustomer($client->id);
+        $lastAssignament = $this->assignmentRepository->getLastAssignmentByCustomer($client->id);
+        $lastCampaing = $this->campaingRepository->getLastCampaingByCustomer($client->id);
+        $campaings = $this->campaingRepository->getAllCampaingsByCustomer($client->id);
+        $lastProvider = $this->providerRepository->getLastProviderByCustomer($client->id);
+        $providers = $this->providerRepository->getAllProvidersByCustomer($client->id);
+        $priorities = $this->priorityRepository->getAllPriorities();
+        $eventos = $this->taskRepository->getEventsByCustomer($client->id);
+        $vistas = $this->viewsRepository->getViewsByClients($client->id);
 
-    //     if ($agent) {
-    //         $dataUser = $agent;
-    //     }
+        return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers', 'priorities', 'eventos', 'vistas');
 
-    //     if ($client) {
-    //         $dataUser = $client;
-    //     }
+    }
 
-    //     $premios = $this->awardsService->chargeAwards();
-    //     $premios1 = $premios['premios1'];
-    //     $premios2 = $premios['premios2'];
-    //     $dataCustomer = Customers::where('id', $id)->first();
-    //     $dataCommunication = [
-    //         'customer_id' => $dataCustomer->id,
-    //         // 'customerStatusId' => $dataCustomer->customerStatusId
-    //     ];
+    public function searchCustomerByStatus($customerId)
+    {
+        $myRoles = $this->rolesService->getMyRoles();
+        $userId = Auth::user()->id;
+        $roles = $myRoles['roles'];
+        // Obtener el agente si no es ADMIN
+        $agent = ($roles !== 'ADMINISTRADOR') ? Agent::where('user_id', $userId)->first() : null;
+        $agentId = $agent ? $agent->id : null;
 
-    //     $communications = $this->communicationService->getLocationByCustomer($dataCommunication);
-    //     $lastAssignament = $this->assignamentService->getLastAssignamentByCustomer($dataCommunication);
-    //     $lastCampaing = $this->campaingService->getLastCampaingByCustomer($dataCommunication);
-    //     // dd($lastCampaing);
-    //     $campaings = $this->campaingService->getAllCampaingsByCustomer($dataCommunication);
-    //     // dd($campaings['name']);
-    //     $lastProvider = $this->providerService->getLastProviderByCustomer($dataCommunication);
-    //     $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
-    //     $priorities = Priority::all();
-    //     $eventos = Task::with('customer')->where('customer_id', $id)->get();
+        // Obtener clientes según el rol
+        $customers = $this->clientRepository->getCustomersByStatusAndRole($customerId, $roles, $agentId);
 
-    //     $vistas = Views::with('agent')
-    //                     ->where('customer_id', $dataCustomer->id)
-    //                     ->get();
+        // Obtener datos adicionales
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
 
-    //     return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers', 'priorities', 'eventos', 'vistas');
-
-    // }
+        return compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers');
+    }
 
 }
