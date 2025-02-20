@@ -30,9 +30,9 @@
               <td>{{ $sale->agent->area->name }}</td>
               <td>{{ $sale->obsercation }}</td>
               <td>
-                    {{-- @can('Editar Venta') --}}
+                    @can('Editar Venta')
                         <button class="btn btn-warning " type="button" onclick="editarSale('{{ $sale->id }}', '{{ $sale->customer->id }}', '{{ $sale->customer->name }} {{ $sale->customer->lastname }}', '{{ $sale->amount }}', '{{ $sale->percent }}', '{{ $sale->exchange_rate }}', '{{ $sale->comission }}', '{{ $sale->agent->id }}', '{{ $sale->agent->code }}', '{{ $sale->agent->name }} {{ $sale->agent->lastname }}', '{{ $sale->obsercation }}', '#modalEditarVenta', '#eId', '#eIdClient', '#eNameClient', '#eAmount', '#ePercent', '#eTypeChange', '#eComission', '#eIdAgent', '#eCodAgent', '#eNameAgent', '#eObservation')"><i class="fa fa-pencil"></i></button>
-                    {{-- @endcan --}}
+                    @endcan
                 </td>
           </tr>
       @endforeach

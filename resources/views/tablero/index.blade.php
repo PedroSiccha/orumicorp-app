@@ -50,59 +50,6 @@
 </div>
 
 <div class="row">
-
-    {{-- <div class="col-lg-4">
-        <div class="ibox ">
-            <div class="ibox-title">
-                <h5>Mensajes</h5>
-                <div class="ibox-tools">
-                    <a class="collapse-link">
-                        <i class="fa fa-chevron-up"></i>
-                    </a>
-                    <a class="close-link">
-                        <i class="fa fa-times"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="ibox-content ibox-heading">
-                <h3><i class="fa fa-envelope-o"></i> Nuevo Mensaje</h3>
-                <small><i class="fa fa-tim"></i> Usted tiene 3 mensajes.</small>
-            </div>
-            <div class="ibox-content">
-                <div class="feed-activity-list">
-
-                    <div class="feed-element">
-                        <div>
-                            <small class="float-right text-navy">1m ago</small>
-                            <strong>Monica Smith</strong>
-                            <div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum</div>
-                            <small class="text-muted">Today 5:60 pm - 12.06.2014</small>
-                        </div>
-                    </div>
-
-                    <div class="feed-element">
-                        <div>
-                            <small class="float-right">2m ago</small>
-                            <strong>Jogn Angel</strong>
-                            <div>There are many variations of passages of Lorem Ipsum available</div>
-                            <small class="text-muted">Today 2:23 pm - 11.06.2014</small>
-                        </div>
-                    </div>
-
-                    <div class="feed-element">
-                        <div>
-                            <small class="float-right">5m ago</small>
-                            <strong>Jesica Ocean</strong>
-                            <div>Contrary to popular belief, Lorem Ipsum</div>
-                            <small class="text-muted">Today 1:00 pm - 08.06.2014</small>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div> --}}
-
     <div class="col-lg-8">
         <div class="ibox ">
             <div class="ibox-title">
@@ -144,18 +91,6 @@
         <div class="ibox-content">
             <div>
                 <div class="row">
-                    {{-- <div class="col-lg-12">
-                        <div class="widget style1 lazur-bg">
-                            <div class="row vertical-align">
-                                <div class="col-3">
-                                    <i class="fa fa-plus fa-3x"></i>
-                                </div>
-                                <div class="col-9 text-right">
-                                    <h2 class="font-bold">Registrar Cliente</h2>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
                     <div class="col-lg-12" onclick="mostrarNuevoModal('#modalChargeGroup')">
                         <div class="widget style1 navy-bg">
                             <div class="row vertical-align">

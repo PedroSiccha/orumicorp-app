@@ -31,9 +31,6 @@
                 </div>
             </div>
             <div class="modal-footer">
-                {{-- <button class="btn btn-info " type="button"
-                    onclick="asignFolderGroup('#idGroupClientes', '#folder_id', '#modalAsignFolder', '#tabClient')"><i
-                        class="fa fa-save"></i> Guardar</button> --}}
                 <button class="btn btn-info " type="button"
                     onclick="assignNewFolder({ clienteId: '#idCustomerChangeFolder', folderId: '#newFolderChangeId', modal: '#modalChangeFolder', tableName: '#tabClient'})"><i
                         class="fa fa-save"></i> Guardar</button>

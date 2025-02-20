@@ -176,9 +176,8 @@ class FolderController extends Controller
             $status = 'error';
         }
 
-        // $folders = Folder::where('status', 1)->where('category_id', 1)->get();
         $clients = Customers::where('status', 1)->where('folder_id', $request->folderId)->get();
-        // return response()->json(["view"=>view('shooter.components.listFolder', compact('folders'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
+
         return response()->json(["view"=>view('shooter.components.listClient', compact('clients'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
 
     }
@@ -238,8 +237,6 @@ class FolderController extends Controller
         $title = 'Error';
         $mensaje = 'Error desconocido';
         $status = 'error';
-
-        //dd($request);
 
         try {
 

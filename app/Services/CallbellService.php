@@ -114,7 +114,6 @@ class CallbellService
 
             // Depurar la respuesta cruda para verificar si es igual a Postman
             Log::info("Respuesta cruda de Callbell API: " . $responseBody);
-            // dd("Respuesta cruda: ", json_decode($responseBody, true));
 
             return json_decode($responseBody, true);
 

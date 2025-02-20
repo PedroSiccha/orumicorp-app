@@ -51,6 +51,7 @@ class PerfilController extends Controller
         $clients = Customers::where('agent_id', $agent->id)->paginate(5, ['*'], 'clients_page')->withQueryString();
         $targets = Target::select('id', 'amount', 'agent_id')
                         ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
+                        ->where('agent_id', $agent->id  )
                         ->paginate(5, ['*'], 'targets_page')->withQueryString();
 
         $sales = Sales::select('sales.*', 'c.name', 'c.lastname')

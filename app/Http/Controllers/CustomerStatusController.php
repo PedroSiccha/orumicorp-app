@@ -55,7 +55,7 @@ class CustomerStatusController extends Controller
         $status = "error";
 
         try {
-            // dd($request);
+
             $customerStatus = CustomerStatus::find($request->id);
             $customerStatus->name = $request->name;
             $customerStatus->color = 'table-default';

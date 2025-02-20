@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Orumicorp - Ingresar</title>
+	<title>Datrux - Ingresar</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="icon" type="image/png" href="{{asset('img/logo/basic_logo.png')}}"/>
@@ -16,7 +16,7 @@
 	<link rel="stylesheet" type="text/css" href="{{asset('login_app/css/util.css')}}">
 	<link rel="stylesheet" type="text/css" href="{{asset('login_app/css/main.css')}}">
 </head>
-<body style="background-color: #666666;">	
+<body style="background-color: #666666;">
 	<div class="limiter">
 		<div class="container-login100">
 			<div class="wrap-login100">

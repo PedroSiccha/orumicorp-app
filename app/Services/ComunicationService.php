@@ -21,14 +21,6 @@ class ComunicationService implements ComunicationInterface {
         $mensaje = "Error desconocido";
         $status = "error";
         $data = "";
-        // $statusCustomer_id = $request['customerStatusId'];
-        // $statusCommunicationName = "";
-
-        // if ($statusCustomer_id) {
-        //     $statusCommunication = CustomerStatus::find($request['customerStatusId']);
-        //     $statusCommunicationName = $statusCommunication->name;
-        // }
-
 
         try {
             $user_id = Auth::user()->id;

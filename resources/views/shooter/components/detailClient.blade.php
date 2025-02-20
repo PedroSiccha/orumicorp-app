@@ -44,18 +44,6 @@
                     Estado
                 </li>
             @endif
-            {{-- @if ($client->latestCampaign)
-                <li class="list-group-item">
-                    <span class="float-right"> {{ $client->latestCampaign->name }} </span>
-                    Campaña
-                </li>
-            @endif --}}
-            {{-- @if ($client->latestSupplier)
-                <li class="list-group-item">
-                    <span class="float-right"> {{ $client->latestSupplier->name }} </span>
-                    Proveedor
-                </li>
-            @endif --}}
             @if ($client->traiding)
                 <li class="list-group-item">
                     <span class="float-right"> {{ $client->traiding->code }} </span>

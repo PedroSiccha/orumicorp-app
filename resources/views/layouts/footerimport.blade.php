@@ -9,7 +9,7 @@
     
     <script src="{{ asset('js/utils/dateMenu.js') }}"></script>
     {{-- <script src="{{ asset('js/task/task.js') }}" defer></script> --}}
-    <script src="{{ asset('js/utils/notifications.js') }}"></script>
+    {{-- <script src="{{ asset('js/utils/notifications.js') }}"></script> --}}
     <!-- Mainly scripts -->
     <script src="{{asset('js/jquery-3.1.1.min.js')}}"></script>
     <script src="{{asset('js/popper.min.js')}}"></script>
@@ -68,8 +68,9 @@
 
     <script src="{{asset('js/plugins/iCheck/icheck.min.js')}}"></script>
     <script src="{{ asset('js/plugins/chartJs/Chart.min.js') }}"></script>
-    {{-- <script src="https://js.pusher.com/7.2/pusher.min.js"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
+    {{-- <script src="https://js.pusher.com/7.2/pusher.min.js"></script> --}}
 
     <script>
             var updateGiroRoute = '{{ route("updateGiro") }}';
@@ -210,7 +211,7 @@
 
                 var previousPoint = null, previousLabel = null;
 
-                $.plot($("#flot-dashboard-chart"), dataset, options);
+                // $.plot($("#flot-dashboard-chart"), dataset, options);
 
                 var mapData = {
                     "US": 298,
@@ -247,21 +248,6 @@
                 });
             });
 
-            // const pusher = new Pusher('ddfeb8029c8fce193f9a', {
-            //     cluster: 'us2',
-            //     encrypted: true
-            // });
-
-            // const userId = 1;
-
-            // const channel = pusher.subscribe(`private-App.Models.User.${userId}`);
-
-            // channel.bind('Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', function(data) {
-            //     console.log('Notificación recibida:', data);
-            //     const notificaciones = document.getElementById('notificaciones');
-            //     notificaciones.innerHTML += `<div class="alert alert-info">${data.message}</div>`;
-            // });
-
             toastr.options = {
                 "closeButton": true,
                 "debug": false,
@@ -288,4 +274,5 @@
 
     </script>
     <script src="{{ asset('js/utils/getNotify.js') }}"></script>
+    <script src="{{ asset('js/rouletteManagement/ruleta.js') }}"></script>
 @yield('script')

@@ -49,7 +49,6 @@ class VoisoController extends Controller
     {
         $user_id = Auth::user()->id;
         $codeVoiso = Agent::where('user_id', $user_id)->first();
-        // dd($codeVoiso);
         $data = [
             'agent' => $codeVoiso->code_voiso,
             'number' => $request->phone,
@@ -62,8 +61,6 @@ class VoisoController extends Controller
             'description' => '',
             'comment' => ''
         ];
-
-        // dd($data);
 
         $response = Http::post('https://cc-dal01.voiso.com/api/v1/2a517cb66609906663cf7e5bd337ff168286eeacb0364d1d/click2call', $data);
         if ($response->successful()) {

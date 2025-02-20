@@ -14,7 +14,7 @@
                         <h3 class="m-t-none m-b">Datos Personales</h3>
                         <div class="form-group">
                             <label>Código</label>
-                            <input type="text" placeholder="Ingrese Código" class="form-control" id='eCode'>
+                            <input type="text" placeholder="Ingrese Código" class="form-control" id='eCode' readonly>
                         </div>
                         <div class="form-group">
                             <label>Nombres</label>
@@ -40,10 +40,6 @@
                             <input type="email" placeholder="Ingrese Correo" class="form-control" id='eEmail'>
                         </div>
                         <div class="form-group">
-                            <label>Ciudad</label>
-                            <input type="text" placeholder="Ingrese Ciudad" class="form-control" id='eCity'>
-                        </div>
-                        <div class="form-group">
                             <label>País</label>
                             <input type="text" placeholder="Ingrese País" class="form-control" id='eCountry'>
                         </div>
@@ -53,24 +49,6 @@
                                 <option>Seleccione un proveedor</option>
                                 @foreach ($providers as $provider)
                                 <option value="{{ $provider->id }}">{{ $provider->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Platform</label>
-                            <select name="platform" id="ePlatform_id" class="form-control m-b">
-                                <option>Seleccione su platform</option>
-                                @foreach ($platforms as $platform)
-                                <option value="{{ $platform->id }}">{{ $platform->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Traiding</label>
-                            <select name="traiding" id="eTraiding_id" class="form-control m-b">
-                                <option>Seleccione su Traiding</option>
-                                @foreach ($traidings as $traiding)
-                                <option value="{{ $traiding->id }}">{{ $traiding->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -96,7 +74,6 @@
                     '#ePhone',
                     '#eOptionalPhone',
                     '#eEmail',
-                    '#eCity',
                     '#eCountry',
                     '#eComment',
                     '#eRol_id',

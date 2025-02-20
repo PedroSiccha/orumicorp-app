@@ -10,7 +10,6 @@
       <div class="col-lg-5">
           <div class="ibox ">
               <div class="ibox-title">
-                  {{-- <h5>Data Picker <small>https://github.com/eternicode/bootstrap-datepicker</small></h5> --}}
                   <div class="ibox-tools">
                   </div>
               </div>
@@ -37,7 +36,7 @@
                         <button class="btn btn-outline btn-warning  dim form-control" type="button" onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN-BREAK', '#panelButton', '#tabAssistance')"><i class="fa fa-cutlery"></i> <i class="fa fa-arrow-circle-o-left"></i> Marcar Salia Break</button>
                     @endif
                 </div>
-
+ 
                 <div class="form-group" id="data_3">
                     <label class="font-normal">Break</label>
                     @if ( $dateBreakOut )
@@ -101,7 +100,7 @@
                     </div>
                     <div class="col-sm-2 text-right">
                         <div class="input-group date">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterAssitance('#area', '#date_added_init', '#date_added_end', '#tabAssistance')">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')">
                         </div>
                     </div>
                     <div class="col-sm-2 text-right">
@@ -151,29 +150,43 @@
                 <div class="ibox-content" id="tabAssistance">
                     <table class="table table-striped">
                         <thead>
-                          <tr>
-                                <th>Fecha de Asistencia</th>
-                                <th>Nombre del Agente</th>
-                                <th>Hora de Ingreso</th>
-                                <th>Hora de Break</th>
-                                <th>Vuelta de Break</th>
-                                <th>Hora de Salida</th>
-                          </tr>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>AGENTE</th>
+                                <th>ÁREA</th>
+                                <th>IN</th>
+                                <th>IN-BREAK</th>
+                                <th>OUT-BREAK</th>
+                                <th>OUT</th>
+                            </tr>
                         </thead>
                         <tbody>
-                          @foreach ($assistances as $assistance)
-                              <tr>
-                                <td>{{ $assistance->date }}</td>
-                                <td>{{ $assistance->name }} {{ $assistance->lastname }}</td>
-                                <td>{{ $assistance->IN }}</td>
-                                <td>{{ $assistance->INBREAK }}</td>
-                                <td>{{ $assistance->OUTBREAK }}</td>
-                                <td>{{ $assistance->OUT }}</td>
-                              </tr>
-                          @endforeach
+                            @foreach ($formattedData as $date => $agents)
+                                @foreach ($agents as $agentName => $records)
+                                    <tr>
+                                        <td>{{ $date }}</td>
+                                        <td>{{ $agentName }}</td>
+                                        <td>{{ $records['area'] ?? '' }}</td> <!-- Mostrar el área del agente -->
+                                        
+                                        @foreach (['IN', 'IN-BREAK', 'OUT-BREAK', 'OUT'] as $type)
+                                            <td>
+                                                @if (isset($records[$type]))
+                                                    @foreach ($records[$type] as $entry)
+                                                        {{ $entry['hour'] }} <br>
+                                                        @if (!empty($entry['observation']))
+                                                            <span style="font-size: small;">{{ $entry['observation'] }}</span>
+                                                        @endif
+                                                        <br>
+                                                    @endforeach
+                                                @endif
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+                            @endforeach
                         </tbody>
                     </table>
-                </div>
+                </div>                                
                 @endcan
             </div>
         </div>

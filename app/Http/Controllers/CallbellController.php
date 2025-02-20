@@ -164,7 +164,6 @@ class CallbellController extends Controller
         }
 
         if ($request->ajax()) {
-            // return response()->json(['contacts' => $contacts]);
             return response()->json(["view"=>view('whatsapp.components.list.listContacts', compact('contacts'))->render()]);
         }
 
@@ -248,15 +247,8 @@ class CallbellController extends Controller
             $customer->callbel_blocked_at = $contactData['blockedAt'];
             $customer->save();
 
-            // Retornamos la respuesta con el cliente actualizado o creado
-            // return response()->json([
-            //     'message' => 'Cliente actualizado correctamente.',
-            //     'customer' => $customer,
-            // ]);
-
             $baseUrl = env('CALLBELL_API_BASE_URL');
             $token = env('CALLBELL_API_TOKEN');
-            // dd($request->uuid);
 
             $response = Http::withToken($token)->get("{$baseUrl}/contacts/{$request->uuid}/messages");
 

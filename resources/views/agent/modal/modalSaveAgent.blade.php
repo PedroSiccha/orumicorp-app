@@ -9,14 +9,14 @@
             <div class="modal-body">
                 <table class="table m-b-xs">
                     <tbody>
-                        <tr>
+                        {{-- <tr>
                             <td>
                                 <strong>Código</strong>
                             </td>
                             <td>
                                 <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su código" id='code'>
                             </td>
-                        </tr>
+                        </tr> --}}
                         <tr>
                             <td>
                                 <strong>Nombre</strong>
@@ -80,7 +80,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="guardarNuevoAgente('#code', '#name', '#lastname', '#codeVoiso', '#email', '#area_id', '#rol_id', '#modalAgente', '#tabAgente')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-info " type="button" onclick="guardarNuevoAgente(/*'#code', */'#name', '#lastname', '#codeVoiso', '#email', '#area_id', '#rol_id', '#modalAgente', '#tabAgente')"><i class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
             </div>
         </div>

@@ -56,24 +56,6 @@
                     </div>
                 </div>
                 @endif
-
-                {{-- <div class="form-group row">
-                    <label class="col-lg-3 col-form-label">Código del Cliente</label>
-                    <div class="col-lg-9">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="dniCustomer" placeholder="Ingrese el DNI o Código del cliente">
-                            <div class="input-group-append">
-                                <button type="button" class="btn btn-primary ladda-button-client-new-deposit" data-style="zoom-in" onclick="searchClient({ inputDni: '#dniCustomer', inputName: '#nameCustomer', alertError: '#alertErrorNuevoDeposito', alertErrorText: '#alertErrorTextNuevoDeposito', btnLadda: '.ladda-button-client-new-deposit' })"><i class="fa fa-search"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label">Nombre del Cliente</label>
-                    <div class="col-lg-9">
-                        <input type="text" placeholder="Nombre del Cliente" class="form-control" id='nameCustomer' readonly>
-                    </div>
-                </div> --}}
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Desde</label>
                     <div class="col-lg-9">

@@ -69,7 +69,8 @@ class AgentController extends Controller
 
     public function uploadImg(Request $request)
     {
-        $this->agentService->uploadImg($request);
+        $response = $this->agentService->uploadImg($request);
+        return response()->json($response);
     }
 
     public function changePassword(Request $request)

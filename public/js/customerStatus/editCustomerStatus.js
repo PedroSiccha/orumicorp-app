@@ -1,4 +1,4 @@
-function editCustomenStatus(options) { /* id, name, inputId, inputName, inputColor, modal) { */
+function editCustomenStatus(options) { 
 
     var modal = options.modal !== undefined ? options.modal : '';
     var id = options.id !== undefined ? options.id : '';

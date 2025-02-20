@@ -22,10 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         },
         eventClick: function (info) {
-            //mostrarMensaje("Event", info.event, "success");
             getEventById(info.event.id, 'modalRegistrarEvento');
-            //console.log(info.event.id);
-            //$("#modalRegistrarEvento").modal("show");
         },
         events: '/obtenerEventos',
         eventContent: function(arg) {

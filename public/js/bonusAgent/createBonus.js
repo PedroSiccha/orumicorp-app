@@ -3,7 +3,6 @@ function createBonus(options) {
     var amount = options.commission !== undefined ? $(options.commission).val() : '';
     var observation = options.inputObservation !== undefined ? $(options.inputObservation).val() : '';
     var dniAgent = options.dniAgent !== undefined ? $(options.dniAgent).val() : '';
-    // alert(amount);
 
     var modal = options.modal !== undefined ? options.modal : '';
     var table = options.table !== undefined ? options.table : '';

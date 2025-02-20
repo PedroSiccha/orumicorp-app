@@ -8,6 +8,7 @@ use App\Models\Area;
 use App\Models\Assistance;
 use App\Models\Customers;
 use App\Models\Premio;
+use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Facades\View;
 use Dompdf\Dompdf;
@@ -23,7 +24,7 @@ class PartTimeController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     */
+     */ 
     public function index()
     {
         $dateIn = '';
@@ -69,7 +70,48 @@ class PartTimeController extends Controller
         $rouletteSpin = $agent->number_turns ?: 0;
         $areas = Area::where('status', true)->get();
 
-        return view('partTime.index', compact('premios1', 'premios2', 'dataUser', 'dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut', 'assistances', 'rouletteSpin', 'areas'));
+        // Obtener la fecha actual en formato YYYY-MM-DD
+        $currentDate = Carbon::now()->toDateString();
+
+        $assistances = DB::table('assistance as a')
+                        ->join('agents as ag', 'a.agent_id', '=', 'ag.id') // Unir con la tabla de agentes
+                        ->join('areas as ar', 'ag.area_id', '=', 'ar.id')
+                        ->select(
+                            'a.date',  // Agregamos la fecha para la agrupación
+                            'a.agent_id',
+                            'ag.name as agent_name',
+                            'ag.lastname as last_name',
+                            'ar.name as area_name', // Nombre del área del agente
+                            'a.hour',
+                            'a.type',
+                            'a.observation'
+                        )
+                        ->where('a.date', $currentDate) 
+                        ->orderBy('a.date', 'DESC')
+                        ->orderBy('a.hour', 'ASC')
+                        ->get();
+
+        $formattedData = [];
+        $types = ['IN', 'IN-BREAK', 'OUT-BREAK', 'OUT']; // Tipos fijos
+
+        foreach ($assistances as $record) {
+            $date = Carbon::parse($record->date)->format('d/m/Y'); // Formateamos la fecha a DD/MM/YYYY
+            $agentName = $record->agent_name . " " . $record->last_name;
+            $area = $record->area_name; // Se añade el área
+            $type = $record->type;
+        
+            // Guardamos los tipos de asistencia como claves
+            $types[$type] = true;
+        
+            $formattedData[$date][$agentName]['area'] = $area; // Se almacena el área en la estructura
+            // Reorganizamos la estructura de datos
+            $formattedData[$date][$agentName][$type][] = [
+                'hour' => $record->hour,
+                'observation' => $record->observation
+            ];
+        }
+
+        return view('partTime.index', compact('premios1', 'premios2', 'dataUser', 'dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut', 'assistances', 'rouletteSpin', 'areas', 'formattedData', 'types'));
     }
 
     /**
@@ -130,8 +172,48 @@ class PartTimeController extends Controller
         ->groupBy('agents.name', 'agents.lastname', 'assistance.date')
         ->get();
 
+        // Obtener la fecha actual en formato YYYY-MM-DD
+        $currentDate = Carbon::now()->toDateString();
 
-        return response()->json(["view"=>view('partTime.components.panelButton', compact('dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut'))->render(), "viewTable"=>view('partTime.components.tabAssistance', compact('assistances'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        $assistances = DB::table('assistance as a')
+                        ->join('agents as ag', 'a.agent_id', '=', 'ag.id') // Unir con la tabla de agentes
+                        ->join('areas as ar', 'ag.area_id', '=', 'ar.id')
+                        ->select(
+                            'a.date',  // Agregamos la fecha para la agrupación
+                            'a.agent_id',
+                            'ag.name as agent_name',
+                            'ag.lastname as last_name',
+                            'ar.name as area_name', // Nombre del área del agente
+                            'a.hour',
+                            'a.type',
+                            'a.observation'
+                        )
+                        ->where('a.date', $currentDate) 
+                        ->orderBy('a.date', 'DESC')
+                        ->orderBy('a.hour', 'ASC')
+                        ->get();
+
+        $formattedData = [];
+        $types = ['IN', 'IN-BREAK', 'OUT-BREAK', 'OUT']; // Tipos fijos
+
+        foreach ($assistances as $record) {
+            $date = Carbon::parse($record->date)->format('d/m/Y'); // Formateamos la fecha a DD/MM/YYYY
+            $agentName = $record->agent_name . " " . $record->last_name;
+            $area = $record->area_name; // Se añade el área
+            $type = $record->type;
+        
+            // Guardamos los tipos de asistencia como claves
+            $types[$type] = true;
+        
+            $formattedData[$date][$agentName]['area'] = $area; // Se almacena el área en la estructura
+            // Reorganizamos la estructura de datos
+            $formattedData[$date][$agentName][$type][] = [
+                'hour' => $record->hour,
+                'observation' => $record->observation
+            ];
+        }
+
+        return response()->json(["view"=>view('partTime.components.panelButton', compact('dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut'))->render(), "viewTable"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
 
     }
 
@@ -144,32 +226,77 @@ class PartTimeController extends Controller
     public function filterAssistance(Request $request)
     {
 
-        $codigo = $request->code;
         $nombre = $request->code;
+        $area = $request->area;
 
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
-        $dateInit = DateTime::createFromFormat('m/d/Y', $request->dateInit)->format('Y-m-d');
-        $dateEnd = DateTime::createFromFormat('m/d/Y', $request->dateEnd)->format('Y-m-d');
-        $assistances = Assistance::select(
-            'agents.name',
-            'agents.lastname',
-            'assistance.date',
-            DB::raw("MAX(CASE WHEN assistance.type = 'IN' THEN assistance.hour END) AS 'IN'"),
-            DB::raw("MAX(CASE WHEN assistance.type = 'IN-BREAK' THEN assistance.hour END) AS 'INBREAK'"),
-            DB::raw("MAX(CASE WHEN assistance.type = 'OUT-BREAK' THEN assistance.hour END) AS 'OUTBREAK'"),
-            DB::raw("MAX(CASE WHEN assistance.type = 'OUT' THEN assistance.hour END) AS 'OUT'")
-        )
-        ->join('agents', 'assistance.agent_id', '=', 'agents.id')
-        ->where(function ($query) use ($codigo, $nombre) {
-            $query->where('agents.code', 'LIKE', '%' . $codigo . '%')
-                ->orWhere(DB::raw("CONCAT(agents.name, ' ', agents.lastname)"), 'LIKE', '%' . $nombre . '%');
-        })
-        ->where('agents.area_id', $request->area)
-        ->whereBetween('assistance.date', [$dateInit, $dateEnd])
-        ->groupBy('agents.name', 'agents.lastname', 'assistance.date')
-        ->get();
-        return response()->json(["view"=>view('partTime.components.tabAssistance', compact('assistances'))->render()]);
+
+        $startDate = $request->dateInit; // Fecha de inicio
+        $endDate = $request->dateEnd; // Fecha de fin
+
+        // Convertir fechas al formato YYYY-MM-DD si vienen en MM/DD/YYYY
+        if ($startDate) {
+            $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
+        } else {
+            $startDate = Carbon::now()->toDateString(); // Fecha actual por defecto
+        }
+
+        if ($endDate) {
+            $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
+        } else {
+            $endDate = Carbon::now()->toDateString(); // Fecha actual por defecto
+        }
+
+       // Construcción de la consulta con JOINs para incluir el área del agente
+        $query = DB::table('assistance as a')
+                    ->join('agents as ag', 'a.agent_id', '=', 'ag.id')
+                    ->join('areas as ar', 'ag.area_id', '=', 'ar.id') // Relación con áreas
+                    ->select(
+                        'a.date',  // Agregamos la fecha para la agrupación
+                        'a.agent_id',
+                        'ag.name as agent_name',
+                        'ag.lastname as last_name',
+                        'ar.name as area_name', // Nombre del área del agente
+                        'a.hour',
+                        'a.type',
+                        'a.observation'
+                    )
+                    ->whereBetween('a.date', [$startDate, $endDate]) 
+                    ->orderBy('a.date', 'DESC')  // Ordenamos por fecha
+                    ->orderBy('a.hour', 'ASC');
+
+        // Si se ingresó un nombre de agente, aplicamos el filtro
+        if (!empty($nombre)) {
+            $query->where(DB::raw("CONCAT(ag.name, ' ', ag.lastname)"), 'LIKE', "%{$nombre}%");
+        }
+
+        if (!empty($area)) {
+            $query->where('ag.area_id', $area);
+        }
+
+        // Obtener los resultados
+        $assistances = $query->get();
+
+        // **Nueva estructura** para mostrar correctamente las fechas
+        $formattedData = [];
+        $types = ['IN', 'IN-BREAK', 'OUT-BREAK', 'OUT']; // Tipos fijos
+
+        foreach ($assistances as $record) {
+            $date = Carbon::parse($record->date)->format('d/m/Y'); // Formateamos la fecha a DD/MM/YYYY
+            $agentName = $record->agent_name . " " . $record->last_name;
+            $area = $record->area_name; // Se añade el área
+    
+            $type = $record->type;
+    
+            $formattedData[$date][$agentName]['area'] = $area; // Se almacena el área en la estructura
+            $formattedData[$date][$agentName][$type][] = [
+                'hour' => $record->hour,
+                'observation' => $record->observation
+            ];
+        }
+
+        return response()->json(["view"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render()]);
     }
 
     /**
@@ -257,23 +384,50 @@ class PartTimeController extends Controller
         $dateBreakIn = Assistance::where('date', date('Y-m-d'))->where('type', 'IN-BREAK')->where('agent_id', $agent->id)->first();
         $dateBreakOut = Assistance::where('date', date('Y-m-d'))->where('type', 'OUT-BREAK')->where('agent_id', $agent->id)->first();
         $dateOut = Assistance::where('date', date('Y-m-d'))->where('type', 'OUT')->where('agent_id', $agent->id)->first();
-        $assistances = Assistance::select(
-            'agents.name',
-            'agents.lastname',
-            'assistance.date',
-            DB::raw("MAX(CASE WHEN assistance.type = 'IN' THEN assistance.hour END) AS 'IN'"),
-            DB::raw("MAX(CASE WHEN assistance.type = 'IN-BREAK' THEN assistance.hour END) AS 'INBREAK'"),
-            DB::raw("MAX(CASE WHEN assistance.type = 'OUT-BREAK' THEN assistance.hour END) AS 'OUTBREAK'"),
-            DB::raw("MAX(CASE WHEN assistance.type = 'OUT' THEN assistance.hour END) AS 'OUT'")
-        )
-        ->join('agents', 'assistance.agent_id', '=', 'agents.id')
-        ->where('agents.id', $agent->id)
-        ->where('assistance.date', date('Y-m-d'))
-        ->groupBy('agents.name', 'agents.lastname', 'assistance.date')
-        ->get();
+
+        // Obtener la fecha actual en formato YYYY-MM-DD
+        $currentDate = Carbon::now()->toDateString();
+
+        $assistances = DB::table('assistance as a')
+                        ->join('agents as ag', 'a.agent_id', '=', 'ag.id') // Unir con la tabla de agentes
+                        ->join('areas as ar', 'ag.area_id', '=', 'ar.id')
+                        ->select(
+                            'a.date',  // Agregamos la fecha para la agrupación
+                            'a.agent_id',
+                            'ag.name as agent_name',
+                            'ag.lastname as last_name',
+                            'ar.name as area_name', // Nombre del área del agente
+                            'a.hour',
+                            'a.type',
+                            'a.observation'
+                        )
+                        ->where('a.date', $currentDate) 
+                        ->orderBy('a.date', 'DESC')
+                        ->orderBy('a.hour', 'ASC')
+                        ->get();
+
+        $formattedData = [];
+        $types = ['IN', 'IN-BREAK', 'OUT-BREAK', 'OUT']; // Tipos fijos
+
+        foreach ($assistances as $record) {
+            $date = Carbon::parse($record->date)->format('d/m/Y'); // Formateamos la fecha a DD/MM/YYYY
+            $agentName = $record->agent_name . " " . $record->last_name;
+            $area = $record->area_name; // Se añade el área
+            $type = $record->type;
+        
+            // Guardamos los tipos de asistencia como claves
+            $types[$type] = true;
+        
+            $formattedData[$date][$agentName]['area'] = $area; // Se almacena el área en la estructura
+            // Reorganizamos la estructura de datos
+            $formattedData[$date][$agentName][$type][] = [
+                'hour' => $record->hour,
+                'observation' => $record->observation
+            ];
+        }
 
 
-        return response()->json(["view"=>view('partTime.components.panelButton', compact('dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut'))->render(), "viewTable"=>view('partTime.components.tabAssistance', compact('assistances'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        return response()->json(["view"=>view('partTime.components.panelButton', compact('dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut'))->render(), "viewTable"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
     /**

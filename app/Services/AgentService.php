@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AgentService implements AgentInterface {
     protected $utils;
@@ -80,7 +82,6 @@ class AgentService implements AgentInterface {
             'status' => $status
         ];
 
-        // return response()->json(["name" => $name, "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
     public function saveAgent($requestData) {
@@ -98,7 +99,7 @@ class AgentService implements AgentInterface {
             'name' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'code' => 'required|string|unique:agents,code|max:50',
+            // 'code' => 'required|string|unique:agents,code|max:50',
             'codeVoiso' => 'required|string|unique:agents,code_voiso|max:50',
             'area_id' => 'required|integer|exists:areas,id',
         ], [
@@ -109,9 +110,9 @@ class AgentService implements AgentInterface {
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.email' => 'El correo electrónico no tiene un formato válido.',
             'email.unique' => 'El correo electrónico ya está registrado.',
-            'code.required' => 'El código es obligatorio.',
-            'code.string' => 'El código debe ser una cadena de texto.',
-            'code.unique' => 'El código ya está registrado.',
+            // 'code.required' => 'El código es obligatorio.',
+            // 'code.string' => 'El código debe ser una cadena de texto.',
+            // 'code.unique' => 'El código ya está registrado.',
             'codeVoiso.required' => 'El código Voiso es obligatorio.',
             'codeVoiso.string' => 'El código Voiso debe ser una cadena de texto.',
             'codeVoiso.unique' => 'El código Voiso ya está registrado.',
@@ -129,7 +130,7 @@ class AgentService implements AgentInterface {
             ];
         }
 
-        $pass = $requestData->code . $requestData->codeVoiso;
+        $pass = /*$requestData->code . */$requestData->codeVoiso;
 
         $user = new User();
         $user->name = $requestData->name;
@@ -139,7 +140,7 @@ class AgentService implements AgentInterface {
         if ($user->save()) {
             $user->assignRole($role);
             $agent = new Agent();
-            $agent->code = $requestData->code;
+            // $agent->code = $requestData->code;
             $agent->name = $requestData->name;
             $agent->lastname = $requestData->lastname;
             $agent->code_voiso = $requestData->codeVoiso;
@@ -180,7 +181,7 @@ class AgentService implements AgentInterface {
         $resp = 0;
 
         $agent = Agent::find($requestData->id);
-        $agent->code = $requestData->code;
+        // $agent->code = $requestData->code;
         $agent->name = $requestData->name;
         $agent->lastname = $requestData->lastname;
         $agent->area_id = $requestData->area_id;
@@ -212,13 +213,34 @@ class AgentService implements AgentInterface {
 
     public function eliminarAgente($agentId) {
         $resp = 0;
-        $agent = Agent::find($agentId);
-        $user = User::find($agent->user_id);
-        if ($agent->delete()) {
-            if ($user->delete()) {
-                $resp = 1;
-            }
+    
+        try {
+            DB::transaction(function () use ($agentId, &$resp) {
+                $agent = Agent::find($agentId);
+    
+                if (!$agent) {
+                    throw new \Exception("El agente no existe.");
+                }
+    
+                $user = User::find($agent->user_id);
+    
+                if (!$user) {
+                    throw new \Exception("El usuario asociado al agente no existe.");
+                }
+    
+                DB::table('notification_update')->where('user_id', $user->id)->delete();
+                
+                if ($agent->delete()) {
+                    if ($user->delete()) {
+                        $resp = 1;
+                    }
+                }
+            });
+    
+        } catch (\Exception $e) {
+            Log::error("Error eliminando agente: " . $e->getMessage());
         }
+    
         return $resp;
     }
 
@@ -236,9 +258,8 @@ class AgentService implements AgentInterface {
         $dataImg = $request->image;
         $subido = "";
         $urlGuardar = "";
-        $user = Auth::user();
-        $agent = Agent::where('user_id', $user->id)->first();
-        $client = Customers::where('user_id', $user->id)->first();
+        $agent = Agent::where('user_id', $request->user_id)->first();
+        $client = Customers::where('user_id', $request->user_id)->first();
 
         if ($request->hasFile('image')) {
             $nombre = $dataImg->getClientOriginalName();
@@ -259,6 +280,13 @@ class AgentService implements AgentInterface {
             $client->img = $urlGuardar;
             $client->save();
         }
+
+        // Retornar una respuesta JSON para evitar el error en el frontend
+        return [
+            'success' => $subido,
+            'message' => $subido ? 'Imagen subida correctamente' : 'Error al subir la imagen',
+            'path' => $urlGuardar
+        ];
     }
 
     public function changePassword($request) {

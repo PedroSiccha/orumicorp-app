@@ -70,20 +70,7 @@ class StatisticsTodayController extends Controller
                             ->orderBy('total_amount_day', 'DESC')
                             ->setBindings([$currentDate, $currentMonth, $currentDate, $currentMonth])
                             ->get();
-/*
-            $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                            ->selectRaw('a.name, a.lastname,
-                                        SUM(CASE WHEN sales.action_id = 4 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
-                                        SUM(CASE WHEN DATE(sales.created_at) = ? THEN sales.amount ELSE 0 END) AS total_amount_day,
-                                        SUM(CASE WHEN DATE_FORMAT(sales.created_at, "%Y-%m") = ? THEN sales.amount ELSE 0 END) AS total_amount_month,
-                                        (SELECT COUNT(*) FROM sales WHERE DATE(sales.created_at) = ?) AS total_sales_day,
-                                        (SELECT COUNT(*) FROM sales WHERE DATE_FORMAT(sales.created_at, "%Y-%m") = ?) AS total_sales_month',
-                                        [$currentDate, $currentMonth, $currentDate, $currentMonth])
 
-                            ->groupBy('a.id')
-                            ->orderBy('total_amount_day', 'DESC')
-                            ->get();
-                            */
         }
 
 
@@ -109,8 +96,6 @@ class StatisticsTodayController extends Controller
 
         $agent = Agent::where('area_id', $request->area)->first();
 
-        //dd($request->area);
-
         $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
                             ->selectRaw('a.name, a.lastname,
                                         SUM(CASE WHEN sales.action_id = 4 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
@@ -122,39 +107,7 @@ class StatisticsTodayController extends Controller
                             ->whereBetween('sales.date_admission', [$dateInit, $dateEnd])
                             ->groupBy('a.id')
                             ->orderBy('total_amount_day', 'DESC')
-                            //->setBindings([$currentDate, $currentMonth, $currentDate, $currentMonth])
                             ->get();
-
-
-
-
-/*
-        $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                            ->selectRaw('a.name, a.lastname,
-                                        SUM(CASE WHEN sales.action_id = 4 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
-                                        SUM(sales.amount) AS total_amount_day,
-                                        SUM(sales.amount) AS total_amount_month,
-                                        (SELECT COUNT(*) FROM sales) AS total_sales_day,
-                                        (SELECT COUNT(*) FROM sales) AS total_sales_month')
-                            ->where('a.area_id', $request->area)
-                            ->whereBetween('sales.date_admission', [$dateInit, $dateEnd])
-                            ->groupBy('a.id')
-                            ->orderBy('total_amount_day', 'DESC')
-                            ->get();
-                            */
-
-                            /*
-        $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                      ->selectRaw('a.name, a.lastname,
-                                   SUM(CASE WHEN sales.action_id = 4 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
-                                   SUM(sales.amount) AS total_amount_day,
-                                   SUM(sales.amount) AS total_amount_month')
-                      ->where('a.area_id', $request->area)
-                      ->whereBetween('sales.date_admission', [$dateInit, $dateEnd])
-                      ->groupBy('a.name', 'a.lastname')
-                      ->orderBy('total_amount_day', 'DESC')
-                      ->get();
-                      */
 
         return response()->json(["view"=>view('todayStatistics.components.tabStatistics', compact('sales'))->render()]);
     }

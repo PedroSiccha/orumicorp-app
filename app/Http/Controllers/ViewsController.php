@@ -27,11 +27,9 @@ class ViewsController extends Controller
             $views->customer_id = $client_id;
             $views->viewed_at = Carbon::now();
             if ($views->save()) {
-                // dd($views);
                 echo('Vista Ok');
             }
         } catch (Exception $e) {
-            // dd($e->getMessage());
             echo($e->getMessage());
         }
     }
@@ -43,7 +41,6 @@ class ViewsController extends Controller
                         ->where('customer_id', $client_id)
                         ->get();
 
-        //return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
     /**

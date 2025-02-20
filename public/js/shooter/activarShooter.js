@@ -16,7 +16,6 @@ function activeShooter(options) {
         cancelButtonText: "Cancelar"
     }).then((result) => {
         if (result.isConfirmed) {
-            //mostrarMensaje('Shooter', 'Se activó correctamente', 'success');
             $.post(activeShooterRoute, {folder_id: folder_id, _token: token}).done(function(data) {
                 $(tableName).empty();
                 $(tableName).html(data.view);

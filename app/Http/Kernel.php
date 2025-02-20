@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'checkip' => \App\Http\Middleware\CheckIPRestriction::class,
         'markAsSeen' => \App\Http\Middleware\MarkNotificationsAsSeen::class,
+        'auth.api' => \App\Http\Middleware\AuthenticateApiUser::class,
     ];
 }

@@ -12,6 +12,7 @@ class CustomerStatus extends Model
     protected $fillable = [
         'name',
         'color',
+        'description',
         'created_at',
         'updated_at',
     ];

@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class Premio extends Model
 {
     protected $table = 'premios';
-    protected $fillable = ['id', 'name', 'description', 'value', 'status', 'type', 'order'];
+    protected $fillable = ['id', 'name', 'description', 'value', 'status', 'type', 'order', 'active'];
 }

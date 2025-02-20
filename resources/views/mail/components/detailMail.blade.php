@@ -1,15 +1,5 @@
 <div class="col-lg-9 animated fadeInRight">
     <div class="mail-box-header">
-        {{-- <form method="get" action="index.html" class="float-right mail-search">
-            <div class="input-group">
-                <input type="text" class="form-control form-control-sm" name="search" placeholder="Search email">
-                <div class="input-group-btn">
-                    <button type="submit" class="btn btn-sm btn-primary">
-                        Search
-                    </button>
-                </div>
-            </div>
-        </form> --}}
         <h2>
             Enviados ({{ $emails->count() }})
         </h2>
@@ -37,25 +27,6 @@
                         <td class="text-right mail-date">{{ $email->sent_at->diffForHumans() }}</td>
                     </tr>
                 @endforeach
-
-            {{-- <tr class="unread">
-                <td class="check-mail">
-                    <input type="checkbox" class="i-checks" checked>
-                </td>
-                <td class="mail-ontact"><a href="mail_detail.html">Jack Nowak</a></td>
-                <td class="mail-subject"><a href="mail_detail.html">Aldus PageMaker including versions of Lorem Ipsum.</a></td>
-                <td class=""></td>
-                <td class="text-right mail-date">8.22 PM</td>
-            </tr>
-            <tr class="read">
-                <td class="check-mail">
-                    <input type="checkbox" class="i-checks">
-                </td>
-                <td class="mail-ontact"><a href="mail_detail.html">Facebook</a> <span class="label label-warning float-right">Clients</span> </td>
-                <td class="mail-subject"><a href="mail_detail.html">Many desktop publishing packages and web page editors.</a></td>
-                <td class=""></td>
-                <td class="text-right mail-date">Jan 16</td>
-            </tr> --}}
             </tbody>
         </table>
     </div>

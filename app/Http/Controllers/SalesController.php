@@ -252,20 +252,60 @@ class SalesController extends Controller
      */
     public function filterSales(Request $request)
     {
-        $dateInit = DateTime::createFromFormat('m/d/Y', $request->dateInit)->format('Y-m-d');
-        $dateEnd = DateTime::createFromFormat('m/d/Y', $request->dateEnd)->format('Y-m-d');
+        try {
+            if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $request->dateInit)) {
+                $dateParts = explode('/', $request->dateInit);
+                if ((int)$dateParts[0] > 12) {
+                    $dateInit = Carbon::createFromFormat('d/m/Y', $request->dateInit)->startOfDay();
+                } else {
+                    $dateInit = Carbon::createFromFormat('m/d/Y', $request->dateInit)->startOfDay();
+                }
+            } else {
+                throw new \Exception("Formato de fecha inválido en dateInit.");
+            }
+    
+            if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $request->dateEnd)) {
+                $dateParts = explode('/', $request->dateEnd);
+                if ((int)$dateParts[0] > 12) {
+                    $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->endOfDay();
+                } else {
+                    $dateEnd = Carbon::createFromFormat('m/d/Y', $request->dateEnd)->endOfDay();
+                }
+            } else {
+                throw new \Exception("Formato de fecha inválido en dateEnd.");
+            }
+    
+        } catch (\Exception $e) {
+            \Log::error('Error en conversión de fechas: ' . $e->getMessage());
+            return response()->json(['error' => 'Formato de fecha inválido'], 400);
+        }
+    
         $codigo = $request->code;
-        $nombre = $request->code;
+        $areaId = $request->area;
+    
+        \Log::info([
+            'Filtrando Ventas desde' => $dateInit->toDateTimeString(),
+            'Hasta' => $dateEnd->toDateTimeString(),
+            'Fecha desde Request' => $request->dateInit,
+            'Fecha hasta Request' => $request->dateEnd
+        ]);
 
-        $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                        ->where('sales.action_id', 1)
-                        ->where(function ($query) use ($codigo, $nombre) {
-                            $query->where('a.code', 'LIKE', '%' . $codigo . '%')
-                                ->orWhere(DB::raw("CONCAT(a.name, ' ', a.lastname)"), 'LIKE', '%' . $nombre . '%');
-                        })
-                        ->where('a.area_id', $request->area)
-                        ->whereBetween('sales.date_admission', [$dateInit, $dateEnd])
-                        ->get();
+        $sales = Sales::whereHas('agent', function ($query) use ($codigo, $areaId) {
+                    if (!empty($areaId)) {
+                        $query->where('area_id', $areaId);
+                    }
+                    if (!empty($codigo)) {
+                        $query->where(function ($q) use ($codigo) {
+                            $q->where('code_voiso', $codigo)
+                                ->orWhere('name', 'LIKE', "%$codigo%")
+                                ->orWhere('lastname', 'LIKE', "%$codigo%");
+                        });
+                    }
+                })
+                ->whereDate('date_admission', '>=', $dateInit->toDateTimeString())
+                ->whereDate('date_admission', '<=', $dateEnd->toDateTimeString())
+                ->with(['agent', 'customer']) // Evitar N+1 queries
+                ->get();
 
         $totalAmount = $sales->sum('amount');
 
@@ -339,8 +379,7 @@ class SalesController extends Controller
         $commission = 0;
         $amount = 0;
 
-        $agent = Agent::where('dni', $request->eCodAgent)
-                 ->orWhere('code', $request->eCodAgent)
+        $agent = Agent::where('code_voiso', $request->eCodAgent)
                  ->first();
 
         if ($request->typeSales == 3) {

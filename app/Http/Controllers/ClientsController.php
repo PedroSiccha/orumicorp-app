@@ -418,8 +418,6 @@ class ClientsController extends Controller
     {
         $archivo = public_path('utils/CARGA_MASIVA_DE_CLNT.xlsx');
 
-        // return Response::download($archivo, 'CARGA_MASIVA_DE_CLNT.xlsx');
-
         return response()->download($archivo, 'CARGA_MASIVA_DE_CLNT.xlsx', [
             'Cache-Control' => 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
             'Pragma' => 'no-cache',
@@ -507,7 +505,6 @@ class ClientsController extends Controller
         if ($request->configTablesDateInit != "true") {
             $estadoDateInit = 'inactive';
         }
-
 
         try {
 
@@ -883,24 +880,6 @@ class ClientsController extends Controller
             $customers = $query->paginate(50);
 
         } else {
-            /*
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'assignaments',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit'
-            ])->whereHas('assignaments', function($query) use ($agent) {
-                $query->where('agent_id', $agent->id);
-            })->whereBetween($order, [$formattedDate, $formattedDate])->orderBy('date_admission', 'desc')->paginate(10);
-            */
 
             // Crear una consulta base
             $query = Customers::with([
@@ -931,8 +910,6 @@ class ClientsController extends Controller
             }
 
             // Filtro por estado del cliente si está presente y es una relación
-            // Filtro por estado del cliente si está presente y es una relación
-            // Filtro por estado del cliente si está presente
             if ($customerStatusId !== "Seleccione un estado") {
                 $query->where('id_status', $customerStatusId);
             }

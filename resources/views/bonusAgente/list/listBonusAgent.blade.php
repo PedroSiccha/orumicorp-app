@@ -11,10 +11,10 @@
     </thead>
     <tbody>
       @foreach ($bonusAgent as $ba)
-          <tr @if($ba->action_id == 3) class="table-danger" @endif>
+            <tr @if(number_format($ba->amount, 2) <= 0) class="table-danger" @endif>
               <td>{{ date("d/m/Y", strtotime($ba->date_admission)) }}</td>
-              <td> $ {{ number_format($ba->commission, 2) }}</td>
-              <td>S/. {{ number_format($ba->commission*3.5, 2) }}</td>
+              <td> $ {{ number_format($ba->amount, 2) }}</td>
+              <td>S/. {{ number_format($ba->amount*3.5, 2) }}</td>
               <td>
                 @can('Ver Perfil Agente')
                 <a href="{{ route('perfilUsuario', ['id' => $ba->agent->id]) }}">

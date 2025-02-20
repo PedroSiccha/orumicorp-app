@@ -88,11 +88,11 @@
                     Teléfono Opcional
                 </div>
             </th>
-            <th>
+            {{-- <th>
                 <div class="dropdown">
                     Ciudad
                 </div>
-            </th>
+            </th> --}}
             <th>
                 <div class="dropdown">
                     País
@@ -199,7 +199,7 @@
                 <td>{{ $customer->email }}</td>
                 <td>{{ $customer->phone }}</td>
                 <td>{{ $customer->optiomal_phone }}</td> <!-- Modificar Número Opcional -->
-                <td>{{ $customer->city }}</td>
+                {{-- <td>{{ $customer->city }}</td> --}}
                 <td>{{ $customer->country }}</td>
                 <td>
                     @if ($customer->statusCustomer)
@@ -276,12 +276,9 @@
                             '{{ $customer->lastname }}',
                             '{{ $customer->phone }}',
                             '{{ $customer->optional_phone }}',
-                            '{{ $customer->city }}',
                             '{{ $customer->country }}',
                             '{{ $customer->email }}',
                             '{{ $customer->provider_id }}',
-                            '{{ $customer->platform_id }}',
-                            '{{ $customer->traiding_id }}',
                             '{{ $customer->status_id }}',
                             '#modalEditarCliente',
                             '#eId',
@@ -290,12 +287,9 @@
                             '#eLastname',
                             '#ePhone',
                             '#eOptionalPhone',
-                            '#eCity',
                             '#eCountry',
                             '#eEmail',
                             '#eProvide_id',
-                            '#ePlatform_id',
-                            '#eTraiding_id',
                             '#eStatus_id'
                             )"><i class="fa fa-pencil"></i></button>
                         @endcan
