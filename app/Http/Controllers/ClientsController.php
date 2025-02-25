@@ -79,7 +79,7 @@ class ClientsController extends Controller
 
         } catch (Exception $e) {
             Log::error("Error en ClientsController: " . $e->getMessage());
-            // return redirect()->route('home')->with('error', 'No se pudieron cargar los clientes.');
+            return redirect()->route('home')->with('error', 'No se pudieron cargar los clientes.');
         }
     }
 

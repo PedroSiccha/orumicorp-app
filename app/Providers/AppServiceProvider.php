@@ -16,23 +16,30 @@ use App\Interfaces\RolesInterface;
 use App\Interfaces\UserInterface;
 use App\Repositories\AgentRepository;
 use App\Interfaces\AgentRepositoryInterface;
+use App\Interfaces\AreaRepositoryInterface;
 use App\Repositories\AwardRepository;
 use App\Repositories\CampaingRepository;
 use App\Interfaces\CampaingRepositoryInterface;
 use App\Interfaces\ComunicationRepositoryInterface;
+use App\Interfaces\EventRepositoryInterface;
 use App\Repositories\ClientRepository;
 use App\Repositories\ConfigurationRepository;
 use App\Repositories\FolderRepository;
 use App\Interfaces\FolderRepositoryInterface;
 use App\Repositories\PlatformRepository;
 use App\Interfaces\PlatformRepositoryInterface;
+use App\Interfaces\PriorityRepositoryInterface;
 use App\Repositories\ProviderRepository;
 use App\Interfaces\ProviderRepositoryInterface;
 use App\Repositories\RolRepository;
 use App\Interfaces\RolRepositoryInterface;
 use App\Repositories\TraidingRepository;
 use App\Interfaces\TraidingRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\ViewsRepositoryInterface;
+use App\Repositories\AreaRepository;
 use App\Repositories\Contracts\AssignmentRepositoryInterface;
+use App\Repositories\UserRepository;
 use App\Services\AgentService;
 use App\Services\AssignamentService;
 use App\Services\AwardsService;
@@ -42,6 +49,7 @@ use App\Services\ComunicationService;
 use App\Services\ProviderService;
 use App\Services\RolesService;
 use App\Services\UserService;
+use App\Services\Utils;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
@@ -79,19 +87,44 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(AwardRepositoryInterface::class),
                 $app->make(AssignmentRepositoryInterface::class),
                 $app->make(ComunicationRepositoryInterface::class),
+                $app->make(ViewsRepositoryInterface::class),
+                $app->make(PriorityRepositoryInterface::class),
+                $app->make(EventRepositoryInterface::class),
                 $app->make(ClientRepositoryInterface::class),
-
             );
         });
+
         $this->app->bind(AgentRepositoryInterface::class, AgentRepository::class);
+        $this->app->bind(AgentService::class, function ($app) {
+            return new AgentService(
+                $app->make(Utils::class),
+                $app->make(RolesInterface::class),
+                $app->make(AgentRepositoryInterface::class),
+                $app->make(AreaRepositoryInterface::class),
+                $app->make(RolRepositoryInterface::class),
+                $app->make(UserRepositoryInterface::class),
+            );
+        });
+
         $this->app->bind(RolRepositoryInterface::class, RolRepository::class);
+
         $this->app->bind(ConfigurationRepositoryInterface::class, ConfigurationRepository::class);
+
         $this->app->bind(ProviderRepositoryInterface::class, ProviderRepository::class);
+
         $this->app->bind(PlatformRepositoryInterface::class, PlatformRepository::class);
+
         $this->app->bind(TraidingRepositoryInterface::class, TraidingRepository::class);
+
         $this->app->bind(FolderRepositoryInterface::class, FolderRepository::class);
+
         $this->app->bind(CampaingRepositoryInterface::class, CampaingRepository::class);
+
         $this->app->bind(AwardRepositoryInterface::class, AwardRepository::class);
+
+        $this->app->bind(AreaRepositoryInterface::class, AreaRepository::class);
+
+        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
     }
 
     /**

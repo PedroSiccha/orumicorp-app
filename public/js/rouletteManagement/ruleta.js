@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Obtener premios desde Laravel
     async function fetchPrizes() {
         const response = await fetch("/prizes");
-        prizes = await response.json();
+        prizes = await response.json(); 
         drawRoulette();
     }
 

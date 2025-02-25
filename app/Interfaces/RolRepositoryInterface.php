@@ -8,4 +8,5 @@ interface RolRepositoryInterface
 {
     public function getAllRoles(): Collection;
     public function getRoleByName(string $name): ?Role;
+    public function findRoleById(int $id): ?Role;
 }

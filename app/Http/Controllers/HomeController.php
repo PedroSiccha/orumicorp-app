@@ -32,6 +32,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+        
         $user_id = Auth::user()->id;
         $rouletteSpin = 0;
         $dateIn = null;

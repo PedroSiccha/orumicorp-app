@@ -2,23 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchAgentRequest;
 use App\Models\Agent;
 use App\Interfaces\AgentInterface;
+use App\Services\AgentService;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AgentController extends Controller
 {
     protected $agentService;
 
-    public function __construct(AgentInterface $agentService) {
+    public function __construct(AgentService $agentService) {
         $this->agentService = $agentService;
     }
 
     public function index()
     {
-        $data = $this->agentService->index();
-        return view('agent.index', $data);
-    }
+        try {
+            $data = $this->agentService->getAgentsData();
+            $agents = $data->agents;
+            $areas = $data->areas;
+            $roles = $data->roles;
+            $dataUser = $data->dataUser;
+            $rouletteSpin = $data->rouletteSpin;
+
+
+            return view('agent.index', compact('agents', 'areas', 'roles', 'dataUser', 'rouletteSpin'));
+        } catch (Exception $e) {
+            Log::error("Error al obtener agentes: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar los agentes.');
+        }
+        
+    } 
 
     public function agentsPagination()
     {
@@ -26,7 +43,7 @@ class AgentController extends Controller
         return view('agent.list.listAgent', compact('agents'))->render();
     }
 
-    public function searchAgent(Request $request)
+    public function searchAgent(SearchAgentRequest $request)
     {
         $data = $this->agentService->searchAgent($request);
         return response()->json(["name" => $data['name'], "title" => $data['title'], "text" => $data['mensaje'], "status" => $data['status']]);
@@ -34,8 +51,9 @@ class AgentController extends Controller
 
     public function saveAgent(Request $request)
     {
-        $data = $this->agentService->saveAgent($request);
-        $agents = Agent::orderBy('lastname')->paginate(10);
+        $data = $this->agentService->saveAgent($request->all());
+        $dataAgents = $this->agentService->getAgentsData();
+        $agents = $dataAgents->agents;
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }
 

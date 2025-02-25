@@ -24,6 +24,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        
 
         /*
         $permission = Permission::create(['name' => 'Ver Agentes']);

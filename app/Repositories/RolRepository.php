@@ -25,6 +25,14 @@ class RolRepository implements RolRepositoryInterface
         } catch (Exception $e) {
             throw new RepositoryException("Error al obtener el rol: " . $e->getMessage());
         }
+    }
 
+    public function findRoleById(int $id): ?Role
+    {
+        try {
+            return Role::find($id);
+        } catch (Exception $e) {
+            throw new RepositoryException("Error al obtener el rol: " . $e->getMessage());
+        }
     }
 }
