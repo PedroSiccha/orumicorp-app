@@ -303,18 +303,7 @@
     </tbody>
 </table>
 {{ $customers->appends(['limit' => request('limit')])->links() }}
-<label for="limit">Mostrar:</label>
-<div class="col-sm-1 m-b-xs">
-    <select class="form-control-sm form-control input-s-sm inline" name="limit" id="limit">
-        <option value="5" {{ request('limit') == 5 ? 'selected' : '' }}>5</option>
-        <option value="10" {{ request('limit') == 10 ? 'selected' : '' }}>10</option>
-        <option value="20" {{ request('limit') == 20 ? 'selected' : '' }}>20</option>
-        <option value="50" {{ request('limit') == 50 ? 'selected' : '' }}>50</option>
-        <option value="100" {{ request('limit') == 100 ? 'selected' : '' }}>100</option>
-        <option value="500" {{ request('limit') == 500 ? 'selected' : '' }}>500</option>
-        <option value="1000" {{ request('limit') == 1000 ? 'selected' : '' }}>1000</option>
-    </select>
-</div>
+
 
 
 <script src="{{ asset('js/utils/viewCheck.js') }}"></script>

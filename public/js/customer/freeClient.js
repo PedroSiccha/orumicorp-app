@@ -2,6 +2,7 @@ function liberarCliente(options) {
 
     var idGroupClientes = [];
     var tableName = options.tableName !== undefined ? options.tableName : '';
+    var limit = $('#limit').val();
 
     $('.chekboxses:checked').each(function() {
         var val = $(this).val();
@@ -21,7 +22,7 @@ function liberarCliente(options) {
         cancelButtonText: "Cancelar"
     }).then((result) => {
         if (result.isConfirmed) {
-            $.post(liberarClienteRoute, {idGroupClientes: idGroupClientes, _token: token}).done(function(data) {
+            $.post(liberarClienteRoute, {idGroupClientes: idGroupClientes, limit: limit, _token: token}).done(function(data) {
                 $(tableName).empty();
                 $(tableName).html(data.view);
                 mostrarMensaje(data.title, data.text, data.status);

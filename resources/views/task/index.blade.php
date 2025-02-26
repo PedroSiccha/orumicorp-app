@@ -28,7 +28,7 @@
     var searchClientRoute = '{{ route("searchCustomer") }}';
     var uploadExcelRoute = '{{ route("uploadExcel") }}';
     var saveEventRoute = '{{ route("saveEvent") }}';
-    var editEventRoute = '{{ route("editEvent") }}';
+    var editEventRoute = '{{ route("editEvent") }}'; 
     var deleteEventRoute = '{{ route("deleteEvent") }}';
     var getEventByIdRoute = '{{ route("getEventById") }}';
     var searchAgentRoute = '{{ route("searchAgent") }}';

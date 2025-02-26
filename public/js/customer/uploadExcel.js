@@ -1,6 +1,7 @@
 function uploadExcel(inputExcel, modal, tableName) {
 
     const fileInput = document.getElementById(inputExcel);
+    var limit = $('#limit').val();
 
     if (!fileInput || fileInput.files.length === 0) {
         console.error('No se ha seleccionado ningún archivo');

@@ -22,8 +22,9 @@ function updateClient(inputId, inputCode, inputName, inputLastName, inputPhone, 
     var country = $(inputCountry).val();
     var comment = $(inputComment).val();
     var rol_id = $(inputRol).val();
+    var limit = $('#limit').val();
 
-    $.post(updateClientRoute, {id: id, name: name, lastname: lastname, phone: phone, optionalPhone: optionalPhone, email: email, country: country, comment: comment, rol_id: rol_id, _token: token}).done(function(data) {
+    $.post(updateClientRoute, {id: id, name: name, lastname: lastname, phone: phone, optionalPhone: optionalPhone, email: email, country: country, comment: comment, rol_id: rol_id, limit: limit, _token: token}).done(function(data) {
         $(tableName).empty();
         $(tableName).html(data.view);
         $(modal).modal('hide');

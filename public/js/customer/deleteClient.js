@@ -1,4 +1,5 @@
 function eliminarCliente(id, name, tableName) {
+    var limit = $('#limit').val();
     Swal.fire({
         title: "¿Desea eliminar a este cliente?",
         text: "Cliente: " + name,
@@ -10,7 +11,7 @@ function eliminarCliente(id, name, tableName) {
         cancelButtonText: "Cancelar"
     }).then((result) => {
         if (result.isConfirmed) {
-            $.post(deleteClientRoute, {id: id, _token: token}).done(function(data) {
+            $.post(deleteClientRoute, {id: id, limit: limit, _token: token}).done(function(data) {
                 $(tableName).empty();
                 $(tableName).html(data.view);
                 mostrarMensaje(data.title, data.text, data.status);

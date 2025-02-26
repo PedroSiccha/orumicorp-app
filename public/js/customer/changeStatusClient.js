@@ -1,4 +1,5 @@
 function cambiarEstado(id, name, tableName, status) {
+    var limit = $('#limit').val();
     Swal.fire({
         title: "¿Desea cambiar el estado de este cliente?",
         text: "Cliente: " + name,
@@ -11,7 +12,7 @@ function cambiarEstado(id, name, tableName, status) {
     }).then((result) => {
         if (result.isConfirmed) {
 
-            $.post(changeStatusClienteRoute, {id: id, status: status, _token: token}).done(function(data) {
+            $.post(changeStatusClienteRoute, {id: id, status: status, limit: limit, _token: token}).done(function(data) {
                 $(tableName).empty();
                 $(tableName).html(data.view);
                 mostrarMensaje(data.title, data.text, data.status);
