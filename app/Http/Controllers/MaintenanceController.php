@@ -12,93 +12,37 @@ use App\Models\Provider;
 use App\Models\Traiding;
 use App\Models\TransactionType;
 use App\Models\User;
+use App\Services\MaintenanceService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class MaintenanceController extends Controller
 {
 
+    protected $maintenanceService;
+
+    public function __construct(MaintenanceService $maintenanceService) {
+        $this->maintenanceService = $maintenanceService;
+    }
+
     public function index()
     {
-        $user_id = Auth::user()->id;
-        $user = User::where('id', $user_id)->first();
-        $roles = $user->getRoleNames()->first();
-        $agent = Agent::where('user_id', $user_id)->first();
-        $dataUser = $agent;
-        $premios1 = Premio::where('status', true)->where('type', 1)->get();
-        $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        $rouletteSpin = $agent->number_turns ?: 0;
-
-        $customerStatusController = new CustomerStatusController();
-        $customersStatus = $customerStatusController->index();
-
-        // $customersStatus = CustomerStatus::get();
-        $campaigns = Campaing::get();
-        $suppliers = Provider::get();
-        $platforms = Platform::get();
-        $traidings = Traiding::get();
-        $transactionsType = TransactionType::get();
-        return view('maintenance.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'customersStatus', 'campaigns', 'suppliers', 'platforms', 'traidings', 'transactionsType'));
+        try {
+            $data = $this->maintenanceService->getMaintenanceData();
+            $rouletteSpin = $data->rouletteSpin;
+            $customersStatus = $data->customersStatus;
+            $campaigns = $data->campaigns;
+            $suppliers = $data->suppliers;
+            $platforms = $data->platforms;
+            $traidings = $data->traidings;
+            $transactionsType = $data->transactionsType;
+            return view('maintenance.index', compact('rouletteSpin', 'customersStatus', 'campaigns', 'suppliers', 'platforms', 'traidings', 'transactionsType'));
+        } catch (Exception $e) {
+            Log::error("Error en MaintenanceController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar los datos de mantenimiento.');
+        }
     }
 
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

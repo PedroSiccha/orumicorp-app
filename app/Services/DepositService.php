@@ -1,19 +1,54 @@
 <?php
 namespace App\Services;
 
+use App\Interfaces\AgentRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\DepositRepositoryInterface;
+use App\Interfaces\SalesRepositoryInterface;
+use App\Interfaces\TransactionTypeRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
+use App\Models\User;
+use Carbon\Carbon;
+use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class DepositService
 {
+
+    protected $agentRepository;
+    protected $transactionTypeService;
+    protected $depositRepository;
+    protected $salesRepository;
+    protected $clientRepository;
+    protected $userRepository;
+
+    public function __construct(
+        AgentRepositoryInterface $agentRepository,
+        TransactionTypeRepositoryInterface $transactionTypeService,
+        DepositRepositoryInterface $depositRepository,
+        SalesRepositoryInterface $salesRepository,
+        ClientRepositoryInterface $clientRepository,
+        UserRepositoryInterface $userRepository
+    ) {
+        $this->agentRepository = $agentRepository;
+        $this->transactionTypeService = $transactionTypeService;
+        $this->depositRepository = $depositRepository;
+        $this->salesRepository = $salesRepository;
+        $this->clientRepository = $clientRepository;
+        $this->userRepository = $userRepository;
+    }
+
     public function getDataDeposits() {
         $user_id = Auth::user()->id;
         $user = User::where('id', $user_id)->first();
         $roles = $user->getRoleNames()->first();
-        $agent = $this->agentRepository->getAgentByUser(); // Agent::where('user_id', $user_id)->first();
+        $agent = $this->agentRepository->getAgentByUserId($user->id); // Agent::where('user_id', $user_id)->first();
 
         $rouletteSpin = $agent->number_turns ?: 0;
         $transactionsType = $this->transactionTypeService->getTransactionTypes(); // TransactionType::all();
-        $deposits = $this->depositService->getDeposits(); // Deposit::with('customer')->with(['agent', 'user'])->get();
+        $deposits = $this->depositRepository->getDeposits(); // Deposit::with('customer')->with(['agent', 'user'])->get();
         foreach ($deposits as &$deposit) {
             if (isset($deposit['date'])) {
                 $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
@@ -26,14 +61,14 @@ class DepositService
     public function saveDeposit($request)
     {
         
-        $client = $this->clientService->getClientsByCode(); // Customers::where('code', $request->codeClient)->first();
+        $client = $this->clientRepository->getClientByCode($request->codeClient); // Customers::where('code', $request->codeClient)->first();
 
-        $agent = $this->clientService->getAgentByCode();
+        $agent = $this->agentRepository->getAgentByCode($request->codeAgent);
         // Agent::where('code_voiso', $request->codeAgent)
         //               ->orWhere('code', $request->codeAgent)
         //               ->first();
 
-        $user_id = Auth::user()->id;
+        $user_id = $this->userRepository->getMyId(); // Auth::user()->id;
 
         DB::beginTransaction();
         try {
@@ -68,12 +103,36 @@ class DepositService
             // $status = "error";
         }
 
-        $deposits = $this->depositService->getDeposits(); // Deposit::with('customer')->with(['agent', 'user'])->get();
+        $deposits = $this->depositRepository->getDeposits(); // Deposit::with('customer')->with(['agent', 'user'])->get();
         foreach ($deposits as &$deposit) {
             if (isset($deposit['date'])) {
                 $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
             }
 
         }
+    }
+
+    public function getDepositData()
+    {
+        $user_id = $this->userRepository->getMyId(); // Auth::user()->id;
+
+        $agent = $this->agentRepository->getAgentByUserId($user_id); // $agent = Agent::where('user_id', $user_id)->first();
+        $client = $this->clientRepository->getClientByUserId($user_id); // $client = Customers::where('user_id', $user_id)->first();
+        $rouletteSpin = $agent->number_turns ?: 0;
+
+        // $dataUser = null;
+
+        // if ($agent) {
+        //     $dataUser = $agent;
+        // }
+
+        // if ($client) {
+        //     $dataUser = $client;
+        // }
+
+        // $premios = Premio::where('status', true)->get();
+        // $premios1 = Premio::where('status', true)->where('type', 1)->get();
+        // $premios2 = Premio::where('status', true)->where('type', 2)->get();
+        // return view('gestionRuleta.index', compact('premios', 'premios1', 'premios2', 'dataUser', 'rouletteSpin'));
     }
 }

@@ -3,6 +3,7 @@ namespace App\Services;
 
 use App\DTOs\ClientIndexDTO;
 use App\Exceptions\RepositoryException;
+use App\Http\Requests\FilterRequest;
 use App\Interfaces\AssignamentInterface;
 use App\Interfaces\AwardRepositoryInterface;
 use App\Interfaces\CampaingInterface;
@@ -39,6 +40,7 @@ use App\Interfaces\PriorityRepositoryInterface;
 use App\Interfaces\ProviderRepositoryInterface;
 use App\Interfaces\RolRepositoryInterface;
 use App\Interfaces\TraidingRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\ViewsRepositoryInterface;
 use App\Repositories\Contracts\AssignmentRepositoryInterface;
 use App\Rules\PhoneNumberFormat;
@@ -71,7 +73,7 @@ class ClientService {
     protected $viewsRepository;
     protected $priorityRepository;
     protected $taskRepository;
-
+    protected $userRepository;
     protected $clientRepository;
 
     public function __construct(
@@ -91,7 +93,8 @@ class ClientService {
         ViewsRepositoryInterface $viewsRepository,
         PriorityRepositoryInterface $priorityRepository,
         EventRepositoryInterface $taskRepository,
-        ClientRepositoryInterface $clientRepository
+        ClientRepositoryInterface $clientRepository,
+        UserRepositoryInterface $userRepository
 
     ) {
         
@@ -111,6 +114,7 @@ class ClientService {
         $this->priorityRepository = $priorityRepository;
         $this->taskRepository = $taskRepository;
         $this->clientRepository = $clientRepository;
+        $this->userRepository = $userRepository;
     }
 
     public function getClientsData(): ClientIndexDTO
@@ -184,7 +188,6 @@ class ClientService {
     public function saveClient(array $data)
     {
         DB::beginTransaction();
-
         try {
             // Buscar rol y estado del cliente
             $role = $this->rolRepository->getRoleByName('CLIENTE');
@@ -391,7 +394,7 @@ class ClientService {
         try {
             $customerId = $data['customer_id'];
 
-            $lastAssignment = $this->assignmentRepository->getLastAssignmentByCustomer($customerId);
+            $lastAssignment = $this->assignmentRepository->getLastAssignamentByCustomer($customerId);
 
             if ($lastAssignment) {
                 return [
@@ -559,7 +562,7 @@ class ClientService {
         $dataUser = $client;
 
         $communications = $this->comunicationRepository->getLocationByCustomer($client->id);
-        $lastAssignament = $this->assignmentRepository->getLastAssignmentByCustomer($client->id);
+        $lastAssignament = $this->assignmentRepository->getLastAssignamentByCustomer($client->id);
         $lastCampaing = $this->campaingRepository->getLastCampaingByCustomer($client->id);
         $campaings = $this->campaingRepository->getAllCampaingsByCustomer($client->id);
         $lastProvider = $this->providerRepository->getLastProviderByCustomer($client->id);
@@ -575,22 +578,186 @@ class ClientService {
     public function searchCustomerByStatus($customerId)
     {
         $myRoles = $this->rolesService->getMyRoles();
-        $userId = Auth::user()->id;
+        $userId = $this->userRepository->getMyId(); // Auth::user()->id;
         $roles = $myRoles['roles'];
         // Obtener el agente si no es ADMIN
-        $agent = ($roles !== 'ADMINISTRADOR') ? Agent::where('user_id', $userId)->first() : null;
+        $agent = ($roles !== 'ADMINISTRADOR') ? $this->agentRepository->getAgentByUserId($userId) : null; // Agent::where('user_id', $userId)->first() : null;
         $agentId = $agent ? $agent->id : null;
 
         // Obtener clientes según el rol
         $customers = $this->clientRepository->getCustomersByStatusAndRole($customerId, $roles, $agentId);
 
         // Obtener datos adicionales
-        $agents = Agent::all();
-        $campaings = Campaing::all();
-        $providers = Provider::all();
-        $statusCustomers = CustomerStatus::all();
+        $agents = $this->agentRepository->getAgents(); // Agent::all();
+        $campaings = $this->campaingRepository->getCampaing(); // Campaing::all();
+        $providers = $this->providerRepository->getProviders(); // Provider::all();
+        $statusCustomers = $this->clientRepository->getCustomerStatus(); // CustomerStatus::all();
 
         return compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers');
+    }
+
+    public function filterAdvanced(FilterRequest $request)
+    {
+        
+
+        // $query = Customers::with([
+        //     'user',
+        //     'agent',
+        //     'latestCampaign',
+        //     'latestSupplier',
+        //     'provider',
+        //     'statusCustomer',
+        //     'platform',
+        //     'traiding',
+        //     'latestComunication',
+        //     'latestAssignamet',
+        //     'latestDeposit',
+        //     'folder'
+        // ]);
+
+        // if ($filterFor !== 'Filtrar Por:' || $inputName !== '') {
+        //     if ($filterFor == 'Cod. Cliente') {
+        //         $query->where(function($q) use ($inputName) {
+        //             $q->where('code', 'like', "%$inputName%");
+        //         });
+        //     }
+
+        //     if ($filterFor == 'Asignado Por') {
+        //         $query->whereHas('assignaments', function($q) use ($inputName) {
+        //             $q->whereHas('assignedBy', function($a) use ($inputName) {
+        //                 $a->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
+        //             });
+        //         });
+        //     }
+
+        //     if ($filterFor == 'Proveedor') {
+        //         $query->whereHas('provider', function($q) use ($inputName) {
+        //             $q->where('name', $inputName);
+        //         });
+        //     }
+
+        //     if ($filterFor == 'Nombre Cliente') {
+        //         $query->where(function($q) use ($inputName) {
+        //             $q->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
+        //         });
+        //     }
+
+        //     if ($filterFor == 'Correo') {
+        //         $query->where(function($q) use ($inputName) {
+        //             $q->where('email', 'like', "%$inputName%");
+        //         });
+        //     }
+
+        //     if ($filterFor == 'Teléfono') {
+        //         $query->where(function($q) use ($inputName) {
+        //             $q->where('phone', 'like', "%$inputName%");
+        //         });
+        //     }
+
+        //     if ($filterFor == 'Teléfono Opcional') {
+        //         $query->where(function($q) use ($inputName) {
+        //             $q->where('optional_phone', 'like', "%$inputName%");
+        //         });
+        //     }
+
+        //     if ($filterFor == 'Ciudad') {
+        //         $query->where(function($q) use ($inputName) {
+        //             $q->where('city', 'like', "%$inputName%");
+        //         });
+        //     }
+
+        //     if ($filterFor == 'País') {
+        //         $query->where(function($q) use ($inputName) {
+        //             $q->where('country', 'like', "%$inputName%");
+        //         });
+        //     }
+
+        //     if ($filterFor == 'Agente') {
+        //         $query->whereHas('assignaments', function($q) use ($inputName) {
+        //             $q->whereHas('agent', function($a) use ($inputName) {
+        //                 $a->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
+        //             });
+        //         });
+        //     }
+
+        //     if ($filterFor == 'Comentario') {
+        //         $query->where(function($q) use ($inputName) {
+        //             $q->where('comment', 'like', "%$inputName%");
+        //         });
+        //     }
+
+        //     if ($filterFor == 'Última Visita') {
+        //         $query->whereHas('views', function($q) use ($inputName) {
+        //             $q->whereHas('agent', function($a) use ($inputName) {
+        //                 $a->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
+        //             });
+        //         });
+        //     }
+
+        //     if ($filterFor == 'N° Depósito') {
+        //         $dataSearch = 'code';
+        //     }
+
+        //     if ($filterFor == 'Total Depósito') {
+        //         $dataSearch = 'code';
+        //     }
+
+        //     if ($filterFor == 'Folder') {
+        //         $query->whereHas('folder', function($q) use ($inputName) {
+        //             $q->where('name', 'like', "%$inputName%");
+        //         });
+        //     }
+
+        // }
+
+        // if ($statusId !== "Seleccione un estado") {
+        //     $query->where('id_status', $statusId);
+        // }
+
+        // if ($typeRange !== "Seleccione Rango:") {
+
+        //     if ($typeRange == "Última Llamada") {
+        //         if (!empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
+        //             $query->whereHas('comunications', function ($q) use ($dateInit, $dateEnd) {
+        //                 $q->whereBetween('date', [$dateInit, $dateEnd]);
+        //             });
+        //         }
+        //     }
+
+        //     if ($typeRange == "Fecha de Ingreso") {
+        //         $query->whereBetween('date_admission', [$dateInit, $dateEnd]);
+        //     }
+
+        //     if ($typeRange == "Fecha de Última Llamada") {
+        //         if (!empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
+        //             $query->whereHas('comunications', function ($q) use ($dateInit, $dateEnd) {
+        //                 $q->whereBetween('date', [$dateInit, $dateEnd]);
+        //             });
+        //         }
+        //     }
+
+        //     if ($typeRange == "Fecha de Última Asignación") {
+        //         if (!empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
+        //             $query->whereHas('assignaments', function ($q) use ($dateInit, $dateEnd) {
+        //                 $q->whereBetween('date', [$dateInit, $dateEnd]);
+        //             });
+
+        //         }
+        //     }
+
+
+        //     // $query->where('id_status', $statusId);
+        // }
+
+        // $customers = $query->paginate(10);
+
+        // $agents = Agent::all();
+        // $campaings = Campaing::all();
+        // $providers = Provider::all();
+        // $statusCustomers = CustomerStatus::all();
+
+        // return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render()]);
+
     }
 
 }

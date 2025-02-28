@@ -10,5 +10,5 @@ interface AssignmentRepositoryInterface
     public function deactivateAssignments(Collection $assignments): void;
     public function createAssignment(array $data): Assignment;
     public function createAssignments(array $assignments): void;
-    public function getLastAssignmentByCustomer(int $customerId): ?Assignment;
+    public function getLastAssignamentByCustomer(int $customerId): ?Assignment;
 }

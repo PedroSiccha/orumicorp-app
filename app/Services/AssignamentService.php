@@ -3,24 +3,32 @@ namespace App\Services;
 
 use App\Interfaces\AssignamentInterface;
 use App\Models\Assignment;
+use App\Repositories\Contracts\AssignmentRepositoryInterface;
+use Exception;
 
-class AssignamentService implements AssignamentInterface {
+class AssignamentService /*implements AssignamentInterface */
+{
 
-    public function __construct()
-    {}
+    protected $assignamentRepository;
 
-    public function getLastAssignamentByCustomer($request) {
+    public function __construct(
+        AssignmentRepositoryInterface $assignamentRepository
+    ) {
+        $this->assignamentRepository = $assignamentRepository;
+    }
+
+    public function getLastAssignamentByCustomer(int $customerId) {
         try {
-            $customerId = $request['customer_id'];
+            // $customerId = $request['customer_id'];
 
-            $lastAssignment = Assignment::with(['agent', 'assignedBy'])->where('customer_id', $customerId)->where('status', 1)->orderBy('status', 'asc')->first();
+            $lastAssignment = $this->assignamentRepository->getLastAssignamentByCustomer($customerId); // Assignment::with(['agent', 'assignedBy'])->where('customer_id', $customerId)->where('status', 1)->orderBy('status', 'asc')->first();
 
             if ($lastAssignment) {
                 return $lastAssignment;
             } else {
                 return null;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }

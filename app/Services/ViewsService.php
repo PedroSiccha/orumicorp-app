@@ -1,6 +1,45 @@
 <?php
 namespace App\Services;
+
+use App\Interfaces\ViewsRepositoryInterface;
+use Illuminate\Http\Request;
+
 class ViewsService
 {
-    
+
+    protected $viewsRepository;
+
+    public function __construct(
+        ViewsRepositoryInterface $viewsRepository
+    ) {
+      $this->viewsRepository = $viewsRepository;  
+    }
+
+    public function saveViews(Request $request)
+    {
+        // $user_id = Auth::user()->id;
+        // $agent = Agent::where('user_id', $user_id)->first();
+        // $agent_id = $agent->id;
+        // $client_id = $request->id;
+
+        // try {
+        //     $views = new Views();
+        //     $views->agent_id = $agent_id;
+        //     $views->customer_id = $client_id;
+        //     $views->viewed_at = Carbon::now();
+        //     if ($views->save()) {
+        //         echo('Vista Ok');
+        //     }
+        // } catch (Exception $e) {
+        //     echo($e->getMessage());
+        // }
+    }
+
+    public function getViews(Request $request)
+    {
+        // $client_id = $request->client_id;
+        // $vistas = Views::with('agent')
+        //                 ->where('customer_id', $client_id)
+        //                 ->get();
+    }
 }

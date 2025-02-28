@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CampaignRequest;
 use App\Models\Campaing;
+use App\Services\CampaingService;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -12,112 +14,72 @@ use Illuminate\Validation\ValidationException;
 
 class CampaingController extends Controller
 {
+    protected $campaingsService;
 
-    public function saveCampaign(Request $request)
-    {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-
-        try {
-
-            $campaign = new Campaing();
-            $campaign->name = $request->name;
-            $campaign->description = $request->description;
-            $campaign->start_date = $request->startDate;
-            $campaign->end_date = $request->endDate;
-            if ($campaign->save()) {
-                $title = "Correcto";
-                $mensaje = "Su campaña se registró correctamente";
-                $status = "success";
-            }
-
-        } catch (ValidationException $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
-        } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
-        }
-
-        $campaigns = Campaing::get();
-
-        return response()->json(["view"=>view('campaign.table.tableCampaign', compact('campaigns'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+    public function __construct(CampaingService $campaingsService) {
+        $this->campaingsService = $campaingsService;
     }
 
-    public function updateCampaign(Request $request)
+    public function getAllCampaigns()
     {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-
         try {
-
-            $campaign = Campaing::find($request->id);
-            $campaign->name = $request->name;
-            $campaign->description = $request->description;
-            $campaign->start_date = $request->startDate;
-            $campaign->end_date = $request->endDate;
-
-            if ($campaign->save()) {
-                $title = "Correcto";
-                $mensaje = "Se actualizó su campaña correctamente";
-                $status = "success";
-            } else {
-                $title = "Error";
-                $mensaje = "Hubo un error al actualizar su campaña";
-                $status = "error";
-            }
-
-        } catch (ValidationException $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            $data = $this->campaingsService->getAllCampaigns();
+            $campaigns = $data->campaigns;
+            return view('campaign.index', compact('campaigns'));
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = "Verificar los datos del registro";
-            $status = "error";
+            Log::error("Error en CampaingController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las campañas.');
         }
-
-        $campaigns = Campaing::get();
-
-        return response()->json(["view"=>view('campaign.table.tableCampaign', compact('campaigns'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
-
     }
 
-    public function deleteCampaign(Request $request)
+    public function getCampaigns()
     {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-        $campaign = Campaing::find($request->id);
-        if ($campaign == null) {
-            $title = "Error";
-            $mensaje = "Hubo un error con su campaña";
-            $status = "error";
-        }
         try {
-            if ($campaign->delete()) {
-                $title = "Correcto";
-                $mensaje = "Su campaña se eliminó correctamente";
-                $status = "success";
-            } else {
-                $title = "Error";
-                $mensaje = "No se pudo eliminar su campaña";
-                $status = "error";
-            }
+            $data = $this->campaingsService->getCampaigns();
+            $campaigns = $data->campaigns;
+            return response()->json(["view"=>view('campaign.table.tableCampaign', compact('campaigns'))->render(), "resp"=>$resp]);
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            Log::error("Error en CampaingController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las campañas.');
         }
+    }
 
-        $campaigns = Campaing::get();
+    public function saveCampaign(CampaignRequest $request)
+    {
+        try {
+            $data = $this->campaingsService->saveCampaign($request);
+            $campaigns = $data->campaigns;
+            return response()->json(["view"=>view('campaign.table.tableCampaign', compact('campaigns'))->render(), "resp"=>$resp]);
+        } catch (Exception $e) {
+            Log::error("Error en CampaingController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las campañas.');
+        }
+        
+    }
 
-        return response()->json(["view"=>view('campaign.table.tableCampaign', compact('campaigns'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+    public function updateCampaign(CampaignRequest $request)
+    {
+        try {
+            $data = $this->campaingsService->updateCampaign($request);
+            $campaigns = $data->campaigns;
+            return response()->json(["view"=>view('campaign.table.tableCampaign', compact('campaigns'))->render(), "resp"=>$resp]);
+        } catch (Exception $e) {
+            Log::error("Error en CampaingController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las campañas.');
+        }
+    }
 
+    public function deleteCampaign(CampaignRequest $request)
+    {
+        try {
+            $data = $this->campaingsService->deleteCampaign($request);
+            $campaigns = $data->campaigns;
+            return response()->json(["view"=>view('campaign.table.tableCampaign', compact('campaigns'))->render(), "resp"=>$resp]);
+        } catch (Exception $e) {
+            Log::error("Error en CampaingController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las campañas.');
+        }
+        
     }
 
     /**

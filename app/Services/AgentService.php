@@ -145,7 +145,7 @@ class AgentService {
                 return ResponseHelper::error('El usuario asociado al agente no existe.');
             }
             $user->assignRole($role);
-            $this->agentRepository->updateAgent($agent,[
+            $this->agentRepository->updateAgent($agent, [
                 'name' => $requestData->name,
                 'lastname' => $requestData->lastname,
                 'area_id' => $requestData->area_id,
@@ -217,8 +217,8 @@ class AgentService {
             if (!$user) {
                 return ResponseHelper::error('El usuario asociado al agente no existe.');
             }
-            $this->agentRepository->deleteAgent($agent);
-            $this->userRepositoy->deleteUser($user);
+            $this->agentRepository->deleteAgent($agent->id);
+            $this->userRepositoy->deleteUser($user->agent);
             DB::commit();
             return ResponseHelper::success('Se eliminó el agente correctamente.');
         } catch (Exception $e) {
@@ -305,12 +305,12 @@ class AgentService {
                     $urlGuardar = 'img/perfil/' . $nombre;
                 }
             }
-            $agent = $this->agentRepository->saveAgentImage($agent, $urlGuardar);
+            $response = $this->agentRepository->saveAgentImage($agent, $urlGuardar);
             return ResponseHelper::success('Se guardó el número de turnos correctamente.', ['response' => $response]);
             
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::success('Se guardó el número de turnos correctamente.', ['response' => $response]);
+            // return ResponseHelper::success('Se guardó el número de turnos correctamente.', ['response' => $response]);
         }
         // $dataImg = $request->image;
         // $subido = "";
@@ -408,5 +408,19 @@ class AgentService {
         // $user_id = Auth::user()->id;
         // $agent = Agent::where('user_id', $user_id)->first();
         // return $agent;
+    }
+
+    public function saveTurn(TurnRequest $request)
+    {
+        // $user_id = Auth::user()->id;
+        // $agent = Agent::where('user_id', $user_id)->first();
+
+        // $cant_giro = $agent->number_turns;
+        // $new_giro = 0;
+        // if ($cant_giro > 0) {
+        //     $new_giro = $cant_giro - 1;
+        // }
+        // $agent->number_turns = $new_giro;
+        // $agent->save();
     }
 }

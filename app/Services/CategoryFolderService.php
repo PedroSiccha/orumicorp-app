@@ -1,8 +1,23 @@
 <?php
 namespace App\Services;
+
+use App\Interfaces\CategoryFolderRepositoryInterface;
+use Exception;
+use Illuminate\Support\Facades\DB;
+
 class CategoryFolderService
 {
-    public function saveCategoryFolder($request)
+
+    protected $categoryFolderRepository;
+
+    public function __construct(
+        CategoryFolderRepositoryInterface $categoryFolderRepository
+    )
+    {
+        $this->categoryFolderRepository = $categoryFolderRepository;
+    }
+
+    public function saveCategoryFolder(SaveCategoryFolderRequest $request)
     {
         DB::beginTransaction();
         try {
@@ -31,7 +46,7 @@ class CategoryFolderService
             //     $status = 'error';
             // }
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
         }
     }

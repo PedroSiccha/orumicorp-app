@@ -1,20 +1,68 @@
 <?php
 namespace App\Services;
 
+use App\Interfaces\AgentBonusRepositoryInterface;
+use App\Interfaces\AgentRepositoryInterface;
+use App\Interfaces\AreaRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\ComissionRepositoryInterface;
+use App\Interfaces\ExchangeRepositoryInrterface;
+use App\Interfaces\PercentRepositoryInterface;
+use App\Interfaces\SalesRepositoryInterface;
+use App\Interfaces\TargetRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use Exception;
+use DateTime;
 use Illuminate\Support\Facades\DB;
 
 class AgentBonusService
 {
+
+    protected $userRepository;
+    protected $agentRepository;
+    protected $percentRepository;
+    protected $comissionRepository;
+    protected $exchangeRateRepository;
+    protected $salesRepository;
+    protected $targetRepository;
+    protected $areaRepository;
+    protected $clientRepository;
+    protected $agentBonusRepository;
+
+    public function __construct(
+        UserRepositoryInterface $userRepository,
+        AgentRepositoryInterface $agentRepository,
+        PercentRepositoryInterface $percentRepository,
+        ComissionRepositoryInterface $comissionRepository,
+        ExchangeRepositoryInrterface $exchangeRateRepository,
+        SalesRepositoryInterface $salesRepository,
+        TargetRepositoryInterface $targetRepository,
+        AreaRepositoryInterface $areaRepository,
+        ClientRepositoryInterface $clientRepository,
+        AgentBonusRepositoryInterface $agentBonusRepository
+    ) {
+      $this->userRepository = $userRepository;  
+      $this->agentRepository = $agentRepository;
+      $this->percentRepository = $percentRepository;
+      $this->comissionRepository = $comissionRepository;
+      $this->exchangeRateRepository = $exchangeRateRepository;
+      $this->salesRepository = $salesRepository;
+      $this->targetRepository = $targetRepository;
+      $this->areaRepository = $areaRepository;
+      $this->clientRepository = $clientRepository;
+      $this->agentBonusRepository = $agentBonusRepository;
+    }
+
     public function getDataAgentBonus() {
-        $user_id = Auth::user()->id;
-        $user = User::where('id', $user_id)->first();
+        $user = $this->userRepository->getUserById();
+        // $user_id = Auth::user()->id;
+        // $user = User::where('id', $user_id)->first();
         $roles = $user->getRoleNames()->first();
 
-        $agent = $this->agentRepository->getAgentByUserId($user_id);
+        $agent = $this->agentRepository->getAgentByUserId($user->id);
 
         $percents = $this->percentRepository->getPercents(); // Percent::where('status', true)->get();
-        $commissions = $this->comissionRepository->getComiccions(); // Commission::where('status', true)->get();
+        $commissions = $this->comissionRepository->getComissions(); // Commission::where('status', true)->get();
         $exchange_rates = $this->exchangeRateRepository->getExchangeRates(); // ExchangeRate::where('status', true)->get();
         $bonusAgent = $this->salesRepository->getBonusAgent($agent, $roles); // Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
         // if ($roles == 'ADMINISTRADOR') {
@@ -40,7 +88,7 @@ class AgentBonusService
         //             ->orderBy("created_at", "asc")
         //             ->get();
 
-        $reportTargetMensual = $this->targetRepository->getSumAmount(); // $target->sum('amount');
+        $reportTargetMensual = $this->targetRepository->getSumAmount($target); // $target->sum('amount');
         // if ($target == null) {
         //     $target = new Target();
         //     $target->amount = 0;
@@ -133,20 +181,21 @@ class AgentBonusService
         $mensaje = 'Error desconocido';
         $status = 'error';
 
-        $user_id = Auth::user()->id;
-        $user = User::where('id', $user_id)->first();
+        $user = $this->userRepository->getUserById();
+        // $user_id = Auth::user()->id;
+        // $user = User::where('id', $user_id)->first();
         $roles = $user->getRoleNames()->first();
 
-        if ($request->dniCustomer > 0) {
-            $client = $this->clientRepository->getClientByCode(); // Customers::where('code', $request->dniCustomer)->first();
+        if ($data->dniCustomer > 0) {
+            $client = $this->clientRepository->getClientByCode($data->dniCustomer); // Customers::where('code', $request->dniCustomer)->first();
             $client_id = $client->id;
         }
 
-        $codeAgt = $request->dniAgent;
-        $amount = $request->amount;
-        $observation = $request->observation;
+        $codeAgt = $data->dniAgent;
+        $amount = $data->amount;
+        $observation = $data->observation;
 
-        $agent = $this->agentRepository->findAgentByCode(); // Agent::where('code_voiso', $codeAgt)->first();
+        $agent = $this->agentRepository->findAgentByCode($codeAgt); // Agent::where('code_voiso', $codeAgt)->first();
 
         DB::beginTransaction();
         try {
@@ -214,7 +263,7 @@ class AgentBonusService
     }
 
     public function saveRetiro($data) {
-        $agent = $this->agentRepository->findAgentByCode();
+        $agent = $this->agentRepository->findAgentByCode($data->dni);
         // $agent = Agent::where('dni', $request->dni)
         //                 ->orWhere('code', $request->dni)
         //                 ->first();
@@ -241,18 +290,16 @@ class AgentBonusService
             //throw $th;
         }
 
-        
-
-        $bonusAgent = $this->bonusAgentRepository->getBonusAgent(); // BonusAgent::where('status', true)->orderBy('date_admission')->get();
+        $bonusAgent = $this->agentBonusRepository->getBonusAgent(); // BonusAgent::where('status', true)->orderBy('date_admission')->get();
     }
 
     public function filterBonus($data) {
-        $dateInit = DateTime::createFromFormat('m/d/Y', $request->dateInit)->format('Y-m-d');
-        $dateEnd = DateTime::createFromFormat('m/d/Y', $request->dateEnd)->format('Y-m-d');
-        $codigo = $request->code;
-        $nombre = $request->code;
+        $dateInit = DateTime::createFromFormat('m/d/Y', $data->dateInit)->format('Y-m-d');
+        $dateEnd = DateTime::createFromFormat('m/d/Y', $data->dateEnd)->format('Y-m-d');
+        $codigo = $data->code;
+        $nombre = $data->code;
 
-        $bonusAgent = $this->saleRepository->searchBonusAgent();
+        $bonusAgent = $this->salesRepository->searchBonusAgent();
                 // Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
                 //         ->where(function ($queryAction) {
                 //             $queryAction->where('sales.action_id', 2)->orWhere('sales.action_id', 3);
