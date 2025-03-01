@@ -15,6 +15,7 @@
             <small class="float-right">{{ $contact['createdAt'] }}</small>
             <strong>{{ $contact['name'] }}</strong>. <br>
             <small class="text-muted">{{ $contact['assignedUser'] }}</small>
+            <small class="text-muted">Estado: {{ $contact['status'] }}</small>
         </div>
     </div>
     @endforeach
