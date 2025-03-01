@@ -10,8 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Función para mostrar/ocultar columnas
     function toggleColumn(columnIndex, visible) {
         console.log(`Toggleando columna ${columnIndex}: ${visible ? 'Mostrar' : 'Ocultar'}`);
-        const cells = table.querySelectorAll(`thead th:nth-child(${columnIndex + 1}), tbody td:nth-child(${columnIndex + 1})`);
-
+        const cells = document.querySelectorAll(`.table thead th:nth-child(${columnIndex + 2}), .table tbody td:nth-child(${columnIndex + 2})`);
         cells.forEach(cell => {
             cell.style.display = visible ? '' : 'none';
         });
@@ -32,14 +31,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Guardar la configuración en localStorage
-    window.saveTableConfigLocal = function () {
+    function saveTableConfigLocal() {
         const config = Array.from(columnToggles).map(toggle => ({
             column: toggle.dataset.column,
             visible: toggle.checked
         }));
         console.log('Guardando configuración en localStorage:', config);
         localStorage.setItem('tableConfig', JSON.stringify(config));
-    };
+    }
 
     // Evento de cambio en checkboxes
     columnToggles.forEach(toggle => {
@@ -50,6 +49,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Inicializar la configuración al cargar la página
+    // Detectar cambios en la tabla y volver a aplicar la configuración
+    const observer = new MutationObserver(() => {
+        console.log('La tabla se ha actualizado, aplicando configuración...');
+        applyTableConfig();
+    });
+
+    observer.observe(document.querySelector('#tabClient'), { childList: true, subtree: true });
+
+    // Aplicar configuración al cargar la página
     applyTableConfig();
 });

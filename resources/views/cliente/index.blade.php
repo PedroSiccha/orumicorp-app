@@ -62,7 +62,7 @@ Clientes
                         </select>
                     </div>
 
-                    <div class="col-sm-4 m-b-xs">
+                    <div class="col-sm-3 m-b-xs">
                         <div class="form-group" id="data_5">
                             <div class="input-daterange input-group" id="datepicker">
                                 <input type="text" class="form-control-sm form-control"  id="dateInitSearchGeneral" autocomplete="off"/>
@@ -71,8 +71,9 @@ Clientes
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
+                    <div class="col-sm-1 m-b-sx">
+                        <button id="filterCleanButton" class="btn btn-outline btn-danger" type="button">Limpiar  <i class="fa fa-close"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,7 +155,19 @@ Clientes
                     </div> --}}
                 </div>
                 <div class="table-responsive" id="tabClient">
-                    @include('cliente.list.listCustomer')
+                    {{-- @include('cliente.list.listCustomer') --}}
+                </div>
+                <label for="limit">Mostrar:</label>
+                <div class="col-sm-1 m-b-xs">
+                    <select class="form-control-sm form-control input-s-sm inline" name="limit" id="limit">
+                        <option value="5" {{ request('limit') == 5 ? 'selected' : '' }}>5</option>
+                        <option value="10" {{ request('limit') == 10 ? 'selected' : '' }}>10</option>
+                        <option value="20" {{ request('limit') == 20 ? 'selected' : '' }}>20</option>
+                        <option value="50" {{ request('limit') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('limit') == 100 ? 'selected' : '' }}>100</option>
+                        <option value="500" {{ request('limit') == 500 ? 'selected' : '' }}>500</option>
+                        <option value="1000" {{ request('limit') == 1000 ? 'selected' : '' }}>1000</option>
+                    </select>
                 </div>
             </div>
 
@@ -253,15 +266,21 @@ Clientes
 <script>
     $(document).ready(function() {
 
+        $('#datepicker').datepicker({
+            format: "dd/mm/yyyy",
+            autoclose: true,
+            todayHighlight: true
+        });
+
         $('.summernote').summernote();
         // Cargar datos iniciales con el limit actual
         let initialLimit = $('#limit').val();
         fetch_data(1, initialLimit);
 
         // Cambiar cantidad de registros por página
-        $(document).on('change', '#limit', function() {
+        $(document).on('change', '#limit', function () {
             let limit = $(this).val();
-            fetch_data(1, limit); // Cargar la primera página cuando cambia el límite
+            fetch_data(1, limit);
         });
 
         // Paginación
@@ -273,12 +292,25 @@ Clientes
         });
 
         function fetch_data(page, limit) {
+            let url = "/clientsPagination?page=" + page + "&limit=" + limit;
             $.ajax({
-                url: "/clientsPagination?page=" + page + "&limit=" + limit,
-                success: function(data) {
+                url: url,
+                method: "GET",
+                success: function (data) {
                     $('#tabClient').html(data);
+                    applyTableConfig();
+                },
+                error: function () {
+                    $('#tabClient').html('<p style="text-align: center; color: red;">Error al cargar los datos.</p>');
+                    applyTableConfig();
                 }
             });
+            // $.ajax({
+            //     url: "/clientsPagination?page=" + page + "&limit=" + limit,
+            //     success: function(data) {
+            //         $('#tabClient').html(data);
+            //     }
+            // });
         }
 
 
@@ -312,7 +344,63 @@ Clientes
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         markNotificationsAsSeen('clients');
+        const dateInit = document.getElementById("dateInitSearchGeneral");
+        const dateEnd = document.getElementById("dateEndSearchGeneral");
+
+        function ejecutarFiltro() {
+            filterAdvanced({
+                buttonFilter: "#filterButton",
+                inputFilter: "#inputFilterAdvance",
+                selectStatus: "#statusCustomerId",
+                selectTypeRange: "#typeRange",
+                dateInit: "#dateInitSearchGeneral",
+                dateEnd: "#dateEndSearchGeneral",
+                tableName: "#tabClient"
+            });
+        }
+
+        dateInit.addEventListener("change", ejecutarFiltro);
+        dateEnd.addEventListener("change", ejecutarFiltro);
+
+        
     });
+
+    document.getElementById('filterCleanButton').addEventListener('click', function () {
+        // Restablecer los filtros a sus valores predeterminados
+        document.getElementById('inputFilterAdvance').value = '';
+        document.getElementById('statusCustomerId').selectedIndex = 0;
+        document.getElementById('typeRange').selectedIndex = 0;
+        document.getElementById('dateInitSearchGeneral').value = '';
+        document.getElementById('dateEndSearchGeneral').value = '';
+        document.getElementById('filterButton').textContent = 'Filtrar Por:';
+
+        // Volver a cargar la tabla de clientes sin filtros
+        reloadClientTable();
+    });
+
+    // Función para recargar la tabla de clientes sin filtros
+    function reloadClientTable() {
+        let tableName = '#tabClient';
+        $(tableName).closest('.ibox-content').addClass('sk-loading');
+
+        $.post(filterAdvancedRoute, { 
+            filterFor: '', 
+            inputName: '', 
+            statusId: '', 
+            typeRange: '', 
+            dateInit: '', 
+            dateEnd: '', 
+            _token: token
+        }).done(function(data) {
+            $(tableName).empty();
+            $(tableName).html(data.view);
+        }).fail(function() {
+            $(tableName).empty();
+            $(tableName).html('<p style="text-align: center; color: red;">SIN DATOS.</p>');
+        }).always(function() {
+            $(tableName).closest('.ibox-content').removeClass('sk-loading');
+        });
+    }
 </script>
 <script src="{{ asset('js/utils/viewCheck.js') }}"></script>
 @endsection

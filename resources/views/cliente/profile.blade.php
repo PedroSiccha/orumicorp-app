@@ -417,3 +417,4 @@
 <script src="{{ asset('js/customer/searchClient.js') }}"></script>
 <script src="{{ asset('js/agent/assignGroupAgentByProfile.js') }}"></script>
 @endsection
+ 

@@ -1,8 +1,12 @@
 <?php
 namespace App\Services;
 
+use App\Models\Agent;
+use App\Models\Customers;
+use App\Models\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -187,27 +191,53 @@ class CallbellService
      // Método para hacer la consulta al API de Callbell usando el número de teléfono
     public function buscarContactoPorTelefono($phone)
     {
-        $apiUrl = "{$this->baseUrl}/contacts/phone/{$phone}";
+        $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+        $myRoles = $user->getRoleNames()->first();
+        $agent = Agent::where('user_id', $user_id)->first();
 
-        // Cuerpo con el channel_uuid
-        $body = [
-            'channel_uuid' => '4e6124ac175f48bf9e10236111718167'
-        ];
+        // $myRoles = $this->rolesService->getMyRoles();
 
-        // Hacemos la solicitud GET a la API de Callbell
-        $response = Http::withHeaders([
-            'Authorization' => "Bearer {$this->token}",
-            'Content-Type' => 'application/json',
-        ])->withBody(json_encode($body), 'application/json')->get($apiUrl);
-
-        // Verificamos si la respuesta fue exitosa
-        if ($response->successful()) {
-            // Si la respuesta contiene un contacto, retornamos los datos del contacto
-            return $response->json();
+        if ($myRoles == 'ADMINISTRADOR') {
+            $contacts = Customers::with(['statusCustomer'])->where('phone', 'LIKE', "%{$phone}%")->get();
+        } else {
+            $contacts = Customers::with(['statusCustomer'])->whereHas('assignaments', function ($query) use ($phone) {
+                $query->where('phone', 'LIKE', "%{$phone}%");
+            })->get();
         }
 
-        // Si la respuesta no fue exitosa, lanzamos un error
-        throw new \Exception('No se pudo obtener el contacto.');
+        // Transformamos los datos en el formato exacto que quieres
+        $contacts = $contacts->map(function ($customer) {
+            return [
+                "id" => $customer->id,  
+                "uuid" => $customer->callbell_uuid,  
+                "name" => $customer->name,
+                "lastname" => $customer->lastname,
+                "phoneNumber" => $customer->phone,
+                "avatarUrl" => $customer->img ?? null,
+                "createdAt" => $customer->created_at->format('d/m/Y'),
+                "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                "source" => $customer->callbel_source ?? null,
+                "href" => $customer->callbell_href,
+                "conversationHref" => $customer->callbell_conversationHref,
+                "tags" => $customer->callbel_tags ?? [],
+                "assignedUser" => $customer->assigned_user_email ?? null,
+                "customFields" => $customer->callbel_custom_fields ?? [],
+                "team" => $customer->callbel_team ?? [],
+                "channel" => $customer->callbel_channel ?? [],
+                "blockedAt" => $customer->callbel_blocked_at ?? null,
+                "status" => $customer->statusCustomer->name ?? null
+            ];
+        });
+        
+        // Si no hay contactos, devolver error
+        if ($contacts->isEmpty()) {
+            throw new \Exception('No se encontró ningún contacto.');
+        }
+
+        // Retornamos la respuesta en JSON
+        return response()->json($contacts);
+
     }
 
 }

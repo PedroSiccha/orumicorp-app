@@ -8,8 +8,9 @@ function saveConfigTable(inputDateInit, inputCode, inputPhone, inputOptionalPhon
     var configTablesCity = $(inputCity).is(':checked');
     var configTablesCountry = $(inputCountry).is(':checked');
     var configTablesComment = $(inputComment).is(':checked');
+    var limit = $('#limit').val();
 
-    $.post( saveConfigTableRoute, {configTablesDateInit: configTablesDateInit, configTablesCode: configTablesCode, configTablesPhone: configTablesPhone, configTablesOptionalPhone: configTablesOptionalPhone, configTablesEmail: configTablesEmail, configTablesCity: configTablesCity, configTablesCountry: configTablesCountry, configTablesComment: configTablesComment, _token: token}).done(function(data) {
+    $.post( saveConfigTableRoute, {configTablesDateInit: configTablesDateInit, configTablesCode: configTablesCode, configTablesPhone: configTablesPhone, configTablesOptionalPhone: configTablesOptionalPhone, configTablesEmail: configTablesEmail, configTablesCity: configTablesCity, configTablesCountry: configTablesCountry, configTablesComment: configTablesComment, limit: limit, _token: token}).done(function(data) {
 
         $(tableName).empty();
         $(tableName).html(data.view);

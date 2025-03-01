@@ -7,21 +7,14 @@ function filterAdvanced(options) {
     var dateEnd = options.dateEnd !== undefined ? $(options.dateEnd).val(): '';
     var tableName = options.tableName !== undefined ? options.tableName : '';
 
-    if (dateInit) {
-        var formattedDateInit = new Date(dateInit).toISOString().split('T')[0]; // YYYY-MM-DD
-    } else {
-        var formattedDateInit = '';
-    }
+    var formattedDateInit = convertDateFormat(dateInit);
+    var formattedDateEnd = convertDateFormat(dateEnd);
 
-    if (dateEnd) {
-        var formattedDateEnd = new Date(dateEnd).toISOString().split('T')[0]; // YYYY-MM-DD
-    } else {
-        var formattedDateEnd = '';
-    }
+    var limit = $('#limit').val();
 
     $(tableName).closest('.ibox-content').addClass('sk-loading');
 
-    $.post(filterAdvancedRoute, {filterFor: filterFor, inputName: inputName, statusId: statusId, typeRange: typeRange, dateInit: formattedDateInit, dateEnd: formattedDateEnd, _token: token}).done(function(data) {
+    $.post(filterAdvancedRoute, {filterFor: filterFor, inputName: inputName, statusId: statusId, typeRange: typeRange, dateInit: formattedDateInit, dateEnd: formattedDateEnd, limit: limit, _token: token}).done(function(data) {
         $(tableName).empty();
         $(tableName).html(data.view);
     }).fail(function() {
@@ -33,4 +26,14 @@ function filterAdvanced(options) {
         $(tableName).closest('.ibox-content').removeClass('sk-loading');
     });
 
+}
+
+// 🔹 Función para convertir fechas de DD/MM/YYYY a YYYY-MM-DD
+function convertDateFormat(dateStr) {
+    if (!dateStr) return ''; // Si la fecha está vacía, devolver una cadena vacía
+
+    var parts = dateStr.split('/');
+    if (parts.length !== 3) return ''; // Verificar que la fecha tenga el formato correcto
+
+    return `${parts[2]}-${parts[1]}-${parts[0]}`; // Formato YYYY-MM-DD
 }

@@ -9,7 +9,7 @@
             <div class="ibox-content">
                 <div class="file-manager">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Ver Carpetas:</h5>
+                        <h5 class="mb-0">Categorias de Folders:</h5>
                         @can('Crear Categoria Folder')
                             <button class="btn btn-default" onclick="mostrarNuevoModal('#modalCrearCategory')">
                                 <i class="fa fa-plus"></i>
@@ -24,7 +24,7 @@
                     <button class="btn btn-primary btn-block" onclick="mostrarNuevoModal('#modalCrearFolder')">Crear Carpeta</button>
                     @endcan
                     <div class="hr-line-dashed"></div>
-                    <h5>Carpetas</h5>
+                    <h5>Folder</h5>
                     <ul class="folder-list" style="padding: 0" id="folders">
                         @include('shooter.components.listFolder')
                     </ul>
