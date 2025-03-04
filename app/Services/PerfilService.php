@@ -1,25 +1,45 @@
 <?php
 namespace App\Services;
+
+use App\Enums\AssistanceType;
+use App\Enums\MovementType;
+use App\Interfaces\AgentRepositoryInterface;
+use App\Interfaces\AssistanceRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\PerfilRepositoryInterface;
+use App\Interfaces\SalesRepositoryInterface;
+use App\Interfaces\TargetRepositoryInterface;
+
 class PerfilService
 {
 
-    protected $perfilRepository;
+    protected $perfilRepository, $agentRepository, $clientRepository, $assistanceRepository, $targetRepository, $salesRepository;
 
     public function __construct(
-        PerfilRepositoryInterface $perfilRepository
+        PerfilRepositoryInterface $perfilRepository,
+        AgentRepositoryInterface $agentRepository,
+        ClientRepositoryInterface $clientRepository,
+        AssistanceRepositoryInterface $assistanceRepository,
+        TargetRepositoryInterface $targetRepository,
+        SalesRepositoryInterface $salesRepository
     ) {
       $this->perfilRepository = $perfilRepository;  
+      $this->agentRepository = $agentRepository;  
+      $this->clientRepository = $clientRepository;  
+      $this->assistanceRepository = $assistanceRepository;  
+      $this->targetRepository = $targetRepository;  
+      $this->salesRepository = $salesRepository;  
     }
 
     public function getProfileData()
     {
-        // $agent = Agent::where('user_id', $id)->first();
-        // $client = Customers::where('user_id', $id)->first();
-        // $rouletteSpin = 0;
+        $agent = $this->agentRepository->getAgentByUserId($id); // Agent::where('user_id', $id)->first();
+        $client = $this->clientRepository->getClientByUserId($id); // Customers::where('user_id', $id)->first();
+        $rouletteSpin = 0;
 
-        // if ($agent->number_turns) {
-        //     $rouletteSpin = $agent->number_turns;
-        // }
+        if ($agent->number_turns) {
+            $rouletteSpin = $agent->number_turns;
+        }
 
         // $dataUser = null;
 
@@ -34,43 +54,20 @@ class PerfilService
         // $premios1 = Premio::where('status', true)->where('type', 1)->get();
         // $premios2 = Premio::where('status', true)->where('type', 2)->get();
 
-        // $dateIn = Assistance::where('date', date('Y-m-d'))->where('type', 'IN')->where('agent_id', $agent->id)->first();
-        // $dateBreakIn = Assistance::where('date', date('Y-m-d'))->where('type', 'IN-BREAK')->where('agent_id', $agent->id)->first();
-        // $dateBreakOut = Assistance::where('date', date('Y-m-d'))->where('type', 'OUT-BREAK')->where('agent_id', $agent->id)->first();
-        // $dateOut = Assistance::where('date', date('Y-m-d'))->where('type', 'OUT')->where('agent_id', $agent->id)->first();
-        // $clients = Customers::where('agent_id', $agent->id)->paginate(5, ['*'], 'clients_page')->withQueryString();
-        // $targets = Target::select('id', 'amount', 'agent_id')
-        //                 ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
-        //                 ->where('agent_id', $agent->id  )
-        //                 ->paginate(5, ['*'], 'targets_page')->withQueryString();
+        $dateIn = $this->assistanceRepository->findAssistanceDateByTypeAgent(date('Y-m-d'), AssistanceType::INGRESO, $agent->id);
+        $dateBreakIn = $this->assistanceRepository->findAssistanceDateByTypeAgent(date('Y-m-d'), AssistanceType::INGRESO_BREAK, $agent->id); // Assistance::where('date', date('Y-m-d'))->where('type', 'IN-BREAK')->where('agent_id', $agent->id)->first();
+        $dateBreakOut = $this->assistanceRepository->findAssistanceDateByTypeAgent(date('Y-m-d'), AssistanceType::VUELTA_BREAK, $agent->id); // Assistance::where('date', date('Y-m-d'))->where('type', 'OUT-BREAK')->where('agent_id', $agent->id)->first();
+        $dateOut = $this->assistanceRepository->findAssistanceDateByTypeAgent(date('Y-m-d'), AssistanceType::SALIDA, $agent->id); // Assistance::where('date', date('Y-m-d'))->where('type', 'OUT')->where('agent_id', $agent->id)->first();
+        $clients = $this->clientRepository->getClientsByAssignedUser($agent->id, 5);
 
-        // $sales = Sales::select('sales.*', 'c.name', 'c.lastname')
-        //                 ->join('customers as c', 'sales.customer_id', '=', 'c.id')
-        //                 ->where('sales.agent_id', $agent->id)
-        //                 ->paginate(5, ['*'], 'sales_page')->withQueryString();
+        $targets = $this->targetRepository->getTargetsByAgent($agent->id);
+        
 
-        // $targetMensual = Target::where('status', true)
-        //                 ->where('month', date("m"))
-        //                 ->where('agent_id', $agent->id)
-        //                 ->orderBy("created_at", "asc")
-        //                 ->first();
-
-        // $ingresosActuales = Sales::join('actions', 'sales.action_id', '=', 'actions.id')
-        //                             ->where('actions.movement_type_id', 1)
-        //                             ->where('actions.status', 1)
-        //                             ->where('sales.status', 1)
-        //                             ->where('sales.agent_id', $agent->id)
-        //                             ->whereMonth('sales.created_at', date("m"))
-        //                             ->sum('sales.amount');
-
-        // $amountRetiro = Sales::join('actions', 'sales.action_id', '=', 'actions.id')
-        //                     ->where('actions.movement_type_id', 2)
-        //                     ->where('actions.status', 1)
-        //                     ->where('sales.status', 1)
-        //                     ->where('sales.agent_id', $agent->id)
-        //                     ->whereMonth('sales.created_at', date("m"))
-        //                     ->sum('sales.amount');
-
+        $sales = $this->salesRepository->getSalesByAgent($agent->id, 5);
+        $targetMensual = $this->targetRepository->getTargetByMonthAgent(date("m"), $agent->id);
+        $ingresosActuales = $this->salesRepository->getAmountDateByAgent($agent, MovementType::INGRESOS);
+        $amountRetiro = $this->salesRepository->getAmountDateByAgent($agent, MovementType::EGRESOS);
+        
         // return view('profile.index', compact('premios1', 'premios2', 'dataUser', 'rouletteSpin', 'dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut', 'clients', 'targets', 'sales', 'targetMensual', 'ingresosActuales', 'amountRetiro'));
     }
 }

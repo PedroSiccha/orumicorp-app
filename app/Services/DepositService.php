@@ -47,28 +47,27 @@ class DepositService
         $agent = $this->agentRepository->getAgentByUserId($user->id); // Agent::where('user_id', $user_id)->first();
 
         $rouletteSpin = $agent->number_turns ?: 0;
-        $transactionsType = $this->transactionTypeService->getTransactionTypes(); // TransactionType::all();
-        $deposits = $this->depositRepository->getDeposits(); // Deposit::with('customer')->with(['agent', 'user'])->get();
+        $transactionsType = $this->transactionTypeService->getTransactionTypes();
+        $deposits = $this->depositRepository->getDeposits();
         foreach ($deposits as &$deposit) {
             if (isset($deposit['date'])) {
                 $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
             }
 
         }
-        $sales = $this->salesRepository->getSales(); // Sales::where('status', 1)->whereHas('agent')->whereHas('customer')->with(['agent', 'customer'])->get();
+        $sales = $this->salesRepository->getSales();
     }
 
     public function saveDeposit($request)
     {
         
-        $client = $this->clientRepository->getClientByCode($request->codeClient); // Customers::where('code', $request->codeClient)->first();
-
+        $client = $this->clientRepository->getClientByCode($request->codeClient);
         $agent = $this->agentRepository->getAgentByCode($request->codeAgent);
         // Agent::where('code_voiso', $request->codeAgent)
         //               ->orWhere('code', $request->codeAgent)
         //               ->first();
 
-        $user_id = $this->userRepository->getMyId(); // Auth::user()->id;
+        $user_id = $this->userRepository->getMyId();
 
         DB::beginTransaction();
         try {
@@ -103,7 +102,7 @@ class DepositService
             // $status = "error";
         }
 
-        $deposits = $this->depositRepository->getDeposits(); // Deposit::with('customer')->with(['agent', 'user'])->get();
+        $deposits = $this->depositRepository->getDeposits();
         foreach ($deposits as &$deposit) {
             if (isset($deposit['date'])) {
                 $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
@@ -114,7 +113,7 @@ class DepositService
 
     public function getDepositData()
     {
-        $user_id = $this->userRepository->getMyId(); // Auth::user()->id;
+        $user_id = $this->userRepository->getMyId();
 
         $agent = $this->agentRepository->getAgentByUserId($user_id); // $agent = Agent::where('user_id', $user_id)->first();
         $client = $this->clientRepository->getClientByUserId($user_id); // $client = Customers::where('user_id', $user_id)->first();

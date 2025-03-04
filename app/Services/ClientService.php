@@ -152,7 +152,7 @@ class ClientService {
             $platforms = $this->platformRepository->getAllPlatforms();
             $traidings = $this->traidingRepository->getAllTraidings();
 
-            $folders = $this->folderRepository->getActiveFolders();
+            $folders = $this->folderRepository->getFolders();
             $agents = $this->agentRepository->getAllAgents();
             $campaings = $this->campaingRepository->getAllCampaings();
             if (!isset($myRoles['rolesId'])) {
@@ -578,7 +578,7 @@ class ClientService {
     public function searchCustomerByStatus($customerId)
     {
         $myRoles = $this->rolesService->getMyRoles();
-        $userId = $this->userRepository->getMyId(); // Auth::user()->id;
+        $userId = $this->userRepository->getMyId();
         $roles = $myRoles['roles'];
         // Obtener el agente si no es ADMIN
         $agent = ($roles !== 'ADMINISTRADOR') ? $this->agentRepository->getAgentByUserId($userId) : null; // Agent::where('user_id', $userId)->first() : null;
@@ -591,7 +591,7 @@ class ClientService {
         $agents = $this->agentRepository->getAgents(); // Agent::all();
         $campaings = $this->campaingRepository->getCampaing(); // Campaing::all();
         $providers = $this->providerRepository->getProviders(); // Provider::all();
-        $statusCustomers = $this->clientRepository->getCustomerStatus(); // CustomerStatus::all();
+        $statusCustomers = $this->clientRepository->getCustomerStatus();
 
         return compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers');
     }

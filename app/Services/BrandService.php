@@ -9,9 +9,9 @@ class BrandService
     protected $brandRepository;
 
     public function __construct(
-        BrandRepositoryInterface $brandRepository
+        // BrandRepositoryInterface $brandRepository
     ) {
-        $this->brandRepository = $brandRepository;        
+        // $this->brandRepository = $brandRepository;        
     }
 
     public function getAllBrands()

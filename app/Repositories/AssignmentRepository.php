@@ -1,12 +1,14 @@
 <?php
 namespace App\Repositories;
 
-use App\Exceptions\RepositoryException;
+use App\Enums\StatusEnum;
 use App\Models\Assignment;
 use App\Repositories\Contracts\AssignmentRepositoryInterface;
 use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AssignmentRepository implements AssignmentRepositoryInterface
 {
@@ -14,23 +16,31 @@ class AssignmentRepository implements AssignmentRepositoryInterface
     {
         try {
             return Assignment::where('customer_id', $customerId)
-                            ->where('status', 1)
+                            ->where('status', StatusEnum::ACTIVE->value)
                             ->get();
+        } catch (QueryException $e) {
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener las asignaciones activas del cliente {$customerId}: " . $e->getMessage());
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
 
     }
 
-    public function deactivateAssignments(Collection $assignments): void
+    public function desactivateAssignments(Collection $assignments): void
     {
         try {
             foreach ($assignments as $assignment) {
                 $assignment->status = 0;
                 $assignment->save();
             }
+        } catch (QueryException $e) {
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener las asignaciones inactivas: " . $e->getMessage());
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
 
     }
@@ -39,8 +49,12 @@ class AssignmentRepository implements AssignmentRepositoryInterface
     {
         try {
             return Assignment::create($data);
+        } catch (QueryException $e) {
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al asignar el cliente: " . $e->getMessage());
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
@@ -48,8 +62,12 @@ class AssignmentRepository implements AssignmentRepositoryInterface
     {
         try {
             DB::table('assignments')->insert($assignments);
+        } catch (QueryException $e) {
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al asignar el cliente: " . $e->getMessage());
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
         
     }
@@ -62,9 +80,13 @@ class AssignmentRepository implements AssignmentRepositoryInterface
                             ->where('status', 1)
                             ->orderBy('date', 'desc')
                             ->first();
-        } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener ultima asignación del cliente: " . $e->getMessage());
-        }
+            } catch (QueryException $e) {
+                Log::error("Error AssignmentRepository: " . $e->getMessage());
+                throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            } catch (Exception $e) {
+                Log::error("Error AssignmentRepository: " . $e->getMessage());
+                throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            }
         
     }
 
@@ -76,8 +98,29 @@ class AssignmentRepository implements AssignmentRepositoryInterface
                             ->where('status', true)
                             ->orderBy('status', 'asc')
                             ->first();
+        } catch (QueryException $e) {
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener las asignaciones activas del cliente {$customerId}: " . $e->getMessage());
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    public function getLastAssignamentByCustomer(int $customerId): ?Assignment
+    {
+        try {
+            return Assignment::with(['agent', 'assignedBy'])
+                             ->where('customer_id', $customerId)
+                             ->where('status', StatusEnum::ACTIVE->value)
+                             ->orderBy('status', 'asc')
+                             ->first();
+        } catch (QueryException $e) {
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error AssignmentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 }

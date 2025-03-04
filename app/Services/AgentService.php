@@ -273,13 +273,7 @@ class AgentService {
         } catch (\Throwable $th) {
             //throw $th;
         }
-        // $resp = 0;
-        // $agent = Agent::find($agentId);
-        // $agent->number_turns = $cantidad;
-        // if ($agent->save()) {
-        //     $resp = 1;
-        // }
-        // return $resp;
+        
     }
 
     public function uploadImg($request) {
@@ -366,7 +360,7 @@ class AgentService {
 
         // $user = Auth::user();
         // $user = User::find($user->id);
-        // $user->password = Hash::make($request->password);
+        
 
         // if ($user->save()) {
         //     $title = "Correcto";

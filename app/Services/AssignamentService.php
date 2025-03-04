@@ -19,10 +19,7 @@ class AssignamentService /*implements AssignamentInterface */
 
     public function getLastAssignamentByCustomer(int $customerId) {
         try {
-            // $customerId = $request['customer_id'];
-
-            $lastAssignment = $this->assignamentRepository->getLastAssignamentByCustomer($customerId); // Assignment::with(['agent', 'assignedBy'])->where('customer_id', $customerId)->where('status', 1)->orderBy('status', 'asc')->first();
-
+            $lastAssignment = $this->assignamentRepository->getLastAssignamentByCustomer($customerId);
             if ($lastAssignment) {
                 return $lastAssignment;
             } else {

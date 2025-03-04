@@ -1,26 +1,36 @@
 <?php
 namespace App\Services;
 
+use App\Interfaces\AgentRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\SecurityRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
 
 class SecurityService
 {
 
-    protected $securityRepository;
+    protected $securityRepository, $userRepository, $clientRepository, $agentRepository;
 
     public function __construct(
-        SecurityRepositoryInterface $securityRepository
+        SecurityRepositoryInterface $securityRepository,
+        UserRepositoryInterface $userRepository,
+        ClientRepositoryInterface $clientRepository,
+        AgentRepositoryInterface $agentRepository
     ) {
       $this->securityRepository = $securityRepository;  
+      $this->userRepository = $userRepository;  
+      $this->clientRepository = $clientRepository;  
+      $this->agentRepository = $agentRepository;  
     }
 
     public function getSecurityData()
     {
-        // $user_id = Auth::user()->id;
+        $user = $this->userRepository->getUser();
 
-        // $agent = Agent::where('user_id', $user_id)->first();
-        // $client = Customers::where('user_id', $user_id)->first();
-        // $rouletteSpin = $agent->number_turns ?: 0;
+        $agent = $this->agentRepository->getAgentByUserId($user->id); // Agent::where('user_id', $user_id)->first();
+        $client = $this->clientRepository->getClientByUserId($user->id); // Customers::where('user_id', $user_id)->first();
+        $rouletteSpin = $agent->number_turns ?: 0;
 
         // $dataUser = null;
 
@@ -32,8 +42,8 @@ class SecurityService
         //     $dataUser = $client;
         // }
 
-        // $roles = Role::paginate(10)->withQueryString();
-        // $permisos = Permission::get();
+        $roles = $this->securityRepository->getRoles(10);
+        $permisos = $this->securityRepository->getPermission(10);
         // $premios1 = Premio::where('status', true)->where('type', 1)->get();
         // $premios2 = Premio::where('status', true)->where('type', 2)->get();
         // return view('security.index', compact('premios1', 'premios2', 'roles', 'permisos', 'dataUser', 'rouletteSpin'));
@@ -43,23 +53,23 @@ class SecurityService
     {
         // $resp = 0;
 
-        // $role = Role::create(['name' => $request->name]);
+        $role = $this->securityRepository->saveRol($request);
         // if ($role) {
         //     $resp = 1;
         // }
 
-        // $roles = Role::get();
+        $roles = $this->securityRepository->getRoles(10);
 
         // return response()->json(["view"=>view('security.components.tabRoles', compact('roles'))->render(), "resp"=>$resp]);
     }
 
     public function getPermisos(Request $request)
     {
-        // $rol = Role::where('id', $request->id)->first();
+        $rol = $this->securityRepository->getRolesById($request->id);
 
-        // if ($rol) {
-        //     $permisos = $rol->permissions;
-        // }
+        if ($rol) {
+            $permisos = $rol->permissions;
+        }
 
         // return response()->json(["view"=>view('security.components.tabPermisos', compact('permisos'))->render()]);
     }
@@ -71,38 +81,38 @@ class SecurityService
         // $rol_id = $request->rol_id;
         // $permiso_id = $request->idPermiso;
 
-        // $rol = Role::findById($rol_id);
+        $rol = $this->securityRepository->getRolesById($request->rol_id);
 
-        // for ($i=0; $i < count($permiso_id) ; $i++) {
+        for ($i=0; $i < count($request->idPermiso) ; $i++) {
 
-        //     $permiso = Permission::find($permiso_id);
+            $permiso = $this->securityRepository->getPermiPermissionById($request->idPermiso);
 
-        //     $rol->givePermissionTo($permiso);
+            $rol->givePermissionTo($permiso);
 
-        //     if ($rol) {
-        //         $resp = 1;
-        //     }
+            if ($rol) {
+                $resp = 1;
+            }
 
-        // }
+        }
 
-        // if ($rol) {
-        //     $permisos = $rol->permissions;
-        // }
+        if ($rol) {
+            $permisos = $rol->permissions;
+        }
 
         // return response()->json(["view"=>view('security.components.tabPermisos', compact('permisos'))->render(), "resp"=>$resp]);
     }
 
     public function deletePermiso(Request $request)
     {
-        // $rol = Role::findById($request->idRol);
-        // $permiso = Permission::find($request->idPermiso);
-        // $rol->revokePermissionTo($permiso);
+        $rol = $this->securityRepository->getRolesById($request->idRol);
+        $permiso = $this->securityRepository->getPermiPermissionById($request->idPermiso);
+        $rol->revokePermissionTo($permiso);
 
         // $rol = Role::where('id', $request->idRol)->first();
 
-        // if ($rol) {
-        //     $permisos = $rol->permissions;
-        // }
+        if ($rol) {
+            $permisos = $rol->permissions;
+        }
 
         // return response()->json(["view"=>view('security.components.tabPermisos', compact('permisos'))->render()]);
     }

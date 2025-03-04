@@ -2,13 +2,21 @@
 namespace App\Services;
 
 use App\Interfaces\UserInterface;
+use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 
 class UserService implements UserInterface {
-    public function __construct() {}
+
+    protected $userRepository;
+
+    public function __construct(
+        UserRepositoryInterface $userRepository
+    ) {
+        $this->userRepository = $userRepository;
+    }
 
     public function validateSession() {
-        $user = Auth::user();
+        $user = $this->userRepository->getUser();
 
         if ($user === null) {
             return null;

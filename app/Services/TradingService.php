@@ -15,13 +15,14 @@ class TradingService
       $this->traidingRepository = $traidingRepository;  
     }
 
-    public function saveTraiding(Request $request)
+    public function saveTraiding(StoreTraidingRequest $request)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
         // $status = "error";
 
         // try {
+        $response = $this->traidingRepository->saveTraiding($request);
 
         //     $trading = new Traiding();
         //     $trading->code = $request->code;
@@ -43,18 +44,19 @@ class TradingService
         //     $status = "error";
         // }
 
-        // $traidings = Traiding::get();
+        $traidings = $this->traidingRepository->getTraidings();
 
         // return response()->json(["view"=>view('traiding.table.tableTraiding', compact('traidings'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    public function updateTraiding(Request $request)
+    public function updateTraiding(EditTraidingRequest $request)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
         // $status = "error";
 
         // try {
+        $response = $this->traidingRepository->updateTraiding($request);
 
         //     $trading = Traiding::find($request->id);
         //     $trading->code = $request->code;
@@ -81,16 +83,17 @@ class TradingService
         //     $status = "error";
         // }
 
-        // $traidings = Traiding::get();
+        $traidings = $this->traidingRepository->getTraidings();
 
         // return response()->json(["view"=>view('traiding.table.tableTraiding', compact('traidings'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    public function deleteTraiding(Request $request)
+    public function deleteTraiding(int $traidingId)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
         // $status = "error";
+        $response = $this->traidingRepository->deleteTraiding($traidingId);
         // $traiding = Traiding::find($request->id);
         // if ($traiding == null) {
         //     $title = "Error";
@@ -113,7 +116,7 @@ class TradingService
         //     $status = "error";
         // }
 
-        // $traidings = Traiding::get();
+        $traidings = $this->traidingRepository->getTraidings();
 
         // return response()->json(["view"=>view('traiding.table.tableTraiding', compact('traidings'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }

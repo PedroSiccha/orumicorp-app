@@ -1,25 +1,40 @@
 <?php
 namespace App\Services;
 
+use App\Interfaces\AgentRepositoryInterface;
+use App\Interfaces\AreaRepositoryInterface;
+use App\Interfaces\PriorityRepositoryInterface;
+use App\Interfaces\TaskRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
 
 class TaskService
 {
 
-    protected $taskRepository;
+    protected $taskRepository, $userRepository, $agentRepository, $areaRepository, $priorityRepository;
 
     public function __construct(
-        TaskRepositoryInterface $taskRepository
+        TaskRepositoryInterface $taskRepository,
+        UserRepositoryInterface $userRepository,
+        AgentRepositoryInterface $agentRepository,
+        AreaRepositoryInterface $areaRepository,
+        PriorityRepositoryInterface $priorityRepository
     ) {
-      $this->taskRepository = $taskRepository;  
+      $this->taskRepository = $taskRepository; 
+      $this->userRepository = $userRepository; 
+      $this->agentRepository = $agentRepository;
+      $this->areaRepository = $areaRepository;
+      $this->priorityRepository = $priorityRepository;
     }
 
     public function getTaskData()
     {
-        // $user_id = Auth::user()->id;
-        // $user = User::where('id', $user_id)->first();
-        // $roles = $user->getRoleNames()->first();
-
+        // Auth::user()->id;
+        $user = $this->userRepository->findUser(); // User::where('id', $user_id)->first();
+        $roles = $user->getRoleNames()->first();
+        $agent = $this->agentRepository->getAgentByUserId($user->id);
+        $areas = $this->areaRepository->getAreas();
+        $priorities = $this->priorityRepository->getPriorities();
         // $agent = Agent::where('user_id', $user_id)->first();
         // $client = Customers::where('user_id', $user_id)->first();
         // $rouletteSpin = $agent->number_turns ?: 0;
@@ -43,7 +58,7 @@ class TaskService
 
     public function getTask()
     {
-        // $eventos = Task::with('agent')->get();
+        $eventos = $this->taskRepository->getTasks();
 
         // $eventos_formateados = [];
         // foreach ($eventos as $evento) {
@@ -59,8 +74,9 @@ class TaskService
         // return response()->json($eventos_formateados);
     }
 
-    public function saveTask()
+    public function saveTask(StoreTaskRequest $request)
     {
+        
         // $fecha = date("Y-m-d", strtotime($request->fecha));
         // $titulo = $request->titulo;
         // $descripcion = $request->descripcion;
@@ -71,7 +87,8 @@ class TaskService
         // $urlGuardar = '';
         // $resp = 0;
         // $user_id = Auth::user()->id;
-        // $agent = Agent::where('user_id', $user_id)->first();
+        $user = $this->userRepository->findUser();
+        $agent = $this->agentRepository->getAgentByUserId($user->id); // Agent::where('user_id', $user_id)->first();
 
         // if ($request->hasFile('imgEvento')) {
         //     $nombre=$img->getClientOriginalName();
@@ -84,6 +101,7 @@ class TaskService
         // }
 
         // try {
+            $response = $this->taskRepository->saveTask($request);
         //     $task = new Task();
         //     $task->name = $titulo;
         //     $task->description = $descripcion;
@@ -145,8 +163,8 @@ class TaskService
     public function getEventById(Request $request)
     {
         // $id = $request->id;
-        // $evento = Task::with('customer')->find($id);
-        // return response()->json($evento);
+        $evento = $this->taskRepository->getTaskWithCustomer();
+        return response()->json($evento);
     }
 
     public function editEvent(Request $request)
@@ -156,13 +174,16 @@ class TaskService
         // $status = "error";
 
         // $user_id = Auth::user()->id;
+        $user = $this->userRepository->findUser();
         // $agent = Agent::where('user_id', $user_id)->first();
-        // $priority = Priority::where('id', $request->priorityEvent)->first();
-        // $client = Customers::where('code', $request->codCustomer)->first();
+        $agent = $this->agentRepository->getAgentByUserId($user->id);
+        $priority = $this->priorityRepository->findPriorityById($request->priorityEvent);
+        $client = $this->clientRepository->getClientByCode($request->codCustomer); // Customers::where('code', $request->codCustomer)->first();
 
         // //dd($request->idEvent);
 
         // try {
+        $response = $this->taskRepository->updateTask($request);
         //     $task = Task::find($request->idEvent);
         //     $task->name = $request->nameEvent;
         //     $task->description = $request->descriptionEvent;
@@ -196,6 +217,7 @@ class TaskService
         // $status = "error";
 
         // try {
+        $response = $this->taskRepository->deleteTask($taskId);
         //     $task = Task::find($request->idEvent);
         //     if ($task->delete()) {
         //         $title = "Correcto";

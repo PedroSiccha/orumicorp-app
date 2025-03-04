@@ -1,14 +1,16 @@
 <?php
 namespace App\Interfaces;
 
-use App\Models\Area;
-use App\Models\BonusAgent;
+use App\Http\Requests\EditTransactionTypeRequest;
+use App\Http\Requests\StoreTransactionTypeRequest;
+use App\Models\TransactionType;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 interface TransactionTypeRepositoryInterface
 {
     public function getTransactionTypes(): Collection;
-    // public function saveBonus(BonusAgentRequest $request): BonusAgent;
-    // public function getAreas(): Collection;
+    public function saveTransactionType(StoreTransactionTypeRequest $data): ?TransactionType;
+    public function findTransactionTypeById(int $transactionTypeId): ?TransactionType;
+    public function updateTransactionType(TransactionType $transactionType, EditTransactionTypeRequest $data): bool;
+    public function deleteTransactionType(int $transactionTypeId): bool;
 }

@@ -9,7 +9,4 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface PercentRepositoryInterface
 {
     public function getPercents(): Collection;
-    // public function getAllAreas(): Collection;
-    // public function saveArea(AreaRequest $request): Area;
-    // public function getAreas(): Collection;
 }

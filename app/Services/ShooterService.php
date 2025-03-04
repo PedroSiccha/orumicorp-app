@@ -1,25 +1,47 @@
 <?php
 namespace App\Services;
 
+use App\Interfaces\AgentRepositoryInterface;
+use App\Interfaces\CategoryFolderRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\ClientStatusRepositoryInterface;
+use App\Interfaces\ComunicationRepositoryInterface;
+use App\Interfaces\FolderRepositoryInterface;
+use App\Interfaces\ShooterRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
 
 class ShooterService
 {
 
-    protected $shooterRepository;
+    protected $shooterRepository, $userRepository, $agentRepository, $clientRepository, $clientStatusRepository, $folderRepository, $categoryFolderRepository, $comunicationRepository;
 
     public function __construct(
-        ShooterRepositoryInterface $shooterRepository
+        ShooterRepositoryInterface $shooterRepository,
+        UserRepositoryInterface $userRepository,
+        AgentRepositoryInterface $agentRepository,
+        ClientRepositoryInterface $clientRepository,
+        ClientStatusRepositoryInterface $clientStatusRepository,
+        FolderRepositoryInterface $folderRepository,
+        CategoryFolderRepositoryInterface $categoryFolderRepository,
+        ComunicationRepositoryInterface $comunicationRepository
     ) {
       $this->shooterRepository = $shooterRepository;  
+      $this->userRepository = $userRepository;  
+      $this->agentRepository = $agentRepository;  
+      $this->clientRepository = $clientRepository;  
+      $this->clientStatusRepository = $clientStatusRepository;  
+      $this->folderRepository = $folderRepository;  
+      $this->categoryFolderRepository = $categoryFolderRepository;  
+      $this->comunicationRepository = $comunicationRepository;  
     }
 
     public function getShooterData()
     {
         // $user_id = Auth::user()->id;
-        // $user = User::where('id', $user_id)->first();
-        // $roles = $user->getRoleNames()->first();
-        // $agent = Agent::where('user_id', $user_id)->first();
+        $user = $this->userRepository->findUser(); // User::where('id', $user_id)->first();
+        $roles = $user->getRoleNames()->first();
+        $agent = $this->agentRepository->getAgentByUserId($user->id); // Agent::where('user_id', $user_id)->first();
         // $dataUser = $agent;
         // $clients = [];
 
@@ -30,23 +52,23 @@ class ShooterService
         // $agent = Agent::where('user_id', $user_id)->first();
         // $premios1 = Premio::where('status', true)->where('type', 1)->get();
         // $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        // $rouletteSpin = $agent->number_turns ?: 0;
-        // $clients = Customers::where('id_status', 1)->with(['latestComunication', 'latestCampaign', 'latestSupplier'])->get();
+        $rouletteSpin = $agent->number_turns ?: 0;
+        $clients = $this->clientRepository->getClientsByStatus(1);
 
-        // $shooter = Shooter::where('status', 1)->first();
-        // $na = CustomerStatus::where('name', 'NA')->first();
-        // $na_1 = CustomerStatus::where('name', 'NA 1')->first();
-        // $na_2 = CustomerStatus::where('name', 'NA 2')->first();
-        // $na_3 = CustomerStatus::where('name', 'NA 3')->first();
+        $shooter = $this->shooterRepository->getShooter();
+        $na = $this->clientStatusRepository->findStatusByName('NA'); 
+        $na_1 = $this->clientStatusRepository->findStatusByName('NA 1');
+        $na_2 = $this->clientStatusRepository->findStatusByName('NA 2');
+        $na_3 = $this->clientStatusRepository->findStatusByName('NA 3');
 
         // //dd($na_1);
 
-        // if ($shooter) {
-        //     $clients = Customers::where('folder_id', $shooter->folder_id)->whereNotIn('id_status', [$na->id, $na_1->id, $na_2->id, $na_3->id])->get();
-        // }
+        if ($shooter) {
+            $clients = $this->clientRepository->getClientsByFolderExceptStatus($shooter->folder_id, [$na->id, $na_1->id, $na_2->id, $na_3->id]);
+        }
 
-        // $folders = Folder::where('status', 1)->get();
-        // $statusCustomers = CustomerStatus::all();
+        $folders = $this->folderRepository->getFolders(); // Folder::where('status', 1)->get();
+        $statusCustomers = $this->clientStatusRepository->getStatus();
 
         // return view('shooter.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'clients', 'shooter', 'folders', 'statusCustomers'));
     }
@@ -55,42 +77,43 @@ class ShooterService
     {
         // $user_id = Auth::user()->id;
         // $user = User::where('id', $user_id)->first();
-        // $roles = $user->getRoleNames()->first();
-        // $agent = Agent::where('user_id', $user_id)->first();
+        $user = $this->userRepository->findUser();
+        $roles = $user->getRoleNames()->first();
+        $agent = $this->agentRepository->getAgentByUserId($user->id);// $agent = Agent::where('user_id', $user_id)->first();
         // $dataUser = $agent;
 
 
         // $agent = Agent::where('user_id', $user_id)->first();
         // $premios1 = Premio::where('status', true)->where('type', 1)->get();
         // $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        // $rouletteSpin = $agent->number_turns ?: 0;
+        $rouletteSpin = $agent->number_turns ?: 0;
 
-        // $categoryFolders = CategoryFolder::where('status', 1)->get();
-        // $folders = Folder::where('status', 1)->where('category_id', 1)->get();
+        $categoryFolders = $this->categoryFolderRepository->getCategoryFolders(); // CategoryFolder::where('status', 1)->get();
+        $folders = $this->folderRepository->getFoldersByCategory(1);
 
         // return view('shooter.details.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'categoryFolders', 'folders'));
     }
 
-    public function getFolderData()
+    public function getFolderData(int $categoryId)
     {
-        // $folders = Folder::where('status', 1)->where('category_id', $request->categoryId)->get();
+        $folders = $this->folderRepository->getFoldersByCategory($categoryId);
         // return response()->json(["view"=>view('shooter.components.listFolder', compact('folders'))->render()]);
     }
 
-    public function getClientsByFolder(Request $request)
+    public function getClientsByFolder(int $folderId)
     {
-        // $clients = Customers::where('status', 1)->where('folder_id', $request->folderId)->get();
+        $clients = $this->clientRepository->getClientsByFolder($folderId);
         // return response()->json(["view"=>view('shooter.components.listClient', compact('clients'))->render()]);
     }
 
-    public function getResumClient(Request $request)
+    public function getResumClient(int $clientId)
     {
-        // $client = Customers::with(['latestComunication', 'latestAssignamet', 'statusCustomer', 'latestCampaign', 'latestSupplier', 'traiding'])->find($request->clientId);
-        // $comunications = Comunications::where('customer_id', $client->id)->get();
+        // $client = $this->clientRepository->getClientById($request->clientId); // Customers::with(['latestComunication', 'latestAssignamet', 'statusCustomer', 'latestCampaign', 'latestSupplier', 'traiding'])->find($request->clientId);
+        $comunications = $this->comunicationRepository->getComunicationsByClient($clientId);
         // return response()->json(["view"=>view('shooter.components.detailClient', compact('client', 'comunications'))->render()]);
     }
 
-    public function activeShooter(Request $request)
+    public function activeShooter(StoreShooterRequest $request)
     {
         // $folder_id = $request->folder_id;
         // $title = "Error";
@@ -105,7 +128,7 @@ class ShooterService
         // } catch (Exception $e) {
         // }
 
-
+        $response = $this->shooterRepository->saveShooter($request);
 
         // try {
         //     $shooter = new Shooter();
@@ -131,7 +154,7 @@ class ShooterService
         // $na_3 = CustomerStatus::where('name', 'NA 3')->first();
     }
 
-    public function disableShooter(Request $request)
+    public function disableShooter(int $shooterId)
     {
         // $shooter_id = $request->shooter_id;
         // $title = "Error";
@@ -140,6 +163,7 @@ class ShooterService
         // $clients = [];
 
         // try {
+        $response = $this->shooterRepository->disableShooter($shooterId);
         //     $shooter = Shooter::find($shooter_id);
         //     $shooter->end = Carbon::now();
         //     $shooter->status = false;
@@ -161,7 +185,7 @@ class ShooterService
         // $na_3 = CustomerStatus::where('name', 'NA 3')->first();
     }
 
-    public function notiffyShooter()
+    public function notiffyShooter(Request $request)
     {
         // $type = "";
         // $message = "";
@@ -170,11 +194,14 @@ class ShooterService
 
         // $user_id = Auth::user()->id;
         // $agent = Agent::where('user_id', $user_id)->first();
+        $user = $this->userRepository->findUser();
+        $agent = $this->agentRepository->getAgentByUserId($user->id);
+        $shooter = $this->shooterRepository->getShooter();
 
         // $shooter = Shooter::where('status', 1)->first();
 
-        // if ($shooter) {
-        //     $clients = Customers::where('folder_id', $shooter->folder_id)->get();
+        if ($shooter) {
+            $clients = $this->clientRepository->getClientsByFolder($request->folderId);
 
         //     if ($clients->isNotEmpty()) {
         //         $randomClient = $clients->random();
@@ -184,7 +211,7 @@ class ShooterService
         //         $shooter = "1";
         //     }
 
-        // }
+        }
 
         // return response()->json(["type" => $type, "message" => $message, "shooter" => $shooter, "phone" => $phone]);
     }

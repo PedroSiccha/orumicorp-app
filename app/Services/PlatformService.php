@@ -3,6 +3,8 @@ namespace App\Services;
 
 use App\Http\Requests\PlatformRequest;
 use App\Interfaces\PlatformRepositoryInterface;
+use Exception;
+use Illuminate\Validation\ValidationException;
 
 class PlatformService
 {
@@ -15,13 +17,14 @@ class PlatformService
         $this->platformRepository = $platformRepository;
     }
 
-    public function savePlatform(PlatformRequest $request)
+    public function savePlatform(StorePlatformRequest $request)
     {
-// $title = "Error";
+        // $title = "Error";
         // $mensaje = "Error desconocido";
         // $status = "error";
 
-        // try {
+        try {
+            $platform = $this->platformRepository->savePlatform($request);
 
         //     $platform = new Platform();
         //     $platform->name = $request->name;
@@ -33,28 +36,29 @@ class PlatformService
         //         $status = "success";
         //     }
 
-        // } catch (ValidationException $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // }
+        } catch (ValidationException $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        }
 
-        // $platforms = Platform::get();
+        $platforms = $this->platformRepository->getPlatforms();
 
         // return response()->json(["view"=>view('platform.table.tablePlatform', compact('platforms'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    public function updatePlatform(PlatformRequest $request)
+    public function updatePlatform(EditPlatformRequest $request)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
         // $status = "error";
 
-        // try {
+        try {
+            $response = $this->platformRepository->updatePlatform($request);
 
         //     $platform = Platform::find($request->id);
         //     $platform->name = $request->name;
@@ -70,22 +74,22 @@ class PlatformService
         //         $status = "error";
         //     }
 
-        // } catch (ValidationException $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = "Verificar los datos del registro";
-        //     $status = "error";
-        // }
+        } catch (ValidationException $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Verificar los datos del registro";
+            $status = "error";
+        }
 
-        // $platforms = Platform::get();
+        $platforms = $this->platformRepository->getPlatforms();
 
         // return response()->json(["view"=>view('platform.table.tablePlatform', compact('platforms'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    public function deletePlatform(PlatformRequest $request)
+    public function deletePlatform(int $platformId)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
@@ -96,7 +100,8 @@ class PlatformService
         //     $mensaje = "Hubo un error con su platform";
         //     $status = "error";
         // }
-        // try {
+        try {
+            $response = $this->platformRepository->deletePlatform($platformId);
         //     if ($platform->delete()) {
         //         $title = "Correcto";
         //         $mensaje = "Su platform se eliminó correctamente";
@@ -106,13 +111,13 @@ class PlatformService
         //         $mensaje = "No se pudo eliminar su platform";
         //         $status = "error";
         //     }
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // }
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        }
 
-        // $platforms = Platform::get();
+        $platforms = $platforms = $this->platformRepository->getPlatforms();
 
         // return response()->json(["view"=>view('platform.table.tablePlatform', compact('platforms'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }

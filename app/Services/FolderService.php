@@ -2,17 +2,20 @@
 namespace App\Services;
 
 use App\Http\Requests\FolderRequest;
+use App\Http\Requests\StoreFolderRequest;
 use App\Interfaces\FolderRepositoryInterface;
 
 class FolderService
 {
 
-    protected $folderRepository;
+    protected $folderRepository, $rolesService, $userRepository, $clientRepository, $agentRepository, $campaingRepository, $providerRepository, $statusCustomerRepository;
 
     public function __construct(
-        FolderRepositoryInterface $folderRepository
+        FolderRepositoryInterface $folderRepository,
+        RolesService $rolesService
     ) {
       $this->folderRepository = $folderRepository;  
+      $this->rolesService = $rolesService;
     }
 
     public function deleteFolder(FolderRequest $request)
@@ -22,11 +25,9 @@ class FolderService
         // $status = 'error';
 
         // try {
-        $folder = $this->folderRepository->findFolderById($request->id);
+        // $folder = $this->folderRepository->findFolderById($request->id);
         $data = $this->folderRepository->disableFolder($request->id);
-        //     $folder = Folder::find($request->id);
-        //     $folder->status = false;
-        //     $folder->save();
+        
 
         //     $title = "Correcto";
         //     $mensaje = "Actualización correcta";
@@ -37,8 +38,8 @@ class FolderService
         //     $mensaje = 'Ocurrió un error: '.$e->getMessage();
         //     $status = 'error';
         // }
-        $folders = $this->folderRepository->getFolderByCategory(1);
-        // $folders = Folder::where('status', 1)->where('category_id', 1)->get();
+        $folders = $this->folderRepository->getFoldersByCategory(1);
+        
         // return response()->json(["view"=>view('shooter.components.listFolder', compact('folders'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
@@ -49,18 +50,7 @@ class FolderService
         // $status = 'error';
 
         // try {
-        $data = $this->folderRepository->assignClientToFolder($folderId, $request->idGroupClientes);
-        //     foreach ($request->idGroupClientes as $idClient) {
-
-        //         $client = Customers::find($idClient);
-        //         $client->folder_id = $request->folderId;
-        //         $client->save();
-
-        //         $title = "Correcto";
-        //         $mensaje = "Actualización correcta";
-        //         $status = "success";
-
-        //     }
+        $data = $this->folderRepository->assignClientToFolder($request->folderId, $request->idGroupClientes);
 
         // } catch (Exception $e) {
         //     $title = "Error";
@@ -135,7 +125,7 @@ class FolderService
         // return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
-    public function saveFolder(FolderRequest $request)
+    public function saveFolder(StoreFolderRequest $request)
     {
         // $title = 'Error';
         // $mensaje = 'Error desconocido';
@@ -158,8 +148,8 @@ class FolderService
         //     $mensaje = 'Ocurrió un error: '.$e->getMessage();
         //     $status = 'error';
         // }
-        // $folders = Folder::where('status', 1)->where('category_id', 1)->get();
-        $folders = $this->folderRepository->getFolderByCategory(1);
+        
+        $folders = $this->folderRepository->getFoldersByCategory(1);
         // return response()->json(["view"=>view('shooter.components.listFolder', compact('folders'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 

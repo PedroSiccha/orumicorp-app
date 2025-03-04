@@ -28,7 +28,7 @@ class AreaService
     public function getDataAreas() 
     {
         try {
-            $user_id = $this->userRepository->getMyId(); //Auth::user()->id;
+            $user_id = $this->userRepository->getMyId();
             $agent = $this->agentRepository->getAgentByUserId($user_id); // Agent::where('user_id', $user_id)->first();
             $areas = $this->areaRepository->getAreas(); // Area::get();
         } catch (Exception $e) {
@@ -84,7 +84,7 @@ class AreaService
     public function changeStatusArea($request)
     {
         
-        $area = $this->areaRepository->getAreaById($request->id); // Area::find($request->id);
+        $area = $this->areaRepository->getAreaById($request->id);
         try {
             $response = $this->areaRepository->changeStatusArea($request->id, $request->status);
             $area->status = $request->status;
@@ -102,7 +102,7 @@ class AreaService
     public function deleteArea($request)
     {
         try {
-            $area = $this->areaRepository->getAreaById($request->id); // Area::find($request->id);
+            $area = $this->areaRepository->getAreaById($request->id);
             $response = $this->areaRepository->deleteArea($area);
         } catch (\Throwable $th) {
             //throw $th;

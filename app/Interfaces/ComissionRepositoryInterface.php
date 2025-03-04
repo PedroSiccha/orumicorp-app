@@ -8,6 +8,4 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface ComissionRepositoryInterface
 {
     public function getComissions(): Collection;
-    // public function saveArea(AreaRequest $request): Area;
-    // public function getAreas(): Collection;
 }

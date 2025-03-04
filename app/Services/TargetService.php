@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Interfaces\TargetRepositoryInterface;
 use Illuminate\Http\Request;
 
 class TargetService
@@ -14,14 +15,14 @@ class TargetService
       $this->targetRepository = $targetRepository;  
     }
 
-    public function saveTarget(Request $request)
+    public function saveTarget(StoreTargetRequest $request)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
         // $status = "error";
 
-        // $agent = Agent::where('user_id', $request->user_id)->first();
-
+        $agent = $this->agentRepository->getAgentByUserId($request->user_id); // Agent::where('user_id', $request->user_id)->first();
+        $target = $this->targetRepository->saveTarget($request);
         // $target = new Target();
         // $target->amount = $request->amount;
         // $target->month = date("m");
@@ -37,16 +38,13 @@ class TargetService
         //     $mensaje = "Hubo un error al guardar el target";
         //     $status = "error";
         // }
-
+        $targetMensual = $this->targetRepository->getTargetByMonthAnget(date("m"), $agent->id);
         // $targetMensual = Target::where('status', true)
         //                 ->where('month', date("m"))
         //                 ->where('agent_id', $agent->id)
         //                 ->orderBy("created_at", "asc")
         //                 ->first();
-
-        // $targets = Target::select('id', 'amount', 'agent_id')
-        //                 ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
-        //                 ->get();
+        $targets = $this->targetRepository->getTargetWithDate();
 
         // return response()->json([
         //     "viewDiv"=>view('profile.components.divTarget', compact('targets'))->render(),
@@ -58,7 +56,7 @@ class TargetService
         // ]);
     }
 
-    public function updateTarget(Request $request)
+    public function updateTarget(EditTargetRequest $request)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
@@ -66,7 +64,8 @@ class TargetService
 
         // $user_id = Auth::user()->id;
         // $agent = Agent::where('id', $user_id)->first();
-
+        $agent = $this->agentRepository->getAgentByUserId($request->user_id);
+        $target = $this->targetRepository->updateTarget($request);
         // $target = Target::where('month', date("m"))->where('agent_id', $agent->id)->where('status', 1)->first();
         // $target->amount = $request->amount;
         // if ($target->save()) {
@@ -78,16 +77,14 @@ class TargetService
         //     $mensaje = "Hubo un error al actualizar el target";
         //     $status = "error";
         // }
-
+        $targetMensual = $this->targetRepository->getTargetByMonthAnget(date("m"), $agent->id);
         // $targetMensual = Target::where('status', true)
         //                 ->where('month', date("m"))
         //                 ->where('agent_id', $agent->id)
         //                 ->orderBy("created_at", "asc")
         //                 ->first();
-
-        // $targets = Target::select('id', 'amount', 'agent_id')
-        //                 ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
-        //                 ->get();
+        $targets = $this->targetRepository->getTargetWithDate();
+        
 
         // return response()->json([
         //     "viewDiv"=>view('profile.components.divTarget', compact('targets'))->render(),
@@ -107,6 +104,9 @@ class TargetService
 
         // $user_id = Auth::user()->id;
         // $agent = Agent::where('id', $user_id)->first();
+        $agent = $this->agentRepository->getAgentByUserId($request->user_id);
+        $target = $this->targetRepository->updateTarget($request);
+        $response = $this->targetRepository->updateAmountTarget($target);
 
         // $target = Target::where('month', date("m"))->where('agent_id', $agent->id)->where('status', 1)->first();
         // $newAmount = $target->amount + $request->amount;
@@ -122,16 +122,13 @@ class TargetService
         // }
 
 
-
+        $targetMensual = $this->targetRepository->getTargetByMonthAnget(date("m"), $agent->id);
         // $targetMensual = Target::where('status', true)
         //                 ->where('month', date("m"))
         //                 ->where('agent_id', $agent->id)
         //                 ->orderBy("created_at", "asc")
         //                 ->first();
-
-        // $targets = Target::select('id', 'amount', 'agent_id')
-        //                 ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
-        //                 ->get();
+        $targets = $this->targetRepository->getTargetWithDate();
 
         // return response()->json([
         //     "viewDiv"=>view('profile.components.divTarget', compact('targets'))->render(),

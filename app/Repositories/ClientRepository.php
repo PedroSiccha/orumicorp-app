@@ -1,7 +1,9 @@
 <?php
 namespace App\Repositories;
 
-use App\Exceptions\RepositoryException;
+use App\Enums\StatusEnum;
+use App\Http\Requests\EditCustomerRequest;
+use App\Http\Requests\StoreCustomerRequest;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Models\Customers;
 use App\Models\CustomerStatus;
@@ -19,8 +21,12 @@ class ClientRepository implements ClientRepositoryInterface
             return Customers::with($relations)
                     ->orderBy('date_admission', 'desc')
                     ->paginate($limit);
+        } catch (QueryException $e) {
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener los clientes: " . $e->getMessage());
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
@@ -33,8 +39,12 @@ class ClientRepository implements ClientRepositoryInterface
                 })
                 ->orderBy('date_admission', 'desc')
                 ->paginate($limit);
+        } catch (QueryException $e) {
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener clientes del agente ID {$agentId}: " . $e->getMessage());
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
@@ -42,8 +52,12 @@ class ClientRepository implements ClientRepositoryInterface
     {
         try {
             return CustomerStatus::all();
+        } catch (QueryException $e) {
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener los estados del cliente: " . $e->getMessage());
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
@@ -51,8 +65,12 @@ class ClientRepository implements ClientRepositoryInterface
     {
         try {
             return Customers::where('user_id', $userId)->first();
+        } catch (QueryException $e) {
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener el cliente del usuario ID {$userId}: " . $e->getMessage());
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
@@ -63,17 +81,25 @@ class ClientRepository implements ClientRepositoryInterface
                         ->where('status', 1)
                         ->orderBy('date_admission')
                         ->get();
+        } catch (QueryException $e) {
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener los clientes sin asignacion: " . $e->getMessage());
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
-    public function createClient(array $data): Customers
+    public function createClient(StoreCustomerRequest $data): Customers
     {
         try {
             return Customers::create($data);
+        } catch (QueryException $e) {
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al crear el cliente: " . $e->getMessage());
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
@@ -81,8 +107,12 @@ class ClientRepository implements ClientRepositoryInterface
     {
         try {
             return Customers::where('email', $email)->first();
+        } catch (QueryException $e) {
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error no se pudo encontrar el cliente: " . $e->getMessage());
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
@@ -90,8 +120,12 @@ class ClientRepository implements ClientRepositoryInterface
     {
         try {
             return CustomerStatus::where('name', $name)->firstOrFail();
+        } catch (QueryException $e) {
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error no se pudo encontrar el estado: " . $e->getMessage());
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
@@ -99,8 +133,12 @@ class ClientRepository implements ClientRepositoryInterface
     {
         try {
             Customers::whereIn('id', $customerIds)->update(['id_status' => $statusId]);
+        } catch (QueryException $e) {
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al actualizar el estado: " . $e->getMessage());
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
@@ -111,8 +149,12 @@ class ClientRepository implements ClientRepositoryInterface
                             ->where('id_status', $statusId)
                             ->orderBy('date_admission', 'desc')
                             ->paginate($limit);
+        } catch (QueryException $e) {
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener los clientes: " . $e->getMessage());
+            Log::error("Error ClientRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
@@ -126,8 +168,12 @@ class ClientRepository implements ClientRepositoryInterface
                             ->where('id_status', $statusId)
                             ->orderBy('date_admission', 'desc')
                             ->paginate($limit);
+        } catch (QueryException $e) {
+            Log::error("Error AgentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener clientes del agente ID {$agentId}: " . $e->getMessage());
+            Log::error("Error AgentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
@@ -163,10 +209,14 @@ class ClientRepository implements ClientRepositoryInterface
         }
     }
 
-    public function updateClient(Customers $customers, array $data): bool
+    public function updateClient(Customers $customer, EditCustomerRequest $data): bool
     {
         try {
-            return $customers->update($data);
+            $customer->fill($data->validated());
+            if (!$customer->save()) {
+                return false;
+            }
+            return true;
         } catch (QueryException $e) {
             Log::error("Error al actualizar el cliente: " . $e->getMessage());
             return false;
@@ -179,7 +229,10 @@ class ClientRepository implements ClientRepositoryInterface
     public function deleteClient(Customers $customer): bool
     {
         try {
-            return $customer->delete();
+            if (!$customer->delete()) {
+                return false;
+            }
+            return true;
         } catch (QueryException $e) {
             Log::error("Error al eliminar el cliente: " . $e->getMessage());
             return false;
@@ -191,32 +244,190 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getCustomersByStatusAndRole($customerStatusId, $roles, $agentId, int $limit = 10): LengthAwarePaginator
     {
-        $query = Customers::with([
-            'user',
-            'agent',
-            'latestCampaign',
-            'latestSupplier',
-            'provider',
-            'statusCustomer',
-            'platform',
-            'traiding',
-            'latestComunication',
-            'latestAssignamet',
-            'latestDeposit'
-        ]);
-
-        if ($roles !== 'ADMINISTRADOR') {
-            $query->whereHas('assignaments', function ($q) use ($agentId) {
-                $q->where('agent_id', $agentId);
-            });
+        try {
+            $query = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ]);
+    
+            if ($roles !== 'ADMINISTRADOR') {
+                $query->whereHas('assignaments', function ($q) use ($agentId) {
+                    $q->where('agent_id', $agentId);
+                });
+                return $query->where('id_status', $customerStatusId)
+                             ->orderBy('date_admission', 'desc')
+                             ->paginate($limit);
+            }
+    
             return $query->where('id_status', $customerStatusId)
                          ->orderBy('date_admission', 'desc')
                          ->paginate($limit);
-        }
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }   
+    }
 
-        return $query->where('id_status', $customerStatusId)
-                     ->orderBy('date_admission', 'desc')
-                     ->paginate($limit);
+    
+    public function getClients(): Collection
+    {
+        try {
+            return Customers::where('status', StatusEnum::ACTIVE->value)->get();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    
+    public function getClientByCode(string $clientCode): ?Customers
+    {
+        try {
+            return Customers::where('code', $clientCode)->first();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    
+    public function getCustomerStatus(): ?CustomerStatus
+    {
+        try {
+            return CustomerStatus::get();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    public function getClientsByFolderExceptStatus(int $folderId, array $status): Collection
+    {
+        try {
+            return Customers::where('folder_id', $folderId)->whereNotIn('id_status', $status)->get();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    public function getClientsByFolder(int $folderId): Collection
+    {
+        try {
+            return Customers::where('status', StatusEnum::ACTIVE->value)->where('folder_id', $folderId)->get();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    public function getClientsByAssignedUser(int $agentId, int $pagination): LengthAwarePaginator
+    {
+        try {
+            return Customers::where('agent_id', $agentId)->paginate($pagination, ['*'], 'clients_page')->withQueryString();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    
+    public function getCantClientsRegisterByProvider(int $providerId, string $nowMonth, string $nowYear): int
+    {
+        try {
+            return Customers::where('id_provider', $providerId)->whereMonth('date_admission', $nowMonth)->whereYear('date_admission', $nowYear)->count();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    public function getCantClientsActiveByProvider(int $providerId, string $nowMonth, string $nowYear): int
+    {
+        try {
+            return Customers::where('id_provider', $providerId)->whereHas('deposits', function($query) use ($nowMonth, $nowYear) {
+                                                        $query->whereMonth('date', $nowMonth)
+                                                            ->whereYear('date', $nowYear);
+                                                    })->distinct('id')->count();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    public function getCantClientsByProvider(int $providerId, string $nowYear): int
+    {
+        try {
+            return Customers::where('id_provider', $providerId)->whereYear('date_admission',  $nowYear)->count();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    public function getListClientsProvider(int $providerId, string $nowMonth, string $nowYear): Collection
+    {
+        try {
+            return Customers::where('id_provider', $providerId)->whereMonth('date_admission',$nowMonth)->whereYear('date_admission', $nowYear)->with('statusCustomer')->get();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    public function getClientsByStatus(int $statusId): Collection
+    {
+        try {
+            return Customers::where('id_status', $statusId)->with(['latestComunication', 'latestCampaign', 'latestSupplier'])->get();
+        } catch (QueryException $e) {
+            Log::error("Error al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error inesperado al eliminar el cliente: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
     }
 
 }

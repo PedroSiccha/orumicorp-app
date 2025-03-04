@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Interfaces\TransactionTypeRepositoryInterface;
 use Illuminate\Http\Request;
 
 class TransactionTypeService
@@ -21,6 +22,7 @@ class TransactionTypeService
         // $status = "error";
 
         // try {
+        $response = $this->transactionTypeRepository->saveTransactionType($request);
 
         //     $transactionType = new TransactionType();
         //     $transactionType->name = $request->name;
@@ -42,18 +44,19 @@ class TransactionTypeService
         //     $status = "error";
         // }
 
-        // $transactionsType = TransactionType::get();
+        $transactionTypes = $this->transactionTypeRepository->getTransactionTypes();
 
         // return response()->json(["view"=>view('transactionType.table.tableTransactionType', compact('transactionsType'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    public function updateTransactionType(Request $request)
+    public function updateTransactionType(EditTransactionTypeRequest $request)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
         // $status = "error";
 
         // try {
+        $response = $this->transactionTypeRepository->updateTransactionType($request);
 
         //     $transactionType = TransactionType::find($request->id);
         //     $transactionType->name = $request->name;
@@ -80,16 +83,17 @@ class TransactionTypeService
         //     $status = "error";
         // }
 
-        // $transactionsType = TransactionType::get();
+        $transactionTypes = $this->transactionTypeRepository->getTransactionTypes();
 
         // return response()->json(["view"=>view('transactionType.table.tableTransactionType', compact('transactionsType'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    public function deleteTransactionType(Request $request)
+    public function deleteTransactionType(int $id)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
         // $status = "error";
+        $response = $this->transactionTypeRepository->deleteTransactionType($id);
         // $transactionType = TransactionType::find($request->id);
         // if ($transactionType == null) {
         //     $title = "Error";
@@ -112,7 +116,7 @@ class TransactionTypeService
         //     $status = "error";
         // }
 
-        // $transactionsType = TransactionType::get();
+        $transactionTypes = $this->transactionTypeRepository->getTransactionTypes();
 
         // return response()->json(["view"=>view('transactionType.table.tableTransactionType', compact('transactionsType'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }

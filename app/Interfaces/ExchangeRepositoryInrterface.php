@@ -8,6 +8,4 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface ExchangeRepositoryInrterface
 {
     public function getExchangeRates(): Collection;
-    // public function saveArea(AreaRequest $request): Area;
-    // public function getAreas(): Collection;
 }

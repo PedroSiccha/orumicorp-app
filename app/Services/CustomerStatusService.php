@@ -1,7 +1,19 @@
 <?php
 namespace App\Services;
+
+use App\Interfaces\ClientStatusRepositoryInterface;
+use Illuminate\Support\Facades\DB;
+
 class CustomerStatusService
 {
+    protected $customerStatusRepository;
+
+    public function __construct(
+        ClientStatusRepositoryInterface $customerStatusRepository
+    ) {
+        $this->customerStatusRepository = $customerStatusRepository;
+    }
+
     public function getCustomerStatus() {
         $customerStatus = $this->customerStatusRepository->getCustomerStatus();
     }

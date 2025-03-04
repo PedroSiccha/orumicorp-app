@@ -4,25 +4,27 @@ namespace App\Services;
 use App\Http\Requests\ProviderRequest;
 use App\Interfaces\ProviderInterface;
 use App\Interfaces\ProviderRepositoryInterface;
+use App\Interfaces\RolRepositoryInterface;
 use App\Models\Provider;
 use Exception;
+use Illuminate\Validation\ValidationException;
 
 class ProviderService implements ProviderInterface {
 
-    protected $providerRepository;
+    protected $providerRepository, $rolRepository;
 
     public function __construct(
-        ProviderRepositoryInterface $providerRepository
+        ProviderRepositoryInterface $providerRepository,
+        RolRepositoryInterface $rolRepository
     ) {
         $this->providerRepository = $providerRepository;
+        $this->rolRepository = $rolRepository;
     }
 
     public function getAllProvidersByCustomer($request) {
         try {
             $customerId = $request['customer_id'];
-            $providers = Provider::whereHas('customers', function($query) use ($customerId) {
-                $query->where('customer_id', $customerId);
-            })->with('customers')->get();
+            $providers = $this->providerRepository->getAllProvidersByCustomer($customerId);
             return response()->json([
                 'status' => 'success',
                 'data' => $providers,
@@ -35,9 +37,8 @@ class ProviderService implements ProviderInterface {
     public function getLastProviderByCustomer($request) {
         try {
             $customerId = $request['customer_id'];
-            $lastProvider = Provider::whereHas('customers', function($query) use ($customerId) {
-                $query->where('customer_id', $customerId);
-            })->with('customers')->orderBy('created_at', 'desc')->first();
+            $lastProvider = $this->providerRepository->getLastProviderByCustomer($customerId);
+            
 
             return response()->json([
                 'status' => 'success',
@@ -48,14 +49,16 @@ class ProviderService implements ProviderInterface {
         }
     }
 
-    public function saveProvider(ProviderRequest $request)
+    public function saveProvider(StoreProviderRequest $request)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
         // $status = "error";
 
-        // try {
+        try {
         //     $role = Role::find(9);
+        $role = $this->rolRepository->findRoleById(9);
+        $provider = $this->providerRepository->saveProvider($request);
         //     $user = new User();
         //     $user->name = $request->name;
         //     $user->email = $request->email;
@@ -73,29 +76,29 @@ class ProviderService implements ProviderInterface {
         //             $status = "success";
         //         }
         //     }
-        // } catch (ValidationException $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // }
+        } catch (ValidationException $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        }
 
-        // $suppliers = Provider::get();
+        $suppliers = $this->providerRepository->getProviders(); // Provider::get();
 
         // return response()->json(["view"=>view('provider.table.tableProvider', compact('suppliers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    public function updateProvider(ProviderRequest $request)
+    public function updateProvider(EditProviderRequest $request)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
         // $status = "error";
 
-        // try {
-
+        try {
+$provider = $this->providerRepository->updateProvider($request);
         //     $provider = Provider::find($request->id);
         //     $provider->name = $request->name;
         //     $provider->phone = $request->phone;
@@ -111,49 +114,50 @@ class ProviderService implements ProviderInterface {
         //         $status = "error";
         //     }
 
-        // } catch (ValidationException $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = "Verificar los datos del registro";
-        //     $status = "error";
-        // }
+        } catch (ValidationException $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Verificar los datos del registro";
+            $status = "error";
+        }
 
-        // $suppliers = Provider::get();
+        $suppliers = $this->providerRepository->getProviders();
 
         // return response()->json(["view"=>view('provider.table.tableProvider', compact('suppliers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    public function deleteProvider(ProviderRequest $request)
+    public function deleteProvider(int $providerId)
     {
         // $title = "Error";
         // $mensaje = "Error desconocido";
         // $status = "error";
         // $provider = Provider::find($request->id);
-        // if ($provider == null) {
-        //     $title = "Error";
-        //     $mensaje = "Hubo un error con su proveedor";
-        //     $status = "error";
-        // }
-        // try {
-        //     if ($provider->delete()) {
-        //         $title = "Correcto";
-        //         $mensaje = "Su proveedor se eliminó correctamente";
-        //         $status = "success";
-        //     } else {
-        //         $title = "Error";
-        //         $mensaje = "No se pudo eliminar su proveedor";
-        //         $status = "error";
-        //     }
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // }
+        $provider = $this->providerRepository->deleteProvider($providerId);
+        if ($provider == null) {
+            $title = "Error";
+            $mensaje = "Hubo un error con su proveedor";
+            $status = "error";
+        }
+        try {
+            if ($provider) {
+                $title = "Correcto";
+                $mensaje = "Su proveedor se eliminó correctamente";
+                $status = "success";
+            } else {
+                $title = "Error";
+                $mensaje = "No se pudo eliminar su proveedor";
+                $status = "error";
+            }
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        }
 
-        // $suppliers = Provider::get();
+        $suppliers = $this->providerRepository->getProviders();
 
         // return response()->json(["view"=>view('provider.table.tableProvider', compact('suppliers'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }

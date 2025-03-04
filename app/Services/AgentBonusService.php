@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Enums\StatusEnum;
 use App\Interfaces\AgentBonusRepositoryInterface;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\AreaRepositoryInterface;
@@ -55,40 +56,18 @@ class AgentBonusService
 
     public function getDataAgentBonus() {
         $user = $this->userRepository->getUserById();
-        // $user_id = Auth::user()->id;
-        // $user = User::where('id', $user_id)->first();
         $roles = $user->getRoleNames()->first();
 
         $agent = $this->agentRepository->getAgentByUserId($user->id);
 
-        $percents = $this->percentRepository->getPercents(); // Percent::where('status', true)->get();
-        $commissions = $this->comissionRepository->getComissions(); // Commission::where('status', true)->get();
-        $exchange_rates = $this->exchangeRateRepository->getExchangeRates(); // ExchangeRate::where('status', true)->get();
+        $percents = $this->percentRepository->getPercents();
+        $commissions = $this->comissionRepository->getComissions();
+        $exchange_rates = $this->exchangeRateRepository->getExchangeRates();
         $bonusAgent = $this->salesRepository->getBonusAgent($agent, $roles); // Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
-        // if ($roles == 'ADMINISTRADOR') {
-        //     $bonusAgent = Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
-        //                         ->where('status', 1)
-        //                         ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
-        //                         ->with('action') // Carga la relación con actions (si está definida en el modelo)
-        //                         ->get();
-        // } else {
-
-        //     $bonusAgent = Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
-        //                         ->where('status', 1)
-        //                         ->where('agent_id', $agent->id)
-        //                         ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
-        //                         ->with('action') // Carga la relación con actions (si está definida en el modelo)
-        //                         ->get();
-
-        // }
 
         $target = $this->targetRepository->getTargets();
-        // $target = Target::where('status', true)
-        //             ->where('month', date("m"))
-        //             ->orderBy("created_at", "asc")
-        //             ->get();
 
-        $reportTargetMensual = $this->targetRepository->getSumAmount($target); // $target->sum('amount');
+        $reportTargetMensual = $this->targetRepository->getSumAmount($target);
         // if ($target == null) {
         //     $target = new Target();
         //     $target->amount = 0;
@@ -105,15 +84,6 @@ class AgentBonusService
         //             ->value(DB::raw('COALESCE(SUM(s.amount), 0)'));
 
         $amountRetiro = $this->salesRepository->getAmountEgreso();
-        // $amountRetiro = DB::table('sales as s')
-        //                 ->join('actions as a', 's.action_id', '=', 'a.id')
-        //                 ->join('movement_types as m', 'a.movement_type_id', '=', 'm.id')
-        //                 ->where('m.name', 'EGRESO')
-        //                 ->where('s.status', 1) // Solo incluir ventas activas
-        //                 ->where('a.status', 1) // Solo incluir acciones activas
-        //                 ->whereMonth('s.date_admission', date("m")) // Filtrar solo el mes actual
-        //                 ->value(DB::raw('COALESCE(SUM(s.amount), 0)'));
-
         $rouletteSpin = $agent->number_turns ?: 0;
         $areas = $this->areaRepository->getAllAreas(); // Area::where('status', true)->get();
         
@@ -182,12 +152,10 @@ class AgentBonusService
         $status = 'error';
 
         $user = $this->userRepository->getUserById();
-        // $user_id = Auth::user()->id;
-        // $user = User::where('id', $user_id)->first();
         $roles = $user->getRoleNames()->first();
 
         if ($data->dniCustomer > 0) {
-            $client = $this->clientRepository->getClientByCode($data->dniCustomer); // Customers::where('code', $request->dniCustomer)->first();
+            $client = $this->clientRepository->getClientByCode($data->dniCustomer);
             $client_id = $client->id;
         }
 
@@ -290,7 +258,7 @@ class AgentBonusService
             //throw $th;
         }
 
-        $bonusAgent = $this->agentBonusRepository->getBonusAgent(); // BonusAgent::where('status', true)->orderBy('date_admission')->get();
+        $bonusAgent = $this->agentBonusRepository->getBonusAgent([1, 2, 3], StatusEnum::ACTIVE->value, 'DESC'); // BonusAgent::where('status', true)->orderBy('date_admission')->get();
     }
 
     public function filterBonus($data) {
@@ -300,16 +268,6 @@ class AgentBonusService
         $nombre = $data->code;
 
         $bonusAgent = $this->salesRepository->searchBonusAgent();
-                // Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                //         ->where(function ($queryAction) {
-                //             $queryAction->where('sales.action_id', 2)->orWhere('sales.action_id', 3);
-                //         })
-                //         ->where(function ($query) use ($codigo, $nombre) {
-                //             $query->where('a.code', 'LIKE', '%' . $codigo . '%')
-                //                 ->orWhere(DB::raw("CONCAT(a.name, ' ', a.lastname)"), 'LIKE', '%' . $nombre . '%');
-                //         })
-                //         ->where('a.area_id', $request->area)
-                //         ->whereBetween('sales.date_admission', [$dateInit, $dateEnd])
-                //         ->get();
+                
     }
 }

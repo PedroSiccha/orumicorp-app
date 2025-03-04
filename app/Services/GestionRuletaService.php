@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Http\Requests\PrizeRequest;
+use App\Interfaces\GestionRuletaRepositoryInterface;
 
 class GestionRuletaService
 {
