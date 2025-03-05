@@ -9553,3 +9553,35 @@ body.md-skin {
     margin: 0;
   }
 }
+.skeleton {
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+.skeleton-text {
+  height: 15px;
+  margin-bottom: 10px;
+}
+
+.skeleton-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.skeleton-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+      background-position: 100% 0;
+  }
+  100% {
+      background-position: -100% 0;
+  }
+}

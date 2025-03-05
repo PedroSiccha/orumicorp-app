@@ -24,15 +24,22 @@ function filterAdvanced(options) {
 
     var limit = $('#limit').val();
 
-    $(tableName).closest('.ibox-content').addClass('sk-loading');
+     // ✅ 1. Mostrar el Skeleton Loader antes de realizar la petición
+     $("#skeleton-loader").show();  // Mostrar el esqueleto
+     $(tableName).hide();  // Ocultar la tabla real mientras se cargan los datos
+     $(tableName).closest('.ibox-content').addClass('sk-loading');
 
     $.post(filterAdvancedRoute, {filterFor: filterFor, inputName: inputName, statusId: statusId, typeRange: typeRange, dateInit: formattedDateInit, dateEnd: formattedDateEnd, limit: limit, _token: token}).done(function(data) {
-        $(tableName).empty();
-        $(tableName).html(data.view);
+        // $(tableName).empty();
+        // $(tableName).html(data.view);
+        $("#skeleton-loader").hide();  
+        $(tableName).empty().html(data.view).show();
     }).fail(function() {
         // Mostrar un mensaje de error si falla
-        $(tableName).empty();
-        $(tableName).html('<p style="text-align: center; color: red;">SIN DATOS.</p>');
+        // $(tableName).empty();
+        // $(tableName).html('<p style="text-align: center; color: red;">SIN DATOS.</p>');
+        $("#skeleton-loader").hide();
+        $(tableName).empty().html('<p style="text-align: center; color: red;">SIN DATOS.</p>').show();
     }).always(function() {
         // Desactivar spinner al completar la petición
         $(tableName).closest('.ibox-content').removeClass('sk-loading');
