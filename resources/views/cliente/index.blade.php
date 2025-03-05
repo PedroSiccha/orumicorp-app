@@ -118,6 +118,7 @@ Clientes
                     </button>
                     @endcan
                 </div>
+                @can('Configurar Tabla Clientes')
                 <div class="ibox-tools">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <i class="fa fa-wrench"></i>
@@ -129,7 +130,8 @@ Clientes
                             <!-- <a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalConfigTable')">Configurar Tabla</a> -->
                         </li>
                     </ul>
-                </div>
+                </div> 
+                @endcan
             </div>
             {{-- <a href="#" class="dropdown-item" onclick="mostrarNuevoModal('#modalAsignar')">Asignar</a> --}}
             <div class="ibox-content">
