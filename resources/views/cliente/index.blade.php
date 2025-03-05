@@ -85,13 +85,13 @@ Clientes
                 <h5>Tabla Clientes </h5>
                 <div>
                     <button id="changeFolderBtn" type="button" class="btn btn-primary" type="button" onclick="mostrarNuevoModal('#modalChangeGroupFolder')" style="display: none;">
-                        <i class="fa fa-refresh"></i> Mover de Folder
+                        <i class="fa fa-refresh"></i> Actualizar Folder
                     </button>
-                    @can('Asignar Folder')
+                    {{-- @can('Asignar Folder')
                     <button id="asignarFolderBtn" type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalAsignFolder')" style="display: none;">
                         <i class="fa fa-folder-open"></i> Asignar Folder
                     </button>
-                    @endcan
+                    @endcan --}}
                     @can('Liberar Cliente')
                     <button id="liberarClienteBtn" type="button" class="btn btn-danger" type="button" onclick="liberarCliente({ tableName: '#tabClient' })" style="display: none;">
                         <i class="fa fa-minus-square"></i> Liberar Cliente
