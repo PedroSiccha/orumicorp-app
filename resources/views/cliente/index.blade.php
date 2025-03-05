@@ -156,6 +156,9 @@ Clientes
  
                     </div> --}}
                 </div>
+                <div id="skeleton-loader">
+                    @include('cliente.list.skeletonTable')
+                </div>
                 <div class="table-responsive" id="tabClient">
                     {{-- @include('cliente.list.listCustomer') --}}
                 </div>
@@ -307,15 +310,22 @@ Clientes
 
             let url = `/clientsPagination?${params.toString()}`;
 
+            $("#tabClient").hide();
+            $("#skeleton-loader").show();
+
             $.ajax({
                 url: url,
                 method: "GET",
                 success: function (data) {
                     $('#tabClient').html(data);
+                    $("#tabClient").show();
+                    $("#skeleton-loader").hide();
                     applyTableConfig();
                 },
                 error: function () {
                     $('#tabClient').html('<p style="text-align: center; color: red;">Error al cargar los datos.</p>');
+                    $("#skeleton-loader").hide();
+                    $("#tabClient").show();
                 }
             });
         }
