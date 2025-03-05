@@ -21,6 +21,8 @@ class FilterController extends Controller
         $typeRange = $request->typeRange;
         $dateInit = $request->dateInit;
         $dateEnd = $request->dateEnd;
+        $limit = $request->limit;
+        // dd($dateInit . "-------------> ". $da);
 
         // 🔹 Iniciar la consulta
         $query = Customers::with([
@@ -98,7 +100,7 @@ class FilterController extends Controller
         }
 
         // 🔹 Obtener resultados paginados
-        $customers = $query->paginate(10);
+        $customers = $query->paginate($limit);
 
         // 🔹 Obtener datos auxiliares
         $agents = Agent::all();

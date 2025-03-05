@@ -283,16 +283,28 @@ Clientes
             fetch_data(1, limit);
         });
 
-        // Paginación
-        $(document).on('click', '.pagination a', function(event) {
-            event.preventDefault();
-            let page = $(this).attr('href').split('page=')[1];
-            let limit = $('#limit').val();
-            fetch_data(page, limit);
-        });
-
         function fetch_data(page, limit) {
-            let url = "/clientsPagination?page=" + page + "&limit=" + limit;
+            let filterFor = $('#filterButton').text().trim();
+            let inputName = $('#inputFilterAdvance').val().trim();
+            let statusId = $('#statusCustomerId').val();
+            let typeRange = $('#typeRange').val();
+            let dateInit = $('#dateInitSearchGeneral').val();
+            let dateEnd = $('#dateEndSearchGeneral').val();
+
+            // Verificar que los valores sean válidos antes de enviarlos
+            let params = new URLSearchParams();
+            params.append("page", page);
+            params.append("limit", limit);
+
+            if (filterFor && filterFor !== "Filtrar Por:") params.append("filterFor", filterFor);
+            if (inputName) params.append("inputName", inputName);
+            if (statusId && statusId !== "Seleccione un estado") params.append("statusId", statusId);
+            if (typeRange && typeRange !== "Seleccione Rango:") params.append("typeRange", typeRange);
+            if (dateInit) params.append("dateInit", formatDateForBackend(dateInit)); // Convertir formato
+            if (dateEnd) params.append("dateEnd", formatDateForBackend(dateEnd));
+
+            let url = `/clientsPagination?${params.toString()}`;
+
             $.ajax({
                 url: url,
                 method: "GET",
@@ -302,17 +314,23 @@ Clientes
                 },
                 error: function () {
                     $('#tabClient').html('<p style="text-align: center; color: red;">Error al cargar los datos.</p>');
-                    applyTableConfig();
                 }
             });
-            // $.ajax({
-            //     url: "/clientsPagination?page=" + page + "&limit=" + limit,
-            //     success: function(data) {
-            //         $('#tabClient').html(data);
-            //     }
-            // });
         }
 
+        // Convertir fechas de DD/MM/YYYY a YYYY-MM-DD
+        function formatDateForBackend(date) {
+            let parts = date.split('/');
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+
+        // Detectar click en paginación y mantener los filtros
+        $(document).on('click', '.pagination a', function(event) {
+            event.preventDefault();
+            let page = $(this).attr('href').split('page=')[1];
+            let limit = $('#limit').val();
+            fetch_data(page, limit);
+        });
 
         $('.dataTables-example').DataTable({
             pageLength: 25,
@@ -343,7 +361,7 @@ Clientes
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        markNotificationsAsSeen('clients');
+        // markNotificationsAsSeen('clients');
         const dateInit = document.getElementById("dateInitSearchGeneral");
         const dateEnd = document.getElementById("dateEndSearchGeneral");
 
