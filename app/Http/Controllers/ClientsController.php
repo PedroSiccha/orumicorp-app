@@ -59,56 +59,94 @@ class ClientsController extends Controller
     public function clientsPagination(Request $request)
     {
         $myRoles = $this->rolesService->getMyRoles();
-        $myRolesId = $myRoles['rolesId']; 
-
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
 
-        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
+        $limit = $request->input('limit', 10);
+        $filterFor = $request->input('filterFor', '');
+        $inputName = $request->input('inputName', '');
+        $statusId = $request->input('statusId', '');
+        $typeRange = $request->input('typeRange', '');
+        $dateInit = $request->input('dateInit', '');
+        $dateEnd = $request->input('dateEnd', '');
 
-        if ($myRoles['roles'] == 'ADMINISTRADOR') {
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit',
-                'folder'
-            ])->orderBy('date_admission', 'desc')->paginate($limit);
-            
-        } else {
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'assignaments',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit',
-                'folder'
-            ])->whereHas('assignaments', function($query) use ($agent) {
-                $query->where('agent_id', $agent->id);
-            })->orderBy('date_admission', 'desc')->paginate($limit);
+        // 🔹 Convertir fechas al formato correcto
+        if (!empty($dateInit)) {
+            $dateInit = \Carbon\Carbon::createFromFormat('Y-m-d', $dateInit)->startOfDay();
         }
-        
-        $agents = Agent::all();
-        $campaings = Campaing::all();
-        $providers = Provider::all();
-        $statusCustomers = CustomerStatus::all();
+        if (!empty($dateEnd)) {
+            $dateEnd = \Carbon\Carbon::createFromFormat('Y-m-d', $dateEnd)->endOfDay();
+        }
 
-        return view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'));
+        // 🔹 Iniciar la consulta con los datos
+        $query = Customers::with([
+            'user', 'agent', 'latestCampaign', 'latestSupplier', 'provider', 'statusCustomer',
+            'platform', 'traiding', 'latestComunication', 'latestAssignamet', 'latestDeposit', 'folder'
+        ]);
+
+        // 🔹 Aplicar filtros solo si se han seleccionado
+        if (!empty($inputName) && $filterFor !== 'Filtrar Por:') {
+            $filterMap = [
+                'Cod. Cliente'       => 'code',
+                'Correo'             => 'email',
+                'Teléfono'           => 'phone',
+                'Teléfono Opcional'  => 'optional_phone',
+                'Ciudad'             => 'city',
+                'País'               => 'country',
+                'Comentario'         => 'comment',
+                'Folder'             => 'folder.name',
+            ];
+
+            if (isset($filterMap[$filterFor])) {
+                $query->where($filterMap[$filterFor], 'like', "%$inputName%");
+            }
+        }
+
+        // 🔹 Filtrar por estado si está seleccionado
+        if (!empty($statusId) && $statusId !== "Seleccione un estado") {
+            $query->where('id_status', $statusId);
+        }
+
+        // 🔹 Filtrar por rango de fechas si se seleccionó
+        if (!empty($typeRange) && $typeRange !== "Seleccione Rango:" && !empty($dateInit) && !empty($dateEnd)) {
+            $rangeMap = [
+                "Última Llamada"            => 'comunications.date',
+                "Fecha de Ingreso"          => 'date_admission',
+                "Fecha de Última Llamada"   => 'comunications.date',
+                "Fecha de Última Asignación"=> 'assignaments.date',
+            ];
+
+            if (isset($rangeMap[$typeRange]) && $dateInit <= $dateEnd) {
+                $column = $rangeMap[$typeRange];
+
+                if (strpos($column, '.') !== false) {
+                    $relation = explode('.', $column)[0];
+                    $field = explode('.', $column)[1];
+
+                    $query->whereHas($relation, function ($q) use ($field, $dateInit, $dateEnd) {
+                        $q->whereBetween($field, [$dateInit, $dateEnd]);
+                    });
+                } else {
+                    $query->whereBetween($column, [$dateInit, $dateEnd]);
+                }
+            }
+        }
+
+        // 🔹 Filtrar clientes según el rol del usuario
+        if ($myRoles['roles'] !== 'ADMINISTRADOR') {
+            $query->whereHas('assignaments', function ($q) use ($agent) {
+                $q->where('agent_id', $agent->id);
+            });
+        }
+
+        // 🔹 Obtener resultados paginados
+        $customers = $query->orderBy('date_admission', 'desc')->paginate($limit);
+
+        return view('cliente.list.listCustomer', compact('customers'));
     }
+
+
+
 
 
     public function saveCustomer(Request $request)

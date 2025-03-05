@@ -425,7 +425,7 @@ class CustomersController extends Controller
 
             // 🔹 Validar la solicitud
             $request->validate($rules, [
-                'email.unique' => 'El correo electrónico ya está registrado.',
+                'email.unique' => 'El correo electrónico ya está registrado '.$request->email,
                 'password.min' => 'La contraseña debe tener al menos 5 caracteres.'
             ]);
 

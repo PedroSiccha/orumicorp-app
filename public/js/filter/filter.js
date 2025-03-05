@@ -1,3 +1,7 @@
+document.getElementById("typeRange").addEventListener("change", function() {
+    this.classList.remove("border-danger");
+});
+
 function filterAdvanced(options) {
     var filterFor = options.buttonFilter !== undefined ? $(options.buttonFilter).text(): '';
     var inputName = options.inputFilter !== undefined ? $(options.inputFilter).val(): '';
@@ -9,6 +13,14 @@ function filterAdvanced(options) {
 
     var formattedDateInit = convertDateFormat(dateInit);
     var formattedDateEnd = convertDateFormat(dateEnd);
+    let elemtnTypeRange = document.getElementById("typeRange");
+
+    if (dateInit || dateEnd) {
+        if (elemtnTypeRange.value === "Seleccione Rango:") {
+            elemtnTypeRange.classList.add("border-danger");
+            return;
+        }
+    }
 
     var limit = $('#limit').val();
 
