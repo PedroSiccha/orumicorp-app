@@ -3,6 +3,7 @@ namespace App\Repositories;
 
 use App\Enums\StatusEnum;
 use App\Http\Requests\SaveAreaRequest;
+use App\Http\Requests\StoreareaRequest;
 use App\Http\Requests\UpdateareaRequest;
 use App\Interfaces\AreaRepositoryInterface;
 use App\Models\Area;
@@ -26,7 +27,7 @@ class AreaRepository implements AreaRepositoryInterface
         }
     }
 
-    public function saveArea(SaveAreaRequest $data): Area
+    public function saveArea(StoreareaRequest $data): Area
     {
         try {
             return Area::create($data);
@@ -52,7 +53,7 @@ class AreaRepository implements AreaRepositoryInterface
         }
     }
 
-    public function updateArea(Area $area, UpdateareaRequest $data): bool
+    public function updateArea(Area $area, StoreareaRequest $data): bool
     {
         try {
             $area->fill($data->validated());

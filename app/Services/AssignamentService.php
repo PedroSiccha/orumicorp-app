@@ -6,7 +6,7 @@ use App\Models\Assignment;
 use App\Repositories\Contracts\AssignmentRepositoryInterface;
 use Exception;
 
-class AssignamentService /*implements AssignamentInterface */
+class AssignamentService
 {
 
     protected $assignamentRepository;

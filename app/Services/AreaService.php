@@ -1,7 +1,10 @@
 <?php
 namespace App\Services;
 
+use App\Enums\StatusEnum;
+use App\Helpers\ResponseHelper;
 use App\Http\Requests\AreaRequest;
+use App\Http\Requests\StoreareaRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\AreaRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
@@ -29,114 +32,100 @@ class AreaService
     {
         try {
             $user_id = $this->userRepository->getMyId();
-            $agent = $this->agentRepository->getAgentByUserId($user_id); // Agent::where('user_id', $user_id)->first();
-            $areas = $this->areaRepository->getAreas(); // Area::get();
+            $agent = $this->agentRepository->getAgentByUserId($user_id);
+            $areas = $this->areaRepository->getAreas();
+            $response = [
+                'agent' => $agent,
+                'areas' => $areas
+            ];
+
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $response]);
         } catch (Exception $e) {
-            //throw $th;
-        }
-        
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }        
     }
     
 
-    public function saveArea(AreaRequest $request)
+    public function saveArea($request)
     {
+        $dataArea = new StoreareaRequest([
+            'name' => $request->name,
+            'description' => $request->desciption,
+            'status' => StatusEnum::ACTIVE->value,
+        ]);
+
         DB::beginTransaction();
         try {
-            $area = $this->areaRepository->saveArea($request);
+            $area = $this->areaRepository->saveArea($dataArea);
+            $areas = $this->areaRepository->getAreas();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $areas]);
             DB::commit();
-            // $area = new Area();
-            // $area->name = $request->name;
-            // $area->description = $request->description;
-            // $area->status = true;
-            // if ($area->save()) {
-                
-            //     return response()->json(["resp"=>1]);
-            // }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(["resp"=>0]);
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
-        
-        $areas = $this->areaRepository->getAreas();
     }
 
     public function updateArea($request)
     {
         DB::beginTransaction();
         try {
-            $area = $this->areaRepository->updateArea($request->id, $request);
+            $area = $this->areaRepository->getAreaById($request->id);
+            $areaData = new StoreareaRequest([
+                'name' => $request->name,
+                'description' => $request->desciption,
+            ]);
+            $this->areaRepository->updateArea($area, $areaData);
             DB::commit();
-        } catch (\Exception $e) {
+            $areas = $this->areaRepository->getAreas();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $areas]);
+        } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(["resp"=>0]);
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
-        // $resp = 0;
-        // $area = Area::find($request->id);
-        // $area->name = $request->name;
-        // $area->description = $request->description;
-        // if ($area->save()) {
-        //     $resp = 1;
-        // }
-        $areas = $this->areaRepository->getAreas();
-        // $areas = Area::get();
     }
 
     public function changeStatusArea($request)
     {
-        
-        $area = $this->areaRepository->getAreaById($request->id);
+        DB::beginTransaction();
         try {
-            $response = $this->areaRepository->changeStatusArea($request->id, $request->status);
-            $area->status = $request->status;
-            if ($area->save()) {
-                $resp = 1;
-            }
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
-        
-        $areas = $this->areaRepository->getAreas(); // Area::get();
-        
+            $area = $this->areaRepository->getAreaById($request->id);
+            $response = $this->areaRepository->changeStatusArea($area, $request->status);
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $response]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }        
     }
 
     public function deleteArea($request)
     {
+        DB::beginTransaction();
         try {
-            $area = $this->areaRepository->getAreaById($request->id);
-            $response = $this->areaRepository->deleteArea($area);
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
-        
-
-        // if ($area->delete()) {
-        //     $resp = 1;
-        // }
-        $areas = $this->areaRepository->getAreas(); // Area::get();
-        
+            $response = $this->areaRepository->deleteArea($request->id);
+            $areas = $this->areaRepository->getAreas();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $areas]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }        
     }
 
     public function getAreasData()
     {
-        // $user_id = Auth::user()->id;
-
-        // $agent = Agent::where('user_id', $user_id)->first();
-        // $client = Customers::where('user_id', $user_id)->first();
-        // $rouletteSpin = $agent->number_turns ?: 0;
-
-        // $dataUser = null;
-
-        // if ($agent) {
-        //     $dataUser = $agent;
-        // }
-
-        // if ($client) {
-        //     $dataUser = $client;
-        // }
-
-        // $premios1 = Premio::where('status', true)->where('type', 1)->get();
-        // $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        // $areas = Area::get();
-        $areas = $this->areaRepository->getAreas();
+        try {
+            $agent = $this->agentRepository->getMyAgent();
+            $rouletteSpin = $agent->number_turns ?: 0;
+            $areas = $this->areaRepository->getAreas();
+            $response = [
+                'agemt' => $agent,
+                'rouletteSpin' => $rouletteSpin,
+                'areas' => $areas
+            ];
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $response]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }
     }
 }

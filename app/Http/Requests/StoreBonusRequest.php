@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreBonusAgentRequest extends FormRequest
+class StoreBonusRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -37,6 +37,11 @@ class StoreBonusAgentRequest extends FormRequest
         ];
     }
 
+    /**
+     * Get custom error messages for validation rules. 
+     *
+     * @return array<string, string>
+     */
     public function messages()
     {
         return [ 

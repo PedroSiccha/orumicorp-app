@@ -25,7 +25,6 @@ class SaveCategoryFolderRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
             'status' => 'required|boolean'
         ];
     }
@@ -36,7 +35,7 @@ class SaveCategoryFolderRequest extends FormRequest
             'name.required' => 'El nombre del área es obligatorio.',
             'name.string' => 'El nombre debe ser un texto válido.',
             'name.max' => 'El nombre no puede superar los 255 caracteres.',
-            'description.string' => 'La descripción debe ser un texto válido.',
+
             'status.required' => 'El estado es obligatorio.',
             'status.boolean' => 'El estado solo puede ser verdadero o falso.'
         ];

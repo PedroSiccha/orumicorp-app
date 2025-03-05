@@ -31,19 +31,6 @@ class TargetRepository implements TargetRepositoryInterface
         }
     }
 
-    public function getSumAmount(Target $target): ?float
-    {
-        try {
-             return $target->sum('amount');
-        } catch (QueryException $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        }
-    }
-
     public function saveTarget(StoreTargetRequest $data): ?Target
     {
         try {

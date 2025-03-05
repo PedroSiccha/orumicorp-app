@@ -53,6 +53,19 @@ class CampaingRepository implements CampaingRepositoryInterface
         }
     }
 
+    public function findCampaingById(int $campaingId): ?Campaing
+    {
+        try {
+            return Campaing::find($campaingId);
+        } catch (QueryException $e) {
+            Log::error("Error CampaingRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error CampaingRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
     public function getCampaing(): Collection
     {
         try {
@@ -79,7 +92,7 @@ class CampaingRepository implements CampaingRepositoryInterface
         }
     }
 
-    public function updateCampaign(Campaing $campaing, EditCampaignRequest $data): bool
+    public function updateCampaign(Campaing $campaing, SaveCampaingRequest $data): bool
     {
         try {
             $campaing->fill($data->validated());

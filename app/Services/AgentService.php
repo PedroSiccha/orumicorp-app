@@ -2,28 +2,23 @@
 
 namespace App\Services;
 
-use App\DTOs\Agent\AgentIndexDTO;
-use App\DTOs\Agent\AgentSearchDTO;
+use App\Enums\StatusEnum;
+use App\Enums\StatusVoiso;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\SaveUserRequest;
-use App\Interfaces\AgentInterface;
+use App\Http\Requests\EditAgentRequest;
+use App\Http\Requests\EditUserRequest;
+use App\Http\Requests\StoreAgentRequest;
+use App\Http\Requests\StoreUserRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\AreaRepositoryInterface;
 use App\Interfaces\RolesInterface;
 use App\Interfaces\RolRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
-use App\Models\Agent;
-use App\Models\Area;
-use App\Models\Customers;
-use App\Models\Premio;
-use App\Models\User;
 use Exception;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -55,25 +50,17 @@ class AgentService {
 
     public function getAgentsData() {
         try {
-            $myRoles = $this->rolesService->getMyRoles();
-            $user_id = Auth::user()->id;
-            $agent = $this->agentRepository->getAgentByUserId($user_id);
-            $rouletteSpin = $agent->number_turns ?: 0;
-            $dataUser = $agent;
-
             $agents = $this->agentRepository->getAllAgentsPaginated(10);
-
-            $areas = $this->areaRepository->getAllAreas();
+            $areas = $this->areaRepository->getAreas();
             $roles = $this->rolesRepository->getAllRoles();
 
-            return new AgentIndexDTO([
-                'dataUser' => $dataUser,
-                'rouletteSpin' => $rouletteSpin,
+            $response = [
                 'agents' => $agents,
                 'areas' => $areas,
                 'roles' => $roles
-            ]);
+            ];
 
+            return ResponseHelper::success('Datos obtenido correctamente.', ['response' => $response]);
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Ocurrió un error inesperado al obtener los datos del cliente.');
@@ -83,18 +70,12 @@ class AgentService {
     public function searchAgent(string $code)
     {
         try {
-            $agent = $this->agentRepository->findByCodeOrVoiso($code);
-
+            $agent = $this->agentRepository->findAgentByCode($code);
             if (!$agent) {
                 return ResponseHelper::error('El agente no existe.');
             }
 
-            return new AgentSearchDTO([
-                'title' => 'Éxito',
-                'mensaje' => 'Agente encontrado exitosamente',
-                'status' => 'success',
-                'name' => "{$agent->name} {$agent->lastname}"
-            ]);
+            return ResponseHelper::success('Agente encontrado exitosamente.', ['name' => "{$agent->name} {$agent->lastname}"]);
 
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
@@ -112,15 +93,27 @@ class AgentService {
                 return ResponseHelper::error('El rol proporcionado no existe.');
             }
 
-            $dataUser = new SaveUserRequest([
+            $dataUser = new StoreUserRequest([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => Hash::make($data['password'])
             ]);
-            
+
             $user = $this->userRepositoy->createUser($dataUser);
             $user->assignRole($role);
-            $agent = $this->agentRepository->saveAgent($data);
+            $dataAgent = new StoreAgentRequest([
+                'code' => $data['code'],
+                'name' => $data['name'],
+                'lastname' => $data['lastname'],
+                'code_voiso' => $data['codeVoiso'],
+                'status' => StatusEnum::ACTIVE->value,
+                'number_turns' => $data['numberTurns'],
+                'img' => $data['img'],
+                'status_voiso' => StatusVoiso::LIBRE->value,
+                'area_id' => $data['area_id'],
+                'user_id' => $user->id
+            ]);
+            $agent = $this->agentRepository->saveAgent($dataAgent);
             DB::commit();
             return ResponseHelper::success('Se guardó el agente correctamente.');
         } catch (Exception $e) {
@@ -132,7 +125,6 @@ class AgentService {
 
     public function updateAgent($requestData) 
     {
-
         DB::beginTransaction();
         try {
             $agent = $this->agentRepository->findAgentById($requestData->id);
@@ -145,12 +137,24 @@ class AgentService {
                 return ResponseHelper::error('El usuario asociado al agente no existe.');
             }
             $user->assignRole($role);
-            $this->agentRepository->updateAgent($agent, [
+
+            $dataAgent = new EditAgentRequest([
                 'name' => $requestData->name,
                 'lastname' => $requestData->lastname,
+                'code_voiso' => $requestData->codeVoiso,
+                'status' => $requestData->status,
+                'number_turns' => $requestData->numberTurns,
+                'img' => $requestData->img,
                 'area_id' => $requestData->area_id,
-                'code_voiso' => $requestData->codeVoiso
             ]);
+
+            $dataUser = new EditUserRequest([
+                'name' => $requestData->name,
+                'password' => $requestData->password
+            ]);
+
+            $this->agentRepository->updateAgent($agent, $dataAgent);
+            $this->userRepositoy->updateUser($user, $dataUser);
 
             DB::commit();
             return ResponseHelper::success('Se actualizó el agente correctamente.');
@@ -159,28 +163,6 @@ class AgentService {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::success('Error al actualizar el agente.');
         }
-
-        // $resp = 0;
-
-        // $agent = Agent::find($requestData->id);
-        // // $agent->code = $requestData->code;
-        // $agent->name = $requestData->name;
-        // $agent->lastname = $requestData->lastname;
-        // $agent->area_id = $requestData->area_id;
-        // $agent->code_voiso = $requestData->codeVoiso;
-        // if ($agent->save()) {
-        //     $user = User::find($agent->user_id);
-        //     $user->name = $requestData->name;
-        //     if ($user->save()) {
-        //         if ($requestData->rol_id) {
-        //             $role = Role::find($requestData->rol_id);
-        //             $user->assignRole($role);
-        //         }
-        //         $resp = 1;
-        //     }
-        // }
-
-        // return $resp;
     }
 
     public function cambiarEstadoAgente($agentId, $status) {
@@ -195,18 +177,9 @@ class AgentService {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
-        
-        // $resp = 0;
-        // $agent = Agent::find($agentId);
-        // $agent->status = $status;
-        // if ($agent->save()) {
-        //     $resp = 1;
-        // }
-        // return $resp;
     }
 
     public function eliminarAgente($agentId) {
-
         DB::beginTransaction();
         try {
             $agent = $this->agentRepository->findAgentById($agentId);
@@ -226,37 +199,6 @@ class AgentService {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al eliminar el agente.');
         }
-
-        // $resp = 0;
-    
-        // try {
-        //     DB::transaction(function () use ($agentId, &$resp) {
-        //         $agent = Agent::find($agentId);
-    
-        //         if (!$agent) {
-        //             throw new \Exception("El agente no existe.");
-        //         }
-    
-        //         $user = User::find($agent->user_id);
-    
-        //         if (!$user) {
-        //             throw new \Exception("El usuario asociado al agente no existe.");
-        //         }
-    
-        //         DB::table('notification_update')->where('user_id', $user->id)->delete();
-                
-        //         if ($agent->delete()) {
-        //             if ($user->delete()) {
-        //                 $resp = 1;
-        //             }
-        //         }
-        //     });
-    
-        // } catch (Exception $e) {
-        //     Log::error("Error eliminando agente: " . $e->getMessage());
-        // }
-    
-        // return $resp;
     }
 
     public function saveNumberTurns($agentId, $cantidad) {
@@ -270,10 +212,7 @@ class AgentService {
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al guardar el número de turnos.');
-        } catch (\Throwable $th) {
-            //throw $th;
         }
-        
     }
 
     public function uploadImg($request) {
@@ -286,7 +225,7 @@ class AgentService {
                 return ResponseHelper::error($validator->errors());
             }
             $agent = $this->agentRepository->getAgentByUserId($request->user_id);
-            //guardar imagen
+            
             $dataImg = $request->image;
             $subido = "";
             $urlGuardar = "";
@@ -304,44 +243,11 @@ class AgentService {
             
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
-            // return ResponseHelper::success('Se guardó el número de turnos correctamente.', ['response' => $response]);
+            return ResponseHelper::error('Hubo un error al guardar la imagen.');
         }
-        // $dataImg = $request->image;
-        // $subido = "";
-        // $urlGuardar = "";
-        // $agent = Agent::where('user_id', $request->user_id)->first();
-        // $client = Customers::where('user_id', $request->user_id)->first();
-
-        // if ($request->hasFile('image')) {
-        //     $nombre = $dataImg->getClientOriginalName();
-        //     $extension = $dataImg->getClientOriginalExtension();
-        //     $nuevoNombre = $nombre . "." . $extension;
-        //     $subido = Storage::disk('perfil')->put($nombre, File::get($dataImg));
-        //     if ($subido) {
-        //         $urlGuardar = 'img/perfil/' . $nombre;
-        //     }
-        // }
-
-        // if ($agent) {
-        //     $agent->img = $urlGuardar;
-        //     $agent->save();
-        // }
-
-        // if ($client) {
-        //     $client->img = $urlGuardar;
-        //     $client->save();
-        // }
-
-        // // Retornar una respuesta JSON para evitar el error en el frontend
-        // return [
-        //     'success' => $subido,
-        //     'message' => $subido ? 'Imagen subida correctamente' : 'Error al subir la imagen',
-        //     'path' => $urlGuardar
-        // ];
     }
 
     public function changePassword($request) {
-
         try {
             $user = $this->userRepositoy->findUserById(Auth::user()->id);
             if (!$user) {
@@ -353,21 +259,6 @@ class AgentService {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar la contraseña.');
         }
-
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-
-        // $user = Auth::user();
-        // $user = User::find($user->id);
-        
-
-        // if ($user->save()) {
-        //     $title = "Correcto";
-        //     $mensaje = "La contraseña se actualizó correctamente";
-        //     $status = "success";
-        // }
-        // return compact('title', 'mensaje', 'status');
     }
 
     public function filterAgent($request)
@@ -379,15 +270,6 @@ class AgentService {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al filtrar los agentes.');
         }
-        // $search = $request->code;
-
-        // $agents = Agent::where('area_id', $request->area)
-        //                 ->where(function ($query) use ($search) {
-        //                     $query->whereRaw('CONCAT(name, " ", lastname) LIKE ?', ['%'.$search.'%'])
-        //                         ->orWhere('code', 'like', '%'.$search.'%');
-        //                 })->paginate(10);
-
-        // return $agents;
     }
 
     public function getAgent()
@@ -399,22 +281,23 @@ class AgentService {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al obtener el agente.');
         }
-        // $user_id = Auth::user()->id;
-        // $agent = Agent::where('user_id', $user_id)->first();
-        // return $agent;
     }
 
-    public function saveTurn(TurnRequest $request)
+    public function saveTurn($request)
     {
-        // $user_id = Auth::user()->id;
-        // $agent = Agent::where('user_id', $user_id)->first();
-
-        // $cant_giro = $agent->number_turns;
-        // $new_giro = 0;
-        // if ($cant_giro > 0) {
-        //     $new_giro = $cant_giro - 1;
-        // }
-        // $agent->number_turns = $new_giro;
-        // $agent->save();
+        try {
+            $agent = $this->agentRepository->getMyAgent();
+            $cant_giro = $agent->number_turns;
+            $new_giro = 0;
+            if ($cant_giro > 0) {
+                $new_giro = $cant_giro - 1;
+            }
+            $this->agentRepository->saveNumberTurns($agent, $new_giro);
+            return ResponseHelper::success('Se obtuvo el agente correctamente.');
+        } catch (Exception $e) {
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener el agente.');
+        }
+        
     }
 }

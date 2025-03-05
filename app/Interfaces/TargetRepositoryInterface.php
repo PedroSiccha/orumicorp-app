@@ -11,7 +11,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface TargetRepositoryInterface
 {
     public function getTargets(): Collection;
-    public function getSumAmount(Target $target): ?float;
     public function saveTarget(StoreTargetRequest $data): ?Target;
     public function getTargetByMonthAgent(string $month, Agent $agent): ?Target;
     public function getTargetWithDate(): Collection;

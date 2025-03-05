@@ -11,10 +11,25 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class AgentRepository implements AgentRepositoryInterface
 {
+
+    public function getMyAgent(): ?Agent
+    {
+        try {
+            $userId = Auth::user()->id;
+            return Agent::where('user_id', $userId)->first();
+        } catch (QueryException $e) {
+            Log::error("Error AgentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error AgentRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
 
     public function getAgentByUserId(int $userId): ?Agent
     {

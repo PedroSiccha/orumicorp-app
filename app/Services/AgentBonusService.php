@@ -1,7 +1,11 @@
 <?php
 namespace App\Services;
 
+use App\Enums\ActionType;
 use App\Enums\StatusEnum;
+use App\Helpers\ResponseHelper;
+use App\Http\Requests\StoreBonusAgentRequest;
+use App\Http\Requests\StoreSalesRequest;
 use App\Interfaces\AgentBonusRepositoryInterface;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\AreaRepositoryInterface;
@@ -12,13 +16,14 @@ use App\Interfaces\PercentRepositoryInterface;
 use App\Interfaces\SalesRepositoryInterface;
 use App\Interfaces\TargetRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use Carbon\Carbon;
 use Exception;
 use DateTime;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AgentBonusService
 {
-
     protected $userRepository;
     protected $agentRepository;
     protected $percentRepository;
@@ -55,210 +60,111 @@ class AgentBonusService
     }
 
     public function getDataAgentBonus() {
-        $user = $this->userRepository->getUserById();
+        $user = $this->userRepository->getUser();
         $roles = $user->getRoleNames()->first();
-
         $agent = $this->agentRepository->getAgentByUserId($user->id);
-
         $percents = $this->percentRepository->getPercents();
         $commissions = $this->comissionRepository->getComissions();
         $exchange_rates = $this->exchangeRateRepository->getExchangeRates();
-        $bonusAgent = $this->salesRepository->getBonusAgent($agent, $roles); // Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
-
+        $bonusAgent = $this->salesRepository->getBonusAgent($agent, [1, 2, 3], $roles);
         $target = $this->targetRepository->getTargets();
-
-        $reportTargetMensual = $this->targetRepository->getSumAmount($target);
-        // if ($target == null) {
-        //     $target = new Target();
-        //     $target->amount = 0;
-        // }
-
+        $reportTargetMensual = $target->sum('amount') ?: 0;
         $amount = $this->salesRepository->getAmountIngreso();
-        // $amount = DB::table('sales as s')
-        //             ->join('actions as a', 's.action_id', '=', 'a.id')
-        //             ->join('movement_types as m', 'a.movement_type_id', '=', 'm.id')
-        //             ->where('m.name', 'INGRESO')
-        //             ->where('s.status', 1) // Solo incluir ventas activas
-        //             ->where('a.status', 1) // Solo incluir acciones activas
-        //             ->whereMonth('s.date_admission', date("m")) // Filtrar solo el mes actual
-        //             ->value(DB::raw('COALESCE(SUM(s.amount), 0)'));
-
         $amountRetiro = $this->salesRepository->getAmountEgreso();
         $rouletteSpin = $agent->number_turns ?: 0;
-        $areas = $this->areaRepository->getAllAreas(); // Area::where('status', true)->get();
-        
-
-        // $percents = Percent::where('status', true)->get();
-        // $commissions = Commission::where('status', true)->get();
-        // $exchange_rates = ExchangeRate::where('status', true)->get();
-
-        // if ($roles == 'ADMINISTRADOR') {
-        //     $bonusAgent = Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
-        //                         ->where('status', 1)
-        //                         ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
-        //                         ->with('action') // Carga la relación con actions (si está definida en el modelo)
-        //                         ->get();
-        // } else {
-
-        //     $bonusAgent = Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
-        //                         ->where('status', 1)
-        //                         ->where('agent_id', $agent->id)
-        //                         ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
-        //                         ->with('action') // Carga la relación con actions (si está definida en el modelo)
-        //                         ->get();
-
-        // }
-
-
-        // $target = Target::where('status', true)
-        //             ->where('month', date("m"))
-        //             ->orderBy("created_at", "asc")
-        //             ->get();
-
-        // $reportTargetMensual = $target->sum('amount');
-
-        // if ($target == null) {
-        //     $target = new Target();
-        //     $target->amount = 0;
-        // }
-
-        // $amount = DB::table('sales as s')
-        //             ->join('actions as a', 's.action_id', '=', 'a.id')
-        //             ->join('movement_types as m', 'a.movement_type_id', '=', 'm.id')
-        //             ->where('m.name', 'INGRESO')
-        //             ->where('s.status', 1) // Solo incluir ventas activas
-        //             ->where('a.status', 1) // Solo incluir acciones activas
-        //             ->whereMonth('s.date_admission', date("m")) // Filtrar solo el mes actual
-        //             ->value(DB::raw('COALESCE(SUM(s.amount), 0)'));
-
-        // $amountRetiro = DB::table('sales as s')
-        //                 ->join('actions as a', 's.action_id', '=', 'a.id')
-        //                 ->join('movement_types as m', 'a.movement_type_id', '=', 'm.id')
-        //                 ->where('m.name', 'EGRESO')
-        //                 ->where('s.status', 1) // Solo incluir ventas activas
-        //                 ->where('a.status', 1) // Solo incluir acciones activas
-        //                 ->whereMonth('s.date_admission', date("m")) // Filtrar solo el mes actual
-        //                 ->value(DB::raw('COALESCE(SUM(s.amount), 0)'));
-
-        // $premios1 = Premio::where('status', true)->where('type', 1)->get();
-        // $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        // $rouletteSpin = $agent->number_turns ?: 0;
-        // $areas = Area::where('status', true)->get();
+        $areas = $this->areaRepository->getAreas();
+        $response = [
+            'user' => $user,
+            'roles' => $roles,
+            'agent' => $agent,
+            'percents' => $percents,
+            'commissions' => $commissions,
+            'exchange_rates' => $exchange_rates,
+            'bonusAgent' => $bonusAgent,
+            'target' => $target,
+            'reportTargetMensual' => $reportTargetMensual,
+            'amount' => $amount,
+            'amountRetiro' => $amountRetiro,
+            'rouletteSpin' => $rouletteSpin,
+            'areas' => $areas
+        ];
+        return ResponseHelper::success('Datos obtenido correctamente.', ['response' => $response]);
     }
 
-    public function saveBonus($data) {
-        $title = 'Error';
-        $mensaje = 'Error desconocido';
-        $status = 'error';
-
-        $user = $this->userRepository->getUserById();
+    public function saveBonus($data) 
+    {
+        $user = $this->userRepository->getUser();
         $roles = $user->getRoleNames()->first();
 
         if ($data->dniCustomer > 0) {
             $client = $this->clientRepository->getClientByCode($data->dniCustomer);
-            $client_id = $client->id;
+            $client_id = $client->id ?? null;
         }
 
-        $codeAgt = $data->dniAgent;
-        $amount = $data->amount;
-        $observation = $data->observation;
+        $agent = $this->agentRepository->findAgentByCode($data->dniAgent);
 
-        $agent = $this->agentRepository->findAgentByCode($codeAgt); // Agent::where('code_voiso', $codeAgt)->first();
+        $dataAgentBonus = new StoreBonusAgentRequest([
+                'date_admission' => Carbon::now(), 
+                'amount' => $data->amount,
+                'observation' => $data->observation ?? null,
+                'status' => StatusEnum::ACTIVE->value,
+                'customer_id' => $client_id ?? null,
+                'percent_id' => $data->percent_id ?? null,
+                'commission_id' => $data->commission_id ?? null,
+                'exchange_rate_id' => $data->exchange_rate_id ?? null,
+                'agent_id' => $agent->id,
+                'action_id' => 1
+            ]) ;
+
+        $dataSale = new StoreSalesRequest([
+            'date_admission' => Carbon::now(),
+            'amount' => $data->amount,
+            'observation' => $data->observation ?? null,
+            'status' => StatusEnum::ACTIVE->value,
+            'agent_id' => $agent->id,
+            'action_id' => ActionType::BONUS->value,
+            'user_id' => Auth::user()->id,
+        ]);
 
         DB::beginTransaction();
         try {
-            $bonusAgent = $this->agentBonusRepository->saveBonus($data);
-            $sale = $this->salesRepository->saveSale($data);
+            $bonusAgent = $this->agentBonusRepository->saveBonus($dataAgentBonus);
+            $sale = $this->salesRepository->saveSale($dataSale);
             DB::commit();
-            // $bonusAgent = new BonusAgent();
-            // $bonusAgent->date_admission = Carbon::now();
-            // $bonusAgent->amount = $amount;
-            // $bonusAgent->observation = $observation;
-            // $bonusAgent->status = true;
-            // // $bonusAgent->customer_id = $client_id;
-            // if ($request->percent_id > 0) {
-            //     $bonusAgent->percent_id = $request->percent_id;
-            // }
-            // if ($request->commission_id > 0) {
-            //     $bonusAgent->commission_id = $request->commission_id;
-            // }
-            // if ($request->exchange_rate_id > 0) {
-            //     $bonusAgent->exchange_rate_id = $request->exchange_rate_id;
-            // }
-            // $bonusAgent->agent_id = $agent->id;
-            // $bonusAgent->action_id = 1;
-            // if ($bonusAgent->save()) {
-
-            //     $sale = new Sales();
-            //     $sale->date_admission = Carbon::now();
-            //     $sale->amount = $amount;
-            //     $sale->observation = $observation;
-            //     $sale->status = true;
-            //     $sale->agent_id = $agent->id;
-            //     $sale->action_id = 2;
-            //     $sale->user_id = Auth::user()->id;
-            //     if ($sale->save()) {
-            //         $title = "Correcto";
-            //         $mensaje = "Registrado correctamente";
-            //         $status = "success";
-            //     }
-            // }
+            $bonusAgent = $this->salesRepository->getBonusAgent($agent, [1, 2, 3], $roles);
+            return ResponseHelper::success('El bonus se guardó correctamente.', ['response' => $bonusAgent]);
         } catch (Exception $e) {
             DB::rollBack();
-            $title = 'Error';
-            $mensaje = 'Ocurrió un error: '.$e->getMessage();
-            $status = 'error';
+            return ResponseHelper::error('Error al registrar el bonus.');
         }
-
-        $bonusAgent = $this->salesRepository->getBonusAgent($agent, $roles);
-
-        // if ($roles == 'ADMINISTRADOR') {
-        //     $bonusAgent = Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
-        //                         ->where('status', 1)
-        //                         ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
-        //                         ->with('action') // Carga la relación con actions (si está definida en el modelo)
-        //                         ->get();
-        // } else {
-
-        //     $bonusAgent = Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
-        //                         ->where('status', 1)
-        //                         ->where('agent_id', $agent->id)
-        //                         ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
-        //                         ->with('action') // Carga la relación con actions (si está definida en el modelo)
-        //                         ->get();
-
-        // }
     }
 
     public function saveRetiro($data) {
         $agent = $this->agentRepository->findAgentByCode($data->dni);
-        // $agent = Agent::where('dni', $request->dni)
-        //                 ->orWhere('code', $request->dni)
-        //                 ->first();
+
+        $dataSale = new StoreSalesRequest([
+            'date_admission' => Carbon::now(),
+            'amount' => -1*($data->amount),
+            'observation' => $data->observation ?? null,
+            'status' => StatusEnum::ACTIVE->value,
+            'percent' => $data->percent ?? null,
+            'commission' => $data->commission ?? null,
+            'exchange_rate' => $data->exchange_rate ?? null,
+            'agent_id' => $agent->id,
+            'action_id' => ActionType::RETIRO->value,
+            'user_id' => Auth::user()->id,
+        ]);
+
         DB::beginTransaction();
         try {
-            $sale = $this->salesRepository->saveSale($data);
-            // $sale = new Sales();
-            // $sale->date_admission = Carbon::now();
-            // $sale->amount = -1*($request->amount);
-            // $sale->observation = $request->observation;
-            // $sale->status = true;
-            // $sale->percent = $request->percent;
-            // $sale->commission = $request->commission;
-            // $sale->exchange_rate = $request->exchange_rate;
-            // $sale->agent_id = $agent->id;
-            // $sale->action_id = 4;
-            // $sale->user_id = Auth::user()->id;
-            // if ($sale->save()) {
-            //     $resp = 1;
-            // }
+            $sale = $this->salesRepository->saveSale($dataSale);
             DB::commit();
+            $bonusAgent = $this->agentBonusRepository->getBonusAgent([1, 2, 3], StatusEnum::ACTIVE->value, 'DESC');
+            return ResponseHelper::success('El retiro se guardó correctamente.', ['response' => $bonusAgent]);
         } catch (Exception $e) {
             DB::rollBack();
-            //throw $th;
-        }
-
-        $bonusAgent = $this->agentBonusRepository->getBonusAgent([1, 2, 3], StatusEnum::ACTIVE->value, 'DESC'); // BonusAgent::where('status', true)->orderBy('date_admission')->get();
+            return ResponseHelper::error('Error al registrar el retiro.');
+        }        
     }
 
     public function filterBonus($data) {
@@ -266,8 +172,9 @@ class AgentBonusService
         $dateEnd = DateTime::createFromFormat('m/d/Y', $data->dateEnd)->format('Y-m-d');
         $codigo = $data->code;
         $nombre = $data->code;
-
-        $bonusAgent = $this->salesRepository->searchBonusAgent();
-                
+        $agent = $this->agentRepository->getMyAgent();
+        $area = $this->areaRepository->getAreaById($agent->id);
+        $bonusAgent = $this->salesRepository->searchBonusAgent($codigo, $nombre, $area, $dateInit, $dateEnd);
+        return ResponseHelper::success('Datos obtenido correctamente.', ['response' => $bonusAgent]);
     }
 }

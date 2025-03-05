@@ -1,6 +1,7 @@
 <?php
 namespace App\Repositories;
 
+use App\Enums\StatusEnum;
 use Illuminate\Database\Eloquent\Collection;
 use App\Interfaces\PercentRepositoryInterface;
 use App\Models\Percent;
@@ -13,7 +14,7 @@ class PercentRepository implements PercentRepositoryInterface
     public function getPercents(): Collection
     {
         try {
-             return Percent::where('status', true)->get();
+             return Percent::where('status', StatusEnum::ACTIVE->value)->get();
         } catch (QueryException $e) {
             Log::error("Error PercentRepository: " . $e->getMessage());
             throw new Exception("No se encontraron resultados para los filtros aplicados.");

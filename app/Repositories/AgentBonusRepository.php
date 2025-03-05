@@ -30,9 +30,10 @@ class AgentBonusRepository implements AgentBonusRepositoryInterface
         }
     }
 
-    public function saveBonus(StoreBonusAgentRequest $data): BonusAgent
+    public function saveBonus(StoreBonusAgentRequest $request): BonusAgent
     {
         try {
+            $data = $request->validated();
             return BonusAgent::create($data);
         } catch (QueryException $e) {
             Log::error("Error AgentBonusRepository: " . $e->getMessage());

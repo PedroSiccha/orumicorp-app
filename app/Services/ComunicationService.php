@@ -15,7 +15,8 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
-class ComunicationService /*implements ComunicationInterface */{
+class ComunicationService
+{
 
     protected $userRepository, $agentRepository, $comunicationRepository, $customerStatusRepository;
 

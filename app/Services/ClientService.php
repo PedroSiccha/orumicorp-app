@@ -3,7 +3,10 @@ namespace App\Services;
 
 use App\DTOs\ClientIndexDTO;
 use App\Exceptions\RepositoryException;
+use App\Helpers\ResponseHelper;
 use App\Http\Requests\FilterRequest;
+use App\Http\Requests\StoreClientRequest;
+use App\Http\Requests\StoreCustomerRequest;
 use App\Interfaces\AssignamentInterface;
 use App\Interfaces\AwardRepositoryInterface;
 use App\Interfaces\CampaingInterface;
@@ -206,8 +209,7 @@ class ClientService {
             // Generar código de cliente
             $code = strtoupper(substr($data['name'], 0, 2) . substr($data['lastname'], 0, 2)) . '_' . $user->id;
 
-            // Crear cliente usando el repositorio
-            $client = $this->clientRepository->createClient([
+            $dataClient = new StoreCustomerRequest([
                 'code' => $code,
                 'name' => $data['name'],
                 'lastname' => $data['lastname'],
@@ -219,23 +221,18 @@ class ClientService {
                 'id_status' => $statusClient->id
             ]);
 
+            // Crear cliente usando el repositorio
+            $client = $this->clientRepository->createClient($dataClient);
             DB::commit();
-
-            return response()->json([
-                'title' => 'Correcto',
-                'mensaje' => 'El cliente se registró correctamente.',
-                'status' => 'success',
-                'data' => $client
-            ], 201);
-
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $client]);
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             DB::rollBack();
-
-            return response()->json([
-                'title' => 'Error',
-                'mensaje' => 'Error inesperado: ' . $e->getMessage(),
-                'status' => 'error'
-            ], 500);
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
     }
 
@@ -285,7 +282,7 @@ class ClientService {
 
         try {
             // Buscar el agente por código o código Voiso
-            $agent = $this->agentRepository->findByCodeOrVoiso($data['dni_agent']);
+            $agent = $this->agentRepository->findAgentByCode($data['dni_agent']);
 
             if (!$agent) {
                 throw new Exception("Agente no encontrado.");
@@ -295,7 +292,7 @@ class ClientService {
 
             // Obtener y desactivar asignaciones activas
             $oldAssignments = $this->assignmentRepository->getActiveAssignments($data['id']);
-            $this->assignmentRepository->deactivateAssignments($oldAssignments);
+            $this->assignmentRepository->desactivateAssignments($oldAssignments);
 
             // Crear nueva asignación
             $this->assignmentRepository->createAssignment([
@@ -337,7 +334,7 @@ class ClientService {
 
         try {
             // Buscar el agente por código o código Voiso
-            $agent = $this->agentRepository->findByCodeOrVoiso($data['dni_agent']);
+            $agent = $this->agentRepository->findAgentByCode($data['dni_agent']);
 
             if (!$agent) {
                 throw new Exception("Agente no encontrado.");
@@ -351,7 +348,7 @@ class ClientService {
             foreach ($data['idGroupClientes'] as $idClient) {
                 // Obtener y desactivar asignaciones activas
                 $oldAssignments = $this->assignmentRepository->getActiveAssignments($idClient);
-                $this->assignmentRepository->deactivateAssignments($oldAssignments);
+                $this->assignmentRepository->desactivateAssignments($oldAssignments);
 
                 // Agregar a la lista de asignaciones
                 $assignments[] = [
@@ -484,10 +481,7 @@ class ClientService {
 
     public function updateClient($request)
     {
-        DB::beginTransaction();
-        try {
-            $client = $this->clientRepository->getClientById($request->id);
-            $this->clientRepository->updateClient($client, [
+        $dataClient = new StoreClientRequest([
                 'code' => $request->code,
                 'name' => $request->name,
                 'lastname' => $request->lastname,
@@ -497,7 +491,11 @@ class ClientService {
                 'country' => $request->country,
                 'comment' => $request->comment,
                 'email' => $request->email
-            ]);
+        ]);
+        DB::beginTransaction();
+        try {
+            $client = $this->clientRepository->getClientById($request->id);
+            $this->clientRepository->updateClient($client, $dataClient);
 
             DB::commit();
 

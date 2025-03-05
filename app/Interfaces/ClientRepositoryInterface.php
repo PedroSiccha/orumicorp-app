@@ -2,6 +2,7 @@
 namespace App\Interfaces;
 
 use App\Http\Requests\EditCustomerRequest;
+use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Models\Customers;
 use App\Models\CustomerStatus;
@@ -38,7 +39,7 @@ interface ClientRepositoryInterface
 
     public function updateStatus(array $customerIds, int $statusId): void;     
     public function updateClientStatus(int $clientId, bool $status): bool;
-    public function updateClient(Customers $customer, EditCustomerRequest $data): bool;
+    public function updateClient(Customers $customer, StoreClientRequest $data): bool;
 
     public function deleteClient(Customers $customerId): bool;    
 }

@@ -26,7 +26,8 @@ class SaveCampaingRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'required|boolean'
+            'start_date' => 'required|date',
+            'end_date' => 'required|date'
         ];
     }
 
@@ -36,9 +37,14 @@ class SaveCampaingRequest extends FormRequest
             'name.required' => 'El nombre del área es obligatorio.',
             'name.string' => 'El nombre debe ser un texto válido.',
             'name.max' => 'El nombre no puede superar los 255 caracteres.',
+
             'description.string' => 'La descripción debe ser un texto válido.',
-            'status.required' => 'El estado es obligatorio.',
-            'status.boolean' => 'El estado solo puede ser verdadero o falso.'
+
+            'start_date.required' => 'La fecha de inicio es obligatoria.',
+            'start_date.date' => 'La fecha de inicio debe ser una fecha válida.',
+
+            'end_date.required' => 'La fecha de finalización es obligatoria.',
+            'end_date.date' => 'La fecha de finalización debe ser una fecha válida.',
         ];
     }
 }

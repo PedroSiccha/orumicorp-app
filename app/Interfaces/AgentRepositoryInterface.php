@@ -14,6 +14,7 @@ interface AgentRepositoryInterface
     public function getAllAgents(): Collection;
     public function getAllAgentsPaginated(int $perPage): LengthAwarePaginator;
     public function getAgents(): Collection;
+    public function getMyAgent(): ?Agent;
 
     public function findAgentById(int $agentId): ? Agent;
     public function findAgentByCode(string $code): ?Agent;
