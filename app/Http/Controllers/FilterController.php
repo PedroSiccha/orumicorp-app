@@ -21,166 +21,99 @@ class FilterController extends Controller
         $typeRange = $request->typeRange;
         $dateInit = $request->dateInit;
         $dateEnd = $request->dateEnd;
+        $limit = $request->limit;
+        // dd($dateInit . "-------------> ". $da);
 
+        // 🔹 Iniciar la consulta
         $query = Customers::with([
-            'user',
-            'agent',
-            'latestCampaign',
-            'latestSupplier',
-            'provider',
-            'statusCustomer',
-            'platform',
-            'traiding',
-            'latestComunication',
-            'latestAssignamet',
-            'latestDeposit',
-            'folder'
+            'user', 'agent', 'latestCampaign', 'latestSupplier', 'provider', 'statusCustomer',
+            'platform', 'traiding', 'latestComunication', 'latestAssignamet', 'latestDeposit', 'folder'
         ]);
 
-        if ($filterFor !== 'Filtrar Por:' || $inputName !== '') {
-            if ($filterFor == 'Cod. Cliente') {
-                $query->where(function($q) use ($inputName) {
-                    $q->where('code', 'like', "%$inputName%");
-                });
-            }
+        // 🔹 Aplicar filtros avanzados solo si se ha seleccionado algo
+        if (!empty($inputName) && $filterFor !== 'Filtrar Por:') {
+            $filterMap = [
+                'Cod. Cliente'       => 'code',
+                'Correo'             => 'email',
+                'Teléfono'           => 'phone',
+                'Teléfono Opcional'  => 'optional_phone',
+                'Ciudad'             => 'city',
+                'País'               => 'country',
+                'Comentario'         => 'comment',
+                'Folder'             => 'folder.name',
+            ];
 
-            if ($filterFor == 'Asignado Por') {
-                $query->whereHas('assignaments', function($q) use ($inputName) {
-                    $q->whereHas('assignedBy', function($a) use ($inputName) {
-                        $a->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
+            if (isset($filterMap[$filterFor])) {
+                $query->where($filterMap[$filterFor], 'like', "%$inputName%");
+            } elseif ($filterFor == 'Nombre Cliente') {
+                $query->where(function ($q) use ($inputName) {
+                    $q->where('name', 'like', "%$inputName%")
+                    ->orWhere('lastname', 'like', "%$inputName%");
+                });
+            } elseif ($filterFor == 'Asignado Por' || $filterFor == 'Agente') {
+                $query->whereHas('assignaments', function ($q) use ($inputName, $filterFor) {
+                    $q->whereHas($filterFor == 'Asignado Por' ? 'assignedBy' : 'agent', function ($a) use ($inputName) {
+                        $a->where('name', 'like', "%$inputName%")
+                        ->orWhere('lastname', 'like', "%$inputName%");
                     });
                 });
-            }
-
-            if ($filterFor == 'Proveedor') {
-                $query->whereHas('provider', function($q) use ($inputName) {
+            } elseif ($filterFor == 'Proveedor') {
+                $query->whereHas('provider', function ($q) use ($inputName) {
                     $q->where('name', $inputName);
                 });
-            }
-
-            if ($filterFor == 'Nombre Cliente') {
-                $query->where(function($q) use ($inputName) {
-                    $q->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
+            } elseif ($filterFor == 'Última Visita') {
+                $query->whereHas('views.agent', function ($a) use ($inputName) {
+                    $a->where('name', 'like', "%$inputName%")
+                    ->orWhere('lastname', 'like', "%$inputName%");
                 });
             }
-
-            if ($filterFor == 'Correo') {
-                $query->where(function($q) use ($inputName) {
-                    $q->where('email', 'like', "%$inputName%");
-                });
-            }
-
-            if ($filterFor == 'Teléfono') {
-                $query->where(function($q) use ($inputName) {
-                    $q->where('phone', 'like', "%$inputName%");
-                });
-            }
-
-            if ($filterFor == 'Teléfono Opcional') {
-                $query->where(function($q) use ($inputName) {
-                    $q->where('optional_phone', 'like', "%$inputName%");
-                });
-            }
-
-            if ($filterFor == 'Ciudad') {
-                $query->where(function($q) use ($inputName) {
-                    $q->where('city', 'like', "%$inputName%");
-                });
-            }
-
-            if ($filterFor == 'País') {
-                $query->where(function($q) use ($inputName) {
-                    $q->where('country', 'like', "%$inputName%");
-                });
-            }
-
-            if ($filterFor == 'Agente') {
-                $query->whereHas('assignaments', function($q) use ($inputName) {
-                    $q->whereHas('agent', function($a) use ($inputName) {
-                        $a->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
-                    });
-                });
-            }
-
-            if ($filterFor == 'Comentario') {
-                $query->where(function($q) use ($inputName) {
-                    $q->where('comment', 'like', "%$inputName%");
-                });
-            }
-
-            if ($filterFor == 'Última Visita') {
-                $query->whereHas('views', function($q) use ($inputName) {
-                    $q->whereHas('agent', function($a) use ($inputName) {
-                        $a->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
-                    });
-                });
-            }
-
-            if ($filterFor == 'N° Depósito') {
-                $dataSearch = 'code';
-            }
-
-            if ($filterFor == 'Total Depósito') {
-                $dataSearch = 'code';
-            }
-
-            if ($filterFor == 'Folder') {
-                $query->whereHas('folder', function($q) use ($inputName) {
-                    $q->where('name', 'like', "%$inputName%");
-                });
-            }
-
         }
 
-        if ($statusId !== "Seleccione un estado") {
+        // 🔹 Filtrar por estado si está seleccionado
+        if (!empty($statusId) && $statusId !== "Seleccione un estado") {
             $query->where('id_status', $statusId);
         }
 
-        if ($typeRange !== "Seleccione Rango:") {
+        // 🔹 Filtrar por rango de fechas
+        if (!empty($typeRange) && $typeRange !== "Seleccione Rango:") {
+            $rangeMap = [
+                "Última Llamada"            => 'comunications.date',
+                "Fecha de Ingreso"          => 'date_admission',
+                "Fecha de Última Llamada"   => 'comunications.date',
+                "Fecha de Última Asignación"=> 'assignaments.date',
+            ];
 
-            if ($typeRange == "Última Llamada") {
-                if (!empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
-                    $query->whereHas('comunications', function ($q) use ($dateInit, $dateEnd) {
-                        $q->whereBetween('date', [$dateInit, $dateEnd]);
+            if (isset($rangeMap[$typeRange]) && !empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
+                $column = $rangeMap[$typeRange];
+
+                if (strpos($column, '.') !== false) {
+                    $relation = explode('.', $column)[0];
+                    $field = explode('.', $column)[1];
+
+                    $query->whereHas($relation, function ($q) use ($field, $dateInit, $dateEnd) {
+                        $q->whereBetween($field, [$dateInit, $dateEnd]);
                     });
+                } else {
+                    $query->whereBetween($column, [$dateInit, $dateEnd]);
                 }
             }
-
-            if ($typeRange == "Fecha de Ingreso") {
-                $query->whereBetween('date_admission', [$dateInit, $dateEnd]);
-            }
-
-            if ($typeRange == "Fecha de Última Llamada") {
-                if (!empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
-                    $query->whereHas('comunications', function ($q) use ($dateInit, $dateEnd) {
-                        $q->whereBetween('date', [$dateInit, $dateEnd]);
-                    });
-                }
-            }
-
-            if ($typeRange == "Fecha de Última Asignación") {
-                if (!empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
-                    $query->whereHas('assignaments', function ($q) use ($dateInit, $dateEnd) {
-                        $q->whereBetween('date', [$dateInit, $dateEnd]);
-                    });
-
-                }
-            }
-
-
-            // $query->where('id_status', $statusId);
         }
 
-        $customers = $query->paginate(10);
+        // 🔹 Obtener resultados paginados
+        $customers = $query->paginate($limit);
 
+        // 🔹 Obtener datos auxiliares
         $agents = Agent::all();
         $campaings = Campaing::all();
         $providers = Provider::all();
         $statusCustomers = CustomerStatus::all();
 
-        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render()]);
-
+        // 🔹 Devolver la vista filtrada
+        return response()->json([
+            "view" => view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render()
+        ]);
     }
+
 
     /**
      * Show the form for creating a new resource.

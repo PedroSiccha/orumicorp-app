@@ -15,8 +15,9 @@ function guardarNuevoCliente(inputName, inputLastname, inputPhone, inputOptional
     var provide_id = $(inputProvide).val();
     // var traiding_id = $(inputTraiding).val();
     // var platform_id = $(inputPlatform).val();
+    var limit = $('#limit').val();
 
-    $.post(saveCustomerRoute, {name: name, lastname: lastname, phone: phone, optionalPhone: optionalPhone, email: email, country: country, provide_id: provide_id, _token: token}).done(function(data) {
+    $.post(saveCustomerRoute, {name: name, lastname: lastname, phone: phone, optionalPhone: optionalPhone, email: email, country: country, provide_id: provide_id, limit: limit, _token: token}).done(function(data) {
 
         $(tableName).empty();
         $(tableName).html(data.view);

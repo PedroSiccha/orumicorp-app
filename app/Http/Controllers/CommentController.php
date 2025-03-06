@@ -54,7 +54,7 @@ class CommentController extends Controller
         $contacts = [];
 
         if ($myRoles['roles'] == 'ADMINISTRADOR') {
-            $contacts = Customers::all()->map(function ($customer) {
+            $contacts = Customers::with(['statusCustomer'])->get()->map(function ($customer) {
                 return [
                     "id" => $customer->id,  // Suponiendo que `id` es el identificador único
                     "uuid" => $customer->callbell_uuid,  // Suponiendo que `id` es el identificador único
@@ -73,11 +73,12 @@ class CommentController extends Controller
                     "team" => $customer->callbel_team ?? [],
                     "channel" => $customer->callbel_channel ?? [],
                     "blockedAt" => $customer->callbel_blocked_at ?? null,
+                    "status" => $customer->statusCustomer->name ?? null
                 ];
             });
         } else {
 
-            $contacts = Customers::whereHas('assignaments', function($query) use ($agent) {
+            $contacts = Customers::with(['statusCustomer'])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
             })->get()->map(function ($customer) {
                 return [
@@ -98,6 +99,7 @@ class CommentController extends Controller
                     "team" => $customer->callbel_team ?? [],
                     "channel" => $customer->callbel_channel ?? [],
                     "blockedAt" => $customer->callbel_blocked_at ?? null,
+                    "status" => $customer->statusCustomer->name ?? null
                 ];
             });
         }

@@ -143,43 +143,64 @@ function buscarContactoPorTelefono() {
     let contactsList = document.getElementById("contacts-list");
 
     loadingIndicator.style.display = "block";
-    contactsList.innerHTML = "";
+    contactsList.innerHTML = ""; // Limpiamos la lista antes de cargar nuevos resultados
 
     $.post(searchContactRoute, { phone: phone, _token: token })
-        .done(function(data) {
+        .done(function (data) {
             loadingIndicator.style.display = "none";
-            console.log(data);
-            if (data.contact) {
-                actualizarListaContactos([data.contact]); // Pasamos un array con el contacto
+            console.log("Datos recibidos:", data);
+
+            if (data.contact && data.contact.length > 0) {
+                actualizarListaContactos(data.contact); // Pasamos el array correctamente
             } else {
                 mostrarMensajeNoResultados();
             }
         })
-        .fail(function(xhr, status, error) {
+        .fail(function (xhr, status, error) {
             loadingIndicator.style.display = "none";
-            console.error('Error al buscar el contacto:', error);
+            console.error("Error al buscar el contacto:", error);
             mostrarMensajeError();
         });
 }
 
+
 function actualizarListaContactos(contactos) {
-    let contactosHtml = contactos.map(contact => `
-        <div class="feed-element" onclick="verDetalleChat('${contact.uuid}', '${contact.phoneNumber}')">
-            <a href="#" class="float-left">
-                <img alt="image" class="rounded-circle mr-3" src="${contact.avatarUrl || 'img/logo/basic_logo.png'}" width="40" height="40">
-                <img alt="overlay" class="overlay-icon" src="img/logo/whatsappicon.png" width="20" height="20">
-            </a>
-            <div class="media-body">
-                <small class="float-right">${new Date(contact.createdAt).toLocaleDateString()}</small>
-                <strong>${contact.customFields?.['user name'] || contact.name}</strong>. <br>
-                <small class="text-muted">${contact.assignedUser || 'No asignado'}</small>
+    let contactosHtml = contactos.map(contact => {
+        let contactName = contact.name ? `${contact.name} ${contact.lastname || ''}`.trim() : "Sin nombre";
+        let contactDate = contact.createdAt || "Fecha desconocida"; // Usamos el formato correcto de Laravel
+        let contactAvatar = contact.avatarUrl && contact.avatarUrl !== "null" ? contact.avatarUrl : 'img/logo/basic_logo.png';
+        
+        // Determinar el icono del canal
+        let contactSourceIcon = "";
+        if (contact.source === "whatsapp") {
+            contactSourceIcon = '<img alt="overlay" class="overlay-icon" src="img/logo/whatsappicon.png" width="20" height="20">';
+        } else if (contact.source === "telegram") {
+            contactSourceIcon = '<img alt="overlay" class="overlay-icon" src="img/logo/telegramicon.png" width="20" height="20">';
+        } else {
+            contactSourceIcon = '<img alt="overlay" class="overlay-icon" src="img/logo/basic_logo.png" width="20" height="20">';
+        }
+
+        return `
+            <div class="feed-element" onclick="verDetalleChat('${contact.uuid || ''}', '${contact.phoneNumber || ''}')">
+                <a href="#" class="float-left">
+                    <img alt="image" class="rounded-circle mr-3" src="${contactAvatar}" width="40" height="40">
+                    ${contactSourceIcon}
+                </a>
+                <div class="media-body">
+                    <small class="float-right">${contactDate}</small>
+                    <strong>${contactName}</strong><br>
+                    <small class="text-muted">${contact.assignedUser || 'No asignado'}</small>
+                    <small class="text-muted">Estado: ${ contact.status || '' }</small>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 
     document.getElementById('contacts-list').innerHTML = contactosHtml;
     document.getElementById('no-results').classList.add('d-none');
 }
+
+
 
 function mostrarMensajeNoResultados() {
     document.getElementById('contacts-list').innerHTML = "";

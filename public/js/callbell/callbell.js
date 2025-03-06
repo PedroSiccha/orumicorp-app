@@ -8,3 +8,4 @@ function filterChannelCallbell(options) {
             $(tableName).html(data.view);
         });
 }
+ 

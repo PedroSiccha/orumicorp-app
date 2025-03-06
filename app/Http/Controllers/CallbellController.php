@@ -180,14 +180,16 @@ class CallbellController extends Controller
         // Llamamos al servicio que hará la consulta a la API de Callbell
         try {
             $response = $this->callbellService->buscarContactoPorTelefono($request->phone);
+            $contacts = json_decode($response->getContent(), true);
+            // dd($response);
 
             // Si la respuesta contiene el contacto, lo retornamos
-            if (isset($response['contact'])) {
+            if (!empty($contacts)) {
                 return response()->json([
-                    'contact' => $response['contact'],
+                    'contact' => $contacts,
                 ]);
             }
-
+ 
             // Si no hay contacto, devolvemos un mensaje de no encontrado
             return response()->json([
                 'message' => 'No se encontró el contacto.',
@@ -278,7 +280,7 @@ class CallbellController extends Controller
         }
     }
 
-    public function filterChannel(Request $request) {
+    public function filterChannel(Request $request) { 
 
         $user_id = Auth::user()->id;
         $user = User::where('id', $user_id)->first();
@@ -291,6 +293,62 @@ class CallbellController extends Controller
 
         $baseUrl = env('CALLBELL_API_BASE_URL');
         $token = env('CALLBELL_API_TOKEN');
+        $myRoles = $this->rolesService->getMyRoles();
+
+        if ($request->channel == 'Seleccione un canal') {
+            if ($myRoles['roles'] == 'ADMINISTRADOR') {
+                $contacts = Customers::all()->map(function ($customer) {
+                    return [
+                        "id" => $customer->id,  // Suponiendo que `id` es el identificador único
+                        "uuid" => $customer->callbell_uuid,  // Suponiendo que `id` es el identificador único
+                        "name" => $customer->name,
+                        "lastname" => $customer->lastname,
+                        "phoneNumber" => $customer->phone, // Ajusta según el nombre del campo en la DB
+                        "avatarUrl" => $customer->img ?? null,
+                        "createdAt" => $customer->created_at->format('d/m/Y'),
+                        "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                        "source" => $customer->callbel_source ?? null,
+                        "href" => $customer->callbell_href,
+                        "conversationHref" => $customer->callbell_conversationHref,
+                        "tags" => $customer->callbel_tags ?? [],
+                        "assignedUser" => $customer->assigned_user_email ?? null,
+                        "customFields" => $customer->callbel_custom_fields ?? [],
+                        "team" => $customer->callbel_team ?? [],
+                        "channel" => $customer->callbel_channel ?? [],
+                        "blockedAt" => $customer->callbel_blocked_at ?? null,
+                    ];
+                });
+            } else {
+    
+                $contacts = Customers::whereHas('assignaments', function($query) use ($agent) {
+                    $query->where('agent_id', $agent->id);
+                })->get()->map(function ($customer) {
+                    return [
+                        "id" => $customer->id,  // Suponiendo que `id` es el identificador único
+                        "uuid" => $customer->callbell_uuid,  // Suponiendo que `id` es el identificador único
+                        "name" => $customer->name,
+                        "lastname" => $customer->lastname,
+                        "phoneNumber" => $customer->phone, // Ajusta según el nombre del campo en la DB
+                        "avatarUrl" => $customer->img ?? null,
+                        "createdAt" => $customer->created_at->format('d/m/Y'),
+                        "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                        "source" => $customer->callbel_source ?? null,
+                        "href" => $customer->callbell_href,
+                        "conversationHref" => $customer->callbell_conversationHref,
+                        "tags" => $customer->callbel_tags ?? [],
+                        "assignedUser" => $customer->assigned_user_email ?? null,
+                        "customFields" => $customer->callbel_custom_fields ?? [],
+                        "team" => $customer->callbel_team ?? [],
+                        "channel" => $customer->callbel_channel ?? [],
+                        "blockedAt" => $customer->callbel_blocked_at ?? null,
+                    ];
+                });
+            }
+
+            if ($request->ajax()) {
+                return response()->json(['contacts' => $contacts, 'view' => view('whatsapp.components.list.listContacts', compact('contacts'))->render()]);
+            }
+        }
 
         $contacts = Customers::where('callbel_channel', $request->channel)->get()->map(function ($customer) {
             return [
@@ -314,8 +372,11 @@ class CallbellController extends Controller
             ];
         });
 
+        // dd($contacts);
+
         if ($request->ajax()) {
-            return response()->json(['contacts' => $contacts]);
+            // return response()->json(['contacts' => $contacts]);
+            return response()->json(['contacts' => $contacts, 'view' => view('whatsapp.components.list.listContacts', compact('contacts'))->render()]);
         }
 
         return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token'));

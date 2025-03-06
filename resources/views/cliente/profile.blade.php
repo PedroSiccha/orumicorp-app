@@ -409,6 +409,89 @@
     var searchAgentRoute = '{{ route("searchAgent") }}';
     var searchClientRoute = '{{ route("searchCustomer") }}';
     var asignAgentByProfileRoute = '{{ route("asignAgentByProfile") }}';
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let dateInput = document.getElementById("dateEvent");
+        let horaInicio = document.getElementById("horaInicio");
+        let horaFin = document.getElementById("horaFin");
+        let saveButton = document.querySelector(".btn-success"); // Botón de "Guardar"
+
+        // Establecer la fecha mínima al cargar la página
+        let today = new Date().toISOString().split("T")[0];
+        dateInput.setAttribute("min", today);
+        saveButton.disabled = true; // Bloquear el botón de inicio
+
+        // Función para obtener la hora actual + 1 hora en formato HH:MM
+        function getMinHour() {
+            let now = new Date();
+            // now.setHours(now.getHours() + 1); // Sumar 1 hora
+            now.setHours(now.getHours() + 0);
+            return now.toTimeString().slice(0, 5); // Formato HH:MM
+        }
+
+        // Función para validar la fecha
+        function validateDate() {
+            if (dateInput.value < today) {
+                // alert("No puedes ingresar una fecha anterior a hoy.");
+                // dateInput.value = today;
+                dateInput.classList.add("border-danger");
+                saveButton.disabled = true;
+            } else {
+                dateInput.classList.remove("border-danger");
+                validateHours(); // Validar horas después de validar fecha
+            }
+        }
+
+        // Función para validar las horas
+        function validateHours() {
+            let minHour = getMinHour();
+            let startTime = horaInicio.value;
+            let endTime = horaFin.value;
+
+            // Resetear clases y validaciones
+            horaInicio.classList.remove("border-danger");
+            horaFin.classList.remove("border-danger");
+            saveButton.disabled = false;
+
+            // Validar hora de inicio (debe ser al menos 1 hora después de la actual)
+            if (startTime && startTime < minHour) {
+                // alert("La hora de inicio debe ser al menos 1 hora después de la actual.");
+                horaInicio.value = "";
+                horaInicio.classList.add("border-danger");
+                saveButton.disabled = true;
+            }
+
+            // Validar hora de fin (debe ser mayor que la hora actual + 1)
+            if (endTime && endTime < minHour) {
+                // alert("La hora de fin debe ser al menos 1 hora después de la actual.");
+                horaFin.value = "";
+                horaFin.classList.add("border-danger");
+                saveButton.disabled = true;
+            }
+
+            // Validar que la hora de fin sea mayor que la de inicio
+            if (startTime && endTime && endTime <= startTime) {
+                // alert("La hora de fin debe ser mayor que la hora de inicio.");
+                horaFin.value = "";
+                horaFin.classList.add("border-danger");
+                saveButton.disabled = true;
+            }
+        }
+
+        // Eventos de validación
+        dateInput.addEventListener("input", validateDate);
+        dateInput.addEventListener("change", validateDate);
+        horaInicio.addEventListener("input", validateHours);
+        horaInicio.addEventListener("change", validateHours);
+        horaFin.addEventListener("input", validateHours);
+        horaFin.addEventListener("change", validateHours);
+    });
+
+
+
+
+
+
 </script>
 <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
 <script src="{{ asset('js/customer/client.js') }}"></script>
@@ -417,3 +500,4 @@
 <script src="{{ asset('js/customer/searchClient.js') }}"></script>
 <script src="{{ asset('js/agent/assignGroupAgentByProfile.js') }}"></script>
 @endsection
+ 

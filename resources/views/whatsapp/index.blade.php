@@ -57,6 +57,7 @@
                                 <small class="float-right">{{ $contact['createdAt'] }}</small>
                                 <strong>{{ $contact['name'] }}</strong>. <br>
                                 <small class="text-muted">{{ $contact['assignedUser'] }}</small>
+                                <small class="text-muted">Estado: {{ $contact['status'] }}</small>
                             </div>
                         </div>
                         @endforeach
@@ -117,7 +118,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.contacts.length > 0) {
-                const contactsList = document.getElementById('contacts-list');
+                const contactsList = document.getElementById('contacts-list'); 
                 data.contacts.forEach(contact => {
                     const contactElement = document.createElement('div');
                     contactElement.className = 'feed-element';

@@ -21,6 +21,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Rules\PhoneNumberFormat;
 use App\Services\AgentService;
+use Carbon\Carbon as CarbonCarbon;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
@@ -58,56 +59,94 @@ class ClientsController extends Controller
     public function clientsPagination(Request $request)
     {
         $myRoles = $this->rolesService->getMyRoles();
-        $myRolesId = $myRoles['rolesId']; 
-
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
 
-        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
+        $limit = $request->input('limit', 10);
+        $filterFor = $request->input('filterFor', '');
+        $inputName = $request->input('inputName', '');
+        $statusId = $request->input('statusId', '');
+        $typeRange = $request->input('typeRange', '');
+        $dateInit = $request->input('dateInit', '');
+        $dateEnd = $request->input('dateEnd', '');
 
-        if ($myRoles['roles'] == 'ADMINISTRADOR') {
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit',
-                'folder'
-            ])->orderBy('date_admission', 'desc')->paginate($limit);
-            
-        } else {
-            $customers = Customers::with([
-                'user',
-                'agent',
-                'latestCampaign',
-                'latestSupplier',
-                'provider',
-                'statusCustomer',
-                'platform',
-                'traiding',
-                'assignaments',
-                'latestComunication',
-                'latestAssignamet',
-                'latestDeposit',
-                'folder'
-            ])->whereHas('assignaments', function($query) use ($agent) {
-                $query->where('agent_id', $agent->id);
-            })->orderBy('date_admission', 'desc')->paginate($limit);
+        // 🔹 Convertir fechas al formato correcto
+        if (!empty($dateInit)) {
+            $dateInit = \Carbon\Carbon::createFromFormat('Y-m-d', $dateInit)->startOfDay();
         }
-        
-        $agents = Agent::all();
-        $campaings = Campaing::all();
-        $providers = Provider::all();
-        $statusCustomers = CustomerStatus::all();
+        if (!empty($dateEnd)) {
+            $dateEnd = \Carbon\Carbon::createFromFormat('Y-m-d', $dateEnd)->endOfDay();
+        }
 
-        return view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'));
+        // 🔹 Iniciar la consulta con los datos
+        $query = Customers::with([
+            'user', 'agent', 'latestCampaign', 'latestSupplier', 'provider', 'statusCustomer',
+            'platform', 'traiding', 'latestComunication', 'latestAssignamet', 'latestDeposit', 'folder'
+        ]);
+
+        // 🔹 Aplicar filtros solo si se han seleccionado
+        if (!empty($inputName) && $filterFor !== 'Filtrar Por:') {
+            $filterMap = [
+                'Cod. Cliente'       => 'code',
+                'Correo'             => 'email',
+                'Teléfono'           => 'phone',
+                'Teléfono Opcional'  => 'optional_phone',
+                'Ciudad'             => 'city',
+                'País'               => 'country',
+                'Comentario'         => 'comment',
+                'Folder'             => 'folder.name',
+            ];
+
+            if (isset($filterMap[$filterFor])) {
+                $query->where($filterMap[$filterFor], 'like', "%$inputName%");
+            }
+        }
+
+        // 🔹 Filtrar por estado si está seleccionado
+        if (!empty($statusId) && $statusId !== "Seleccione un estado") {
+            $query->where('id_status', $statusId);
+        }
+
+        // 🔹 Filtrar por rango de fechas si se seleccionó
+        if (!empty($typeRange) && $typeRange !== "Seleccione Rango:" && !empty($dateInit) && !empty($dateEnd)) {
+            $rangeMap = [
+                "Última Llamada"            => 'comunications.date',
+                "Fecha de Ingreso"          => 'date_admission',
+                "Fecha de Última Llamada"   => 'comunications.date',
+                "Fecha de Última Asignación"=> 'assignaments.date',
+            ];
+
+            if (isset($rangeMap[$typeRange]) && $dateInit <= $dateEnd) {
+                $column = $rangeMap[$typeRange];
+
+                if (strpos($column, '.') !== false) {
+                    $relation = explode('.', $column)[0];
+                    $field = explode('.', $column)[1];
+
+                    $query->whereHas($relation, function ($q) use ($field, $dateInit, $dateEnd) {
+                        $q->whereBetween($field, [$dateInit, $dateEnd]);
+                    });
+                } else {
+                    $query->whereBetween($column, [$dateInit, $dateEnd]);
+                }
+            }
+        }
+
+        // 🔹 Filtrar clientes según el rol del usuario
+        if ($myRoles['roles'] !== 'ADMINISTRADOR') {
+            $query->whereHas('assignaments', function ($q) use ($agent) {
+                $q->where('agent_id', $agent->id);
+            });
+        }
+
+        // 🔹 Obtener resultados paginados
+        $customers = $query->orderBy('date_admission', 'desc')->paginate($limit);
+
+        return view('cliente.list.listCustomer', compact('customers'));
     }
+
+
+
 
 
     public function saveCustomer(Request $request)
@@ -199,6 +238,7 @@ class ClientsController extends Controller
         $myRolesId = $myRoles['rolesId'];
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         try {
             foreach ($request->idGroupClientes as $idClient) {
@@ -233,7 +273,7 @@ class ClientsController extends Controller
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->orderBy('date_admission', 'desc')->paginate(10);
+            ])->orderBy('date_admission', 'desc')->paginate($limit);
 
         } else {
 
@@ -252,7 +292,7 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
-            })->orderBy('date_admission', 'desc')->paginate(10);
+            })->orderBy('date_admission', 'desc')->paginate($limit);
         }
 
         $agents = Agent::all();
@@ -270,6 +310,7 @@ class ClientsController extends Controller
         $myRolesId = $myRoles['rolesId'];
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
 
@@ -285,7 +326,7 @@ class ClientsController extends Controller
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where('id_status', $customerStatusId)->orderBy('date_admission', 'desc')->paginate(50);
+            ])->where('id_status', $customerStatusId)->orderBy('date_admission', 'desc')->paginate($limit);
 
         } else {
 
@@ -304,7 +345,7 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
-            })->where('id_status', $customerStatusId)->orderBy('date_admission', 'desc')->paginate(10);
+            })->where('id_status', $customerStatusId)->orderBy('date_admission', 'desc')->paginate($limit);
 
         }
 
@@ -324,6 +365,7 @@ class ClientsController extends Controller
 
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
 
@@ -339,7 +381,7 @@ class ClientsController extends Controller
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->orderBy('date_admission', 'desc')->paginate(50);
+            ])->orderBy('date_admission', 'desc')->paginate($limit);
 
         } else {
 
@@ -358,7 +400,7 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
-            })->orderBy('date_admission', 'desc')->paginate(10);
+            })->orderBy('date_admission', 'desc')->paginate($limit);
         }
 
         $agents = Agent::all();
@@ -378,6 +420,7 @@ class ClientsController extends Controller
 
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
 
@@ -393,7 +436,7 @@ class ClientsController extends Controller
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->orderBy('date_admission', 'desc')->paginate(50);
+            ])->orderBy('date_admission', 'desc')->paginate($limit);
 
         } else {
 
@@ -412,7 +455,7 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
-            })->orderBy('date_admission', 'desc')->paginate(10);
+            })->orderBy('date_admission', 'desc')->paginate($limit);
         }
 
         $agents = Agent::all();
@@ -431,6 +474,7 @@ class ClientsController extends Controller
 
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
 
@@ -446,7 +490,7 @@ class ClientsController extends Controller
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->orderBy('date_admission', 'desc')->paginate(50);
+            ])->orderBy('date_admission', 'desc')->paginate($limit);
 
         } else {
 
@@ -465,7 +509,7 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
-            })->orderBy('date_admission', 'desc')->paginate(10);
+            })->orderBy('date_admission', 'desc')->paginate($limit);
         }
 
         $agents = Agent::all();
@@ -783,6 +827,7 @@ class ClientsController extends Controller
         $myRolesId = $myRoles['rolesId'];
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
 
@@ -798,7 +843,7 @@ class ClientsController extends Controller
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where($type, $id)->paginate(50);
+            ])->where($type, $id)->paginate($limit);
 
         } else {
 
@@ -818,7 +863,7 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
-            })->where($type, $id)->orderBy('date_admission', 'desc')->paginate(10);
+            })->where($type, $id)->orderBy('date_admission', 'desc')->paginate($limit);
 
         }
 
@@ -842,6 +887,7 @@ class ClientsController extends Controller
         $myRolesId = $myRoles['rolesId'];
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
 
@@ -857,7 +903,7 @@ class ClientsController extends Controller
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->whereBetween($order, [$formattedDate, $formattedDate])->paginate(50);
+            ])->whereBetween($order, [$formattedDate, $formattedDate])->paginate($limit);
 
         } else {
 
@@ -876,7 +922,7 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
-            })->whereBetween($order, [$formattedDate, $formattedDate])->orderBy('date_admission', 'desc')->paginate(10);
+            })->whereBetween($order, [$formattedDate, $formattedDate])->orderBy('date_admission', 'desc')->paginate($limit);
 
         }
 
@@ -893,6 +939,7 @@ class ClientsController extends Controller
         $customerStatusId = $request->customerStatusId;
         $dateInit = Carbon::createFromFormat('m/d/Y', $request->dateInit)->format('Y-m-d');
         $dateEnd = Carbon::createFromFormat('m/d/Y', $request->dateEnd)->format('Y-m-d');
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         $data = $request->data;
         $myRoles = $this->rolesService->getMyRoles();
@@ -937,7 +984,7 @@ class ClientsController extends Controller
             }
 
             // Ejecutar la consulta y paginar los resultados
-            $customers = $query->paginate(50);
+            $customers = $query->paginate($limit);
 
         } else {
 
@@ -986,7 +1033,7 @@ class ClientsController extends Controller
             }
 
             // Ordenar por fecha de admisión y paginar los resultados
-            $customers = $query->orderBy('date_admission', 'desc')->paginate(10);
+            $customers = $query->orderBy('date_admission', 'desc')->paginate($limit);
 
         }
 
@@ -1003,6 +1050,7 @@ class ClientsController extends Controller
         $title = 'Error';
         $mensaje = 'Error desconocido';
         $status = 'error';
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         try {
 
@@ -1055,7 +1103,7 @@ class ClientsController extends Controller
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->orderBy('date_admission', 'desc')->paginate(10);
+            ])->orderBy('date_admission', 'desc')->paginate($limit);
 
         } else {
 
@@ -1074,7 +1122,7 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
-            })->orderBy('date_admission', 'desc')->paginate(10);
+            })->orderBy('date_admission', 'desc')->paginate($limit);
         }
 
         $agents = Agent::all();
