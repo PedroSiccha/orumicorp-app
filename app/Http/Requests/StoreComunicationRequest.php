@@ -24,21 +24,37 @@ class StoreComunicationRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|boolean'
+            'agent_id' => 'required|integer|exists:agents,id',
+            'customer_id' => 'nullable|integer|exists:customers,id',
+            'date' => 'nullable|date',
+            'tipo' => 'nullable|string|max:100',
+            'descripcion' => 'nullable|string',
+            'comment' => 'nullable|string',
+            'status' => 'nullable|string|max:100'
         ];
     }
 
     public function messages()
     {
         return [ 
-            'name.required' => 'El nombre del área es obligatorio.',
-            'name.string' => 'El nombre debe ser un texto válido.',
-            'name.max' => 'El nombre no puede superar los 255 caracteres.',
-            'description.string' => 'La descripción debe ser un texto válido.',
-            'status.required' => 'El estado es obligatorio.',
-            'status.boolean' => 'El estado solo puede ser verdadero o falso.'
+            'agent_id.required' => 'El ID del agente es obligatorio.',
+            'agent_id.integer' => 'El ID del agente debe ser un número entero.',
+            'agent_id.exists' => 'El agente seleccionado no es válido.',
+
+            'customer_id.integer' => 'El ID del cliente debe ser un número entero.',
+            'customer_id.exists' => 'El cliente seleccionado no es válido.',
+
+            'date.date' => 'La fecha debe ser una fecha válida.',
+
+            'tipo.string' => 'El tipo debe ser un texto válido.',
+            'tipo.max' => 'El tipo no puede superar los 100 caracteres.',
+
+            'descripcion.string' => 'La descripción debe ser un texto válido.',
+
+            'comment.string' => 'El comentario debe ser un texto válido.',
+            
+            'status.string' => 'El estado debe ser un texto válido.',
+            'status.max' => 'El estado no puede superar los 100 caracteres.'
         ];
     }
 }

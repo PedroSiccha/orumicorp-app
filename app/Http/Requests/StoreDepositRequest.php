@@ -24,21 +24,50 @@ class StoreDepositRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|boolean'
+            'agent_id' => 'nullable|integer|exists:agents,id',
+            'customer_id' => 'nullable|integer|exists:customers,id',
+            'date' => 'nullable|date',
+            'number' => 'nullable|integer',
+            'tipo' => 'nullable|string|max:100',
+            'descripcion' => 'nullable|string',
+            'amount' => 'nullable|numeric|min:0|max:9999999.99',
+            'currency_id' => 'required|integer|exists:currencies,id',
+            'transaction_type_id' => 'nullable|integer|exists:transaction_types,id',
+            'users_id' => 'nullable|integer|exists:users,id'
         ];
     }
 
     public function messages()
     {
         return [ 
-            'name.required' => 'El nombre del área es obligatorio.',
-            'name.string' => 'El nombre debe ser un texto válido.',
-            'name.max' => 'El nombre no puede superar los 255 caracteres.',
-            'description.string' => 'La descripción debe ser un texto válido.',
-            'status.required' => 'El estado es obligatorio.',
-            'status.boolean' => 'El estado solo puede ser verdadero o falso.'
+            'agent_id.integer' => 'El ID del agente debe ser un número entero.',
+            'agent_id.exists' => 'El agente seleccionado no es válido.',
+
+            'customer_id.integer' => 'El ID del cliente debe ser un número entero.',
+            'customer_id.exists' => 'El cliente seleccionado no es válido.',
+
+            'date.date' => 'La fecha debe ser una fecha válida.',
+
+            'number.integer' => 'El número debe ser un número entero.',
+
+            'tipo.string' => 'El tipo debe ser un texto válido.',
+            'tipo.max' => 'El tipo no puede superar los 100 caracteres.',
+
+            'descripcion.string' => 'La descripción debe ser un texto válido.',
+
+            'amount.numeric' => 'El monto debe ser un número válido.',
+            'amount.min' => 'El monto no puede ser negativo.',
+            'amount.max' => 'El monto no puede superar los 9,999,999.99.',
+
+            'currency_id.required' => 'El ID de la moneda es obligatorio.',
+            'currency_id.integer' => 'El ID de la moneda debe ser un número entero.',
+            'currency_id.exists' => 'La moneda seleccionada no es válida.',
+
+            'transaction_type_id.integer' => 'El ID del tipo de transacción debe ser un número entero.',
+            'transaction_type_id.exists' => 'El tipo de transacción seleccionado no es válido.',
+            
+            'users_id.integer' => 'El ID del usuario debe ser un número entero.',
+            'users_id.exists' => 'El usuario seleccionado no es válido.'
         ];
     }
 }

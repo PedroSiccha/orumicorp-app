@@ -2,37 +2,15 @@
 namespace App\Services;
 
 use App\DTOs\ClientIndexDTO;
-use App\Exceptions\RepositoryException;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\FilterRequest;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\StoreCustomerRequest;
-use App\Interfaces\AssignamentInterface;
 use App\Interfaces\AwardRepositoryInterface;
-use App\Interfaces\CampaingInterface;
-use App\Interfaces\ClientInterface;
 use App\Interfaces\ClientRepositoryInterface;
-use App\Interfaces\ComunicationInterface;
 use App\Interfaces\ConfigurationRepositoryInterface;
-use App\Interfaces\ProviderInterface;
 use App\Interfaces\RolesInterface;
-use App\Interfaces\UserInterface;
-use App\Models\Agent;
-use App\Models\Assignment;
-use App\Models\Campaing;
-use App\Models\Configuration;
-use App\Models\Customers;
-use App\Models\CustomerStatus;
-use App\Models\CustomerSummary;
-use App\Models\Folder;
-use App\Models\Platform;
-use App\Models\Premio;
-use App\Models\Priority;
-use App\Models\Provider;
-use App\Models\Task;
-use App\Models\Traiding;
 use App\Models\User;
-use App\Models\Views;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\CampaingRepositoryInterface;
 use App\Interfaces\ComunicationRepositoryInterface;
@@ -46,18 +24,13 @@ use App\Interfaces\TraidingRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\ViewsRepositoryInterface;
 use App\Repositories\Contracts\AssignmentRepositoryInterface;
-use App\Rules\PhoneNumberFormat;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class ClientService {
 

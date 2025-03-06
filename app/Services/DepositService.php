@@ -1,17 +1,18 @@
 <?php
 namespace App\Services;
 
+use App\Helpers\ResponseHelper;
+use App\Http\Requests\StoreDepositRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\DepositRepositoryInterface;
 use App\Interfaces\SalesRepositoryInterface;
 use App\Interfaces\TransactionTypeRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
-use App\Models\User;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class DepositService
@@ -40,12 +41,11 @@ class DepositService
         $this->userRepository = $userRepository;
     }
 
-    public function getDataDeposits() {
-        $user_id = Auth::user()->id;
-        $user = User::where('id', $user_id)->first();
+    public function getDataDeposits() 
+    {
+        $user = $this->userRepository->getUser();
         $roles = $user->getRoleNames()->first();
-        $agent = $this->agentRepository->getAgentByUserId($user->id); // Agent::where('user_id', $user_id)->first();
-
+        $agent = $this->agentRepository->getMyAgent();
         $rouletteSpin = $agent->number_turns ?: 0;
         $transactionsType = $this->transactionTypeService->getTransactionTypes();
         $deposits = $this->depositRepository->getDeposits();
@@ -53,85 +53,56 @@ class DepositService
             if (isset($deposit['date'])) {
                 $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
             }
-
         }
         $sales = $this->salesRepository->getSales();
+        return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $sales]);
     }
 
     public function saveDeposit($request)
     {
-        
         $client = $this->clientRepository->getClientByCode($request->codeClient);
-        $agent = $this->agentRepository->getAgentByCode($request->codeAgent);
-        // Agent::where('code_voiso', $request->codeAgent)
-        //               ->orWhere('code', $request->codeAgent)
-        //               ->first();
-
-        $user_id = $this->userRepository->getMyId();
-
+        $agent = $this->agentRepository->findAgentByCode($request->codeAgent);
+        $user = $this->userRepository->getUser();
         DB::beginTransaction();
         try {
-            $deposit = $this->depositRepository->saveDeposit($request);
+            $dataDeposit = new StoreDepositRequest([
+                'agent_id' => $agent->id,
+                'customer_id' => $client->id,
+                'date' => Carbon::now(),
+                'number' => $request->codeReceipt,
+                'tipo' => "DEPOSITO",
+                'descripcion' => $request->description,
+                'amount' => $request->amount,
+                'currency_id' => $request->currency_id,
+                'transaction_type_id' => $request->transaction_type_id,
+                'users_id' => $user->id
+            ]);
+            $deposit = $this->depositRepository->saveDeposit($dataDeposit);
             DB::commit();
-            // $deposit = new Deposit();
-            // $deposit->agent_id = $agent->id;
-            // $deposit->customer_id = $client->id;
-            // $deposit->date = Carbon::now();
-            // $deposit->number = $request->codeReceipt;
-            // $deposit->tipo = "DEPOSITO";
-            // $deposit->descripcion = "";
-            // $deposit->amount = $request->amount;
-            // $deposit->transaction_type_id = $request->transaction_type_id;
-            // $deposit->users_id = $user_id;
-
-            // if ($deposit->save()) {
-            //     $title = "Correcto";
-            //     $mensaje = "Su depósito se registró correctamente";
-            //     $status = "success";
-            // }
-
+            $deposits = $this->depositRepository->getDeposits();
+            foreach ($deposits as &$deposit) {
+                if (isset($deposit['date'])) {
+                    $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
+                }
+            }
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $deposits]);
         } catch (ValidationException $e) {
             DB::rollBack();
-            // $title = "Error";
-            // $mensaje = $e->getMessage();
-            // $status = "error";
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             DB::rollBack();
-            // $title = "Error";
-            // $mensaje = $e->getMessage();
-            // $status = "error";
-        }
-
-        $deposits = $this->depositRepository->getDeposits();
-        foreach ($deposits as &$deposit) {
-            if (isset($deposit['date'])) {
-                $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
-            }
-
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
     }
 
     public function getDepositData()
     {
         $user_id = $this->userRepository->getMyId();
-
-        $agent = $this->agentRepository->getAgentByUserId($user_id); // $agent = Agent::where('user_id', $user_id)->first();
-        $client = $this->clientRepository->getClientByUserId($user_id); // $client = Customers::where('user_id', $user_id)->first();
+        $agent = $this->agentRepository->getAgentByUserId($user_id);
+        $client = $this->clientRepository->getClientByUserId($user_id);
         $rouletteSpin = $agent->number_turns ?: 0;
-
-        // $dataUser = null;
-
-        // if ($agent) {
-        //     $dataUser = $agent;
-        // }
-
-        // if ($client) {
-        //     $dataUser = $client;
-        // }
-
-        // $premios = Premio::where('status', true)->get();
-        // $premios1 = Premio::where('status', true)->where('type', 1)->get();
-        // $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        // return view('gestionRuleta.index', compact('premios', 'premios1', 'premios2', 'dataUser', 'rouletteSpin'));
+        return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $agent]);
     }
 }

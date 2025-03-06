@@ -25,6 +25,19 @@ class ClientStatusRepository implements ClientStatusRepositoryInterface
         }
     }
 
+    public function findStatusById(string $customerStatusId): ?CustomerStatus
+    {
+        try {
+            return CustomerStatus::find($customerStatusId);
+        } catch (QueryException $e) {
+            Log::error("Error ClientStatusRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error ClientStatusRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
     public function getCustomerStatus(): Collection
     {
         try {
@@ -51,7 +64,7 @@ class ClientStatusRepository implements ClientStatusRepositoryInterface
         }
     }
 
-    public function updateCustomerStatus(CustomerStatus $customerStatus, EditCustomerStatusRequest $data): bool
+    public function updateCustomerStatus(CustomerStatus $customerStatus, StoreCustomerStatusRequest $data): bool
     {
         try {
             $customerStatus->fill($data->validated());

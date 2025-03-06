@@ -1,8 +1,14 @@
 <?php
 namespace App\Services;
 
+use App\Helpers\ResponseHelper;
+use App\Http\Requests\StoreCustomerRequest;
+use App\Http\Requests\StoreCustomerStatusRequest;
 use App\Interfaces\ClientStatusRepositoryInterface;
+use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class CustomerStatusService
 {
@@ -14,132 +20,85 @@ class CustomerStatusService
         $this->customerStatusRepository = $customerStatusRepository;
     }
 
-    public function getCustomerStatus() {
-        $customerStatus = $this->customerStatusRepository->getCustomerStatus();
+    public function getCustomerStatus() 
+    {
+        try {
+            $customerStatus = $this->customerStatusRepository->getCustomerStatus();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $customerStatus]);
+        } catch (ValidationException $e) {
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }
     }
 
     public function saveCustomerStatus($request)
     {
         DB::beginTransaction();
         try {
-            $customerStatus = $this->customerStatusRepository->saveCustomerStatus($request);
+            $dataCustomerStatus = new StoreCustomerStatusRequest([
+                'name' => $request->name,
+                'color' => 'table-default',
+                'description' => $request->description
+            ]);
+            $response = $this->customerStatusRepository->saveCustomerStatus($dataCustomerStatus);
             DB::commit();
-        } catch (\Exception $e) {
+            $customerStatus = $this->customerStatusRepository->getCustomerStatus();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $customerStatus]);
+        } catch (ValidationException $e) {
             DB::rollBack();
-            return response()->json(["resp"=>0]);
-        }
-
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-
-        // try {
-
-        //     $customerStatus = new CustomerStatus();
-        //     $customerStatus->name = $request->name;
-        //     $customerStatus->color = 'table-default';
-        //     if ($customerStatus->save()) {
-        //         $title = "Correcto";
-        //         $mensaje = "El estado se registró correctamente";
-        //         $status = "success";
-        //     }
-
-        // } catch (ValidationException $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // }
-
-        $customerStatus = $this->customerStatusRepository->getCustomerStatus();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }        
     }
 
     public function updateCustomerStatus($request)
     {
         DB::beginTransaction();
         try {
-            $customerStatus = $this->customerStatusRepository->updateCustomerStatus($request);
+            $customersStatus = $this->customerStatusRepository->findStatusById($request->customerId);
+            $dataCustomerStatus = new StoreCustomerStatusRequest([
+                'name' => $request->name,
+                'color' => 'table-default',
+                'description' => $request->description
+            ]);
+            $response = $this->customerStatusRepository->updateCustomerStatus($customersStatus, $dataCustomerStatus);
             DB::commit();
-        } catch (\Exception $e) {
+            $customerStatus = $this->customerStatusRepository->getCustomerStatus();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $customerStatus]);
+        } catch (ValidationException $e) {
             DB::rollBack();
-            return response()->json(["resp"=>0]);
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
-
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-
-        // try {
-
-        //     $customerStatus = CustomerStatus::find($request->id);
-        //     $customerStatus->name = $request->name;
-        //     $customerStatus->color = 'table-default';
-
-        //     if ($customerStatus->save()) {
-        //         $title = "Correcto";
-        //         $mensaje = "Se actualizó su estado correctamente";
-        //         $status = "success";
-        //     } else {
-        //         $title = "Error";
-        //         $mensaje = "Hubo un error al actualizar su estado";
-        //         $status = "error";
-        //     }
-
-        // } catch (ValidationException $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = "Verificar los datos del registro";
-        //     $status = "error";
-        // }
-
-        // $customersStatus = CustomerStatus::get();
-
-        $customerStatus = $this->customerStatusRepository->getCustomerStatus();
     }
 
     public function deleteCustomerStatus($request)
     {
         DB::beginTransaction();
         try {
-            $customerStatus = $this->customerStatusRepository->deleteCustomerStatus($request);
+            $response = $this->customerStatusRepository->deleteCustomerStatus($request->customerStatusId);
             DB::commit();
-        } catch (\Exception $e) {
+            $customerStatus = $this->customerStatusRepository->getCustomerStatus();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $customerStatus]);
+        } catch (ValidationException $e) {
             DB::rollBack();
-            return response()->json(["resp"=>0]);
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
-
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-        // $customerStatus = CustomerStatus::find($request->id);
-        // if ($customerStatus == null) {
-        //     $title = "Error";
-        //     $mensaje = "Hubo un error con su estado";
-        //     $status = "error";
-        // }
-        // try {
-        //     if ($customerStatus->delete()) {
-        //         $title = "Correcto";
-        //         $mensaje = "Su estado se eliminó correctamente";
-        //         $status = "success";
-        //     } else {
-        //         $title = "Error";
-        //         $mensaje = "No se pudo eliminar su estado";
-        //         $status = "error";
-        //     }
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // }
-
-        // $customersStatus = CustomerStatus::get();
-        $customerStatus = $this->customerStatusRepository->getCustomerStatus();
     }
 }

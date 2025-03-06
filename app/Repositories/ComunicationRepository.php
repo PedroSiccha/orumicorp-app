@@ -39,7 +39,20 @@ class ComunicationRepository implements ComunicationRepositoryInterface
         }
     }
 
-    public function updateComunication(Comunications $comunication, EditComunicationRequest $data): bool
+    public function findComunicationById(int $comunicationId): ?Comunications
+    {
+        try {
+            return Comunications::find($comunicationId);
+       } catch (QueryException $e) {
+           Log::error("Error ComunicationRepository: " . $e->getMessage());
+           throw new Exception("No se encontraron resultados para los filtros aplicados.");
+       } catch (Exception $e) {
+           Log::error("Error ComunicationRepository: " . $e->getMessage());
+           throw new Exception("No se encontraron resultados para los filtros aplicados.");
+       }
+    }
+
+    public function updateComunication(Comunications $comunication, StoreComunicationRequest $data): bool
     {
         try {
             $comunication->fill($data->validated());

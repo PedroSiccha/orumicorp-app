@@ -24,21 +24,24 @@ class StoreCustomerStatusRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|boolean'
+            'name' => 'required|string|max:50',
+            'color' => 'required|string|max:50',
+            'description' => 'nullable|string'
         ];
     }
 
     public function messages()
     {
         return [ 
-            'name.required' => 'El nombre del área es obligatorio.',
+            'name.required' => 'El nombre es obligatorio.',
             'name.string' => 'El nombre debe ser un texto válido.',
-            'name.max' => 'El nombre no puede superar los 255 caracteres.',
-            'description.string' => 'La descripción debe ser un texto válido.',
-            'status.required' => 'El estado es obligatorio.',
-            'status.boolean' => 'El estado solo puede ser verdadero o falso.'
+            'name.max' => 'El nombre no puede superar los 50 caracteres.',
+
+            'color.required' => 'El color es obligatorio.',
+            'color.string' => 'El color debe ser un texto válido.',
+            'color.max' => 'El color no puede superar los 50 caracteres.',
+            
+            'description.string' => 'La descripción debe ser un texto válido.'
         ];
     }
 }

@@ -2,7 +2,6 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Http\Requests\EditCustomerRequest;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Interfaces\ClientRepositoryInterface;
