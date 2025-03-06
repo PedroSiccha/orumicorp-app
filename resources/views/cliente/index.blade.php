@@ -15,7 +15,7 @@ Clientes
                         <i class="fa fa-chevron-up"></i>
                     </a>
                 </div>
-            </div>
+            </div> 
             <div class="ibox-content">
                 <div class="row">
                     <div class="col-sm-3">
@@ -84,9 +84,11 @@ Clientes
             <div class="ibox-title d-flex justify-content-between align-items-center">
                 <h5>Tabla Clientes </h5>
                 <div>
+                    @can('Asignar Folder')
                     <button id="changeFolderBtn" type="button" class="btn btn-primary" type="button" onclick="mostrarNuevoModal('#modalChangeGroupFolder')" style="display: none;">
                         <i class="fa fa-refresh"></i> Actualizar Folder
                     </button>
+                    @endcan
                     {{-- @can('Asignar Folder')
                     <button id="asignarFolderBtn" type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalAsignFolder')" style="display: none;">
                         <i class="fa fa-folder-open"></i> Asignar Folder

@@ -56,6 +56,30 @@ class AgentBonusController extends Controller
                                 ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
                                 ->with('action') // Carga la relación con actions (si está definida en el modelo)
                                 ->get();
+
+            $target = Target::where('status', true)
+                            ->where('month', date("m"))
+                            ->orderBy("created_at", "asc")
+                            ->get();
+
+            $amount = DB::table('sales as s')
+                        ->join('actions as a', 's.action_id', '=', 'a.id')
+                        ->join('movement_types as m', 'a.movement_type_id', '=', 'm.id')
+                        ->where('m.name', 'INGRESO')
+                        ->where('s.status', 1) // Solo incluir ventas activas
+                        ->where('a.status', 1) // Solo incluir acciones activas
+                        ->whereMonth('s.date_admission', date("m")) // Filtrar solo el mes actual
+                        ->value(DB::raw('COALESCE(SUM(s.amount), 0)'));
+    
+            $amountRetiro = DB::table('sales as s')
+                                ->join('actions as a', 's.action_id', '=', 'a.id')
+                                ->join('movement_types as m', 'a.movement_type_id', '=', 'm.id')
+                                ->where('m.name', 'EGRESO')
+                                ->where('s.status', 1) // Solo incluir ventas activas
+                                ->where('a.status', 1) // Solo incluir acciones activas
+                                ->whereMonth('s.date_admission', date("m")) // Filtrar solo el mes actual
+                                ->value(DB::raw('COALESCE(SUM(s.amount), 0)'));
+
         } else {
 
             $bonusAgent = Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
@@ -65,13 +89,33 @@ class AgentBonusController extends Controller
                                 ->with('action') // Carga la relación con actions (si está definida en el modelo)
                                 ->get();
 
+            $target = Target::where('status', true)
+                                ->where('month', date("m"))
+                                ->where('agent_id', $agent->id)
+                                ->orderBy("created_at", "asc")
+                                ->get();
+
+            $amount = DB::table('sales as s')
+                        ->join('actions as a', 's.action_id', '=', 'a.id')
+                        ->join('movement_types as m', 'a.movement_type_id', '=', 'm.id')
+                        ->where('m.name', 'INGRESO')
+                        ->where('s.status', 1) // Solo incluir ventas activas
+                        ->where('a.status', 1) // Solo incluir acciones activas
+                        ->where('s.agent_id', $agent->id)
+                        ->whereMonth('s.date_admission', date("m")) // Filtrar solo el mes actual
+                        ->value(DB::raw('COALESCE(SUM(s.amount), 0)'));
+    
+            $amountRetiro = DB::table('sales as s')
+                                ->join('actions as a', 's.action_id', '=', 'a.id')
+                                ->join('movement_types as m', 'a.movement_type_id', '=', 'm.id')
+                                ->where('m.name', 'EGRESO')
+                                ->where('s.status', 1) // Solo incluir ventas activas
+                                ->where('a.status', 1) // Solo incluir acciones activas
+                                ->where('s.agent_id', $agent->id)
+                                ->whereMonth('s.date_admission', date("m")) // Filtrar solo el mes actual
+                                ->value(DB::raw('COALESCE(SUM(s.amount), 0)'));
+
         }
-
-
-        $target = Target::where('status', true)
-                    ->where('month', date("m"))
-                    ->orderBy("created_at", "asc")
-                    ->get();
 
         $reportTargetMensual = $target->sum('amount');
 
@@ -79,24 +123,6 @@ class AgentBonusController extends Controller
             $target = new Target();
             $target->amount = 0;
         }
-
-        $amount = DB::table('sales as s')
-                    ->join('actions as a', 's.action_id', '=', 'a.id')
-                    ->join('movement_types as m', 'a.movement_type_id', '=', 'm.id')
-                    ->where('m.name', 'INGRESO')
-                    ->where('s.status', 1) // Solo incluir ventas activas
-                    ->where('a.status', 1) // Solo incluir acciones activas
-                    ->whereMonth('s.date_admission', date("m")) // Filtrar solo el mes actual
-                    ->value(DB::raw('COALESCE(SUM(s.amount), 0)'));
-
-        $amountRetiro = DB::table('sales as s')
-                        ->join('actions as a', 's.action_id', '=', 'a.id')
-                        ->join('movement_types as m', 'a.movement_type_id', '=', 'm.id')
-                        ->where('m.name', 'EGRESO')
-                        ->where('s.status', 1) // Solo incluir ventas activas
-                        ->where('a.status', 1) // Solo incluir acciones activas
-                        ->whereMonth('s.date_admission', date("m")) // Filtrar solo el mes actual
-                        ->value(DB::raw('COALESCE(SUM(s.amount), 0)'));
 
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();

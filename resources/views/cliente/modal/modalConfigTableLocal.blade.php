@@ -14,13 +14,13 @@
                         <div>
                             <label>
                                 <input type="checkbox" class="column-toggle" data-column="0" checked>
-                                Ultima llamada
+                                Última llamada
                             </label>
                         </div>
                         <div>
                             <label>
                                 <input type="checkbox" class="column-toggle" data-column="1" checked>
-                                ID de Cliente
+                                COD. de Cliente
                             </label>
                         </div>
                         <div>
@@ -32,13 +32,13 @@
                         <div>
                             <label>
                                 <input type="checkbox" class="column-toggle" data-column="3" checked>
-                                Fecha de Ultima Llamada
+                                Fecha de Última Llamada
                             </label>
                         </div>
                         <div>
                             <label>
                                 <input type="checkbox" class="column-toggle" data-column="4" checked>
-                                Fecha de Última Asignación
+                                Fecha de última Asignación
                             </label>
                         </div>
                         <div>
@@ -53,104 +53,111 @@
                                 Proveedor
                             </label>
                         </div>
-                        <div>
+                        {{-- <div>
                             <label>
                                 <input type="checkbox" class="column-toggle" data-column="7" checked>
                                 Campaña
                             </label>
-                        </div>
+                        </div> --}}
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="8" checked>
+                                <input type="checkbox" class="column-toggle" data-column="7" checked>
                                 Nombre del Cliente
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="9" checked>
+                                <input type="checkbox" class="column-toggle" data-column="8" checked>
                                 Correo
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="10" checked>
+                                <input type="checkbox" class="column-toggle" data-column="9" checked>
                                 Teléfono
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="11" checked>
+                                <input type="checkbox" class="column-toggle" data-column="10" checked>
                                 Teléfono Opcional
                             </label>
                         </div>
-                        <div>
+                        {{-- <div>
                             <label>
                                 <input type="checkbox" class="column-toggle" data-column="12" checked>
                                 Ciudad
                             </label>
-                        </div>
+                        </div> --}}
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="13" checked>
+                                <input type="checkbox" class="column-toggle" data-column="11" checked>
                                 País
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="14" checked>
+                                <input type="checkbox" class="column-toggle" data-column="12" checked>
                                 Estado
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="15" checked>
+                                <input type="checkbox" class="column-toggle" data-column="13" checked>
                                 Agente
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="16" checked>
+                                <input type="checkbox" class="column-toggle" data-column="14" checked>
                                 Comentario
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="17" checked>
+                                <input type="checkbox" class="column-toggle" data-column="15" checked>
                                 Última Visita
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="18" checked>
+                                <input type="checkbox" class="column-toggle" data-column="16" checked>
                                 FTD Date
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="19" checked>
+                                <input type="checkbox" class="column-toggle" data-column="17" checked>
                                 Método
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="20" checked>
+                                <input type="checkbox" class="column-toggle" data-column="18" checked>
                                 N° de Depósito
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" class="column-toggle" data-column="21" checked>
-                                Total de Depósito
+                                <input type="checkbox" class="column-toggle" data-column="19" checked>
+                                Total Depósito
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                <input type="checkbox" class="column-toggle" data-column="20" checked>
+                                Folder
                             </label>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" type="button" data-dismiss="modal" onclick="saveTableConfigLocal()">Guardar</button>
-                <button class="btn btn-warning" type="button" onclick="resetTableConfig()">Restablecer Configuración</button>
+                {{-- <button class="btn btn-primary" type="button" data-dismiss="modal" onclick="saveTableConfigLocal()">Guardar</button>
+                <button class="btn btn-warning" type="button" onclick="resetTableConfig()">Restablecer Configuración</button> --}}
                 <button class="btn btn-default" type="button" data-dismiss="modal">Cancelar</button>
             </div>
         </div>
     </div>
 </div>
+ 
