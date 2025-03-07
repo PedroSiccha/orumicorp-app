@@ -135,6 +135,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/callbell/search', [App\Http\Controllers\CallbellController::class, 'searchContact'])->name('searchContact');
     Route::post('/callbell/updateCallbellCustomer', [App\Http\Controllers\CallbellController::class, 'updateCallbellCustomer'])->name('updateCallbellCustomer');
     Route::post('/callbell/filterChannel', [App\Http\Controllers\CallbellController::class, 'filterChannel'])->name('filterChannel');
+    Route::post('/callbell/filterStatus', [App\Http\Controllers\CallbellController::class, 'filterStatus'])->name('filterStatus');
 
     Route::get('/email', [App\Http\Controllers\CommentController::class, 'email'])->middleware('markAsSeen:email')->name('email');
 

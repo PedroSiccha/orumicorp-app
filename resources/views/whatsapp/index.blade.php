@@ -24,17 +24,29 @@
     <div class="col-md-4">
         <div class="ibox">
             <div class="ibox-title d-flex justify-content-between align-items-center">
-                <h5>Clientes</h5>
+                <h5>Clientes </h5>
                 <input type="text" id="search-phone" class="form-control form-control-sm" placeholder="Buscar por teléfono">
                 <button id="search-button" class="btn btn-primary btn-sm">
                     <i class="fa fa-search"></i>
                 </button>
             </div>
-            <select class="form-control-sm form-control input-s-sm inline" id="filterChannel" onchange="filterChannelCallbell({ selectChannel: '#filterChannel', tableName: '#contacts-list' })">
-                <option>Seleccione un canal</option>
-                <option value="whatsapp">Whatsapp</option>
-                <option value="telegram">Telegram</option>
-            </select>
+            <div class="ibox-title d-flex justify-content-between align-items-center">
+                <h5>Canal de Comunicacion </h5>
+                <select class="form-control-sm form-control input-s-sm inline" id="filterChannel" onchange="filterChannelCallbell({ selectChannel: '#filterChannel', tableName: '#contacts-list' })">
+                    <option>Seleccione un canal</option>
+                    <option value="whatsapp">Whatsapp</option>
+                    <option value="telegram">Telegram</option>
+                </select>
+            </div>
+            <div class="ibox-title d-flex justify-content-between align-items-center">
+                <h5>Estado </h5>
+                <select class="form-control-sm form-control input-s-sm inline" id="filterStatus" onchange="filterStatusCallbell({ selectStatus: '#filterStatus', tableName: '#contacts-list' })">
+                    <option>Seleccione un estado</option>
+                    @foreach ($customerStatus as $customerStatu)
+                    <option value="{{ $customerStatu->id }}">{{ $customerStatu->name }}</option>    
+                    @endforeach
+                </select>
+            </div>
             <div class="ibox-content">
                 <div id="loading-indicator" style="display: none; text-align: center;">
                     <img src="https://i.gifer.com/VAyR.gif" alt="Cargando..." width="50" height="50">
@@ -63,7 +75,7 @@
                         @endforeach
                     </div>
 
-                    <button id="load-more" class="btn btn-primary btn-block m"><i class="fa fa-arrow-down"></i> Ver Más</button>
+                    {{-- <button id="load-more" class="btn btn-primary btn-block m"><i class="fa fa-arrow-down"></i> Ver Más</button> --}}
 
                 </div>
             </div>
@@ -94,6 +106,7 @@
     var searchContactRoute = '{{ route("searchContact") }}';
     var updateCallbellCustomerRoute = '{{ route("updateCallbellCustomer") }}';
     var filterChannelRoute = '{{ route("filterChannel") }}';
+    var filterStatusRoute = '{{ route("filterStatus") }}';
 </script>
 
 <script src="{{asset('js/callbell/verDetalleChat.js')}}"></script>

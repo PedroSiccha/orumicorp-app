@@ -260,7 +260,9 @@
                 </td>
                 <td>
                     <div class="d-flex align-items-center">
+                        @can('Asignar Folder')
                         <button class="btn btn-primary" type="button" onclick="changeFolder({customerId: '{{ $customer->id }}', folderId: '{{ $customer->folder_id }}', modal: '#modalChangeFolder'})"><i class="fa fa-refresh"></i> </button>
+                        @endcan
                         <button class="btn btn-info" type="button" onclick="sendMail({customerId: '{{ $customer->id }}', email: '{{ $customer->email }}', modal: '#modalSendMail'})"><i class="fa fa-paper-plane"></i> </button>
                         @can('Llamadas VOISO')
                         <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}', modal: '#modalCrearComentario', input: '#idComunication'})"><i class="fa fa-phone"></i> </button>
