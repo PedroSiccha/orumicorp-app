@@ -65,7 +65,7 @@ class TraidingRepository implements TraidingRepositoryInterface
         }
     }
 
-    public function updateTraiding(Traiding $traiding, EditTraidingRequest $data): bool
+    public function updateTraiding(Traiding $traiding, StoreTraidingRequest $data): bool
     {
         try {
             $traiding->fill($data->validated());

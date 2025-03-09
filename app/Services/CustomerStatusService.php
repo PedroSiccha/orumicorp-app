@@ -32,7 +32,7 @@ class CustomerStatusService
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
-    }
+    } 
 
     public function saveCustomerStatus($request)
     {

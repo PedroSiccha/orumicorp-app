@@ -1,8 +1,15 @@
 <?php
 namespace App\Services;
 
+use App\Enums\StatusEnum;
+use App\Helpers\ResponseHelper;
+use App\Http\Requests\StoreTransactionTypeRequest;
 use App\Interfaces\TransactionTypeRepositoryInterface;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class TransactionTypeService
 {
@@ -17,107 +24,69 @@ class TransactionTypeService
 
     public function saveTransactionType(Request $request)
     {
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-
-        // try {
-        $response = $this->transactionTypeRepository->saveTransactionType($request);
-
-        //     $transactionType = new TransactionType();
-        //     $transactionType->name = $request->name;
-        //     $transactionType->description = $request->description;
-        //     $transactionType->status = 'active';
-        //     if ($transactionType->save()) {
-        //         $title = "Correcto";
-        //         $mensaje = "El tipo de transacción se registró correctamente";
-        //         $status = "success";
-        //     }
-
-        // } catch (ValidationException $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // }
-
-        $transactionTypes = $this->transactionTypeRepository->getTransactionTypes();
-
-        // return response()->json(["view"=>view('transactionType.table.tableTransactionType', compact('transactionsType'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        $dataTransactionType = new StoreTransactionTypeRequest([
+            'name' => $request->name,
+            'description' => $request->description,
+            'status' => StatusEnum::ACTIVE->value
+        ]);
+        DB::beginTransaction();
+        try { 
+            $response = $this->transactionTypeRepository->saveTransactionType($dataTransactionType);
+            DB::commit();
+            $transactionTypes = $this->transactionTypeRepository->getTransactionTypes();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $transactionTypes]);
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }
     }
 
-    public function updateTransactionType(EditTransactionTypeRequest $request)
+    public function updateTransactionType($request)
     {
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-
-        // try {
-        $response = $this->transactionTypeRepository->updateTransactionType($request);
-
-        //     $transactionType = TransactionType::find($request->id);
-        //     $transactionType->name = $request->name;
-        //     $transactionType->description = $request->description;
-        //     // $transactionType->status = $request->status;
-
-        //     if ($transactionType->save()) {
-        //         $title = "Correcto";
-        //         $mensaje = "Se actualizó el tipo de transacción correctamente";
-        //         $status = "success";
-        //     } else {
-        //         $title = "Error";
-        //         $mensaje = "Hubo un error al actualizar el tipo de transacción";
-        //         $status = "error";
-        //     }
-
-        // } catch (ValidationException $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = "Verificar los datos del registro";
-        //     $status = "error";
-        // }
-
-        $transactionTypes = $this->transactionTypeRepository->getTransactionTypes();
-
-        // return response()->json(["view"=>view('transactionType.table.tableTransactionType', compact('transactionsType'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        $dataTransactionType = new StoreTransactionTypeRequest([
+            'name' => $request->name,
+            'description' => $request->description,
+            'status' => $request->status
+        ]);
+        $transactionType = $this->transactionTypeRepository->findTransactionTypeById($request->transactionTypeId);
+        DB::beginTransaction();
+        try {
+            $response = $this->transactionTypeRepository->updateTransactionType($transactionType, $dataTransactionType);
+            DB::commit();
+            $transactionTypes = $this->transactionTypeRepository->getTransactionTypes();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $transactionTypes]);
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }
     }
 
     public function deleteTransactionType(int $id)
     {
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-        $response = $this->transactionTypeRepository->deleteTransactionType($id);
-        // $transactionType = TransactionType::find($request->id);
-        // if ($transactionType == null) {
-        //     $title = "Error";
-        //     $mensaje = "Hubo un error con su tipo de transacción";
-        //     $status = "error";
-        // }
-        // try {
-        //     if ($transactionType->delete()) {
-        //         $title = "Correcto";
-        //         $mensaje = "El tipo de transacción se elimninó correctamente";
-        //         $status = "success";
-        //     } else {
-        //         $title = "Error";
-        //         $mensaje = "No se pudo eliminar el tipo de transacción";
-        //         $status = "error";
-        //     }
-        // } catch (Exception $e) {
-        //     $title = "Error";
-        //     $mensaje = $e->getMessage();
-        //     $status = "error";
-        // }
-
-        $transactionTypes = $this->transactionTypeRepository->getTransactionTypes();
-
-        // return response()->json(["view"=>view('transactionType.table.tableTransactionType', compact('transactionsType'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        DB::beginTransaction();
+        try {
+            $response = $this->transactionTypeRepository->deleteTransactionType($id);
+            $transactionTypes = $this->transactionTypeRepository->getTransactionTypes();
+            DB::commit();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $transactionTypes]);
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }
     }
 }

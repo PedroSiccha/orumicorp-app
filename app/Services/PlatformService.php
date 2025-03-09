@@ -1,9 +1,13 @@
 <?php
 namespace App\Services;
 
+use App\Enums\StatusEnum;
+use App\Helpers\ResponseHelper;
 use App\Http\Requests\PlatformRequest;
+use App\Http\Requests\StorePlatformRequest;
 use App\Interfaces\PlatformRepositoryInterface;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class PlatformService
@@ -17,108 +21,60 @@ class PlatformService
         $this->platformRepository = $platformRepository;
     }
 
-    public function savePlatform(StorePlatformRequest $request)
+    public function savePlatform($request)
     {
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-
         try {
-            $platform = $this->platformRepository->savePlatform($request);
-
-        //     $platform = new Platform();
-        //     $platform->name = $request->name;
-        //     $platform->description = $request->description;
-        //     $platform->status = 'active';
-        //     if ($platform->save()) {
-        //         $title = "Correcto";
-        //         $mensaje = "Su platform se registró correctamente";
-        //         $status = "success";
-        //     }
-
+            $dataPlatform = new StorePlatformRequest([
+                'name' => $request->name,
+                'description' => $request->description,
+                'status' => StatusEnum::ACTIVE->value
+            ]);
+            $platform = $this->platformRepository->savePlatform($dataPlatform);
+            $platforms = $this->platformRepository->getPlatforms();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $platforms]);
         } catch (ValidationException $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
-
-        $platforms = $this->platformRepository->getPlatforms();
-
-        // return response()->json(["view"=>view('platform.table.tablePlatform', compact('platforms'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    public function updatePlatform(EditPlatformRequest $request)
+    public function updatePlatform($request)
     {
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
 
         try {
-            $response = $this->platformRepository->updatePlatform($request);
-
-        //     $platform = Platform::find($request->id);
-        //     $platform->name = $request->name;
-        //     $platform->description = $request->description;
-
-        //     if ($platform->save()) {
-        //         $title = "Correcto";
-        //         $mensaje = "Se actualizó su platform correctamente";
-        //         $status = "success";
-        //     } else {
-        //         $title = "Error";
-        //         $mensaje = "Hubo un error al actualizar su platform";
-        //         $status = "error";
-        //     }
-
+            $platform = $this->platformRepository->findPlatformById($request->id);
+            $dataPlatform = new StorePlatformRequest([
+                'name' => $request->name,
+                'description' => $request->description,
+            ]);
+            $response = $this->platformRepository->updatePlatform($platform, $dataPlatform);
+            $platforms = $this->platformRepository->getPlatforms();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $platforms]);
         } catch (ValidationException $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = "Verificar los datos del registro";
-            $status = "error";
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
-
-        $platforms = $this->platformRepository->getPlatforms();
-
-        // return response()->json(["view"=>view('platform.table.tablePlatform', compact('platforms'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    public function deletePlatform(int $platformId)
+    public function deletePlatform($request)
     {
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-        // $platform = Platform::find($request->id);
-        // if ($platform == null) {
-        //     $title = "Error";
-        //     $mensaje = "Hubo un error con su platform";
-        //     $status = "error";
-        // }
         try {
-            $response = $this->platformRepository->deletePlatform($platformId);
-        //     if ($platform->delete()) {
-        //         $title = "Correcto";
-        //         $mensaje = "Su platform se eliminó correctamente";
-        //         $status = "success";
-        //     } else {
-        //         $title = "Error";
-        //         $mensaje = "No se pudo eliminar su platform";
-        //         $status = "error";
-        //     }
+            $platform = $this->platformRepository->findPlatformById($request->id);
+            $response = $this->platformRepository->deletePlatform($platform->id);
+            $platforms = $this->platformRepository->getPlatforms();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $platforms]);
+        } catch (ValidationException $e) {
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
-
-        $platforms = $platforms = $this->platformRepository->getPlatforms();
-
-        // return response()->json(["view"=>view('platform.table.tablePlatform', compact('platforms'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 }

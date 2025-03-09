@@ -1,10 +1,17 @@
 <?php
 namespace App\Services;
 
+use App\Helpers\ResponseHelper;
+use App\Http\Requests\StoreViewRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\ViewsRepositoryInterface;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class ViewsService
 {
@@ -23,34 +30,44 @@ class ViewsService
       $this->agentRepository = $agentRepository;
     }
 
-    public function saveViews(StoreViewRequest $request)
+    public function saveViews($request)
     {
         $user_id = $this->userRepository->getMyId();
-        // $agent = Agent::where('user_id', $user_id)->first();
-        $agent = $this->agentRepository->getAgentByUserId($user_id);
-        // $agent_id = $agent->id;
-        // $client_id = $request->id;
-        $view = $this->viewsRepository->saveViews($request);
-
-        // try {
-        //     $views = new Views();
-        //     $views->agent_id = $agent_id;
-        //     $views->customer_id = $client_id;
-        //     $views->viewed_at = Carbon::now();
-        //     if ($views->save()) {
-        //         echo('Vista Ok');
-        //     }
-        // } catch (Exception $e) {
-        //     echo($e->getMessage());
-        // }
+        $agent = $this->agentRepository->getMyAgent();
+        $dataView = new StoreViewRequest([
+            'agent_id' => $agent->id,
+            'customer_id' => $request->clientId,
+            'viewed_at' => Carbon::now()
+        ]);
+        DB::beginTransaction();
+        try {
+            $view = $this->viewsRepository->saveViews($dataView);
+            DB::commit();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.');
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }
     }
 
     public function getViews(Request $request)
     {
-        $data = $this->viewsRepository->getViewsByClients($request->client_id);
-        // $client_id = $request->client_id;
-        // $vistas = Views::with('agent')
-        //                 ->where('customer_id', $client_id)
-        //                 ->get();
+        try {
+            $data = $this->viewsRepository->getViewsByClients($request->client_id);
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $data]);
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }
     }
 }

@@ -25,20 +25,29 @@ class StoreShooterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|boolean'
+            'status' => 'nullable|boolean',
+            'start' => 'nullable|date_format:Y-m-d H:i:s',
+            'end' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:start',
+            'folder_id' => 'nullable|integer|exists:folders,id'
         ];
     }
 
     public function messages()
     {
         return [ 
-            'name.required' => 'El nombre del área es obligatorio.',
+            'name.required' => 'El nombre es obligatorio.',
             'name.string' => 'El nombre debe ser un texto válido.',
             'name.max' => 'El nombre no puede superar los 255 caracteres.',
-            'description.string' => 'La descripción debe ser un texto válido.',
-            'status.required' => 'El estado es obligatorio.',
-            'status.boolean' => 'El estado solo puede ser verdadero o falso.'
+
+            'status.boolean' => 'El estado debe ser un valor booleano válido.',
+
+            'start.date_format' => 'La fecha de inicio debe estar en formato YYYY-MM-DD HH:MM:SS.',
+
+            'end.date_format' => 'La fecha de finalización debe estar en formato YYYY-MM-DD HH:MM:SS.',
+            'end.after_or_equal' => 'La fecha de finalización no puede ser anterior a la fecha de inicio.',
+            
+            'folder_id.integer' => 'El ID de la carpeta debe ser un número entero.',
+            'folder_id.exists' => 'La carpeta seleccionada no es válida.'
         ];
     }
 }

@@ -209,11 +209,28 @@ class ClientRepository implements ClientRepositoryInterface
         }
     }
 
-    public function updateClient(Customers $customer, StoreClientRequest $data): bool
+    public function updateClient(Customers $customer, StoreCustomerRequest $data): bool
     {
         try {
             $customer->fill($data->validated());
             if (!$customer->save()) {
+                return false;
+            }
+            return true;
+        } catch (QueryException $e) {
+            Log::error("Error al actualizar el cliente: " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            Log::error("Error inesperado al actualizar el cliente: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function changeFolderClient(Customers $customer, StoreCustomerRequest $data): bool
+    {
+        try {
+            $customer->folder_id = $data->folder_id;
+            if (!$customer) {
                 return false;
             }
             return true;

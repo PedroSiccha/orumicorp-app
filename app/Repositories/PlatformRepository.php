@@ -39,6 +39,19 @@ class PlatformRepository implements PlatformRepositoryInterface
         }
     }
 
+    public function findPlatformById(int $platformId): ?Platform
+    {
+        try {
+            return Platform::find($platformId);
+        } catch (QueryException $e) {
+            Log::error("Error PlatformRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error PlatformRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
     public function savePlatform(StorePlatformRequest $data): ?Platform
     {
         try {
@@ -52,7 +65,7 @@ class PlatformRepository implements PlatformRepositoryInterface
         }
     }
 
-    public function updatePlatform(Platform $platform, EditPlatformRequest $data): bool
+    public function updatePlatform(Platform $platform, StorePlatformRequest $data): bool
     {
         try {
             $platform->fill($data->validate());

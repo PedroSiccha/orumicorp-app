@@ -14,7 +14,8 @@ interface TargetRepositoryInterface
     public function saveTarget(StoreTargetRequest $data): ?Target;
     public function getTargetByMonthAgent(string $month, Agent $agent): ?Target;
     public function getTargetWithDate(): Collection;
-    public function updateTarget(Target $target, EditTargetRequest $data): bool;
+    public function updateTarget(Target $target, StoreTargetRequest $data): bool;
     public function updateAmountTarget(Target $target, float $amount): bool;
     public function getTargetsByAgent(int $agentId, int $pagination): LengthAwarePaginator;
+    public function findTargetById(int $targetId): ?Target;
 }

@@ -55,4 +55,17 @@ class ShooterRepository implements ShooterRepositoryInterface
             return false;
         }
     }
+
+    public function findShooterById(int $shooterId): ?Shooter
+    {
+        try {
+            return Shooter::find($shooterId);
+        } catch (QueryException $e) {
+            Log::error("Error ShooterRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error ShooterRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
 }

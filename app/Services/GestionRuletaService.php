@@ -15,8 +15,9 @@ class GestionRuletaService
         $this->gestionRuletaRepository = $gestionRuletaRepository;        
     }
     
-    public function savePrize(PrizeRequest $request)
+    public function savePrize($request)
     {
+        
         // $resp = 0;
         // $type = 1;
 

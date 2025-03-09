@@ -1,142 +1,98 @@
 <?php
 namespace App\Services;
 
+use App\Enums\StatusEnum;
+use App\Helpers\ResponseHelper;
+use App\Http\Requests\StoreTargetRequest;
+use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\TargetRepositoryInterface;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class TargetService
 {
 
-    protected $targetRepository;
+    protected $targetRepository, $agentRepository;
 
     public function __construct(
-        TargetRepositoryInterface $targetRepository
+        TargetRepositoryInterface $targetRepository,
+        AgentRepositoryInterface $agentRepository
     ) {
       $this->targetRepository = $targetRepository;  
+      $this->agentRepository = $agentRepository;
     }
 
-    public function saveTarget(StoreTargetRequest $request)
+    public function saveTarget($request)
     {
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-
-        $agent = $this->agentRepository->getAgentByUserId($request->user_id); // Agent::where('user_id', $request->user_id)->first();
-        $target = $this->targetRepository->saveTarget($request);
-        // $target = new Target();
-        // $target->amount = $request->amount;
-        // $target->month = date("m");
-        // $target->observation = "";
-        // $target->status = 1;
-        // $target->agent_id = $agent->id;
-        // if ($target->save()) {
-        //     $title = "Correcto";
-        //     $mensaje = "El target se registró correctamente";
-        //     $status = "success";
-        // } else {
-        //     $title = "Error";
-        //     $mensaje = "Hubo un error al guardar el target";
-        //     $status = "error";
-        // }
-        $targetMensual = $this->targetRepository->getTargetByMonthAnget(date("m"), $agent->id);
-        // $targetMensual = Target::where('status', true)
-        //                 ->where('month', date("m"))
-        //                 ->where('agent_id', $agent->id)
-        //                 ->orderBy("created_at", "asc")
-        //                 ->first();
-        $targets = $this->targetRepository->getTargetWithDate();
-
-        // return response()->json([
-        //     "viewDiv"=>view('profile.components.divTarget', compact('targets'))->render(),
-        //     "viewTable"=>view('profile.components.tabTarget', compact('targets'))->render(),
-        //     "viewTotal"=>view('profile.components.tabTotalTarget', compact('targetMensual'))->render(),
-        //     "title"=>$title,
-        //     "text"=>$mensaje,
-        //     "status"=>$status
-        // ]);
+        try {
+            $agent = $this->agentRepository->getMyAgent();
+            $dataTarget = new StoreTargetRequest([
+                'amount' => $request->amount,
+                'month' => date("m"),
+                'observation' => $request->observation,
+                'status' => StatusEnum::ACTIVE->value,
+                'agent_id' => $agent->id
+            ]);
+            $target = $this->targetRepository->saveTarget($dataTarget);
+            $targetMensual = $this->targetRepository->getTargetByMonthAgent(date("m"), $agent);
+            $targets = $this->targetRepository->getTargetWithDate();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $targets]);
+        } catch (ValidationException $e) {
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }
     }
 
-    public function updateTarget(EditTargetRequest $request)
+    public function updateTarget($request)
     {
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-
-        // $user_id = Auth::user()->id;
-        // $agent = Agent::where('id', $user_id)->first();
-        $agent = $this->agentRepository->getAgentByUserId($request->user_id);
-        $target = $this->targetRepository->updateTarget($request);
-        // $target = Target::where('month', date("m"))->where('agent_id', $agent->id)->where('status', 1)->first();
-        // $target->amount = $request->amount;
-        // if ($target->save()) {
-        //     $title = "Correcto";
-        //     $mensaje = "El target se actualizó correctamente";
-        //     $status = "success";
-        // } else {
-        //     $title = "Error";
-        //     $mensaje = "Hubo un error al actualizar el target";
-        //     $status = "error";
-        // }
-        $targetMensual = $this->targetRepository->getTargetByMonthAnget(date("m"), $agent->id);
-        // $targetMensual = Target::where('status', true)
-        //                 ->where('month', date("m"))
-        //                 ->where('agent_id', $agent->id)
-        //                 ->orderBy("created_at", "asc")
-        //                 ->first();
-        $targets = $this->targetRepository->getTargetWithDate();
-        
-
-        // return response()->json([
-        //     "viewDiv"=>view('profile.components.divTarget', compact('targets'))->render(),
-        //     "viewTable"=>view('profile.components.tabTarget', compact('targets'))->render(),
-        //     "viewTotal"=>view('profile.components.tabTotalTarget', compact('targetMensual'))->render(),
-        //     "title"=>$title,
-        //     "text"=>$mensaje,
-        //     "status"=>$status
-        // ]);
+        DB::beginTransaction();
+        try {
+            $agent = $this->agentRepository->getMyAgent();
+            $target = $this->targetRepository->findTargetById($request->targetId);
+            $dataTarget = new StoreTargetRequest([
+                'amount' => $request->amount
+            ]);
+            $response = $this->targetRepository->updateTarget($target, $request);
+            DB::commit();
+            $targetMensual = $this->targetRepository->getTargetByMonthAgent(date("m"), $agent->id);
+            $targets = $this->targetRepository->getTargetWithDate();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $targets]);
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }
     }
 
-    public function addTarget(Request $request)
+    public function addTarget($request)
     {
-        // $title = "Error";
-        // $mensaje = "Error desconocido";
-        // $status = "error";
-
-        // $user_id = Auth::user()->id;
-        // $agent = Agent::where('id', $user_id)->first();
-        $agent = $this->agentRepository->getAgentByUserId($request->user_id);
-        $target = $this->targetRepository->updateTarget($request);
-        $response = $this->targetRepository->updateAmountTarget($target);
-
-        // $target = Target::where('month', date("m"))->where('agent_id', $agent->id)->where('status', 1)->first();
-        // $newAmount = $target->amount + $request->amount;
-        // $target->amount = $newAmount;
-        // if ($target->save()) {
-        //     $title = "Correcto";
-        //     $mensaje = "El target se actualizó correctamente";
-        //     $status = "success";
-        // } else {
-        //     $title = "Error";
-        //     $mensaje = "Hubo un error al actualizar el target";
-        //     $status = "error";
-        // }
-
-
-        $targetMensual = $this->targetRepository->getTargetByMonthAnget(date("m"), $agent->id);
-        // $targetMensual = Target::where('status', true)
-        //                 ->where('month', date("m"))
-        //                 ->where('agent_id', $agent->id)
-        //                 ->orderBy("created_at", "asc")
-        //                 ->first();
-        $targets = $this->targetRepository->getTargetWithDate();
-
-        // return response()->json([
-        //     "viewDiv"=>view('profile.components.divTarget', compact('targets'))->render(),
-        //     "viewTable"=>view('profile.components.tabTarget', compact('targets'))->render(),
-        //     "viewTotal"=>view('profile.components.tabTotalTarget', compact('targetMensual'))->render(),
-        //     "title"=>$title,
-        //     "text"=>$mensaje,
-        //     "status"=>$status
-        // ]);
+        DB::beginTransaction();
+        try {
+            $agent = $this->agentRepository->getMyAgent();
+            $target = $this->targetRepository->findTargetById($request->targetId);
+            $response = $this->targetRepository->updateAmountTarget($target, $target->amount);
+            DB::commit();
+            $targetMensual = $this->targetRepository->getTargetByMonthAgent(date("m"), $agent->id);
+            $targets = $this->targetRepository->getTargetWithDate();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $targets]);
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }
     }
 }

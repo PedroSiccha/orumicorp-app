@@ -9,4 +9,5 @@ interface ShooterRepositoryInterface
     public function getShooter(): ?Shooter;
     public function saveShooter(StoreShooterRequest $data): Shooter;
     public function disableShooter(Shooter $shooter): bool;
+    public function findShooterById(int $shooterId): ?Shooter;
 }

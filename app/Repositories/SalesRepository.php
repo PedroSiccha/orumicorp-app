@@ -208,7 +208,7 @@ class SalesRepository implements SalesRepositoryInterface
         }
     }
 
-    public function updateSale(Sales $sale, EditSalesRepository $data): bool
+    public function updateSale(Sales $sale, StoreSalesRequest $data): bool
     {
         try {
             $sale->fill($data->validate());
@@ -309,5 +309,18 @@ class SalesRepository implements SalesRepositoryInterface
             Log::error("Error SalesRepository: " . $e->getMessage());
             throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
+    }
+
+    public function findSaleById(int $saleId): ?Sales
+    {
+        try {
+            return Sales::find($saleId);
+       } catch (QueryException $e) {
+           Log::error("Error SalesRepository: " . $e->getMessage());
+           throw new Exception("No se encontraron resultados para los filtros aplicados.");
+       } catch (Exception $e) {
+           Log::error("Error SalesRepository: " . $e->getMessage());
+           throw new Exception("No se encontraron resultados para los filtros aplicados.");
+       }
     }
 }

@@ -76,7 +76,7 @@ class TargetRepository implements TargetRepositoryInterface
         }
     }
 
-    public function updateTarget(Target $target, EditTargetRequest $data): bool
+    public function updateTarget(Target $target, StoreTargetRequest $data): bool
     {
         try {
             $target->fill($data->validated());
@@ -118,6 +118,19 @@ class TargetRepository implements TargetRepositoryInterface
                         ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
                         ->where('agent_id', $agentId)
                         ->paginate($pagination, ['*'], 'targets_page')->withQueryString();
+        } catch (QueryException $e) {
+            Log::error("Error TargetRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error TargetRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    public function findTargetById(int $targetId): ?Target
+    {
+        try {
+            return Target::find($targetId);
         } catch (QueryException $e) {
             Log::error("Error TargetRepository: " . $e->getMessage());
             throw new Exception("No se encontraron resultados para los filtros aplicados.");

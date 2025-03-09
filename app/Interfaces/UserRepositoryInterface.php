@@ -2,10 +2,8 @@
 namespace App\Interfaces;
 
 use App\Http\Requests\EditUserRequest;
-use App\Http\Requests\SaveUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
 
 interface UserRepositoryInterface
 {

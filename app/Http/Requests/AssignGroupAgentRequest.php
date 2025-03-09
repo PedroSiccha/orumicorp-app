@@ -35,6 +35,7 @@ class AssignGroupAgentRequest extends FormRequest
         return [
             'dni_agent.required' => 'El código del agente es obligatorio.',
             'dni_agent.exists' => 'El agente no existe.',
+            
             'idGroupClientes.required' => 'Debe seleccionar al menos un cliente.',
             'idGroupClientes.array' => 'El formato de clientes debe ser un array.',
             'idGroupClientes.min' => 'Debe asignar al menos un cliente.',

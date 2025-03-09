@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreTargetRequest extends FormRequest
+class StoreAssistanceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +24,11 @@ class StoreTargetRequest extends FormRequest
     public function rules()
     {
         return [
-            'amount' => 'required|numeric|min:0|max:999999.99',
-            'month' => 'required|integer|min:1|max:12',
+            'hour' => 'required|date_format:H:i:s',
+            'date' => 'required|date',
+            'date_end' => 'nullable|date|after_or_equal:date',
+            'type' => 'required|string|max:255',
             'observation' => 'nullable|string|max:255',
-            'status' => 'required|boolean',
             'agent_id' => 'required|integer|exists:agents,id'
         ];
     }
@@ -35,21 +36,20 @@ class StoreTargetRequest extends FormRequest
     public function messages()
     {
         return [ 
-            'amount.required' => 'El monto es obligatorio.',
-            'amount.numeric' => 'El monto debe ser un número válido.',
-            'amount.min' => 'El monto no puede ser negativo.',
-            'amount.max' => 'El monto no puede superar los 999,999.99.',
+            'hour.required' => 'La hora es obligatoria.',
+            'hour.date_format' => 'La hora debe estar en formato HH:MM:SS.',
 
-            'month.required' => 'El mes es obligatorio.',
-            'month.integer' => 'El mes debe ser un número entero.',
-            'month.min' => 'El mes debe estar entre 1 y 12.',
-            'month.max' => 'El mes debe estar entre 1 y 12.',
+            'date.required' => 'La fecha es obligatoria.',
+            'date.date' => 'La fecha debe ser válida.',
+            'date_end.date' => 'La fecha de finalización debe ser válida.',
+            'date_end.after_or_equal' => 'La fecha de finalización no puede ser anterior a la fecha de inicio.',
+
+            'type.required' => 'El tipo es obligatorio.',
+            'type.string' => 'El tipo debe ser un texto válido.',
+            'type.max' => 'El tipo no puede superar los 255 caracteres.',
 
             'observation.string' => 'La observación debe ser un texto válido.',
             'observation.max' => 'La observación no puede superar los 255 caracteres.',
-
-            'status.required' => 'El estado es obligatorio.',
-            'status.boolean' => 'El estado debe ser un valor booleano válido.',
             
             'agent_id.required' => 'El ID del agente es obligatorio.',
             'agent_id.integer' => 'El ID del agente debe ser un número entero.',

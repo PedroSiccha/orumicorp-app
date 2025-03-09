@@ -13,6 +13,7 @@ interface TaskRepositoryInterface
     public function getAllTasks(): Collection;
     public function getTaskWithCustomer(int $customerId): Collection;
     public function saveTask(StoreTaskRequest $data): Task;
-    public function updateTask(Task $task, EditTaskRequest $data): bool;
+    public function updateTask(Task $task, StoreTaskRequest $data): bool;
     public function deleteTask(int $taskId): bool;
+    public function findTaskById(int $taskId): ?Task;
 }

@@ -25,20 +25,23 @@ class StoreFolderRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|boolean'
+            'status' => 'nullable|boolean',
+            'category_id' => 'required|integer|exists:categories,id'
         ];
     }
 
     public function messages()
     {
         return [ 
-            'name.required' => 'El nombre del área es obligatorio.',
+            'name.required' => 'El nombre es obligatorio.',
             'name.string' => 'El nombre debe ser un texto válido.',
             'name.max' => 'El nombre no puede superar los 255 caracteres.',
-            'description.string' => 'La descripción debe ser un texto válido.',
-            'status.required' => 'El estado es obligatorio.',
-            'status.boolean' => 'El estado solo puede ser verdadero o falso.'
+
+            'status.boolean' => 'El estado debe ser un valor booleano válido.',
+            
+            'category_id.required' => 'El ID de la categoría es obligatorio.',
+            'category_id.integer' => 'El ID de la categoría debe ser un número entero.',
+            'category_id.exists' => 'La categoría seleccionada no es válida.'
         ];
     }
 }

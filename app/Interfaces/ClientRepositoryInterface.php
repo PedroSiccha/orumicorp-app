@@ -39,7 +39,8 @@ interface ClientRepositoryInterface
 
     public function updateStatus(array $customerIds, int $statusId): void;     
     public function updateClientStatus(int $clientId, bool $status): bool;
-    public function updateClient(Customers $customer, StoreClientRequest $data): bool;
+    public function updateClient(Customers $customer, StoreCustomerRequest $data): bool;
+    public function changeFolderClient(Customers $customer, StoreCustomerRequest $data): bool;
 
     public function deleteClient(Customers $customerId): bool;    
 }

@@ -52,7 +52,7 @@ class TransactionTypeRepository implements TransactionTypeRepositoryInterface
         }
     }
 
-    public function updateTransactionType(TransactionType $transactionType, EditTransactionTypeRequest $data): bool
+    public function updateTransactionType(TransactionType $transactionType, StoreTransactionTypeRequest $data): bool
     {
         try {
             $transactionType->fill($data->validated());

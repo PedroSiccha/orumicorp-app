@@ -35,6 +35,7 @@ class ChangeStatusClientRequest extends FormRequest
             'id.required' => 'El ID del cliente es obligatorio.',
             'id.integer' => 'El ID del cliente debe ser un número entero.',
             'id.exists' => 'El cliente no existe en la base de datos.',
+            
             'status.required' => 'El estado del cliente es obligatorio.',
             'status.boolean' => 'El estado del cliente debe ser un valor booleano.'
         ];

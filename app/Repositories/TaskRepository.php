@@ -64,7 +64,7 @@ class TaskRepository implements TaskRepositoryInterface
         }
     }
 
-    public function updateTask(Task $task, EditTaskRequest $data): bool
+    public function updateTask(Task $task, StoreTaskRequest $data): bool
     {
         try {
             $task->fill($data->validated());
@@ -98,6 +98,19 @@ class TaskRepository implements TaskRepositoryInterface
         } catch (Exception $e) {
             Log::error("Error TaskRepository: " . $e->getMessage());
             return false;
+        }
+    }
+
+    public function findTaskById(int $taskId): ?Task
+    {
+        try {
+            return Task::find($taskId);
+        } catch (QueryException $e) {
+            Log::error("Error TaskRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error TaskRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 }

@@ -24,21 +24,24 @@ class StoreTraidingRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:100|unique:codes,code',
             'description' => 'nullable|string',
-            'status' => 'required|boolean'
+            'status' => 'required|in:active,inactive'
         ];
     }
 
     public function messages()
     {
         return [ 
-            'name.required' => 'El nombre del área es obligatorio.',
-            'name.string' => 'El nombre debe ser un texto válido.',
-            'name.max' => 'El nombre no puede superar los 255 caracteres.',
+            'code.required' => 'El código es obligatorio.',
+            'code.string' => 'El código debe ser un texto válido.',
+            'code.max' => 'El código no puede superar los 100 caracteres.',
+            'code.unique' => 'El código ya está en uso.',
+
             'description.string' => 'La descripción debe ser un texto válido.',
+            
             'status.required' => 'El estado es obligatorio.',
-            'status.boolean' => 'El estado solo puede ser verdadero o falso.'
+            'status.in' => 'El estado debe ser "active" o "inactive".'
         ];
     }
 }

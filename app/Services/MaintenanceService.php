@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Helpers\ResponseHelper;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\CampaingRepositoryInterface;
 use App\Interfaces\ClientStatusRepositoryInterface;
@@ -10,6 +11,9 @@ use App\Interfaces\ProviderRepositoryInterface;
 use App\Interfaces\TraidingRepositoryInterface;
 use App\Interfaces\TransactionTypeRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use Exception;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class MaintenanceService
 {
@@ -40,25 +44,22 @@ class MaintenanceService
 
     public function getMaintenanceData()
     { 
-        // $user_id = Auth::user()->id;
-        $user = $this->userRepository->findUser();
-        // $user = User::where('id', $user_id)->first();
-        $roles = $user->getRoleNames()->first();
-        $agent = $this->agentRepository->getAgentByUserId($user->id); // Agent::where('user_id', $user_id)->first();
-        // $dataUser = $agent;
-        // $premios1 = Premio::where('status', true)->where('type', 1)->get();
-        // $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        $rouletteSpin = $agent->number_turns ?: 0;
-
-        // $customerStatusController = new CustomerStatusController();
-        // $customersStatus = $customerStatusController->index();
-
-        $customersStatus = $this->customersStatusRepository->getStatus();
-        $campaigns = $this->campaingRepository->getCampaing(); // Campaing::get();
-        $suppliers = $this->providerRepository->getProviders(); // Provider::get();
-        $platforms = $this->platformRepository->getPlatforms();
-        $traidings = $this->traidingRepository->getTraidings();
-        $transactionsType = $this->transactionsType->getTransactionTypes();
-        // return view('maintenance.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'customersStatus', 'campaigns', 'suppliers', 'platforms', 'traidings', 'transactionsType'));
+        try {
+            $agent = $this->agentRepository->getMyAgent();
+            $rouletteSpin = $agent->number_turns ?: 0;
+            $customersStatus = $this->customersStatusRepository->getCustomerStatus();
+            $campaigns = $this->campaingRepository->getCampaing();
+            $suppliers = $this->providerRepository->getProviders();
+            $platforms = $this->platformRepository->getPlatforms();
+            $traidings = $this->traidingRepository->getTraidings();
+            $transactionsType = $this->transactionsType->getTransactionTypes();
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $transactionsType]);
+        } catch (ValidationException $e) {
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        } catch (Exception $e) {
+            Log::error("Error en ClientService: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del agente.');
+        }
     }
 }

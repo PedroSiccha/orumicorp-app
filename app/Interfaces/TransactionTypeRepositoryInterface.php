@@ -11,6 +11,6 @@ interface TransactionTypeRepositoryInterface
     public function getTransactionTypes(): Collection;
     public function saveTransactionType(StoreTransactionTypeRequest $data): ?TransactionType;
     public function findTransactionTypeById(int $transactionTypeId): ?TransactionType;
-    public function updateTransactionType(TransactionType $transactionType, EditTransactionTypeRequest $data): bool;
+    public function updateTransactionType(TransactionType $transactionType, StoreTransactionTypeRequest $data): bool;
     public function deleteTransactionType(int $transactionTypeId): bool;
 }

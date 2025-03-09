@@ -297,6 +297,12 @@ class AppServiceProvider extends ServiceProvider
             return new FolderService(
                 $app->make(FolderRepositoryInterface::class),
                 $app->make(RolesService::class),
+                $app->make(UserRepositoryInterface::class),
+                $app->make(ClientRepositoryInterface::class),
+                $app->make(AgentRepositoryInterface::class),
+                $app->make(CampaingRepositoryInterface::class),
+                $app->make(ProviderRepositoryInterface::class),
+                $app->make(ClientStatusRepositoryInterface::class)
             );
         });
 
@@ -338,6 +344,7 @@ class AppServiceProvider extends ServiceProvider
             return new ProviderService(
                 $app->make(ProviderRepositoryInterface::class),
                 $app->make(RolRepositoryInterface::class),
+                $app->make(UserRepositoryInterface::class),
             );
         });
 
@@ -395,6 +402,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TargetService::class, function ($app) {
             return new TargetService(
                 $app->make(TargetRepositoryInterface::class),
+                $app->make(AgentRepositoryInterface::class),
             );
         });
 
@@ -406,6 +414,7 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(AgentRepositoryInterface::class),
                 $app->make(AreaRepositoryInterface::class),
                 $app->make(PriorityRepositoryInterface::class),
+                $app->make(ClientRepositoryInterface::class),
             );
         });
 

@@ -13,4 +13,7 @@ interface FolderRepositoryInterface
     public function disableFolder(Folder $folder): bool;
     public function assignClientToFolder(int $folderId, array $clientsId): bool;
     public function saveFolder(StoreFolderRequest $data): Folder;
+    public function findFolderById(int $folderId): ?Folder;
+    public function changeFolderCategory(int $folderId, StoreFolderRequest $data): bool;
+    public function updateFolder(Folder $folder, StoreFolderRequest $data): bool;
 }

@@ -27,13 +27,18 @@ class SaveAgentRequest extends FormRequest
     {
         return [
             'name.required' => 'El nombre es obligatorio.',
+
             'lastname.required' => 'El apellido es obligatorio.',
+
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.unique' => 'El correo electrónico ya está registrado.',
+
             'codeVoiso.required' => 'El código Voiso es obligatorio.',
             'codeVoiso.unique' => 'El código Voiso ya está registrado.',
+
             'area_id.required' => 'El área es obligatoria.',
             'area_id.exists' => 'El área proporcionada no existe.',
+            
             'rol_id.required' => 'El rol es obligatorio.',
             'rol_id.exists' => 'El rol proporcionado no existe.',
         ];

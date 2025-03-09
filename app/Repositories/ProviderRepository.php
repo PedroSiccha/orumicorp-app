@@ -81,7 +81,7 @@ class ProviderRepository implements ProviderRepositoryInterface
         }
     }
 
-    public function updateProvider(Provider $provider, EditProviderRequest $data): bool
+    public function updateProvider(Provider $provider, StoreProviderRequest $data): bool
     {
         try {
             $provider->fill($data->validated());
@@ -129,5 +129,18 @@ class ProviderRepository implements ProviderRepositoryInterface
             Log::error("Error ProviderRepository: " . $e->getMessage());
             throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
+    }
+
+    public function findProviderById(int $providerId): ?Provider
+    {
+        try {
+            return Provider::find($providerId);
+       } catch (QueryException $e) {
+           Log::error("Error ProviderRepository: " . $e->getMessage());
+           throw new Exception("No se encontraron resultados para los filtros aplicados.");
+       } catch (Exception $e) {
+           Log::error("Error ProviderRepository: " . $e->getMessage());
+           throw new Exception("No se encontraron resultados para los filtros aplicados.");
+       }
     }
 }

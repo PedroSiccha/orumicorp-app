@@ -24,21 +24,26 @@ class StorePlatformRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'status' => 'required|boolean'
+            'marketing_info' => 'nullable|string',
+            'status' => 'required|in:active,inactive'
         ];
     }
 
     public function messages()
     {
         return [ 
-            'name.required' => 'El nombre del área es obligatorio.',
+            'name.required' => 'El nombre es obligatorio.',
             'name.string' => 'El nombre debe ser un texto válido.',
-            'name.max' => 'El nombre no puede superar los 255 caracteres.',
+            'name.max' => 'El nombre no puede superar los 100 caracteres.',
+
             'description.string' => 'La descripción debe ser un texto válido.',
+
+            'marketing_info.string' => 'La información de marketing debe ser un texto válido.',
+            
             'status.required' => 'El estado es obligatorio.',
-            'status.boolean' => 'El estado solo puede ser verdadero o falso.'
+            'status.in' => 'El estado debe ser "active" o "inactive".'
         ];
     }
 }

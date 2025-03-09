@@ -105,4 +105,51 @@ class FolderRepository implements FolderRepositoryInterface
         }
     }
 
+    public function findFolderById(int $folderId): ?Folder
+    {
+        try {
+            return Folder::find($folderId);
+        } catch (QueryException $e) {
+            Log::error("Error FolderRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (Exception $e) {
+            Log::error("Error FolderRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
+    }
+
+    public function changeFolderCategory(int $folderId, StoreFolderRequest $data): bool{
+        try {
+            $folder = Folder::find($folderId);
+            $folder->category_id = $data->categoryId;
+            if (!$folder->save()) {
+                return false;
+            }
+            return true;
+        } catch (QueryException $e) {
+            Log::error("Error FolderRepository: " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            Log::error("Error FolderRepository: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateFolder(Folder $folder, StoreFolderRequest $data): bool
+    {
+        try {
+            $folder->fill($data->validated());
+            if (!$folder->save()) {
+                return false;
+            }
+            return true;
+        } catch (QueryException $e) {
+            Log::error("Error FolderRepository: " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            Log::error("Error FolderRepository: " . $e->getMessage());
+            return false;
+        }
+    }
+
 }

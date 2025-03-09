@@ -38,6 +38,7 @@ class ChangeStatusGroupRequest extends FormRequest
             'idGroupClientes.min' => 'Debe asignar al menos un cliente.',
             'idGroupClientes.*.integer' => 'Cada cliente debe ser un identificador válido.',
             'idGroupClientes.*.exists' => 'Uno o más clientes no existen en la base de datos.',
+            
             'statusId.required' => 'El ID de estado es obligatorio.',
             'statusId.exists' => 'El estado seleccionado no es válido.'
         ];
