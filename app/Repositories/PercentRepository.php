@@ -11,17 +11,23 @@ use Illuminate\Support\Facades\Log;
 
 class PercentRepository implements PercentRepositoryInterface
 {
-    public function getPercents(): Collection
+    public function getActivePercents(): Collection
     {
         try {
-             return Percent::where('status', StatusEnum::ACTIVE->value)->get();
+            return Percent::where('status', StatusEnum::ACTIVE->value)->get();
         } catch (QueryException $e) {
-            Log::error("Error PercentRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error PercentRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('PercentRepository@getActivePercents: ' . $e->getMessage());
+            throw new Exception('Error al obtener porcentajes activos.');
         }
     }
 
+    public function getAllPercents(): Collection
+    {
+        try {
+            return Percent::all();
+        } catch (QueryException $e) {
+            Log::error('PercentRepository@getAllPercents: ' . $e->getMessage());
+            throw new Exception('Error al obtener todos los porcentajes.');
+        }
+    }
 }

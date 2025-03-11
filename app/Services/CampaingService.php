@@ -2,7 +2,6 @@
 namespace App\Services;
 
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\SaveCampaingRequest;
 use App\Interfaces\CampaingRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -12,127 +11,137 @@ use Illuminate\Validation\ValidationException;
 class CampaingService
 {
 
-    protected $campaingRepository;
+    protected $campaignRepository;
 
     public function __construct(
-        CampaingRepositoryInterface $campaingRepository
+        CampaingRepositoryInterface $campaignRepository
     ) {
-        $this->campaingRepository = $campaingRepository;
+        $this->campaignRepository = $campaignRepository;
     }
 
-    public function getAllCampaingsByCustomer($request) {
+    public function getAllCampaignsByCustomer(int $customerId)
+    {
         try {
-            $campaings = $this->campaingRepository->getAllCampaingsByCustomer($request->clientId);
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $campaings]);
-        } catch (Exception $e) {  
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            $campaigns = $this->campaignRepository->getCampaignsByCustomer($customerId);
+            return ResponseHelper::success('Campañas obtenidas correctamente.', ['response' => $campaigns]);
+        } catch (Exception $e) {
+            Log::error("Error en getAllCampaignsByCustomer: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener las campañas del cliente.');
         }
     }
 
-    public function getLastCampaingByCustomer($request) {
+    public function getLastCampaignByCustomer(int $customerId)
+    {
         try {
-            $customerId = $request['customer_id'];
-
-            $lastCampaing = $this->campaingRepository->getLastCampaingByCustomer($customerId); 
-            //  Campaing::whereHas('customers', function($query) use ($customerId) {
-            //     $query->where('customer_id', $customerId);
-            // })->with('customers')->orderBy('created_at', 'desc')->first(); 
-
-            return response()->json([
-                'status' => 'success',
-                'data' => $lastCampaing,
+            return ResponseHelper::success('Última campaña obtenida correctamente.', [
+                'data' => $this->campaignRepository->getLastCampaignByCustomer($customerId)
             ]);
         } catch (Exception $e) {
-            return null;
+            Log::error("Error en getLastCampaignByCustomer: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener la última campaña.');
         }
     }
 
-    public function saveCampaing($request) {
+    public function saveCampaign(array $data)
+    {
         DB::beginTransaction();
         try {
-            $dataCamaping = new SaveCampaingRequest([
-                'name' => $request->name,
-                'description' => $request->description,
-                'start_date' => $request->startDate,
-                'end_date' => $request->endDate
-            ]);
-            $response = $this->campaingRepository->saveCampaing($dataCamaping);
+            $campaignData = [
+                'name' => $data['name'],
+                'description' => $data['description'],
+                'start_date' => $data['start_date'],
+                'end_date' => $data['end_date']
+            ];
+
+            $this->campaignRepository->save($campaignData);
             DB::commit();
-            $campaigns = $this->campaingRepository->getCampaing();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $campaigns]);
+
+            return ResponseHelper::success('Campaña guardada correctamente.', [
+                'response' => $this->campaignRepository->getActiveCampaigns()
+            ]);
         } catch (ValidationException $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error de validación en saveCampaign: " . $e->getMessage());
+            return ResponseHelper::error('Error en la validación de la campaña.');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en saveCampaign: " . $e->getMessage());
+            return ResponseHelper::error('Error al guardar la campaña.');
         }
     }
 
     public function getAllCampaigns()
     {
         try {
-            $campaigns = $this->campaingRepository->getAllCampaings();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $campaigns]);
+            return ResponseHelper::success('Campañas obtenidas correctamente.', [
+                'response' => $this->campaignRepository->getAll()
+            ]);
         } catch (Exception $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en getAllCampaigns: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener todas las campañas.');
         }
     }
 
     public function getCampaigns()
     {
         try {
-            $campaigns = $this->campaingRepository->getCampaing();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $campaigns]);
+            return ResponseHelper::success('Campañas obtenidas correctamente.', [
+                'response' => $this->campaignRepository->getActiveCampaigns()
+            ]);
         } catch (Exception $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en getCampaigns: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener las campañas.');
         }
     }
 
-    public function updateCampaign($request)
+    public function updateCampaign(int $campaignId, array $data)
     {
         DB::beginTransaction();
         try {
-            $campaign = $this->campaingRepository->findCampaingById($request->id);
-            $dataCamaping = new SaveCampaingRequest([
-                'name' => $request->name,
-                'description' => $request->description,
-                'start_date' => $request->startDate,
-                'end_date' => $request->endDate
-            ]);
-            $data = $this->campaingRepository->updateCampaign($campaign, $dataCamaping);
+            $campaign = $this->campaignRepository->findById($campaignId);
+            if (!$campaign) return ResponseHelper::error('La campaña no existe.');
+
+            $campaignData = [
+                'name' => $data['name'],
+                'description' => $data['description'],
+                'start_date' => $data['start_date'],
+                'end_date' => $data['end_date']
+            ];
+
+            $this->campaignRepository->update($campaign, $campaignData);
             DB::commit();
-            $campaigns = $this->campaingRepository->getCampaing();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $campaigns]);
+
+            return ResponseHelper::success('Campaña actualizada correctamente.', [
+                'response' => $this->campaignRepository->getActiveCampaigns()
+            ]);
         } catch (ValidationException $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error de validación en updateCampaign: " . $e->getMessage());
+            return ResponseHelper::error('Error en la validación de la campaña.');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en updateCampaign: " . $e->getMessage());
+            return ResponseHelper::error('Error al actualizar la campaña.');
         }
     }
 
-    public function deleteCampaign($request)
+    public function deleteCampaign(int $campaignId)
     {
         DB::beginTransaction();
         try {
-            $campaign = $this->campaingRepository->findCampaingById($request->id);
-            $data = $this->campaingRepository->deleteCampaign($campaign);
+            $campaign = $this->campaignRepository->findById($campaignId);
+            if (!$campaign) return ResponseHelper::error('La campaña no existe.');
+
+            $this->campaignRepository->delete($campaign->id);
             DB::commit();
-            $campaigns = $this->campaingRepository->getCampaing();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $campaigns]);
+
+            return ResponseHelper::success('Campaña eliminada correctamente.', [
+                'response' => $this->campaignRepository->getActiveCampaigns()
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en deleteCampaign: " . $e->getMessage());
+            return ResponseHelper::error('Error al eliminar la campaña.');
         }
     }
 

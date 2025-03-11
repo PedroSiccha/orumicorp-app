@@ -6,7 +6,7 @@ use Spatie\Permission\Models\Role;
 
 interface RolRepositoryInterface
 {
-    public function getAllRoles(): Collection;
-    public function getRoleByName(string $name): ?Role;
-    public function findRoleById(int $id): ?Role;
+    public function getAll(): Collection;
+    public function findByName(string $name): ?Role;
+    public function findById(int $roleId): ?Role;
 }

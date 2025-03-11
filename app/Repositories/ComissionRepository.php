@@ -11,16 +11,23 @@ use Illuminate\Support\Facades\Log;
 
 class ComissionRepository implements ComissionRepositoryInterface
 {
-    public function getComissions(): Collection
+    public function getActiveCommissions(): Collection
     {
         try {
-             return Commission::where('status', StatusEnum::ACTIVE->value)->get();
+            return Commission::where('status', StatusEnum::ACTIVE->value)->get();
         } catch (QueryException $e) {
-            Log::error("Error ComissionRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ComissionRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('ComissionRepository@getActiveCommissions: ' . $e->getMessage());
+            throw new Exception('Error al obtener comisiones activas.');
+        }
+    }
+
+    public function getAllCommissions(): Collection
+    {
+        try {
+            return Commission::all();
+        } catch (QueryException $e) {
+            Log::error('ComissionRepository@getAllCommissions: ' . $e->getMessage());
+            throw new Exception('Error al obtener todas las comisiones.');
         }
     }
 }

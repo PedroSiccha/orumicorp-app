@@ -1,7 +1,6 @@
 <?php
 namespace App\Repositories;
 
-use App\Http\Requests\StoreViewRequest;
 use App\Interfaces\ViewsRepositoryInterface;
 use App\Models\Views;
 use Exception;
@@ -15,25 +14,19 @@ class ViewsRepository implements ViewsRepositoryInterface
     {
         try {
             return Views::with('agent')->where('customer_id', $clientId)->get();
-        } catch (QueryException $e) {
-            Log::error("Error ViewsRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ViewsRepository: " . $e->getMessage());
+        } catch (QueryException  $e) {
+            Log::error("Error obteniendo vistas por cliente (ID: {$clientId}): " . $e->getMessage());
             throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
-    public function saveViews(StoreViewRequest $data): Views
+    public function saveViews(array $data): Views
     {
         try {
             return Views::create($data);
-        } catch (QueryException $e) {
-            Log::error("Error ViewsRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ViewsRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        } catch (QueryException  $e) {
+            Log::error("Error al guardar la vista: " . $e->getMessage());
+            throw new Exception("Error al guardar la vista.");
         }
     }
 }

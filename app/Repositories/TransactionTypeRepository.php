@@ -2,8 +2,6 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Http\Requests\EditTransactionTypeRequest;
-use App\Http\Requests\StoreTransactionTypeRequest;
 use App\Interfaces\TransactionTypeRepositoryInterface;
 use App\Models\TransactionType;
 use Exception;
@@ -16,54 +14,41 @@ class TransactionTypeRepository implements TransactionTypeRepositoryInterface
     public function getTransactionTypes(): Collection
     {
         try {
-             return TransactionType::where('status', StatusEnum::ACTIVE->value)->get();
+            return TransactionType::where('status', StatusEnum::ACTIVE->value)->get();
         } catch (QueryException $e) {
-            Log::error("Error TransactionTypeRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TransactionTypeRepository: " . $e->getMessage());
+            Log::error("Error TransactionTypeRepository@getTransactionTypes: {$e->getMessage()}");
             throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
-    public function saveTransactionType(StoreTransactionTypeRequest $data): ?TransactionType
+    public function saveTransactionType(array $data): ?TransactionType
     {
         try {
             return TransactionType::create($data);
         } catch (QueryException $e) {
             Log::error("Error TransactionTypeRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TransactionTypeRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            throw new Exception("Error al guardar el tipo de transacción.");
         }
     }
 
     public function findTransactionTypeById(int $transactionTypeId): ?TransactionType
     {
         try {
-            return TransactionType::where('status', StatusEnum::ACTIVE->value)->where('id', $transactionTypeId)->first();
+            return TransactionType::where('id', $transactionTypeId)
+                                  ->where('status', StatusEnum::ACTIVE->value)
+                                  ->first();
         } catch (QueryException $e) {
             Log::error("Error TransactionTypeRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TransactionTypeRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            throw new Exception("Error al buscar el tipo de transacción.");
         }
     }
 
-    public function updateTransactionType(TransactionType $transactionType, StoreTransactionTypeRequest $data): bool
+    public function updateTransactionType(TransactionType $transactionType, array $data): bool
     {
         try {
-            $transactionType->fill($data->validated());
-            if (!$transactionType->save()) {
-                return false;
-            }
-            return true;
+            $transactionType->fill($data);
+            return $transactionType->save();
         } catch (QueryException $e) {
-            Log::error("Error TransactionTypeRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
             Log::error("Error TransactionTypeRepository: " . $e->getMessage());
             return false;
         }
@@ -76,14 +61,8 @@ class TransactionTypeRepository implements TransactionTypeRepositoryInterface
             if (!$transactionType) {
                 return false;
             }
-            if (!$transactionType->delete()) {
-                return false;
-            }
-            return true;
+            return $transactionType->delete();
         } catch (QueryException $e) {
-            Log::error("Error TransactionTypeRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
             Log::error("Error TransactionTypeRepository: " . $e->getMessage());
             return false;
         }

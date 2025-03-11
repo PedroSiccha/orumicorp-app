@@ -1,10 +1,7 @@
 <?php
 namespace App\Repositories;
 
-use App\Enums\StatusEnum;
-use App\Http\Requests\SaveAreaRequest;
-use App\Http\Requests\StoreareaRequest;
-use App\Http\Requests\UpdateareaRequest;
+use App\Enums\StatusIntEnum;
 use App\Interfaces\AreaRepositoryInterface;
 use App\Models\Area;
 use Exception;
@@ -14,109 +11,74 @@ use Illuminate\Support\Facades\Log;
 
 class AreaRepository implements AreaRepositoryInterface
 {
-    public function getAllAreas(): Collection
+    public function getAll(): Collection
     {
         try {
             return Area::all();
         } catch (QueryException $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('AreaRepository@getAll: ' . $e->getMessage());
+            throw new Exception('Error al obtener áreas.');
         }
     }
 
-    public function saveArea(StoreareaRequest $data): Area
+    public function getAllActive(): Collection
+    {
+        try {
+            return Area::where('status', StatusIntEnum::ACTIVE->value)->get();
+        } catch (QueryException $e) {
+            Log::error('AreaRepository@getAllActive: ' . $e->getMessage());
+            throw new Exception('Error al obtener áreas activas.');
+        }
+    }
+
+    public function save(array $data): Area
     {
         try {
             return Area::create($data);
         } catch (QueryException $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('AreaRepository@save: ' . $e->getMessage());
+            throw new Exception('Error al crear área.');
         }
     }
 
-    public function getAreas(): Collection
+    public function update(Area $area, array $data): bool
     {
         try {
-            return Area::where('status', StatusEnum::ACTIVE->value)->get();
+            return $area->update($data);
         } catch (QueryException $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('AreaRepository@update: ' . $e->getMessage());
+            throw new Exception('Error al actualizar área.');
         }
     }
 
-    public function updateArea(Area $area, StoreareaRequest $data): bool
+    public function findById(int $areaId): ?Area
     {
-        try {
-            $area->fill($data->validated());
-            if (!$area->save()) {
-                return false;
-            }
-            return true;
-        } catch (QueryException $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        }
+        return Area::find($areaId);
     }
 
-    public function getAreaById(int $areaId): ?Area
+    public function changeStatus(int $areaId, bool $status): bool
     {
         try {
-            return Area::find($areaId);
-        } catch (QueryException $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        }
-    }
-
-    public function changeStatusArea(Area $area, bool $status): bool
-    {
-        try {
+            $area = Area::findOrFail($areaId);
             $area->status = $status;
-            if (!$area->save()) {
-                return false;
-            }
-            return true;
+            return $area->save();
         } catch (QueryException $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            return false;
+            Log::error('AreaRepository@changeStatus: ' . $e->getMessage());
+            throw new Exception('Error al cambiar estado del área.');
         }
     }
 
-    public function deleteArea(int $areaId): bool
+    public function delete(int $areaId): bool
     {
         try {
             $area = Area::find($areaId);
             if (!$area) {
                 return false;
             }
-            if (!$area->delete()) {
-                return false;
-            }
-            return true;
+            return $area->delete();
         } catch (QueryException $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error AreaRepository: " . $e->getMessage());
-            return false;
+            Log::error('AreaRepository@delete: ' . $e->getMessage());
+            throw new Exception('Error al eliminar área.');
         }
     }
 }

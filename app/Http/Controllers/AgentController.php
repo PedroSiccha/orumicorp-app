@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SearchAgentRequest;
 use App\Models\Agent;
-use App\Interfaces\AgentInterface;
 use App\Services\AgentService;
 use Exception;
 use Illuminate\Http\Request;
@@ -21,18 +20,18 @@ class AgentController extends Controller
     public function index()
     {
         try {
-            $data = $this->agentService->getAgentsData();
-            $agents = $data->agents;
-            $areas = $data->areas;
-            $roles = $data->roles;
-            $dataUser = $data->dataUser;
-            $rouletteSpin = $data->rouletteSpin;
+            $jsonResponse  = $this->agentService->getAgentsData();
 
+            $data = json_decode($jsonResponse->getContent());
+            $agents = $data->data->agents;
+            $areas = $data->data->areas;
+            $roles = $data->data->roles;
+            dd($agents, $areas, $roles);
 
-            return view('agent.index', compact('agents', 'areas', 'roles', 'dataUser', 'rouletteSpin'));
+            return view('agent.index', compact('agents', 'areas', 'roles'/*, 'dataUser', 'rouletteSpin'*/));
         } catch (Exception $e) {
             Log::error("Error al obtener agentes: " . $e->getMessage());
-            return redirect()->route('home')->with('error', 'No se pudieron cargar los agentes.');
+            // return redirect()->route('home')->with('error', 'No se pudieron cargar los agentes.');
         }
         
     } 
@@ -53,7 +52,6 @@ class AgentController extends Controller
     {
         $data = $this->agentService->saveAgent($request->all());
         $dataAgents = $this->agentService->getAgentsData();
-        $agents = $dataAgents->agents;
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }
 

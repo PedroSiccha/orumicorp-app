@@ -3,7 +3,6 @@ namespace App\Services;
 
 use App\Enums\StatusEnum;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\StoreShooterRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\CategoryFolderRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -46,25 +45,22 @@ class ShooterService
     public function getShooterData()
     {
         try {
-            $user = $this->userRepository->getUser();
+            $user = $this->userRepository->getCurrentUser();
             $roles = $user->getRoleNames()->first();
             $agent = $this->agentRepository->getMyAgent();
             $rouletteSpin = $agent->number_turns ?: 0;
             $clients = $this->clientRepository->getClientsByStatus(1);
             $shooter = $this->shooterRepository->getShooter();
-            $na = $this->clientStatusRepository->findStatusByName('NA'); 
-            $na_1 = $this->clientStatusRepository->findStatusByName('NA 1');
-            $na_2 = $this->clientStatusRepository->findStatusByName('NA 2');
-            $na_3 = $this->clientStatusRepository->findStatusByName('NA 3');
+            $na = $this->clientStatusRepository->findByName('NA'); 
+            $na_1 = $this->clientStatusRepository->findByName('NA 1');
+            $na_2 = $this->clientStatusRepository->findByName('NA 2');
+            $na_3 = $this->clientStatusRepository->findByName('NA 3');
             if ($shooter) {
                 $clients = $this->clientRepository->getClientsByFolderExceptStatus($shooter->folder_id, [$na->id, $na_1->id, $na_2->id, $na_3->id]);
             }
-            $folders = $this->folderRepository->getFolders();
-            $statusCustomers = $this->clientStatusRepository->getCustomerStatus();
+            $folders = $this->folderRepository->getActiveFolders();
+            $statusCustomers = $this->clientStatusRepository->getAll();
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $statusCustomers]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -74,16 +70,13 @@ class ShooterService
     public function getShooterAdmin()
     {
         try {
-            $user = $this->userRepository->getUser();
+            $user = $this->userRepository->getCurrentUser();
             $roles = $user->getRoleNames()->first();
             $agent = $this->agentRepository->getMyAgent();
             $rouletteSpin = $agent->number_turns ?: 0;
-            $categoryFolders = $this->categoryFolderRepository->getCategoryFolders();
+            $categoryFolders = $this->categoryFolderRepository->getAllActive();
             $folders = $this->folderRepository->getFoldersByCategory(1);
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $folders]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -95,9 +88,6 @@ class ShooterService
         try {
             $folders = $this->folderRepository->getFoldersByCategory($categoryId);
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $folders]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -109,9 +99,6 @@ class ShooterService
         try {
             $clients = $this->clientRepository->getClientsByFolder($folderId);
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $clients]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -121,11 +108,8 @@ class ShooterService
     public function getResumClient(int $clientId)
     {
         try {
-            $comunications = $this->comunicationRepository->getComunicationsByClient($clientId);
+            $comunications = $this->comunicationRepository->getComunicationsByCustomer($clientId);
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $comunications]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -135,18 +119,15 @@ class ShooterService
     public function activeShooter($request)
     {
         try {
-            $folder = $this->folderRepository->findFolderById($request->folder_id);
-            $dataShooter = new StoreShooterRequest([
+            $folder = $this->folderRepository->findById($request->folder_id);
+            $dataShooter = [
                 'name' => $request->name,
                 'status' => StatusEnum::ACTIVE->value,
                 'start' => Carbon::now(),
                 'folder_id' => $folder->id
-            ]);
+            ];
             $response = $this->shooterRepository->saveShooter($dataShooter);
             return ResponseHelper::success('Se cambió el estado del agente correctamente.');
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -171,8 +152,8 @@ class ShooterService
     public function notiffyShooter(Request $request)
     {
         try {
-            $user = $this->userRepository->getUser();
-            $agent = $this->agentRepository->getAgentByUserId($user->id);
+            $user = $this->userRepository->getCurrentUser();
+            $agent = $this->agentRepository->getByUserId($user->id);
             $shooter = $this->shooterRepository->getShooter();
             if ($shooter) {
                 $clients = $this->clientRepository->getClientsByFolder($request->folderId);
@@ -185,9 +166,6 @@ class ShooterService
                 }
             }
             return ResponseHelper::success('Se cambió el estado del agente correctamente.');
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');

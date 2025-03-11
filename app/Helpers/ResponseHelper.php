@@ -4,16 +4,17 @@ namespace App\Helpers;
 
 class ResponseHelper
 {
-    public static function success($message = 'Operación exitosa', $data = [], $status = 200)
+    public static function success($message = 'Operación exitosa', $data = [], int $status = 200)
     {
         return response()->json([
             'title' => 'Operación exitosa',
             'status' => 'success',
             'success' => true,
             'message' => $message,
-            'data' => $data
-        ], $status);
+            'data' => $data,
+        ], $status, [], JSON_UNESCAPED_UNICODE);
     }
+
 
     public static function error($message = 'Ha ocurrido un error', $errors = [], $status = 400)
     {

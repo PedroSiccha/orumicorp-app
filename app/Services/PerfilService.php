@@ -12,7 +12,6 @@ use App\Interfaces\SalesRepositoryInterface;
 use App\Interfaces\TargetRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class PerfilService
 {
@@ -47,15 +46,12 @@ class PerfilService
             $dateBreakOut = $this->assistanceRepository->findAssistanceDateByTypeAgent(date('Y-m-d'), AssistanceType::VUELTA_BREAK, $agent->id); // Assistance::where('date', date('Y-m-d'))->where('type', 'OUT-BREAK')->where('agent_id', $agent->id)->first();
             $dateOut = $this->assistanceRepository->findAssistanceDateByTypeAgent(date('Y-m-d'), AssistanceType::SALIDA, $agent->id); // Assistance::where('date', date('Y-m-d'))->where('type', 'OUT')->where('agent_id', $agent->id)->first();
             $clients = $this->clientRepository->getClientsByAssignedUser($agent->id, 5);
-            $targets = $this->targetRepository->getTargetsByAgent($agent->id, 5);
+            $targets = $this->targetRepository->getPaginatedTargetsByAgent($agent->id, 5);
             $sales = $this->salesRepository->getSalesByAgent($agent->id, 5);
-            $targetMensual = $this->targetRepository->getTargetByMonthAgent(date("m"), $agent->id);
+            $targetMensual = $this->targetRepository->getTargetByMonthAndAgent(date("m"), $agent->id);
             $ingresosActuales = $this->salesRepository->getAmountDateByAgent($agent, MovementType::INGRESOS);
             $amountRetiro = $this->salesRepository->getAmountDateByAgent($agent, MovementType::EGRESOS);
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $targetMensual]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');

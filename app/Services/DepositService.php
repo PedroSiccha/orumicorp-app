@@ -2,7 +2,6 @@
 namespace App\Services;
 
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\StoreDepositRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\DepositRepositoryInterface;
@@ -13,13 +12,12 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class DepositService
 {
 
     protected $agentRepository;
-    protected $transactionTypeService;
+    protected $transactionTypeRepository;
     protected $depositRepository;
     protected $salesRepository;
     protected $clientRepository;
@@ -27,82 +25,106 @@ class DepositService
 
     public function __construct(
         AgentRepositoryInterface $agentRepository,
-        TransactionTypeRepositoryInterface $transactionTypeService,
+        TransactionTypeRepositoryInterface $transactionTypeRepository,
         DepositRepositoryInterface $depositRepository,
         SalesRepositoryInterface $salesRepository,
         ClientRepositoryInterface $clientRepository,
         UserRepositoryInterface $userRepository
     ) {
         $this->agentRepository = $agentRepository;
-        $this->transactionTypeService = $transactionTypeService;
+        $this->transactionTypeRepository = $transactionTypeRepository;
         $this->depositRepository = $depositRepository;
         $this->salesRepository = $salesRepository;
         $this->clientRepository = $clientRepository;
         $this->userRepository = $userRepository;
     }
 
-    public function getDataDeposits() 
+    public function getAllDeposits()
     {
-        $user = $this->userRepository->getUser();
-        $roles = $user->getRoleNames()->first();
-        $agent = $this->agentRepository->getMyAgent();
-        $rouletteSpin = $agent->number_turns ?: 0;
-        $transactionsType = $this->transactionTypeService->getTransactionTypes();
-        $deposits = $this->depositRepository->getDeposits();
-        foreach ($deposits as &$deposit) {
-            if (isset($deposit['date'])) {
-                $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
-            }
+        try {
+            $user = $this->userRepository->getCurrentUser();
+            $agent = $this->agentRepository->getMyAgent();
+            $transactionsType = $this->transactionTypeRepository->getTransactionTypes();
+            $deposits = $this->depositRepository->getAllWithRelations();
+
+            $deposits->transform(function ($deposit) {
+                $deposit->date = Carbon::parse($deposit->date)->format('d/m/Y');
+                return $deposit;
+            });
+
+            $sales = $this->salesRepository->getSales();
+
+            return ResponseHelper::success('Lista de depósitos obtenida correctamente.', [
+                'user' => $user,
+                'agent' => $agent,
+                'transactionsType' => $transactionsType,
+                'deposits' => $deposits,
+                'sales' => $sales
+            ]);
+        } catch (Exception $e) {
+            Log::error("Error en getAllDeposits: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener la lista de depósitos.');
         }
-        $sales = $this->salesRepository->getSales();
-        return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $sales]);
     }
 
-    public function saveDeposit($request)
+    public function saveDeposit(array $data)
     {
-        $client = $this->clientRepository->getClientByCode($request->codeClient);
-        $agent = $this->agentRepository->findAgentByCode($request->codeAgent);
-        $user = $this->userRepository->getUser();
         DB::beginTransaction();
         try {
-            $dataDeposit = new StoreDepositRequest([
+            $client = $this->clientRepository->getClientByCode($data['codeClient']);
+            $agent = $this->agentRepository->getByCode($data['codeAgent']);
+            $user = $this->userRepository->getCurrentUser();
+
+            if (!$client) {
+                return ResponseHelper::error("El cliente con código '{$data['codeClient']}' no existe.");
+            }
+            if (!$agent) {
+                return ResponseHelper::error("El agente con código '{$data['codeAgent']}' no existe.");
+            }
+
+            $deposit = $this->depositRepository->save([
                 'agent_id' => $agent->id,
                 'customer_id' => $client->id,
                 'date' => Carbon::now(),
-                'number' => $request->codeReceipt,
+                'number' => $data['codeReceipt'],
                 'tipo' => "DEPOSITO",
-                'descripcion' => $request->description,
-                'amount' => $request->amount,
-                'currency_id' => $request->currency_id,
-                'transaction_type_id' => $request->transaction_type_id,
+                'descripcion' => $data['description'],
+                'amount' => $data['amount'],
+                'currency_id' => $data['currency_id'],
+                'transaction_type_id' => $data['transaction_type_id'],
                 'users_id' => $user->id
             ]);
-            $deposit = $this->depositRepository->saveDeposit($dataDeposit);
+
             DB::commit();
-            $deposits = $this->depositRepository->getDeposits();
-            foreach ($deposits as &$deposit) {
-                if (isset($deposit['date'])) {
-                    $deposit['date'] = Carbon::parse($deposit['date'])->format('d/m/Y');
-                }
-            }
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $deposits]);
-        } catch (ValidationException $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+
+            $deposits = $this->depositRepository->getAllWithRelations();
+            $deposits->transform(function ($deposit) {
+                $deposit->date = Carbon::parse($deposit->date)->format('d/m/Y');
+                return $deposit;
+            });
+
+            return ResponseHelper::success('Depósito guardado correctamente.', ['deposits' => $deposits]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en saveDeposit: " . $e->getMessage());
+            return ResponseHelper::error('Error al guardar el depósito.');
         }
     }
 
     public function getDepositData()
     {
-        $user_id = $this->userRepository->getMyId();
-        $agent = $this->agentRepository->getAgentByUserId($user_id);
-        $client = $this->clientRepository->getClientByUserId($user_id);
-        $rouletteSpin = $agent->number_turns ?: 0;
-        return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $agent]);
+        try {
+            $user_id = $this->userRepository->getMyUserId();
+            $agent = $this->agentRepository->getByUserId($user_id);
+            $client = $this->clientRepository->getClientByUserId($user_id);
+
+            return ResponseHelper::success('Datos de depósito obtenidos correctamente.', [
+                'agent' => $agent,
+                'client' => $client
+            ]);
+        } catch (Exception $e) {
+            Log::error("Error en getDepositData: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener los datos del depósito.');
+        }
     }
 }

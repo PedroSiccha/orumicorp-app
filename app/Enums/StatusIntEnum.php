@@ -1,9 +1,8 @@
 <?php
 namespace App\Enums;
 
-enum StatusEnum: string
+enum StatusIntEnum: int
 {
     case ACTIVE = 1;
     case INACTIVE = 0;
-    case NUEVO = 'NUEVO';
 }

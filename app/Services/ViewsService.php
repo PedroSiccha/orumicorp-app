@@ -2,7 +2,6 @@
 namespace App\Services;
 
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\StoreViewRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\ViewsRepositoryInterface;
@@ -32,13 +31,13 @@ class ViewsService
 
     public function saveViews($request)
     {
-        $user_id = $this->userRepository->getMyId();
+        $user_id = $this->userRepository->getMyUserId();
         $agent = $this->agentRepository->getMyAgent();
-        $dataView = new StoreViewRequest([
+        $dataView = [
             'agent_id' => $agent->id,
             'customer_id' => $request->clientId,
             'viewed_at' => Carbon::now()
-        ]);
+        ];
         DB::beginTransaction();
         try {
             $view = $this->viewsRepository->saveViews($dataView);

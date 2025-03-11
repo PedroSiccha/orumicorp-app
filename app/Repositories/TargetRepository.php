@@ -2,10 +2,7 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Http\Requests\EditTargetRequest;
-use App\Http\Requests\StoreTargetRequest;
 use App\Interfaces\TargetRepositoryInterface;
-use App\Models\Agent;
 use App\Models\Target;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
@@ -19,111 +16,83 @@ class TargetRepository implements TargetRepositoryInterface
     {
         try {
             return Target::where('status', StatusEnum::ACTIVE->value)
-                            ->where('month', date("m"))
-                            ->orderBy("created_at", "asc")
-                            ->get();
+                         ->whereMonth('created_at', now()->month)
+                         ->orderBy('created_at', 'desc')
+                         ->get();
         } catch (QueryException $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error("Error en TargetRepository@getTargets: " . $e->getMessage());
+            throw new Exception("Error al obtener los objetivos.");
         }
     }
 
-    public function saveTarget(StoreTargetRequest $data): ?Target
+    public function saveTarget(array $data): Target
     {
         try {
             return Target::create($data);
         } catch (QueryException $e) {
             Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            throw new Exception("Error al guardar el objetivo.");
         }
     }
 
-    public function getTargetByMonthAgent(string $month, Agent $agent): ?Target
+    public function getTargetByMonthAndAgent(string $month, int $agentId): ?Target
     {
         try {
             return Target::where('status', StatusEnum::ACTIVE->value)
-                        ->where('month', $month)
-                        ->where('agent_id', $agent->id)
-                        ->orderBy("created_at", "asc")
-                        ->first();
+                ->where('month', $month)
+                ->where('agent_id', $agentId)
+                ->orderBy('created_at', 'asc')
+                ->first();
         } catch (QueryException $e) {
             Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            throw new Exception("Error al buscar objetivo para agente.");
         }
     }
 
-    public function getTargetWithDate(): Collection
+    public function getTargetsWithMonthName(): Collection
     {
         try {
             return Target::select('id', 'amount', 'agent_id')
-                        ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
-                        ->get();
+                         ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
+                         ->get();
         } catch (QueryException $e) {
             Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            throw new Exception("Error al obtener los objetivos por mes.");
         }
     }
 
-    public function updateTarget(Target $target, StoreTargetRequest $data): bool
+    public function updateTarget(Target $target, array $data): bool
     {
         try {
-            $target->fill($data->validated());
-            if (!$target->save()) {
-                return false;
-            }
-            return true;
+            return $target->update($data);
         } catch (QueryException $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
             Log::error("Error TargetRepository: " . $e->getMessage());
             return false;
         }
     }
 
-    public function updateAmountTarget(Target $target, float $amount): bool
+    public function incrementTargetAmount(Target $target, float $amount): bool
     {
         try {
-            $newAmount = $target->amount + $amount;
-            $target->amount = $newAmount;
-            if (!$target->save()) {
-                return false;
-            }
-            return true;
+            $target->amount += $amount;
+            return $target->save();
         } catch (QueryException $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
+            Log::error("Error al incrementar monto del objetivo: " . $e->getMessage());
             return false;
         }
     }
 
-    public function getTargetsByAgent(int $agentId, int $pagination): LengthAwarePaginator
+    public function getPaginatedTargetsByAgent(int $agentId, int $pagination): LengthAwarePaginator
     {
         try {
             return Target::select('id', 'amount', 'agent_id')
-                        ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
-                        ->where('agent_id', $agentId)
-                        ->paginate($pagination, ['*'], 'targets_page')->withQueryString();
+                ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
+                ->where('agent_id', $agentId)
+                ->paginate($pagination, ['*'], 'targets_page')
+                ->withQueryString();
         } catch (QueryException $e) {
             Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            throw new Exception("Error al obtener objetivos paginados por agente.");
         }
     }
 
@@ -133,10 +102,7 @@ class TargetRepository implements TargetRepositoryInterface
             return Target::find($targetId);
         } catch (QueryException $e) {
             Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TargetRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            throw new Exception("Error al obtener el objetivo por ID.");
         }
     }
 }

@@ -3,8 +3,6 @@ namespace App\Services;
 
 use App\Enums\StatusEnum;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\StoreComunicationRequest;
-use App\Http\Requests\StoreCustomerStatusRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\ClientStatusRepositoryInterface;
 use App\Interfaces\ComunicationRepositoryInterface;
@@ -13,7 +11,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class ComunicationService
 {
@@ -32,88 +30,77 @@ class ComunicationService
         $this->customerStatusRepository = $customerStatusRepository;
     }
 
-    public function saveComunication($request) {
+    public function saveComunication(array $data)
+    {
         DB::beginTransaction();
         try {
             $agent = $this->agentRepository->getMyAgent();
-            $dataComunication = new StoreComunicationRequest([
-                'agent_id' => $agent->id,
-                'customer_id' => $request['customer_id'],
-                'date' => Carbon::now(),
-                'tipo' => 'Llamada',
-                'descripcion' => $request['description'],
-                'comment' => $request['comment'],
-                'status' => StatusEnum::NUEVO->value
-            ]);
 
-            $comunication = $this->comunicationRepository->saveComunication($dataComunication);
-            DB::commit();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $comunication]);
-        } catch (ValidationException $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
-        }
-    }
-
-    public function updateComunication($request) 
-    {
-        $statusCommunicationName = "";
-        DB::beginTransaction();
-        try {
-            $customerStatus = $this->customerStatusRepository->findStatusById($request['customerStatusId']);
-            if ($customerStatus) {
-                $statusCommunicationName = $customerStatus->name;
+            if (!$agent) {
+                return ResponseHelper::error("No se encontró el agente asociado.");
             }
-            $agent = $this->agentRepository->getMyAgent();
-            $comunication = $this->comunicationRepository->findComunicationById($request['comunicationId']);
-            $dataComunication = new StoreComunicationRequest([
-                'comment' => $request['comment'],
-                'status' => $statusCommunicationName
-            ]);
-            $response = $this->comunicationRepository->updateComunication($comunication, $dataComunication);
-            DB::commit();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $response]);
 
-        } catch (ValidationException $e) {
+            $data['agent_id'] = $agent->id;
+            $data['date'] = Carbon::now();
+            $data['tipo'] = 'Llamada';
+            $data['status'] = StatusEnum::NUEVO->value;
+
+            $comunication = $this->comunicationRepository->save($data);
+            DB::commit();
+
+            return ResponseHelper::success("Comunicación guardada correctamente.", ['comunication' => $comunication]);
+        } catch (Throwable $e) { 
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
-        }
+            Log::error("Error inesperado en updateComunication: " . $e->getMessage());
+            return ResponseHelper::error("Ocurrió un error inesperado. Contacte con soporte.");
+        }        
     }
 
-    public function getLocationByAgent($request) 
+    public function updateComunication(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $customerStatus = $this->customerStatusRepository->findById($data['customerStatusId']);
+            $statusCommunicationName = $customerStatus ? $customerStatus->name : null;
+
+            $comunication = $this->comunicationRepository->findById($data['comunicationId']);
+
+            if (!$comunication) {
+                return ResponseHelper::error("Comunicación no encontrada.");
+            }
+
+            $data['status'] = $statusCommunicationName;
+
+            $updated = $this->comunicationRepository->update($comunication, $data);
+            DB::commit();
+
+            return ResponseHelper::success("Comunicación actualizada correctamente.", ['comunication' => $updated]);
+        } catch (Throwable $e) { 
+            DB::rollBack();
+            Log::error("Error inesperado en updateComunication: " . $e->getMessage());
+            return ResponseHelper::error("Ocurrió un error inesperado. Contacte con soporte.");
+        }        
+    }
+
+    public function getLocationByAgent(int $agentId)
     {
         try {
-            $communication = $this->comunicationRepository->getComunicationsByAgent($request['agent_id']);
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $communication]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            $communications = $this->comunicationRepository->getComunicationsByAgent($agentId);
+            return ResponseHelper::success("Historial de comunicaciones del agente obtenido correctamente.", ['communications' => $communications]);
         } catch (Exception $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en getLocationByAgent: " . $e->getMessage());
+            return ResponseHelper::error("Error al obtener el historial de comunicaciones del agente.");
         }
     }
 
-    public function getLocationByCustomer($request) {
+    public function getLocationByCustomer(int $customerId)
+    {
         try {
-            $communications = $this->comunicationRepository->getComunicationsbyCustomer($request['customer_id']);
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $communications]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            $communications = $this->comunicationRepository->getComunicationsByCustomer($customerId);
+            return ResponseHelper::success("Historial de comunicaciones del cliente obtenido correctamente.", ['communications' => $communications]);
         } catch (Exception $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en getLocationByCustomer: " . $e->getMessage());
+            return ResponseHelper::error("Error al obtener el historial de comunicaciones del cliente.");
         }
     }
 

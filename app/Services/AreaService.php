@@ -3,13 +3,12 @@ namespace App\Services;
 
 use App\Enums\StatusEnum;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\AreaRequest;
-use App\Http\Requests\StoreareaRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\AreaRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AreaService
 {
@@ -28,104 +27,113 @@ class AreaService
         $this->agentRepository = $agentRepository;
     }
 
-    public function getDataAreas() 
+    public function getDataAreas()
     {
         try {
-            $user_id = $this->userRepository->getMyId();
-            $agent = $this->agentRepository->getAgentByUserId($user_id);
-            $areas = $this->areaRepository->getAreas();
-            $response = [
+            $user_id = $this->userRepository->getMyUserId();
+            $agent = $this->agentRepository->getByUserId($user_id);
+            $areas = $this->areaRepository->getAllActive();
+            return ResponseHelper::success('Datos de áreas obtenidos correctamente.', [
                 'agent' => $agent,
                 'areas' => $areas
-            ];
-
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $response]);
+            ]);
         } catch (Exception $e) {
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
-        }        
+            Log::error("Error en getDataAreas: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener los datos de áreas.');
+        }
     }
     
 
-    public function saveArea($request)
+    public function saveArea(array $data)
     {
-        $dataArea = new StoreareaRequest([
-            'name' => $request->name,
-            'description' => $request->desciption,
-            'status' => StatusEnum::ACTIVE->value,
-        ]);
-
         DB::beginTransaction();
         try {
-            $area = $this->areaRepository->saveArea($dataArea);
-            $areas = $this->areaRepository->getAreas();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $areas]);
+            $areaData = [
+                'name' => $data['name'],
+                'description' => $data['description'],
+                'status' => StatusEnum::ACTIVE->value,
+            ];
+            $this->areaRepository->save($areaData);
             DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
-        }
-    }
-
-    public function updateArea($request)
-    {
-        DB::beginTransaction();
-        try {
-            $area = $this->areaRepository->getAreaById($request->id);
-            $areaData = new StoreareaRequest([
-                'name' => $request->name,
-                'description' => $request->desciption,
+            return ResponseHelper::success('Área guardada correctamente.', [
+                'areas' => $this->areaRepository->getAllActive()
             ]);
-            $this->areaRepository->updateArea($area, $areaData);
-            DB::commit();
-            $areas = $this->areaRepository->getAreas();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $areas]);
         } catch (Exception $e) {
             DB::rollBack();
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en saveArea: " . $e->getMessage());
+            return ResponseHelper::error('Error al guardar el área.');
         }
     }
 
-    public function changeStatusArea($request)
+    public function updateArea(array $data)
     {
         DB::beginTransaction();
         try {
-            $area = $this->areaRepository->getAreaById($request->id);
-            $response = $this->areaRepository->changeStatusArea($area, $request->status);
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $response]);
+            $area = $this->areaRepository->findById($data['id']);
+            if (!$area) return ResponseHelper::error('El área no existe.');
+            $areaData = [
+                'name' => $data['name'],
+                'description' => $data['description'],
+            ];
+            $this->areaRepository->update($area, $areaData);
+            DB::commit();
+            return ResponseHelper::success('Área actualizada correctamente.', [
+                'areas' => $this->areaRepository->getAllActive()
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
-        }        
+            Log::error("Error en updateArea: " . $e->getMessage());
+            return ResponseHelper::error('Error al actualizar el área.');
+        }
     }
 
-    public function deleteArea($request)
+    public function changeStatusArea(int $areaId, string $status)
     {
         DB::beginTransaction();
         try {
-            $response = $this->areaRepository->deleteArea($request->id);
-            $areas = $this->areaRepository->getAreas();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $areas]);
+            $area = $this->areaRepository->findById($areaId);
+            if (!$area) return ResponseHelper::error('El área no existe.');
+            $response = $this->areaRepository->changeStatus($area->id, $status);
+            DB::commit();
+            return ResponseHelper::success('Estado del área actualizado correctamente.', ['response' => $response]);
         } catch (Exception $e) {
             DB::rollBack();
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
-        }        
+            Log::error("Error en changeStatusArea: " . $e->getMessage());
+            return ResponseHelper::error('Error al cambiar el estado del área.');
+        }
+    }
+
+    public function deleteArea(int $areaId)
+    {
+        DB::beginTransaction();
+        try {
+            $area = $this->areaRepository->findById($areaId);
+            if (!$area) return ResponseHelper::error('El área no existe.');
+            $this->areaRepository->delete($areaId);
+            DB::commit();
+            return ResponseHelper::success('Área eliminada correctamente.', [
+                'areas' => $this->areaRepository->getAllActive()
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en deleteArea: " . $e->getMessage());
+            return ResponseHelper::error('Error al eliminar el área.');
+        }
     }
 
     public function getAreasData()
     {
         try {
             $agent = $this->agentRepository->getMyAgent();
-            $rouletteSpin = $agent->number_turns ?: 0;
-            $areas = $this->areaRepository->getAreas();
-            $response = [
-                'agemt' => $agent,
-                'rouletteSpin' => $rouletteSpin,
-                'areas' => $areas
-            ];
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $response]);
+            if (!$agent) return ResponseHelper::error('No se encontró el agente.');
+            return ResponseHelper::success('Datos de áreas obtenidos correctamente.', [
+                'agent' => $agent,
+                'rouletteSpin' => $agent->number_turns ?: 0,
+                'areas' => $this->areaRepository->getAllActive()
+            ]);
         } catch (Exception $e) {
-            DB::rollBack();
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en getAreasData: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener los datos de las áreas.');
         }
     }
 }

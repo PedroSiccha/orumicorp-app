@@ -6,34 +6,42 @@ use App\Interfaces\AwardRepositoryInterface;
 use App\Models\Premio;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class AwardRepository implements AwardRepositoryInterface
 {
-    public function getAwardsByType(int $type): Collection
+    public function getAwardsByType(int $awardType): Collection
     {
         try {
-            return Premio::where('status', StatusEnum::ACTIVE->value)->where('type', $type)->get();
-        } catch (QueryException $e) {
-            Log::error("Error AwardRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error AwardRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            $awards = Premio::where('status', StatusEnum::ACTIVE->value)
+                            ->where('type', $awardType)
+                            ->get();
+
+            if ($awards->isEmpty()) {
+                Log::warning("No se encontraron premios del tipo: {$awardType}");
+            }
+
+            return $awards;
+        } catch (Throwable $e) {
+            Log::error("Error en AwardRepository - getAwardsByType: " . $e->getMessage());
+            throw new Exception("Error al obtener premios del tipo: {$awardType}");
         }
     }
 
-    public function findAwardByName(string $data): Collection
+    public function findAwardByOrder(string $orderNumber): ?Premio
     {
         try {
-            return Premio::where('order', $data)->first();
-        } catch (QueryException $e) {
-            Log::error("Error AwardRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error AwardRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            $award = Premio::where('order', $orderNumber)->first();
+            if (!$award) {
+                Log::warning("No se encontró un premio con el número de orden: {$orderNumber}");
+                return null;
+            }
+            return $award;
+        } catch (Throwable $e) {
+            Log::error("Error en AwardRepository - findAwardByOrder: " . $e->getMessage());
+            throw new Exception("Error al buscar el premio por número de orden.");
         }
     }
+
 }

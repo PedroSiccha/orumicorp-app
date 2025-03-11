@@ -2,12 +2,9 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Http\Requests\StoreShooterRequest;
 use App\Interfaces\ShooterRepositoryInterface;
 use App\Models\Shooter;
-use Carbon\Carbon;
 use Exception;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 
 class ShooterRepository implements ShooterRepositoryInterface
@@ -15,43 +12,31 @@ class ShooterRepository implements ShooterRepositoryInterface
     public function getShooter(): ?Shooter
     {
         try {
-             return Shooter::where('status', StatusEnum::ACTIVE->value)->first();
-        } catch (QueryException $e) {
-            Log::error("Error ShooterRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            return Shooter::where('status', StatusEnum::ACTIVE->value)->first();
         } catch (Exception $e) {
-            Log::error("Error ShooterRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error("Error obteniendo Shooter activo: " . $e->getMessage());
+            throw new Exception("Error al obtener datos.");
         }
     }
 
-    public function saveShooter(StoreShooterRequest $data): Shooter
+    public function saveShooter(array $data): Shooter
     {
         try {
             return Shooter::create($data);
-        } catch (QueryException $e) {
-            Log::error("Error ShooterRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            Log::error("Error ShooterRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error("Error guardando Shooter: " . $e->getMessage());
+            throw new Exception("Error al guardar datos.");
         }
     }
 
     public function disableShooter(Shooter $shooter): bool
     {
         try {
-            $shooter->end = Carbon::now();
-            $shooter->status = false;
-            if (!$shooter->save()) {
-                return false;
-            }
-            return true;
-        } catch (QueryException $e) {
-            Log::error("Error ShooterRepository: " . $e->getMessage());
-            return false;
+            $shooter->end = now();
+            $shooter->status = StatusEnum::INACTIVE->value;
+            return $shooter->save();
         } catch (Exception $e) {
-            Log::error("Error ShooterRepository: " . $e->getMessage());
+            Log::error("Error desactivando Shooter: " . $e->getMessage());
             return false;
         }
     }
@@ -60,12 +45,9 @@ class ShooterRepository implements ShooterRepositoryInterface
     {
         try {
             return Shooter::find($shooterId);
-        } catch (QueryException $e) {
-            Log::error("Error ShooterRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         } catch (Exception $e) {
-            Log::error("Error ShooterRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error("Error buscando Shooter por ID: " . $e->getMessage());
+            throw new Exception("Error al obtener datos.");
         }
     }
 }

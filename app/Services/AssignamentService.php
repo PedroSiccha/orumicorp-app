@@ -1,31 +1,27 @@
 <?php
 namespace App\Services;
 
-use App\Interfaces\AssignamentInterface;
-use App\Models\Assignment;
 use App\Repositories\Contracts\AssignmentRepositoryInterface;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class AssignamentService
 {
 
-    protected $assignamentRepository;
+    protected $assignmentRepository;
 
     public function __construct(
-        AssignmentRepositoryInterface $assignamentRepository
+        AssignmentRepositoryInterface $assignmentRepository
     ) {
-        $this->assignamentRepository = $assignamentRepository;
+        $this->assignmentRepository = $assignmentRepository;
     }
 
-    public function getLastAssignamentByCustomer(int $customerId) {
+    public function getLastAssignmentByCustomer(int $customerId)
+    {
         try {
-            $lastAssignment = $this->assignamentRepository->getLastAssignamentByCustomer($customerId);
-            if ($lastAssignment) {
-                return $lastAssignment;
-            } else {
-                return null;
-            }
+            return $this->assignmentRepository->getLatestActiveAssignmentByCustomer($customerId);
         } catch (Exception $e) {
+            Log::error("Error en getLastAssignmentByCustomer: " . $e->getMessage());
             return null;
         }
     }

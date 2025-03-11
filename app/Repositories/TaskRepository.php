@@ -1,8 +1,6 @@
 <?php
 namespace App\Repositories;
 
-use App\Http\Requests\EditTaskRequest;
-use App\Http\Requests\StoreTaskRequest;
 use App\Interfaces\TaskRepositoryInterface;
 use App\Models\Task;
 use Exception;
@@ -15,27 +13,21 @@ class TaskRepository implements TaskRepositoryInterface
     public function getTasks(): Collection
     {
         try {
-             return Task::with('agent')->get();
+            return Task::with('agent')->get();
         } catch (QueryException $e) {
-            Log::error("Error TaskRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TaskRepository: " . $e->getMessage());
+            Log::error("Error TaskRepository (getTasks): " . $e->getMessage());
             throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
-    public function getTaskWithCustomer(int $customerId): Collection
+    public function getTasksByCustomer(int $customerId): Collection
     {
         try {
-             return Task::with('customer')->find($customerId);
-       } catch (QueryException $e) {
-           Log::error("Error TaskRepository: " . $e->getMessage());
-           throw new Exception("No se encontraron resultados para los filtros aplicados.");
-       } catch (Exception $e) {
-           Log::error("Error TaskRepository: " . $e->getMessage());
-           throw new Exception("No se encontraron resultados para los filtros aplicados.");
-       }
+            return Task::where('customer_id', $customerId)->with('customer')->get();
+        } catch (QueryException $e) {
+            Log::error("Error TaskRepository: " . $e->getMessage());
+            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+        }
     }
 
     public function getAllTasks(): Collection
@@ -45,37 +37,25 @@ class TaskRepository implements TaskRepositoryInterface
         } catch (QueryException $e) {
             Log::error("Error TaskRepository: " . $e->getMessage());
             throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TaskRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }
     }
 
-    public function saveTask(StoreTaskRequest $data): Task
+    public function saveTask(array $data): Task
     {
         try {
             return Task::create($data);
         } catch (QueryException $e) {
             Log::error("Error TaskRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error TaskRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            throw new Exception("Error al guardar la tarea.");
         }
     }
 
-    public function updateTask(Task $task, StoreTaskRequest $data): bool
+    public function updateTask(Task $task, array $data): bool
     {
         try {
-            $task->fill($data->validated());
-            if (!$task->save()) {
-                return false;
-            }
-            return true;
+            $task->fill($data);
+            return $task->save();
         } catch (QueryException $e) {
-            Log::error("Error TaskRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
             Log::error("Error TaskRepository: " . $e->getMessage());
             return false;
         }
@@ -88,14 +68,8 @@ class TaskRepository implements TaskRepositoryInterface
             if (!$task) {
                 return false;
             }
-            if (!$task->delete()) {
-                return false;
-            }
-            return true;
+            return $task->delete();
         } catch (QueryException $e) {
-            Log::error("Error TaskRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
             Log::error("Error TaskRepository: " . $e->getMessage());
             return false;
         }
@@ -106,9 +80,6 @@ class TaskRepository implements TaskRepositoryInterface
         try {
             return Task::find($taskId);
         } catch (QueryException $e) {
-            Log::error("Error TaskRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
             Log::error("Error TaskRepository: " . $e->getMessage());
             throw new Exception("No se encontraron resultados para los filtros aplicados.");
         }

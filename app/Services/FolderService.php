@@ -3,9 +3,6 @@ namespace App\Services;
 
 use App\Enums\StatusEnum;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\FolderRequest;
-use App\Http\Requests\StoreCustomerRequest;
-use App\Http\Requests\StoreFolderRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\CampaingRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -13,11 +10,9 @@ use App\Interfaces\ClientStatusRepositoryInterface;
 use App\Interfaces\FolderRepositoryInterface;
 use App\Interfaces\ProviderRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
-use App\Models\Customers;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class FolderService
 {
@@ -44,215 +39,178 @@ class FolderService
       $this->statusCustomerRepository = $statusCustomerRepository;
     }
 
-    public function deleteFolder(FolderRequest $request)
+    public function deleteFolder(int $folderId)
     {
         DB::beginTransaction();
         try {
-            $data = $this->folderRepository->disableFolder($request->folderId);
-            $folders = $this->folderRepository->getFoldersByCategory(1);
+            $folder = $this->folderRepository->findById($folderId);
+            if (!$folder) {
+                return ResponseHelper::error('La carpeta no existe.');
+            }
+
+            $this->folderRepository->disableFolder($folder);
             DB::commit();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $folders]);
-        } catch (ValidationException $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+
+            return ResponseHelper::success('Carpeta eliminada correctamente.', [
+                'folders' => $this->folderRepository->getFoldersByCategory(1)
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en deleteFolder: " . $e->getMessage());
+            return ResponseHelper::error('Error al eliminar la carpeta.');
         }
     }
 
-    public function addGroupClientFolder(FolderRequest $request)
+    public function addGroupClientFolder(int $folderId, array $clientIds, int $limit)
     {
         DB::beginTransaction();
         try {
-            $data = $this->folderRepository->assignClientToFolder($request->folderId, $request->idGroupClientes);
+            $this->folderRepository->assignClientsToFolder($folderId, $clientIds);
             DB::commit();
-            $relations = [
-                    'user',
-                    'agent',
-                    'latestCampaign',
-                    'latestSupplier',
-                    'provider',
-                    'statusCustomer',
-                    'platform',
-                    'traiding',
-                    'latestComunication',
-                    'latestAssignamet',
-                    'latestDeposit'
-            ];
-            $customers = $this->clientRepository->getAllClients($request->limit, $relations);
-            $agents = $this->agentRepository->getAgents();
-            $campaings = $this->campaingRepository->getCampaing();
-            $providers = $this->providerRepository->getProviders();
-            $statusCustomers = $this->statusCustomerRepository->getCustomerStatus();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $customers]);
-        } catch (ValidationException $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+
+            $customers = $this->clientRepository->getAllPaginated($limit, [
+                'user', 'agent', 'latestCampaign', 'latestSupplier', 'provider',
+                'statusCustomer', 'platform', 'traiding', 'latestComunication',
+                'latestAssignamet', 'latestDeposit'
+            ]);
+
+            return ResponseHelper::success('Clientes asignados a la carpeta correctamente.', ['customers' => $customers]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en addGroupClientFolder: " . $e->getMessage());
+            return ResponseHelper::error('Error al asignar clientes a la carpeta.');
         }
     }
 
-    public function saveFolder(StoreFolderRequest $request)
+    public function saveFolder(array $data)
     {
         DB::beginTransaction();
         try {
-            $dataFolders = new StoreFolderRequest([
-                'name' => $request->name,
+            $folder = $this->folderRepository->save([
+                'name' => $data['name'],
                 'status' => StatusEnum::ACTIVE->value,
-                'category_id' => $request->categoryId
+                'category_id' => $data['categoryId']
             ]);
-            $response = $this->folderRepository->saveFolder($request);
+
             DB::commit();
-            $folders = $this->folderRepository->getFoldersByCategory(1);
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $folders]);
-        } catch (ValidationException $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+
+            return ResponseHelper::success('Carpeta creada correctamente.', ['folders' => $this->folderRepository->getFoldersByCategory(1)]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en saveFolder: " . $e->getMessage());
+            return ResponseHelper::error('Error al crear la carpeta.');
         }
     }
 
-    public function addClientFolder($request)
+    public function addClientFolder(array $data)
     {
         try {
-        $customer = $this->clientRepository->getClientByCode($request->codeClient);
-        $dataChangeFolder = new StoreCustomerRequest([
-            'folder_id' => $request->folderId
-        ]);
-        $data = $this->clientRepository->changeFolderClient($customer, $dataChangeFolder);
-        $clients = Customers::where('status', 1)->where('folder_id', $request->folderId)->get();
-        return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $clients]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            $customer = $this->clientRepository->getClientByCode($data['codeClient']);
+            if (!$customer) {
+                return ResponseHelper::error("El cliente con código '{$data['codeClient']}' no existe.");
+            }
+
+            $this->clientRepository->changeFolderClient($customer, ['folder_id' => $data['folderId']]);
+
+            $clients = $this->clientRepository->getClientsByFolder($data['folderId']);
+
+            return ResponseHelper::success('Cliente asignado a la carpeta correctamente.', ['clients' => $clients]);
         } catch (Exception $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en addClientFolder: " . $e->getMessage());
+            return ResponseHelper::error('Error al asignar el cliente a la carpeta.');
         }
     }
 
-    public function moveFolder($request)
+    public function moveFolder(int $folderId, int $categoryId)
     {
         try {
-            $folder = $this->folderRepository->findFolderById($request->folderId);
-            $dataFolder = new StoreFolderRequest([
-                'category_id' => $request->categoryId
-            ]);
-            $response = $this->folderRepository->changeFolderCategory($folder->id, $dataFolder);
-            $folders = $this->folderRepository->getFolders();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $folders]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            $folder = $this->folderRepository->findById($folderId);
+            if (!$folder) {
+                return ResponseHelper::error('La carpeta no existe.');
+            }
+
+            $this->folderRepository->changeFolderCategory($folderId, $categoryId);
+
+            return ResponseHelper::success('Carpeta movida correctamente.', ['folders' => $this->folderRepository->getActiveFolders()]);
         } catch (Exception $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en moveFolder: " . $e->getMessage());
+            return ResponseHelper::error('Error al mover la carpeta.');
         }
     }
 
-    public function editFolder($request)
+    public function editFolder(int $folderId, array $data)
     {
         try {
-            $folder = $this->folderRepository->findFolderById($request->folderId);
-            $dataFolder = new StoreFolderRequest([
-                'name' => $request->name,
+            $folder = $this->folderRepository->findById($folderId);
+            if (!$folder) {
+                return ResponseHelper::error('La carpeta no existe.');
+            }
+
+            $this->folderRepository->update($folder, [
+                'name' => $data['name'],
                 'category_id' => $folder->category_id
             ]);
-            $response = $this->folderRepository->updateFolder($folder, $dataFolder);
-            $folders = $this->folderRepository->getFolders();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $folders]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+
+            return ResponseHelper::success('Carpeta actualizada correctamente.', ['folders' => $this->folderRepository->getActiveFolders()]);
         } catch (Exception $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en editFolder: " . $e->getMessage());
+            return ResponseHelper::error('Error al actualizar la carpeta.');
         }
     }
 
-    public function changeFolderClient($request)
+    public function changeFolderClient(array $data)
     {
-        // $title = 'Error';
-        // $mensaje = 'Error desconocido';
-        // $status = 'error';
+        DB::beginTransaction();
+        try {
+            // Buscar cliente en la base de datos usando el repositorio
+            $customer = $this->clientRepository->findById($data['clienteId']);
 
-        // try {
+            if (!$customer) {
+                return ResponseHelper::error('Cliente no encontrado.');
+            }
 
-        //     $customer = Customers::find($request->clienteId);
+            // Actualizar el folder del cliente
+            $this->clientRepository->changeFolderClient($customer, ['folder_id' => $data['folderId']]);
 
-        //     $customer->folder_id = $request->folderId;
+            DB::commit();
 
-        //     if ($customer->save()) {
-        //         $title = "Correcto";
-        //         $mensaje = "Cliente asignado correctamente";
-        //         $status = "success";
-        //     }
+            // Obtener el usuario y su rol
+            $user_id = $this->userRepository->getMyUserId();
+            $myRoles = $this->rolesService->getMyRoles();
+            $agent = $this->agentRepository->getByUserId($user_id);
 
-        // } catch (Exception $e) {
-        //     $title = 'Error';
-        //     $mensaje = 'Ocurrió un error: '.$e->getMessage();
-        //     $status = 'error';
-        // }
+            // Obtener clientes según el rol
+            $relations = [
+                'user', 'agent', 'latestCampaign', 'latestSupplier', 'provider',
+                'statusCustomer', 'platform', 'traiding', 'latestComunication',
+                'latestAssignamet', 'latestDeposit'
+            ];
 
-        // $myRoles = $this->rolesService->getMyRoles();
-        // $myRolesId = $myRoles['rolesId'];
-        // $user_id = Auth::user()->id;
-        // $agent = Agent::where('user_id', $user_id)->first();
+            $customers = ($myRoles['roles'] == 'ADMINISTRADOR')
+                ? $this->clientRepository->getAllPaginated(10, $relations)
+                : $this->clientRepository->getByAgentPaginated($agent->id, 10, $relations);
 
-        // if ($myRoles['roles']== 'ADMINISTRADOR') {
+            // Obtener datos adicionales
+            $agents = $this->agentRepository->allActive();
+            $campaings = $this->campaingRepository->getActiveCampaigns();
+            $providers = $this->providerRepository->getAll();
+            $statusCustomers = $this->clientRepository->getCustomerStatus();
 
-        //     $customers = Customers::with([
-        //         'user',
-        //         'agent',
-        //         'latestCampaign',
-        //         'latestSupplier',
-        //         'provider',
-        //         'statusCustomer',
-        //         'platform',
-        //         'traiding',
-        //         'latestComunication',
-        //         'latestAssignamet',
-        //         'latestDeposit'
-        //     ])->orderBy('date_admission', 'desc')->paginate(10);
+            return ResponseHelper::success('Cliente asignado a la carpeta correctamente.', [
+                'customers' => $customers,
+                'agents' => $agents,
+                'campaings' => $campaings,
+                'providers' => $providers,
+                'statusCustomers' => $statusCustomers
+            ]);
 
-        // } else {
-
-        //     $customers = Customers::with([
-        //         'user',
-        //         'agent',
-        //         'latestCampaign',
-        //         'latestSupplier',
-        //         'provider',
-        //         'statusCustomer',
-        //         'platform',
-        //         'traiding',
-        //         'assignaments',
-        //         'latestComunication',
-        //         'latestAssignamet',
-        //         'latestDeposit'
-        //     ])->whereHas('assignaments', function($query) use ($agent) {
-        //         $query->where('agent_id', $agent->id);
-        //     })->orderBy('date_admission', 'desc')->paginate(10);
-        // }
-
-        // $agents = Agent::all();
-        // $campaings = Campaing::all();
-        // $providers = Provider::all();
-        // $statusCustomers = CustomerStatus::all();
-
-        // return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error en changeFolderClient: " . $e->getMessage());
+            return ResponseHelper::error('Error al asignar el cliente a la carpeta.');
+        }
     }
+
 
 
 } 

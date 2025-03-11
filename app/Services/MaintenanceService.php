@@ -13,7 +13,6 @@ use App\Interfaces\TransactionTypeRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class MaintenanceService
 {
@@ -45,21 +44,38 @@ class MaintenanceService
     public function getMaintenanceData()
     { 
         try {
+            // Obtener el agente y validar su existencia
             $agent = $this->agentRepository->getMyAgent();
-            $rouletteSpin = $agent->number_turns ?: 0;
-            $customersStatus = $this->customersStatusRepository->getCustomerStatus();
-            $campaigns = $this->campaingRepository->getCampaing();
-            $suppliers = $this->providerRepository->getProviders();
-            $platforms = $this->platformRepository->getPlatforms();
-            $traidings = $this->traidingRepository->getTraidings();
+            if (!$agent) {
+                return ResponseHelper::error('No se encontró un agente asignado al usuario.');
+            }
+
+            // Obtener datos necesarios para la vista de mantenimiento
+            $customersStatus = $this->customersStatusRepository->getAll();
+            $campaigns = $this->campaingRepository->getActiveCampaigns();
+            $suppliers = $this->providerRepository->getAll();
+            $platforms = $this->platformRepository->getActivePlatforms();
+            $traidings = $this->traidingRepository->getActiveTraidings();
             $transactionsType = $this->transactionsType->getTransactionTypes();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $transactionsType]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+
+            // Construir la respuesta con todos los datos necesarios
+            $response = [
+                'agent' => $agent,
+                'rouletteSpin' => $agent->number_turns ?: 0,
+                'customersStatus' => $customersStatus,
+                'campaigns' => $campaigns,
+                'suppliers' => $suppliers,
+                'platforms' => $platforms,
+                'traidings' => $traidings,
+                'transactionsType' => $transactionsType
+            ];
+
+            return ResponseHelper::success('Datos de mantenimiento obtenidos correctamente.', $response);
+
         } catch (Exception $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en getMaintenanceData: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener los datos de mantenimiento.');
         }
     }
+
 }

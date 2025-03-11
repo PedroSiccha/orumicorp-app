@@ -7,10 +7,8 @@ use App\Http\Requests\StoreTargetRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\TargetRepositoryInterface;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class TargetService
 {
@@ -29,20 +27,17 @@ class TargetService
     {
         try {
             $agent = $this->agentRepository->getMyAgent();
-            $dataTarget = new StoreTargetRequest([
+            $dataTarget = [
                 'amount' => $request->amount,
                 'month' => date("m"),
                 'observation' => $request->observation,
                 'status' => StatusEnum::ACTIVE->value,
                 'agent_id' => $agent->id
-            ]);
+            ];
             $target = $this->targetRepository->saveTarget($dataTarget);
-            $targetMensual = $this->targetRepository->getTargetByMonthAgent(date("m"), $agent);
-            $targets = $this->targetRepository->getTargetWithDate();
+            $targetMensual = $this->targetRepository->getTargetByMonthAndAgent(date("m"), $agent->id);
+            $targets = $this->targetRepository->getTargetsWithMonthName();
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $targets]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -60,39 +55,49 @@ class TargetService
             ]);
             $response = $this->targetRepository->updateTarget($target, $request);
             DB::commit();
-            $targetMensual = $this->targetRepository->getTargetByMonthAgent(date("m"), $agent->id);
-            $targets = $this->targetRepository->getTargetWithDate();
+            $targetMensual = $this->targetRepository->getTargetByMonthAndAgent(date("m"), $agent->id);
+            $targets = $this->targetRepository->getTargetsWithMonthName();
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $targets]);
-        } catch (ValidationException $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
         }
     }
-
     public function addTarget($request)
     {
-        DB::beginTransaction();
+        DB::beginTransaction(); // Iniciar la transacción
+    
         try {
+            // Obtener el agente autenticado
             $agent = $this->agentRepository->getMyAgent();
+            if (!$agent) {
+                return ResponseHelper::error('No se encontró el agente.');
+            }
+    
+            // Buscar la meta y validar que exista
             $target = $this->targetRepository->findTargetById($request->targetId);
-            $response = $this->targetRepository->updateAmountTarget($target, $target->amount);
-            DB::commit();
-            $targetMensual = $this->targetRepository->getTargetByMonthAgent(date("m"), $agent->id);
-            $targets = $this->targetRepository->getTargetWithDate();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $targets]);
-        } catch (ValidationException $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            if (!$target) {
+                return ResponseHelper::error('No se encontró la meta especificada.');
+            }
+    
+            // Actualizar la cantidad de la meta (ajustar la lógica según sea necesario)
+            $nuevoMonto = $target->amount + $request->incremento; // Asumiendo que se envía un valor de incremento
+            $response = $this->targetRepository->incrementTargetAmount($target, $nuevoMonto);
+    
+            DB::commit(); // Confirmar la transacción
+    
+            // Obtener los datos actualizados
+            $targetMensual = $this->targetRepository->getTargetByMonthAndAgent(date("m"), $agent->id);
+            $targets = $this->targetRepository->getTargetsWithMonthName();
+    
+            return ResponseHelper::success('Meta actualizada correctamente.', ['response' => $targets]);
+    
         } catch (Exception $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            DB::rollBack(); // Revertir cambios en caso de error
+            Log::error("Error en addTarget: " . $e->getMessage());
+            return ResponseHelper::error('Error al actualizar la meta.');
         }
     }
+    
 }

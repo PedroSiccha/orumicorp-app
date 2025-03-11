@@ -4,7 +4,6 @@ namespace App\Services;
 use App\Enums\ActionType;
 use App\Enums\StatusEnum;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\StoreSalesRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\AreaRepositoryInterface;
 use App\Interfaces\AwardRepositoryInterface;
@@ -19,7 +18,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class SalesService
 {
@@ -50,11 +48,20 @@ class SalesService
 
     public function saveSale($request)
     {
+        DB::beginTransaction();
         try {
-            $user = $this->userRepository->getUser();
+            // Obtener usuario y agente
+            $user = $this->userRepository->getCurrentUser();
             $agent = $this->agentRepository->getMyAgent();
-            $premio = $this->awardRepository->findAwardByName($request->premio);
-            $dataSale = new StoreSalesRequest([
+
+            // Buscar el premio
+            $premio = $this->awardRepository->findAwardByOrder($request->premio);
+            if (!$premio) {
+                return ResponseHelper::error('El premio especificado no existe.');
+            }
+
+            // Crear la venta
+            $dataSale = [
                 'date_admission' => Carbon::now(),
                 'amount' => $premio->value,
                 'observation' => $request->observation,
@@ -63,24 +70,28 @@ class SalesService
                 'agent_id' => $agent->id,
                 'action_id' => ActionType::BONUS->value,
                 'user_id' => $user->id,
-            ]);
+            ];
+
+            // Guardar la venta
             $sale = $this->salesRepository->saveSale($dataSale);
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $sale]);
-        } catch (ValidationException $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            
+            // Confirmar la transacción
+            DB::commit();
+
+            return ResponseHelper::success('Venta registrada correctamente.', ['sale' => $sale]);
+
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en saveSale: " . $e->getMessage());
+            return ResponseHelper::error('Error al registrar la venta.');
         }
     }
+
 
     public function getSaleData()
     {
         try {
-            $user = $this->userRepository->getUser();
+            $user = $this->userRepository->getCurrentUser();
             $roles = $user->getRoleNames()->first();
             $agent = $this->agentRepository->getMyAgent();
             $rouletteSpin = $agent->number_turns ?: 0;
@@ -88,16 +99,12 @@ class SalesService
             $currentYear = Carbon::now()->year;
             $previousMonth = Carbon::now()->subMonth()->month;
             $previousYear = Carbon::now()->subMonth()->year;
-            $percents = $this->percentRepository->getPercents();
-            $commissions = $this->comissionRepository->getComissions();
+            $percents = $this->percentRepository->getActivePercents();
+            $commissions = $this->comissionRepository->getActiveCommissions();
             $exchange_rates = $this->exchangeRateRepository->getExchangesRate();
             $sales = $this->salesRepository->getSalesByActionAdmission(1, $roles, $currentMonth, $currentYear, $previousMonth, $previousYear);
             $totalAmount = $sales->sum('amount');
-            $areas = $this->areaRepository->getAreas();
-        } catch (ValidationException $e) {
-            DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            $areas = $this->areaRepository->getAllActive();
         } catch (Exception $e) {
             DB::rollBack();
             Log::error("Error en ClientService: " . $e->getMessage());
@@ -155,24 +162,30 @@ class SalesService
 
     public function updateSale($request)
     {
+        DB::beginTransaction();
         try {
-            $agent = $this->agentRepository->findAgentByCode($request->eCodAgent);
+            // Obtener el agente por código
+            $agent = $this->agentRepository->getByCode($request->eCodAgent);
+            if (!$agent) {
+                return ResponseHelper::error('El agente especificado no existe.');
+            }
+
+            // Obtener la venta por ID
             $sale = $this->salesRepository->findSaleById($request->saleId);
-            $user = $this->userRepository->getUser();
+            if (!$sale) {
+                return ResponseHelper::error('La venta especificada no existe.');
+            }
+
+            // Obtener usuario y rol
+            $user = $this->userRepository->getCurrentUser();
             $roles = $user->getRoleNames()->first();
-            if ($request->typeSales == 3) {
-                $commission = (-1)*$request->eComission;
-            } else {
-                $commission = $request->eComission;
-            }
 
-            if ($request->eAmount) {
-                $amount = $request->eAmount;
-            } else {
-                $amount = $commission;
-            }
+            // Calcular comisión y monto
+            $commission = ($request->typeSales == 3) ? (-1) * $request->eComission : $request->eComission;
+            $amount = $request->eAmount ?: $commission;
 
-            $dataSale = new StoreSalesRequest([
+            // Crear objeto de actualización
+            $dataSale = [
                 'amount' => $amount,
                 'observation' => $request->observation,
                 'status' => StatusEnum::ACTIVE->value,
@@ -182,39 +195,41 @@ class SalesService
                 'agent_id' => $agent->id,
                 'action_id' => $request->typeSales,
                 'user_id' => $user->id,
-            ]);
+            ];
 
+            // Actualizar la venta
             $sale = $this->salesRepository->updateSale($sale, $dataSale);
+            DB::commit();
+
+            // Obtener datos para la respuesta
+            $currentMonth = Carbon::now()->month;
+            $currentYear = Carbon::now()->year;
+            $previousMonth = Carbon::now()->subMonth()->month;
+            $previousYear = Carbon::now()->subMonth()->year;
+
+            // Manejo de tipos de venta
+            switch ($request->typeSales) {
+                case 1:
+                    $sales = $this->salesRepository->getSalesByActionAdmission(
+                        $request->typeSales, $roles, $currentMonth, $currentYear, $previousMonth, $previousYear
+                    );
+                    $totalAmount = $sales->sum('amount');
+                    return ResponseHelper::success('Venta actualizada correctamente.', ['totalAmount' => $totalAmount]);
+
+                case 2:
+                case 3:
+                    $bonusAgent = $this->salesRepository->getBonusAction([2, 3]);
+                    return ResponseHelper::success('Venta actualizada correctamente.', ['bonusAgent' => $bonusAgent]);
+
+                default:
+                    return ResponseHelper::error('Opción no válida.');
+            }
 
         } catch (Exception $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
-        }
-
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
-
-        $previousMonth = Carbon::now()->subMonth()->month;
-        $previousYear = Carbon::now()->subMonth()->year;
-
-        switch ($request->typeSales) {
-            case 1:
-
-                $sales = $this->salesRepository->getSalesByActionAdmission($request->typeSales, $roles, $currentMonth, $currentYear, $previousMonth, $previousYear);
-                $totalAmount = $sales->sum('amount');
-
-                return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $totalAmount]);
-                break;
-            case 2:
-                $bonusAgent = $this->salesRepository->getBonusAction([2, 3]);
-                return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $bonusAgent]);
-                break;
-            case 3:
-                $bonusAgent = $this->salesRepository->getBonusAction([2, 3]);
-                return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $bonusAgent]);
-                break;
-            default:
-                echo "Opción no válida";
+            DB::rollBack();
+            Log::error("Error en updateSale: " . $e->getMessage());
+            return ResponseHelper::error('Error al actualizar la venta.');
         }
     }
+
 }

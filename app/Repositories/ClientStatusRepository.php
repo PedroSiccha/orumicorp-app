@@ -1,8 +1,6 @@
 <?php
 namespace App\Repositories;
 
-use App\Http\Requests\EditCustomerStatusRequest;
-use App\Http\Requests\StoreCustomerStatusRequest;
 use App\Interfaces\ClientStatusRepositoryInterface;
 use App\Models\CustomerStatus;
 use Exception;
@@ -12,92 +10,67 @@ use Illuminate\Support\Facades\Log;
 
 class ClientStatusRepository implements ClientStatusRepositoryInterface
 {
-    public function findStatusByName(string $name): ?CustomerStatus
+    public function findByName(string $name): ?CustomerStatus
     {
         try {
             return CustomerStatus::where('name', $name)->first();
         } catch (QueryException $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('ClientStatusRepository@findByName: ' . $e->getMessage());
+            throw new Exception('Error al buscar estado por nombre.');
         }
     }
 
-    public function findStatusById(string $customerStatusId): ?CustomerStatus
+    public function findById(int $customerStatusId): ?CustomerStatus
     {
         try {
             return CustomerStatus::find($customerStatusId);
         } catch (QueryException $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('ClientStatusRepository@findById: ' . $e->getMessage());
+            throw new Exception('Error al obtener estado por ID.');
         }
     }
 
-    public function getCustomerStatus(): Collection
+    public function getAll(): Collection
     {
         try {
-             return CustomerStatus::get();
+            return CustomerStatus::all();
         } catch (QueryException $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('ClientStatusRepository@getAll: ' . $e->getMessage());
+            throw new Exception('Error al obtener estados de cliente.');
         }
     }
 
-    public function saveCustomerStatus(StoreCustomerStatusRequest $data): ?CustomerStatus
+    public function save(array $data): CustomerStatus
     {
         try {
             return CustomerStatus::create($data);
         } catch (QueryException $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('ClientStatusRepository@save: ' . $e->getMessage());
+            throw new Exception('Error al crear estado de cliente.');
         }
     }
 
-    public function updateCustomerStatus(CustomerStatus $customerStatus, StoreCustomerStatusRequest $data): bool
+    public function update(CustomerStatus $customerStatus, array $data): bool
     {
         try {
-            $customerStatus->fill($data->validated());
-            if (!$customerStatus->save()) {
-                return false;
-            }
-            return true;
+            return $customerStatus->update($data);
         } catch (QueryException $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            return false;
+            Log::error('ClientStatusRepository@update: ' . $e->getMessage());
+            throw new Exception('Error al actualizar estado de cliente.');
         }
     }
 
-    public function deleteCustomerStatus(int $customerStatusId): bool
+    public function delete(int $customerStatusId): bool
     {
         try {
-            $customerStatus = CustomerStatus::find($customerStatusId);
-            if (!$customerStatus) {
+            $status = CustomerStatus::find($customerStatusId);
+            if (!$status) {
                 return false;
             }
-            if (!$customerStatus->delete()) {
-                return false;
-            }
-            return true;
+            return $status->delete();
         } catch (QueryException $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error ClientStatusRepository: " . $e->getMessage());
-            return false;
+            Log::error('ClientStatusRepository@delete: ' . $e->getMessage());
+            throw new Exception('Error al eliminar estado de cliente.');
         }
     }
 }

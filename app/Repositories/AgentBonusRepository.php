@@ -1,10 +1,8 @@
 <?php
 namespace App\Repositories;
 
-use App\Http\Requests\StoreBonusAgentRequest;
 use App\Interfaces\AgentBonusRepositoryInterface;
 use App\Models\BonusAgent;
-use App\Models\Sales;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
@@ -12,35 +10,23 @@ use Illuminate\Support\Facades\Log;
 
 class AgentBonusRepository implements AgentBonusRepositoryInterface
 {
-
-    public function getBonusAgent(array $actions, bool $status, string $order): Collection
+    public function getByAgentId(int $agentId): Collection
     {
         try {
-            return Sales::whereIn('action_id', $actions)
-                                    ->where('status', $status)
-                                    ->orderBy('date_admission', $order)
-                                    ->with('action')
-                                    ->get();
+            return BonusAgent::where('agent_id', $agentId)->get();
         } catch (QueryException $e) {
-            Log::error("Error AgentBonusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error AgentBonusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('AgentBonusRepository@getByAgentId: ' . $e->getMessage());
+            throw new Exception('Error al obtener los bonos del agente.');
         }
     }
 
-    public function saveBonus(StoreBonusAgentRequest $request): BonusAgent
+    public function save(array $data): BonusAgent
     {
         try {
-            $data = $request->validated();
             return BonusAgent::create($data);
         } catch (QueryException $e) {
-            Log::error("Error AgentBonusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error AgentBonusRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('AgentBonusRepository@saveBonus: ' . $e->getMessage());
+            throw new Exception('Error al guardar bono del agente.');
         }
     }
 }

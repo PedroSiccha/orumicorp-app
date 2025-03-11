@@ -13,7 +13,6 @@ use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class StatisticsService
 {
@@ -39,18 +38,15 @@ class StatisticsService
     public function getStatisticsTodayData()
     {
         try {
-            $user = $this->userRepository->getUser();
+            $user = $this->userRepository->getCurrentUser();
             $roles = $user->getRoleNames()->first();
-            $agent = $this->agentRepository->getAgentByUserId($user->id);
+            $agent = $this->agentRepository->getByUserId($user->id);
             $rouletteSpin = $agent->number_turns ?: 0;
             $currentDate = Carbon::now()->toDateString();
             $currentMonth = Carbon::now()->format('Y-m');
             $sales = $this->saleRepository->getSalesByActionBetweenDate(4, $currentDate, $currentMonth, $roles, $agent);
-            $areas = $this->areaRepository->getAreas();
+            $areas = $this->areaRepository->getAllActive();
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $sales]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -64,14 +60,11 @@ class StatisticsService
             $dateEnd = DateTime::createFromFormat('m/d/Y', $request->dateEnd)->format('Y-m-d');
             $currentDate = Carbon::now()->toDateString();
             $currentMonth = Carbon::now()->format('Y-m');
-            $user = $this->userRepository->getUser();
+            $user = $this->userRepository->getCurrentUser();
             $roles = $user->getRoleNames()->first();
-            $agent = $this->agentRepository->getAgentByUserId($user->id);
+            $agent = $this->agentRepository->getByUserId($user->id);
             $sales = $this->saleRepository->getSalesByActionBetweenDate(4, $currentDate, $currentMonth, $roles, $agent);
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $sales]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');

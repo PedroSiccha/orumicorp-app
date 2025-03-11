@@ -4,8 +4,8 @@ namespace App\Repositories;
 use App\Exceptions\RepositoryException;
 use App\Interfaces\ConfigurationRepositoryInterface;
 use App\Models\Configuration;
-use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 
 class ConfigurationRepository implements ConfigurationRepositoryInterface
@@ -14,35 +14,44 @@ class ConfigurationRepository implements ConfigurationRepositoryInterface
     {
         try {
             return Configuration::where('user_id', $userId)
-                            ->where('view', $view)
-                            ->pluck('status', 'name')
-                            ->get();
-        } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener las configuraciones: " . $e->getMessage());
+                ->where('view', $view)
+                ->get(['name', 'status']);
+        } catch (QueryException $e) {
+            Log::error('ConfigurationRepository@getUserConfigurations: ' . $e->getMessage());
+            throw new RepositoryException("Error al obtener las configuraciones del usuario.");
         }
-
     }
 
-    public function ensureConfigurationExists(int $userId, string $view, string $name): void
+    public function ensureConfigurationExists(int $userId, string $view, string $name): Configuration
     {
         try {
-            $config = Configuration::where('user_id', $userId)
-                               ->where('view', $view)
-                               ->where('name', $name)
-                               ->first();
-
-            if (!$config) {
-                Configuration::create([
-                    'user_id' => $userId,
-                    'view' => $view,
-                    'name' => $name,
-                    'status' => 'active'
-                ]);
-                Log::info("Configuración creada: $name para el usuario $userId.");
-            }
-        } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener las configuraciones existentes: " . $e->getMessage());
+            return Configuration::firstOrCreate(
+                ['user_id' => $userId, 'view' => $view, 'name' => $name],
+                ['status' => 'active']
+            );
+        } catch (QueryException $e) {
+            Log::error('ConfigurationRepository@ensureConfigurationExists: ' . $e->getMessage());
+            throw new RepositoryException("Error al asegurar la existencia de la configuración.");
         }
+    }
 
+    public function updateConfigurationStatus(int $configId, string $status): bool
+    {
+        try {
+            return Configuration::where('id', $configId)->update(['status' => $status]) > 0;
+        } catch (QueryException $e) {
+            Log::error('ConfigurationRepository@updateStatus: ' . $e->getMessage());
+            throw new RepositoryException('Error al actualizar el estado de configuración.');
+        }
+    }
+
+    public function delete(int $configurationId): bool
+    {
+        try {
+            return Configuration::destroy($configurationId) > 0;
+        } catch (QueryException $e) {
+            Log::error('ConfigurationRepository@delete: ' . $e->getMessage());
+            throw new RepositoryException('Error al eliminar configuración.');
+        }
     }
 }

@@ -1,55 +1,32 @@
 <?php
 namespace App\Repositories;
 
-use App\Http\Requests\EditUserRequest;
-use App\Http\Requests\StoreUserRequest;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class UserRepository implements UserRepositoryInterface
 {
-    public function createUser(StoreUserRequest $data): ?User
+    public function createUser(array $data): ?User
     {
         try {
             return User::create($data);
         } catch (QueryException $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error("Error al crear usuario: " . $e->getMessage());
+            throw new Exception("No se pudo crear el usuario.");
         }
     }
 
-    public function getMyId(): int
+    public function getMyUserId(): int
     {
-        try {
-            return Auth::user()->id;
-        } catch (QueryException $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        }
+        return auth()->id();
     }
 
-    public function getUser(): ?User
+    public function getCurrentUser(): ?User
     {
-        try {
-             return Auth::user();
-        } catch (QueryException $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        }
+        return auth()->user();
     }
 
     public function findUserById(int $userId): ?User
@@ -57,44 +34,29 @@ class UserRepository implements UserRepositoryInterface
         try {
             return User::find($userId);
         } catch (QueryException $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error("Error al buscar usuario por ID ({$userId}): " . $e->getMessage());
+            throw new \Exception("No se encontró el usuario.");
         }
     }
 
     public function changePassword(User $user, string $password): bool
     {
         try {
-            $user->password = Hash::make($password);
-            if (!$user->save()) {
-                return false;
-            }
-            return true;
+            $user->password = bcrypt($password);
+            return $user->save();
         } catch (QueryException $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
+            Log::error("Error al cambiar contraseña del usuario {$user->id}: " . $e->getMessage());
             return false;
         }
     }
 
-    public function updateUser(User $user, EditUserRequest $data): bool
+    public function updateUser(User $user, array $data): bool
     {
         try {
-            $user->fill($data->validated());
-            if (!$user->save()) {
-                return false;
-            }
-            return true;
+            $user->fill($data);
+            return $user->save();
         } catch (QueryException $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
+            Log::error("Error al actualizar usuario {$user->id}: " . $e->getMessage());
             return false;
         }
     }
@@ -103,18 +65,14 @@ class UserRepository implements UserRepositoryInterface
     {
         try {
             $user = User::find($userId);
+
             if (!$user) {
+                Log::warning("Usuario con ID {$userId} no encontrado para eliminar.");
                 return false;
             }
-            if (!$user->delete()) {
-                return false;
-            }
-            return true;
+            return $user->delete();
         } catch (QueryException $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error UserRepository: " . $e->getMessage());
+            Log::error("Error al eliminar usuario {$userId}: " . $e->getMessage());
             return false;
         }
     }

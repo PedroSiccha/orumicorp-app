@@ -1,40 +1,34 @@
 <?php
 namespace App\Repositories;
 
-use App\Http\Requests\EditProviderRequest;
-use App\Http\Requests\StoreProviderRequest;
+use App\Exceptions\RepositoryException;
 use App\Interfaces\ProviderRepositoryInterface;
 use App\Models\Provider;
-use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 
 class ProviderRepository implements ProviderRepositoryInterface
 {
-    public function getAllProviders(): Collection
+    public function getAll(): Collection
     {
         try {
             return Provider::all();
         } catch (QueryException $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('ProviderRepository@getAll: ' . $e->getMessage());
+            throw new RepositoryException('Error al obtener todos los proveedores.');
         }
     }
 
-    public function getProviders(): Collection
+    public function getProvidersByCustomer(int $customerId): Collection
     {
         try {
-            return Provider::get();
+            return Provider::whereHas('customers', function($query) use ($customerId) {
+                $query->where('customer_id', $customerId);
+            })->with('customers')->get();
         } catch (QueryException $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('ProviderRepository@getProvidersByCustomer: ' . $e->getMessage());
+            throw new RepositoryException('Error al obtener proveedores por cliente.');
         }
     }
 
@@ -42,105 +36,64 @@ class ProviderRepository implements ProviderRepositoryInterface
     {
         try {
             return Provider::whereHas('customers', function($query) use ($customerId) {
-                        $query->where('customer_id', $customerId);
-                    })->with('customers')->orderBy('created_at', 'desc')->first();
+                $query->where('customer_id', $customerId);
+            })
+            ->with('customers')
+            ->orderByDesc('created_at')
+            ->first();
         } catch (QueryException $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('ProviderRepository@getLastProviderByCustomer: ' . $e->getMessage());
+            throw new RepositoryException('Error al obtener último proveedor del cliente.');
         }
     }
 
-    public function getAllProvidersByCustomer(int $customerId): Collection
-    {
-        try {
-            return Provider::whereHas('customers', function($query) use ($customerId) {
-                        $query->where('customer_id', $customerId);
-                    })->with('customers')->get();
-        } catch (QueryException $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        }
-    }
-
-    public function saveProvider(StoreProviderRequest $data): ?Provider
+    public function save(array $data): Provider
     {
         try {
             return Provider::create($data);
         } catch (QueryException $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('ProviderRepository@save: ' . $e->getMessage());
+            throw new RepositoryException('Error al guardar proveedor.');
         }
     }
 
-    public function updateProvider(Provider $provider, StoreProviderRequest $data): bool
+    public function update(Provider $provider, array $data): bool
     {
         try {
-            $provider->fill($data->validated());
-            if (!$provider->save()) {
-                return false;
-            }
-            return true;
+            return $provider->update($data);
         } catch (QueryException $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            return false;
+            Log::error('ProviderRepository@update: ' . $e->getMessage());
+            throw new RepositoryException('Error al actualizar proveedor.');
         }
     }
 
-    public function deleteProvider(int $providerId): bool
+    public function delete(int $providerId): bool
     {
         try {
-            $provider = Provider::find($providerId);
-            if (!$provider) {
-                return false;
-            }
-            if (!$provider->delete()) {
-                return false;
-            }
-            return true;
+            return Provider::destroy($providerId) > 0;
         } catch (QueryException $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            return false;
+            Log::error('ProviderRepository@delete: ' . $e->getMessage());
+            throw new RepositoryException('Error al eliminar proveedor.');
         }
     }
 
     public function getProviderByUser(int $userId): ?Provider
     {
         try {
-             return Provider::where('user_id', $userId)->first();
+            return Provider::where('user_id', $userId)->first();
         } catch (QueryException $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ProviderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('ProviderRepository@getProviderByUser: ' . $e->getMessage());
+            throw new RepositoryException('Error al obtener proveedor por usuario.');
         }
     }
 
-    public function findProviderById(int $providerId): ?Provider
+    public function findById(int $providerId): ?Provider
     {
         try {
             return Provider::find($providerId);
-       } catch (QueryException $e) {
-           Log::error("Error ProviderRepository: " . $e->getMessage());
-           throw new Exception("No se encontraron resultados para los filtros aplicados.");
-       } catch (Exception $e) {
-           Log::error("Error ProviderRepository: " . $e->getMessage());
-           throw new Exception("No se encontraron resultados para los filtros aplicados.");
-       }
+        } catch (QueryException $e) {
+            Log::error('ProviderRepository@findById: ' . $e->getMessage());
+            throw new RepositoryException('Error al buscar proveedor por ID.');
+        }
     }
 }

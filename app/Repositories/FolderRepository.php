@@ -4,152 +4,115 @@ namespace App\Repositories;
 use App\Enums\StatusEnum;
 use Illuminate\Database\Eloquent\Collection;
 use App\Exceptions\RepositoryException;
-use App\Http\Requests\StoreFolderRequest;
 use App\Interfaces\FolderRepositoryInterface;
 use App\Models\Customers;
 use App\Models\Folder;
-use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 
 class FolderRepository implements FolderRepositoryInterface
 {
-    public function getAllFolders(): Collection
+    public function getAll(): Collection
     {
         try {
             return Folder::all();
         } catch (QueryException $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('FolderRepository@getAll: ' . $e->getMessage());
+            throw new RepositoryException('Error al obtener todas las carpetas.');
         }
     }
 
-    public function getFolders(): Collection
+    public function getActiveFolders(): Collection
     {
         try {
             return Folder::where('status', StatusEnum::ACTIVE->value)->get();
         } catch (QueryException $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('FolderRepository@getActiveFolders: ' . $e->getMessage());
+            throw new RepositoryException('Error al obtener carpetas activas.');
         }
     }
 
     public function getFoldersByCategory(int $categoryId): Collection
     {
         try {
-            return Folder::where('status', 1)->where('category_id', 1)->get();
+            return Folder::where('status', StatusEnum::ACTIVE->value)
+                         ->where('category_id', $categoryId)
+                         ->get();
         } catch (QueryException $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('FolderRepository@getFoldersByCategory: ' . $e->getMessage());
+            throw new RepositoryException('Error al obtener carpetas por categoría.');
         }
     }
 
     public function disableFolder(Folder $folder): bool
     {
         try {
-                $folder->status = false;
-                if (!$folder->save()) {
-                    return false;
-                }
-                return true;
+            return $folder->update(['status' => false]);
         } catch (QueryException $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
+            Log::error('FolderRepository@disableFolder: ' . $e->getMessage());
             return false;
         }
     }
 
-    public function assignClientToFolder(int $folderId, array $clientsId): bool
+    public function assignClientsToFolder(int $folderId, array $clientsId): bool
     {
         try {
-            foreach ($clientsId as $idClient) {
-                $client = Customers::find($idClient);
-                if (!$client) {
-                    Log::warning("Cliente con ID {$idClient} no encontrado.");
-                    continue;
-                }
-                $client->folder_id = $folderId;
-                $client->save();
-            }
+            Customers::whereIn('id', $clientsId)->update(['folder_id' => $folderId]);
             return true;
         } catch (QueryException $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
+            Log::error('FolderRepository@assignClientsToFolder: ' . $e->getMessage());
             return false;
         }
     }
 
-    public function saveFolder(StoreFolderRequest $data): Folder
+    public function save(array $data): Folder
     {
         try {
             return Folder::create($data);
         } catch (QueryException $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('FolderRepository@save: ' . $e->getMessage());
+            throw new RepositoryException('Error al guardar carpeta.');
         }
     }
 
-    public function findFolderById(int $folderId): ?Folder
+    public function findById(int $folderId): ?Folder
     {
         try {
             return Folder::find($folderId);
         } catch (QueryException $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('FolderRepository@findById: ' . $e->getMessage());
+            throw new RepositoryException('Error al buscar carpeta por ID.');
         }
     }
 
-    public function changeFolderCategory(int $folderId, StoreFolderRequest $data): bool{
-        try {
-            $folder = Folder::find($folderId);
-            $folder->category_id = $data->categoryId;
-            if (!$folder->save()) {
-                return false;
-            }
-            return true;
-        } catch (QueryException $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function updateFolder(Folder $folder, StoreFolderRequest $data): bool
+    public function changeFolderCategory(int $folderId, int $categoryId): bool
     {
         try {
-            $folder->fill($data->validated());
-            if (!$folder->save()) {
-                return false;
-            }
-            return true;
+            return Folder::where('id', $folderId)
+                         ->update(['category_id' => $categoryId]) > 0;
         } catch (QueryException $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error FolderRepository: " . $e->getMessage());
+            Log::error('FolderRepository@changeFolderCategory: ' . $e->getMessage());
             return false;
         }
     }
 
+    public function update(Folder $folder, array $data): bool
+    {
+        try {
+            return $folder->update($data);
+        } catch (QueryException $e) {
+            Log::error('FolderRepository@update: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function delete(int $folderId): bool
+    {
+        try {
+            return Folder::destroy($folderId) > 0;
+        } catch (QueryException $e) {
+            Log::error('FolderRepository@delete: ' . $e->getMessage());
+            return false;
+        }
+    }
 }

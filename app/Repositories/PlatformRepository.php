@@ -2,11 +2,9 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Http\Requests\EditPlatformRequest;
-use App\Http\Requests\StorePlatformRequest;
+use App\Exceptions\RepositoryException;
 use App\Interfaces\PlatformRepositoryInterface;
 use App\Models\Platform;
-use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
@@ -18,87 +16,58 @@ class PlatformRepository implements PlatformRepositoryInterface
         try {
             return Platform::all();
         } catch (QueryException $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('PlatformRepository@getAllPlatforms: ' . $e->getMessage());
+            throw new RepositoryException('Error al obtener todas las plataformas.');
         }
     }
 
-    public function getPlatforms(): Collection
+    public function getActivePlatforms(): Collection
     {
         try {
-             return Platform::where('status', StatusEnum::ACTIVE->value)->get();
+            return Platform::where('status', StatusEnum::ACTIVE->value)->get();
         } catch (QueryException $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('PlatformRepository@getActivePlatforms: ' . $e->getMessage());
+            throw new RepositoryException('Error al obtener plataformas activas.');
         }
     }
 
-    public function findPlatformById(int $platformId): ?Platform
-    {
-        try {
-            return Platform::find($platformId);
-        } catch (QueryException $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        }
-    }
-
-    public function savePlatform(StorePlatformRequest $data): ?Platform
+    public function save(array $data): Platform
     {
         try {
             return Platform::create($data);
         } catch (QueryException $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('PlatformRepository@save: ' . $e->getMessage());
+            throw new RepositoryException('Error al guardar plataforma.');
         }
     }
 
-    public function updatePlatform(Platform $platform, StorePlatformRequest $data): bool
+    public function findById(int $platformId): ?Platform
     {
         try {
-            $platform->fill($data->validate());
-            if (!$platform->save()) {
-                return false;
-            }
-            return true;
+            return Platform::find($platformId);
         } catch (QueryException $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            return false;
+            Log::error('PlatformRepository@findById: ' . $e->getMessage());
+            throw new RepositoryException('Error al buscar plataforma por ID.');
         }
     }
 
-    public function deletePlatform(int $platformId): bool
+    public function update(Platform $platform, array $data): bool
     {
         try {
-            $platform = Platform::find($platformId);
-            if (!$platform) {
-                return false;
-            }
-            if (!$platform->delete()) {
-                return false;
-            }
-            return true;
+            return $platform->update($data);
         } catch (QueryException $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            return false;
-        } catch (Exception $e) {
-            Log::error("Error PlatformRepository: " . $e->getMessage());
-            return false;
+            Log::error('PlatformRepository@update: ' . $e->getMessage());
+            throw new RepositoryException('Error al actualizar la plataforma.');
+        }
+    }
+
+    public function delete(int $platformId): bool
+    {
+        try {
+            return Platform::destroy($platformId) > 0;
+        } catch (QueryException $e) {
+            Log::error('PlatformRepository@delete: ' . $e->getMessage());
+            throw new RepositoryException('Error al eliminar plataforma.');
         }
     }
 }

@@ -3,12 +3,9 @@ namespace App\Services;
 
 use App\Enums\StatusEnum;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\PlatformRequest;
-use App\Http\Requests\StorePlatformRequest;
 use App\Interfaces\PlatformRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class PlatformService
 {
@@ -24,17 +21,14 @@ class PlatformService
     public function savePlatform($request)
     {
         try {
-            $dataPlatform = new StorePlatformRequest([
+            $dataPlatform = [
                 'name' => $request->name,
                 'description' => $request->description,
                 'status' => StatusEnum::ACTIVE->value
-            ]);
-            $platform = $this->platformRepository->savePlatform($dataPlatform);
-            $platforms = $this->platformRepository->getPlatforms();
+            ];
+            $platform = $this->platformRepository->save($dataPlatform);
+            $platforms = $this->platformRepository->getActivePlatforms();
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $platforms]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -45,17 +39,14 @@ class PlatformService
     {
 
         try {
-            $platform = $this->platformRepository->findPlatformById($request->id);
-            $dataPlatform = new StorePlatformRequest([
+            $platform = $this->platformRepository->findById($request->id);
+            $dataPlatform = [
                 'name' => $request->name,
                 'description' => $request->description,
-            ]);
-            $response = $this->platformRepository->updatePlatform($platform, $dataPlatform);
-            $platforms = $this->platformRepository->getPlatforms();
+            ];
+            $response = $this->platformRepository->update($platform, $dataPlatform);
+            $platforms = $this->platformRepository->getActivePlatforms();
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $platforms]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -65,13 +56,10 @@ class PlatformService
     public function deletePlatform($request)
     {
         try {
-            $platform = $this->platformRepository->findPlatformById($request->id);
-            $response = $this->platformRepository->deletePlatform($platform->id);
-            $platforms = $this->platformRepository->getPlatforms();
+            $platform = $this->platformRepository->findById($request->id);
+            $response = $this->platformRepository->delete($platform->id);
+            $platforms = $this->platformRepository->getActivePlatforms();
             return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $platforms]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');

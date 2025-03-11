@@ -1,7 +1,6 @@
 <?php
 namespace App\Repositories;
 
-use App\Http\Requests\StoreDepositRequest;
 use App\Interfaces\DepositRepositoryInterface;
 use App\Models\Deposit;
 use Exception;
@@ -11,29 +10,43 @@ use Illuminate\Support\Facades\Log;
 
 class DepositRepository implements DepositRepositoryInterface
 {
-    public function getDeposits(): Collection
+    public function getAllWithRelations(): Collection
     {
         try {
-             return Deposit::with('customer')->with(['agent', 'user'])->get();
+            return Deposit::with(['customer', 'agent', 'user'])->get();
         } catch (QueryException $e) {
-            Log::error("Error DepositRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error DepositRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('DepositRepository@getAllWithRelations: ' . $e->getMessage());
+            throw new Exception('Error al obtener depósitos.');
         }
     }
 
-    public function saveDeposit(StoreDepositRequest $data): Deposit
+    public function save(array $data): Deposit
     {
         try {
             return Deposit::create($data);
         } catch (QueryException $e) {
-            Log::error("Error DepositRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error DepositRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('DepositRepository@save: ' . $e->getMessage());
+            throw new Exception('Error al guardar depósito.');
+        }
+    }
+
+    public function findById(int $depositId): ?Deposit
+    {
+        try {
+            return Deposit::find($depositId);
+        } catch (QueryException $e) {
+            Log::error('DepositRepository@findById: ' . $e->getMessage());
+            throw new Exception('Error al buscar depósito.');
+        }
+    }
+
+    public function delete(int $depositId): bool
+    {
+        try {
+            return Deposit::destroy($depositId) > 0;
+        } catch (QueryException $e) {
+            Log::error('DepositRepository@delete: ' . $e->getMessage());
+            throw new Exception('Error al eliminar depósito.');
         }
     }
 }

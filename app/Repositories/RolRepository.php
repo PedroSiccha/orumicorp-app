@@ -3,36 +3,40 @@ namespace App\Repositories;
 
 use App\Exceptions\RepositoryException;
 use App\Interfaces\RolRepositoryInterface;
-use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 
 class RolRepository implements RolRepositoryInterface
 {
-    public function getAllRoles(): Collection
+    public function getAll(): Collection
     {
         try {
-            return Role::get();
-        } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener los roles: " . $e->getMessage());
+            return Role::all();
+        } catch (QueryException $e) {
+            Log::error('RoleRepository@getAll: ' . $e->getMessage());
+            throw new RepositoryException('Error al obtener roles.');
         }
     }
 
-    public function getRoleByName(string $name): ?Role
+    public function findByName(string $name): ?Role
     {
         try {
-            return Role::where('name', $name)->firstOrFail();
-        } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener el rol: " . $e->getMessage());
+            return Role::where('name', $name)->first();
+        } catch (QueryException $e) {
+            Log::error('RoleRepository@findByName: ' . $e->getMessage());
+            throw new RepositoryException('Error al obtener el rol por nombre.');
         }
     }
 
-    public function findRoleById(int $id): ?Role
+    public function findById(int $roleId): ?Role
     {
         try {
-            return Role::find($id);
-        } catch (Exception $e) {
-            throw new RepositoryException("Error al obtener el rol: " . $e->getMessage());
+            return Role::find($roleId);
+        } catch (QueryException $e) {
+            Log::error('RoleRepository@findById: ' . $e->getMessage());
+            throw new RepositoryException('Error al buscar el rol.');
         }
     }
 }

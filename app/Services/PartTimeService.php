@@ -2,10 +2,8 @@
 namespace App\Services;
 
 use App\Enums\AssistanceType;
-use App\Enums\StatusEnum;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\AssistanceRequest;
-use App\Http\Requests\PartTimeRequest;
 use App\Http\Requests\StoreAssistanceRequest;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\AreaRepositoryInterface;
@@ -42,8 +40,8 @@ class PartTimeService
     public function getPartTimeData()
     {
         try {
-            $user = $this->userRepository->getUser();
-            $agent = $this->agentRepository->getAgentByUserId($user->id);
+            $user = $this->userRepository->getCurrentUser();
+            $agent = $this->agentRepository->getByUserId($user->id);
             $client = $this->clientRepository->getClientByUserId($user->id);
             $dateIn = $this->assistanceRepository->findAssistanceDateByTypeAgent(date('Y-m-d'), AssistanceType::INGRESO, $agent->id);
             $dateBreakIn = $this->assistanceRepository->findAssistanceDateByTypeAgent(date('Y-m-d'), AssistanceType::INGRESO_BREAK, $agent->id);
@@ -53,7 +51,7 @@ class PartTimeService
             $assistances = $this->assistanceRepository->getReportAssistanceByAgent($agent);
             
             $rouletteSpin = $agent->number_turns ?: 0;
-            $areas = $this->areaRepository->getAreas();
+            $areas = $this->areaRepository->getAllActive();
 
             $currentDate = Carbon::now()->toDateString();
 
@@ -91,14 +89,14 @@ class PartTimeService
     {
         try {
             $agent = $this->agentRepository->getMyAgent();
-            $dataAssistance = new StoreAssistanceRequest([
+            $dataAssistance = [
                 'hour' => $request->hour,
                 'date' => $request->date,
                 'date_end' => $request->dateEnd,
                 'type' => $request->type,
                 'observation' => $request->observation,
                 'agent_id' => $agent->id
-            ]);
+            ];
             $assistance = $this->assistanceRepository->saveAssistance($dataAssistance);
             $dateIn = $this->assistanceRepository->findAssistanceDateByTypeAgent(date('Y-m-d'), AssistanceType::INGRESO, $agent->id);
             $dateBreakIn = $this->assistanceRepository->findAssistanceDateByTypeAgent(date('Y-m-d'), AssistanceType::INGRESO_BREAK, $agent->id);
@@ -123,10 +121,19 @@ class PartTimeService
                     'observation' => $record->observation
                 ];
             }
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $formattedData]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+
+            $response = [
+                'assistance' => $assistance,
+                'dateIn' => $dateIn,
+                'dateBreakIn' => $dateBreakIn,
+                'dateBreakOut' => $dateBreakOut,
+                'dateOut' => $dateOut,
+                'assistances' => $assistances,
+                'formattedData' => $formattedData,
+                'types' => $types
+            ];
+
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $response]);
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -138,7 +145,7 @@ class PartTimeService
         try {
             $nombre = $request->code;
             $area = $request->area;
-            $user = $this->userRepository->getUser();
+            $user = $this->userRepository->getCurrentUser();
             $agent = $this->agentRepository->getMyAgent();
             $startDate = $request->dateInit;
             $endDate = $request->dateEnd;
@@ -171,10 +178,14 @@ class PartTimeService
                     'observation' => $record->observation
                 ];
             }
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $formattedData]);
-        } catch (ValidationException $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+
+            $response = [
+                'assistances' => $assistances,
+                'formattedData' => $formattedData,
+                'types' => $types
+            ];
+
+            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $response]);
         } catch (Exception $e) {
             Log::error("Error en ClientService: " . $e->getMessage());
             return ResponseHelper::error('Error al cambiar el estado del agente.');
@@ -184,7 +195,7 @@ class PartTimeService
     public function registerVacations($request)
     {
         try {
-            $user = $this->userRepository->getUser();
+            $user = $this->userRepository->getCurrentUser();
             $agent = $this->agentRepository->getMyAgent();
             $dataAssistance = new StoreAssistanceRequest([
                 'hour' => $request->hour,

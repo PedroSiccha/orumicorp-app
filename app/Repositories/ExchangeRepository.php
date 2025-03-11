@@ -11,16 +11,23 @@ use Illuminate\Support\Facades\Log;
 
 class ExchangeRepository implements ExchangeRepositoryInrterface
 {
-    public function getExchangeRates(): Collection
+    public function getActiveExchangeRates(): Collection
     {
         try {
-             return ExchangeRate::where('status', StatusEnum::ACTIVE->value)->get();
+            return ExchangeRate::where('status', StatusEnum::ACTIVE->value)->get();
         } catch (QueryException $e) {
-            Log::error("Error ExchangeRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
-        } catch (Exception $e) {
-            Log::error("Error ExchangeRepository: " . $e->getMessage());
-            throw new Exception("No se encontraron resultados para los filtros aplicados.");
+            Log::error('ExchangeRepository@getActiveExchangeRates: ' . $e->getMessage());
+            throw new Exception('Error al obtener los tipos de cambio activos.');
+        }
+    }
+
+    public function getAllExchangeRates(): Collection
+    {
+        try {
+            return ExchangeRate::all();
+        } catch (QueryException $e) {
+            Log::error('ExchangeRepository@getAllExchangeRates: ' . $e->getMessage());
+            throw new Exception('Error al obtener todos los tipos de cambio.');
         }
     }
 }

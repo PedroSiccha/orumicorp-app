@@ -3,7 +3,6 @@ namespace App\Services;
 
 use App\Enums\StatusEnum;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\StoreTransactionTypeRequest;
 use App\Interfaces\TransactionTypeRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
@@ -24,11 +23,11 @@ class TransactionTypeService
 
     public function saveTransactionType(Request $request)
     {
-        $dataTransactionType = new StoreTransactionTypeRequest([
+        $dataTransactionType = [
             'name' => $request->name,
             'description' => $request->description,
             'status' => StatusEnum::ACTIVE->value
-        ]);
+        ];
         DB::beginTransaction();
         try { 
             $response = $this->transactionTypeRepository->saveTransactionType($dataTransactionType);
@@ -48,11 +47,11 @@ class TransactionTypeService
 
     public function updateTransactionType($request)
     {
-        $dataTransactionType = new StoreTransactionTypeRequest([
+        $dataTransactionType = [
             'name' => $request->name,
             'description' => $request->description,
             'status' => $request->status
-        ]);
+        ];
         $transactionType = $this->transactionTypeRepository->findTransactionTypeById($request->transactionTypeId);
         DB::beginTransaction();
         try {

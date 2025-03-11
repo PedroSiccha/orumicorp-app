@@ -3,7 +3,6 @@ namespace App\Services;
 
 use App\Enums\StatusEnum;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\SaveCategoryFolderRequest;
 use App\Interfaces\CategoryFolderRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -20,21 +19,25 @@ class CategoryFolderService
         $this->categoryFolderRepository = $categoryFolderRepository;
     }
 
-    public function saveCategoryFolder($request)
+    public function saveCategoryFolder(array $data)
     {
         DB::beginTransaction();
         try {
-            $$dataCategoryFolder = new SaveCategoryFolderRequest([
-                'name' => $request->name,
+            $categoryFolderData = [
+                'name' => $data['name'],
                 'status' => StatusEnum::ACTIVE->value
-            ]);
-            $categoryFolder = $this->categoryFolderRepository->saveCategoryFolder($dataCategoryFolder);
+            ];
+
+            $categoryFolder = $this->categoryFolderRepository->save($categoryFolderData);
             DB::commit();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $categoryFolder]);
+
+            return ResponseHelper::success('Categoría de carpeta guardada correctamente.', [
+                'response' => $categoryFolder
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en saveCategoryFolder: " . $e->getMessage());
+            return ResponseHelper::error('Error al guardar la categoría de carpeta.');
         }
     }
 }

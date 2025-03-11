@@ -1,11 +1,8 @@
 <?php
 namespace App\Services;
 
-use App\DTOs\ClientIndexDTO;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\FilterRequest;
-use App\Http\Requests\StoreClientRequest;
-use App\Http\Requests\StoreCustomerRequest;
 use App\Interfaces\AwardRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ConfigurationRepositoryInterface;
@@ -23,6 +20,7 @@ use App\Interfaces\RolRepositoryInterface;
 use App\Interfaces\TraidingRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\ViewsRepositoryInterface;
+use App\Models\Customers;
 use App\Repositories\Contracts\AssignmentRepositoryInterface;
 use Carbon\Carbon;
 use Exception;
@@ -93,14 +91,13 @@ class ClientService {
         $this->userRepository = $userRepository;
     }
 
-    public function getClientsData(): ClientIndexDTO
+    public function getClientsData()
     {
         try {
             $myRoles = $this->rolesService->getMyRoles();
-            $user_id = Auth::user()->id;
-            $agent = $this->agentRepository->getAgentByUserId($user_id);
-            $rouletteSpin = $agent->number_turns ?: 0;
-            $dataUser = $agent;
+            $user_id = Auth::id();
+            $agent = $this->agentRepository->getByUserId($user_id);
+            $rouletteSpin = $agent->number_turns ?? 0;
 
             $relations = [
                 'user', 'agent', 'latestCampaign', 'latestSupplier',
@@ -108,65 +105,41 @@ class ClientService {
                 'latestComunication', 'latestAssignamet', 'latestDeposit', 'folder'
             ];
 
-            if ($myRoles['roles'] == 'ADMINISTRADOR') {
-                $customers = $this->clientRepository->getAllClients(10, $relations);
-            } else {
-                if (!$agent) {
-                    throw new Exception("El usuario no tiene un agente asignado.");
-                }
-                $customers = $this->clientRepository->getClientsByAgent($agent->id, 10, $relations);
-            }
+            $customers = $this->clientRepository->getCustomersByStatusAndRole(true, $myRoles, $agent->id, 5);
 
-            $statusCustomers = $this->clientRepository->getAllStatusCustomers();
-            $asignCustomers = $this->clientRepository->getUnassignedClients();
-
-            $premios1 = $this->awardRepository->getAwardsByType(1);
-            $premios2 = $this->awardRepository->getAwardsByType(2);
-            $roles = $this->rolRepository->getAllRoles();
-
-            $providers = $this->providerRepository->getAllProviders();
-            $platforms = $this->platformRepository->getAllPlatforms();
-            $traidings = $this->traidingRepository->getAllTraidings();
-
-            $folders = $this->folderRepository->getFolders();
-            $agents = $this->agentRepository->getAllAgents();
-            $campaings = $this->campaingRepository->getAllCampaings();
-            if (!isset($myRoles['rolesId'])) {
-                Log::error('Error: No se encontró el ID en los roles del usuario', $myRoles);
-                throw new Exception("No se pudo obtener el ID del rol del usuario.");
-            }
-            $myRolesId = $myRoles['rolesId'];
-
-            return new ClientIndexDTO([
+            // Obtener otros datos
+            $data = [
                 'customers' => $customers,
-                'premios1' => $premios1,
-                'premios2' => $premios2,
-                'roles' => $roles,
-                'dataUser' => $dataUser,
+                'premios1' => $this->awardRepository->getAwardsByType(1),
+                'premios2' => $this->awardRepository->getAwardsByType(2),
+                'roles' => $this->rolRepository->getAll(),
+                'dataUser' => $agent,
                 'rouletteSpin' => $rouletteSpin,
-                'asignCustomers' => $asignCustomers,
-                'myRolesId' => $myRolesId,
-                'providers' => $providers,
-                'platforms' => $platforms,
-                'traidings' => $traidings,
-                'statusCustomers' => $statusCustomers,
-                'folders' => $folders,
-                'agents' => $agents,
-                'campaigns' => $campaings
-            ]);
+                'asignCustomers' => $this->clientRepository->getUnassignedClients(),
+                'myRolesId' => $myRoles['rolesId'] ?? throw new Exception("No se pudo obtener el ID del rol del usuario."),
+                'providers' => $this->providerRepository->getAll(),
+                'platforms' => $this->platformRepository->getAllPlatforms(),
+                'traidings' => $this->traidingRepository->getAllTraidings(),
+                'statusCustomers' => $this->clientRepository->getCustomerStatus(),
+                'folders' => $this->folderRepository->getActiveFolders(),
+                'agents' => $this->agentRepository->allActive(),
+                'campaigns' => $this->campaingRepository->getAll(),
+            ];
 
+            return ResponseHelper::success('Datos obtenidos correctamente.', $data);
         } catch (Exception $e) {
-            Log::error("Error en ClientService: " . $e->getMessage());
-            throw new Exception("Ocurrió un error inesperado al obtener los datos del cliente.");
+            Log::error("Error en getClientsData: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener los datos del cliente.');
         }
     }
+
 
     public function saveClient(array $data)
     {
         DB::beginTransaction();
         try {
             // Buscar rol y estado del cliente
-            $role = $this->rolRepository->getRoleByName('CLIENTE');
+            $role = $this->rolRepository->findByName('CLIENTE');
             $statusClient = $this->clientRepository->getStatusByName('NUEVO');
 
             // Crear usuario
@@ -176,13 +149,14 @@ class ClientService {
                 'password' => Hash::make($data['name'])
             ]);
 
-            // Asignar rol
+            // Asignar rol al usuario
             $user->assignRole($role->id);
 
             // Generar código de cliente
             $code = strtoupper(substr($data['name'], 0, 2) . substr($data['lastname'], 0, 2)) . '_' . $user->id;
 
-            $dataClient = new StoreCustomerRequest([
+            // Datos del cliente
+            $dataClient = [
                 'code' => $code,
                 'name' => $data['name'],
                 'lastname' => $data['lastname'],
@@ -192,83 +166,77 @@ class ClientService {
                 'status' => true,
                 'user_id' => $user->id,
                 'id_status' => $statusClient->id
-            ]);
+            ];
 
             // Crear cliente usando el repositorio
-            $client = $this->clientRepository->createClient($dataClient);
+            $client = $this->clientRepository->create($dataClient);
+
             DB::commit();
-            return ResponseHelper::success('Se cambió el estado del agente correctamente.', ['response' => $client]);
+            return ResponseHelper::success('Cliente guardado correctamente.', ['client' => $client]);
         } catch (ValidationException $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error de validación en saveClient: " . $e->getMessage());
+            return ResponseHelper::error('Error en la validación del cliente.');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error en ClientService: " . $e->getMessage());
-            return ResponseHelper::error('Error al cambiar el estado del agente.');
+            Log::error("Error en saveClient: " . $e->getMessage());
+            return ResponseHelper::error('Error al guardar el cliente.');
         }
     }
+
 
     public function getPaginatedClients(int $limit)
     {
-        $myRoles = $this->rolesService->getMyRoles();
-        $user_id = Auth::user()->id;
-        $agent = $this->agentRepository->getAgentByUserId($user_id);
+        try {
+            $myRoles = $this->rolesService->getMyRoles();
+            $user_id = Auth::id();
+            $agent = $this->agentRepository->getByUserId($user_id);
 
-        $relations = [
-            'user', 'agent', 'latestCampaign', 'latestSupplier',
-            'provider', 'statusCustomer', 'platform', 'traiding',
-            'latestComunication', 'latestAssignamet', 'latestDeposit', 'folder'
-        ];
+            $relations = [
+                'user', 'agent', 'latestCampaign', 'latestSupplier',
+                'provider', 'statusCustomer', 'platform', 'traiding',
+                'latestComunication', 'latestAssignamet', 'latestDeposit', 'folder'
+            ];
 
-        if ($myRoles['roles'] == 'ADMINISTRADOR') {
-            $customers = $this->clientRepository->getAllClients($limit, $relations);
-        } else {
-            if (!$agent) {
-                throw new Exception("El usuario no tiene un agente asignado.");
-            }
-            $customers = $this->clientRepository->getClientsByAgent($agent->id, $limit, $relations);
+            $customers = $this->clientRepository->getCustomersByStatusAndRole(true, $myRoles, $agent->id, $limit);
+
+            // Obtener otros datos relacionados
+            $data = [
+                'customers' => $customers,
+                'campaigns' => $this->campaingRepository->getAll(),
+                'providers' => $this->providerRepository->getAll(),
+                'statusCustomers' => $this->clientRepository->getAllStatus(),
+                'agents' => $this->agentRepository->allActive()
+            ];
+
+            return ResponseHelper::success('Clientes paginados obtenidos correctamente.', $data);
+        } catch (Exception $e) {
+            Log::error("Error en getPaginatedClients: " . $e->getMessage());
+            return ResponseHelper::error('Error al obtener clientes paginados.');
         }
-
-        $agents = $this->agentRepository->getAllAgents();
-        $campaings = $this->campaingRepository->getAllCampaings();
-        $statusCustomers = $this->clientRepository->getAllStatusCustomers();
-        $providers = $this->providerRepository->getAllProviders();
-
-        return new ClientIndexDTO([
-            'customers' => $customers,
-            'campaigns' => $campaings,
-            'providers' => $providers,
-            'statusCustomers' => $statusCustomers,
-            'agents' => $agents
-        ]);
     }
 
 
-    public function assignAgent(array $data): array
+
+    public function assignAgent(array $data)
     {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-
         DB::beginTransaction();
-
         try {
             // Buscar el agente por código o código Voiso
-            $agent = $this->agentRepository->findAgentByCode($data['dni_agent']);
+            $agent = $this->agentRepository->getByCode($data['dni_agent']);
 
             if (!$agent) {
                 throw new Exception("Agente no encontrado.");
             }
 
-            $user_id = Auth::user()->id;
+            $user_id = Auth::id();
 
             // Obtener y desactivar asignaciones activas
             $oldAssignments = $this->assignmentRepository->getActiveAssignments($data['id']);
-            $this->assignmentRepository->desactivateAssignments($oldAssignments);
+            $this->assignmentRepository->deactivateAssignments($oldAssignments);
 
             // Crear nueva asignación
-            $this->assignmentRepository->createAssignment([
+            $assignment = $this->assignmentRepository->createAssignment([
                 'agent_id' => $agent->id,
                 'customer_id' => $data['id'],
                 'date' => Carbon::now(),
@@ -278,52 +246,36 @@ class ClientService {
 
             DB::commit();
 
-            $title = "Correcto";
-            $mensaje = "Se asignó correctamente el agente";
-            $status = "success";
-
+            return ResponseHelper::success('Agente asignado correctamente.', ['assignment' => $assignment]);
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error("Error en assignAgent: " . $e->getMessage());
 
-            $title = "Error";
-            $mensaje = "Ocurrió un error: " . $e->getMessage();
-            $status = "error";
+            return ResponseHelper::error('Error al asignar el agente.');
         }
-
-        return [
-            'title' => $title,
-            'mensaje' => $mensaje,
-            'status' => $status
-        ];
     }
 
-    public function assignGroupAgent(array $data): array
+
+    public function assignGroupAgent(array $data)
     {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-
         DB::beginTransaction();
-
         try {
             // Buscar el agente por código o código Voiso
-            $agent = $this->agentRepository->findAgentByCode($data['dni_agent']);
+            $agent = $this->agentRepository->getByCode($data['dni_agent']);
 
             if (!$agent) {
                 throw new Exception("Agente no encontrado.");
             }
 
-            $user_id = Auth::user()->id;
-
-            // Proceso de asignación en batch
+            $user_id = Auth::id();
             $assignments = [];
 
             foreach ($data['idGroupClientes'] as $idClient) {
                 // Obtener y desactivar asignaciones activas
                 $oldAssignments = $this->assignmentRepository->getActiveAssignments($idClient);
-                $this->assignmentRepository->desactivateAssignments($oldAssignments);
+                $this->assignmentRepository->deactivateAssignments($oldAssignments);
 
-                // Agregar a la lista de asignaciones
+                // Agregar asignación a la lista para inserción en batch
                 $assignments[] = [
                     'agent_id' => $agent->id,
                     'customer_id' => $idClient,
@@ -335,400 +287,313 @@ class ClientService {
                 ];
             }
 
-            // Insertar en batch
-            $this->assignmentRepository->createAssignments($assignments);
+            // Insertar en batch solo si hay asignaciones
+            if (!empty($assignments)) {
+                $this->assignmentRepository->createAssignments($assignments);
+            }
 
             DB::commit();
-
-            $title = "Correcto";
-            $mensaje = "Se asignó correctamente el agente";
-            $status = "success";
-
+            return ResponseHelper::success('Agente asignado correctamente a los clientes.', ['assignments' => $assignments]);
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error("Error en assignGroupAgent: " . $e->getMessage());
 
-            $title = "Error";
-            $mensaje = "Ocurrió un error: " . $e->getMessage();
-            $status = "error";
+            return ResponseHelper::error('Error al asignar el agente a los clientes.');
         }
-
-        return [
-            'title' => $title,
-            'mensaje' => $mensaje,
-            'status' => $status
-        ];
     }
+
 
     public function getLastAssignmentByCustomer(array $data)
     {
         try {
             $customerId = $data['customer_id'];
 
-            $lastAssignment = $this->assignmentRepository->getLastAssignamentByCustomer($customerId);
+            // Obtener la última asignación del cliente
+            $lastAssignment = $this->assignmentRepository->getLatestActiveAssignmentByCustomer($customerId);
 
-            if ($lastAssignment) {
-                return [
-                    'status' => 'success',
-                    'data' => $lastAssignment,
-                ];
+            if (!$lastAssignment) {
+                return ResponseHelper::error('No se encontraron asignaciones para este cliente.');
             }
 
-            return [
-                'status' => 'error',
-                'message' => 'No assignments found for this customer',
-            ];
+            return ResponseHelper::success('Última asignación obtenida correctamente.', ['assignment' => $lastAssignment]);
         } catch (Exception $e) {
-            return [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ];
+            Log::error("Error en getLastAssignmentByCustomer: " . $e->getMessage());
+
+            return ResponseHelper::error('Error al obtener la última asignación del cliente.');
         }
     }
+
 
     public function changeStatusGroup(array $data)
     {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-
         try {
+            // Verificar que la lista de clientes no esté vacía
+            if (empty($data['idGroupClientes'])) {
+                return ResponseHelper::error('La lista de clientes no puede estar vacía.');
+            }
+
             // Actualizar estado de los clientes
             $this->clientRepository->updateStatus($data['idGroupClientes'], $data['statusId']);
 
-            $title = "Correcto";
-            $mensaje = "Actualización correcta";
-            $status = "success";
+            return ResponseHelper::success('Estado de los clientes actualizado correctamente.');
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = "Ocurrió un error: " . $e->getMessage();
-            $status = "error";
-        }
+            Log::error("Error en changeStatusGroup: " . $e->getMessage());
 
-        return [
-            "title" => $title,
-            "text" => $mensaje,
-            "status" => $status
-        ];
+            return ResponseHelper::error('Error al actualizar el estado de los clientes.');
+        }
     }
 
-    public function changeStatusClient(array $data): array
+
+    public function changeStatusClient(array $data)
     {
-
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-
-        
         try {
-            $client = $this->clientRepository->getClientById($data['id']);
+            $client = $this->clientRepository->findById($data['id']);
 
             if (!$client) {
-                return [
-                    'title' => "Error",
-                    'mensaje' => "Cliente no encontrado",
-                    'status' => "error"
-                ];
+                return ResponseHelper::error("Cliente no encontrado.");
             }
 
+            // Actualizar el estado del cliente
             $updated = $this->clientRepository->updateClientStatus($data['id'], $data['status']);
 
-            if ($updated) {
-                $title = "Correcto";
-                $mensaje = "Se cambió el estado del cliente";
-                $status = "success";
-            } else {
-                $mensaje = "No se pudo cambiar el estado del cliente";
+            if (!$updated) {
+                return ResponseHelper::error("No se pudo cambiar el estado del cliente.");
             }
 
+            return ResponseHelper::success("Estado del cliente actualizado correctamente.", ['client' => $client]);
         } catch (Exception $e) {
-            Log::error("Error en `changeStatusClient()`: " . $e->getMessage());
-            $mensaje = "Ocurrió un error inesperado. Por favor, contacte al soporte.";
-        }
+            Log::error("Error en changeStatusClient: " . $e->getMessage());
 
-        return [
-            'title' => $title,
-            'mensaje' => $mensaje,
-            'status' => $status
-        ];
+            return ResponseHelper::error("Ocurrió un error inesperado. Por favor, contacte al soporte.");
+        }
     }
 
-    public function updateClient($request)
+
+    public function updateClient(array $data)
     {
-        $dataClient = new StoreClientRequest([
-                'code' => $request->code,
-                'name' => $request->name,
-                'lastname' => $request->lastname,
-                'phone' => $request->phone,
-                'optional_phone' => $request->optionalPhone,
-                'city' => $request->city,
-                'country' => $request->country,
-                'comment' => $request->comment,
-                'email' => $request->email
-        ]);
         DB::beginTransaction();
         try {
-            $client = $this->clientRepository->getClientById($request->id);
-            $this->clientRepository->updateClient($client, $dataClient);
+            $client = $this->clientRepository->findById($data['id']);
+
+            if (!$client) {
+                return ResponseHelper::error("Cliente no encontrado.");
+            }
+
+            // Actualizar los datos del cliente
+            $updated = $this->clientRepository->update($client, $data);
+
+            if (!$updated) {
+                return ResponseHelper::error("No se pudo actualizar el cliente.");
+            }
 
             DB::commit();
-
-            return [
-                'title' => 'Correcto',
-                'mensaje' => 'Se actualizó el cliente correctamente',
-                'status' => 'success'
-            ];
-
+            return ResponseHelper::success("Cliente actualizado correctamente.", ['client' => $client]);
         } catch (Exception $e) {
             DB::rollBack();
-            return [
-                'title' => 'Error',
-                'mensaje' => 'Error al actualizar cliente: ' . $e->getMessage(),
-                'status' => 'error'
-            ];
+            Log::error("Error en updateClient: " . $e->getMessage());
+
+            return ResponseHelper::error("Error al actualizar el cliente.");
         }
     }
 
-    public function deleteClient($request)
+
+    public function deleteClient(array $data)
     {
         DB::beginTransaction();
         try {
-            $client = $this->clientRepository->getClientById($request->id);
-            if (!$client) { 
-                return [
-                    'title' => 'Error',
-                    'mensaje' => 'Cliente no encontrado',
-                    'status' => 'error'
-                ];
+            $client = $this->clientRepository->findById($data['id']);
+
+            if (!$client) {
+                return ResponseHelper::error("Cliente no encontrado.");
             }
-            if ($this->clientRepository->deleteClient($client)) {
-                DB::commit();
-                return [
-                    'title' => 'Correcto',
-                    'mensaje' => 'El cliente se eliminó correctamente',
-                    'status' => 'success'
-                ];
-            } else {
+
+            // Intentar eliminar el cliente
+            if (!$this->clientRepository->deleteClient($client)) {
                 DB::rollBack();
-                return [
-                    'title' => 'Error',
-                    'mensaje' => 'No se pudo eliminar el cliente',
-                    'status' => 'error'
-                ];
+                return ResponseHelper::error("No se pudo eliminar el cliente.");
             }
+
+            DB::commit();
+            return ResponseHelper::success("Cliente eliminado correctamente.");
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error("Error en deleteClient: " . $e->getMessage());
 
-            return [
-                'title' => 'Error',
-                'mensaje' => 'Error al eliminar el cliente: ' . $e->getMessage(),
-                'status' => 'error'
-            ];
+            return ResponseHelper::error("Error al eliminar el cliente.");
         }
     }
 
-    public function profileClient($id) {
 
-        $myRoles = $this->rolesService->getMyRoles();
-        $client = $this->clientRepository->getClientByUserId($id);
-        $dataUser = $client;
-
-        $communications = $this->comunicationRepository->getLocationByCustomer($client->id);
-        $lastAssignament = $this->assignmentRepository->getLastAssignamentByCustomer($client->id);
-        $lastCampaing = $this->campaingRepository->getLastCampaingByCustomer($client->id);
-        $campaings = $this->campaingRepository->getAllCampaingsByCustomer($client->id);
-        $lastProvider = $this->providerRepository->getLastProviderByCustomer($client->id);
-        $providers = $this->providerRepository->getAllProvidersByCustomer($client->id);
-        $priorities = $this->priorityRepository->getAllPriorities();
-        $eventos = $this->taskRepository->getEventsByCustomer($client->id);
-        $vistas = $this->viewsRepository->getViewsByClients($client->id);
-
-        return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers', 'priorities', 'eventos', 'vistas');
-
-    }
-
-    public function searchCustomerByStatus($customerId)
+    public function profileClient(int $id)
     {
-        $myRoles = $this->rolesService->getMyRoles();
-        $userId = $this->userRepository->getMyId();
-        $roles = $myRoles['roles'];
-        // Obtener el agente si no es ADMIN
-        $agent = ($roles !== 'ADMINISTRADOR') ? $this->agentRepository->getAgentByUserId($userId) : null; // Agent::where('user_id', $userId)->first() : null;
-        $agentId = $agent ? $agent->id : null;
+        try {
+            // Obtener el cliente por su usuario
+            $client = $this->clientRepository->getClientByUserId($id);
 
-        // Obtener clientes según el rol
-        $customers = $this->clientRepository->getCustomersByStatusAndRole($customerId, $roles, $agentId);
+            if (!$client) {
+                return ResponseHelper::error("Cliente no encontrado.");
+            }
 
-        // Obtener datos adicionales
-        $agents = $this->agentRepository->getAgents(); // Agent::all();
-        $campaings = $this->campaingRepository->getCampaing(); // Campaing::all();
-        $providers = $this->providerRepository->getProviders(); // Provider::all();
-        $statusCustomers = $this->clientRepository->getCustomerStatus();
+            // Obtener información adicional del cliente
+            $data = [
+                'dataUser' => $client,
+                'communications' => $this->comunicationRepository->getLocationByCustomer($client->id),
+                'lastAssignament' => $this->assignmentRepository->getLatestActiveAssignmentByCustomer($client->id),
+                'lastCampaing' => $this->campaingRepository->getLastCampaignByCustomer($client->id),
+                'campaings' => $this->campaingRepository->getCampaignsByCustomer($client->id),
+                'lastProvider' => $this->providerRepository->getLastProviderByCustomer($client->id),
+                'providers' => $this->providerRepository->getProvidersByCustomer($client->id),
+                'priorities' => $this->priorityRepository->getActive(),
+                'eventos' => $this->taskRepository->getEventsByCustomer($client->id),
+                'vistas' => $this->viewsRepository->getViewsByClients($client->id),
+            ];
 
-        return compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers');
+            return ResponseHelper::success("Perfil del cliente obtenido correctamente.", $data);
+        } catch (Exception $e) {
+            Log::error("Error en profileClient: " . $e->getMessage());
+
+            return ResponseHelper::error("Error al obtener el perfil del cliente.");
+        }
     }
+
+
+    public function searchCustomerByStatus(int $customerId)
+    {
+        try {
+            $myRoles = $this->rolesService->getMyRoles();
+            $userId = $this->userRepository->getMyUserId();
+            $roles = $myRoles['roles'];
+
+            // Obtener el agente si el usuario no es ADMINISTRADOR
+            $agent = ($roles !== 'ADMINISTRADOR') ? $this->agentRepository->getByUserId($userId) : null;
+            $agentId = $agent ? $agent->id : null;
+
+            // Obtener clientes según el rol
+            $customers = $this->clientRepository->getCustomersByStatusAndRole($customerId, $roles, $agentId);
+
+            // Obtener datos adicionales
+            $data = [
+                'customers' => $customers,
+                'agents' => $this->agentRepository->allActive(),
+                'campaings' => $this->campaingRepository->getActiveCampaigns(),
+                'providers' => $this->providerRepository->getAll(),
+                'statusCustomers' => $this->clientRepository->getCustomerStatus(),
+            ];
+
+            return ResponseHelper::success("Clientes filtrados correctamente por estado.", $data);
+        } catch (Exception $e) {
+            Log::error("Error en searchCustomerByStatus: " . $e->getMessage());
+
+            return ResponseHelper::error("Error al filtrar clientes por estado.");
+        }
+    }
+
 
     public function filterAdvanced(FilterRequest $request)
     {
-        
+        try {
+            // Obtener los parámetros del request
+            $filterFor = $request->filterFor ?? null;
+            $inputName = $request->inputName ?? null;
+            $statusId = $request->statusId ?? null;
+            $typeRange = $request->typeRange ?? null;
+            $dateInit = $request->dateInit ?? null;
+            $dateEnd = $request->dateEnd ?? null;
 
-        // $query = Customers::with([
-        //     'user',
-        //     'agent',
-        //     'latestCampaign',
-        //     'latestSupplier',
-        //     'provider',
-        //     'statusCustomer',
-        //     'platform',
-        //     'traiding',
-        //     'latestComunication',
-        //     'latestAssignamet',
-        //     'latestDeposit',
-        //     'folder'
-        // ]);
+            // Iniciar la consulta con relaciones necesarias
+            $query = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit',
+                'folder'
+            ]);
 
-        // if ($filterFor !== 'Filtrar Por:' || $inputName !== '') {
-        //     if ($filterFor == 'Cod. Cliente') {
-        //         $query->where(function($q) use ($inputName) {
-        //             $q->where('code', 'like', "%$inputName%");
-        //         });
-        //     }
+            // Aplicar filtros dinámicos
+            if (!empty($filterFor) && !empty($inputName)) {
+                $filters = [
+                    'Cod. Cliente' => ['code'],
+                    'Nombre Cliente' => ['name', 'lastname'],
+                    'Correo' => ['email'],
+                    'Teléfono' => ['phone'],
+                    'Teléfono Opcional' => ['optional_phone'],
+                    'Ciudad' => ['city'],
+                    'País' => ['country'],
+                    'Comentario' => ['comment'],
+                    'Proveedor' => ['provider' => 'name'],
+                    'Folder' => ['folder' => 'name'],
+                    'Asignado Por' => ['assignaments.assignedBy' => ['name', 'lastname']],
+                    'Agente' => ['assignaments.agent' => ['name', 'lastname']],
+                    'Última Visita' => ['views.agent' => ['name', 'lastname']],
+                ];
 
-        //     if ($filterFor == 'Asignado Por') {
-        //         $query->whereHas('assignaments', function($q) use ($inputName) {
-        //             $q->whereHas('assignedBy', function($a) use ($inputName) {
-        //                 $a->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
-        //             });
-        //         });
-        //     }
+                if (isset($filters[$filterFor])) {
+                    foreach ($filters[$filterFor] as $relation => $fields) {
+                        if (is_array($fields)) {
+                            $query->whereHas($relation, function ($q) use ($fields, $inputName) {
+                                foreach ($fields as $field) {
+                                    $q->orWhere($field, 'like', "%$inputName%");
+                                }
+                            });
+                        } else {
+                            $query->where($fields, 'like', "%$inputName%");
+                        }
+                    }
+                }
+            }
 
-        //     if ($filterFor == 'Proveedor') {
-        //         $query->whereHas('provider', function($q) use ($inputName) {
-        //             $q->where('name', $inputName);
-        //         });
-        //     }
+            // Filtrar por estado si se proporciona
+            if (!empty($statusId) && $statusId !== "Seleccione un estado") {
+                $query->where('id_status', $statusId);
+            }
 
-        //     if ($filterFor == 'Nombre Cliente') {
-        //         $query->where(function($q) use ($inputName) {
-        //             $q->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
-        //         });
-        //     }
+            // Aplicar filtros por rango de fechas
+            if (!empty($typeRange) && $typeRange !== "Seleccione Rango:") {
+                $dateFilters = [
+                    "Última Llamada" => "comunications.date",
+                    "Fecha de Ingreso" => "date_admission",
+                    "Fecha de Última Llamada" => "comunications.date",
+                    "Fecha de Última Asignación" => "assignaments.date"
+                ];
 
-        //     if ($filterFor == 'Correo') {
-        //         $query->where(function($q) use ($inputName) {
-        //             $q->where('email', 'like', "%$inputName%");
-        //         });
-        //     }
+                if (isset($dateFilters[$typeRange]) && !empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
+                    if (strpos($dateFilters[$typeRange], '.') !== false) {
+                        [$relation, $field] = explode('.', $dateFilters[$typeRange]);
+                        $query->whereHas($relation, function ($q) use ($field, $dateInit, $dateEnd) {
+                            $q->whereBetween($field, [$dateInit, $dateEnd]);
+                        });
+                    } else {
+                        $query->whereBetween($dateFilters[$typeRange], [$dateInit, $dateEnd]);
+                    }
+                }
+            }
 
-        //     if ($filterFor == 'Teléfono') {
-        //         $query->where(function($q) use ($inputName) {
-        //             $q->where('phone', 'like', "%$inputName%");
-        //         });
-        //     }
+            // Paginar resultados
+            $customers = $query->paginate(10);
 
-        //     if ($filterFor == 'Teléfono Opcional') {
-        //         $query->where(function($q) use ($inputName) {
-        //             $q->where('optional_phone', 'like', "%$inputName%");
-        //         });
-        //     }
+            // Obtener datos adicionales
+            $data = [
+                'customers' => $customers,
+                'campaigns' => $this->campaingRepository->getAll(),
+                'providers' => $this->providerRepository->getAll(),
+                'statusCustomers' => $this->clientRepository->getAllStatus(),
+                'agents' => $this->agentRepository->allActive()
+            ];
 
-        //     if ($filterFor == 'Ciudad') {
-        //         $query->where(function($q) use ($inputName) {
-        //             $q->where('city', 'like', "%$inputName%");
-        //         });
-        //     }
+            return ResponseHelper::success("Clientes filtrados correctamente.", $data);
+        } catch (Exception $e) {
+            Log::error("Error en filterAdvanced: " . $e->getMessage());
 
-        //     if ($filterFor == 'País') {
-        //         $query->where(function($q) use ($inputName) {
-        //             $q->where('country', 'like', "%$inputName%");
-        //         });
-        //     }
-
-        //     if ($filterFor == 'Agente') {
-        //         $query->whereHas('assignaments', function($q) use ($inputName) {
-        //             $q->whereHas('agent', function($a) use ($inputName) {
-        //                 $a->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
-        //             });
-        //         });
-        //     }
-
-        //     if ($filterFor == 'Comentario') {
-        //         $query->where(function($q) use ($inputName) {
-        //             $q->where('comment', 'like', "%$inputName%");
-        //         });
-        //     }
-
-        //     if ($filterFor == 'Última Visita') {
-        //         $query->whereHas('views', function($q) use ($inputName) {
-        //             $q->whereHas('agent', function($a) use ($inputName) {
-        //                 $a->where('name', 'like', "%$inputName%")->orWhere('lastname', 'like', "%$inputName%");
-        //             });
-        //         });
-        //     }
-
-        //     if ($filterFor == 'N° Depósito') {
-        //         $dataSearch = 'code';
-        //     }
-
-        //     if ($filterFor == 'Total Depósito') {
-        //         $dataSearch = 'code';
-        //     }
-
-        //     if ($filterFor == 'Folder') {
-        //         $query->whereHas('folder', function($q) use ($inputName) {
-        //             $q->where('name', 'like', "%$inputName%");
-        //         });
-        //     }
-
-        // }
-
-        // if ($statusId !== "Seleccione un estado") {
-        //     $query->where('id_status', $statusId);
-        // }
-
-        // if ($typeRange !== "Seleccione Rango:") {
-
-        //     if ($typeRange == "Última Llamada") {
-        //         if (!empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
-        //             $query->whereHas('comunications', function ($q) use ($dateInit, $dateEnd) {
-        //                 $q->whereBetween('date', [$dateInit, $dateEnd]);
-        //             });
-        //         }
-        //     }
-
-        //     if ($typeRange == "Fecha de Ingreso") {
-        //         $query->whereBetween('date_admission', [$dateInit, $dateEnd]);
-        //     }
-
-        //     if ($typeRange == "Fecha de Última Llamada") {
-        //         if (!empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
-        //             $query->whereHas('comunications', function ($q) use ($dateInit, $dateEnd) {
-        //                 $q->whereBetween('date', [$dateInit, $dateEnd]);
-        //             });
-        //         }
-        //     }
-
-        //     if ($typeRange == "Fecha de Última Asignación") {
-        //         if (!empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
-        //             $query->whereHas('assignaments', function ($q) use ($dateInit, $dateEnd) {
-        //                 $q->whereBetween('date', [$dateInit, $dateEnd]);
-        //             });
-
-        //         }
-        //     }
-
-
-        //     // $query->where('id_status', $statusId);
-        // }
-
-        // $customers = $query->paginate(10);
-
-        // $agents = Agent::all();
-        // $campaings = Campaing::all();
-        // $providers = Provider::all();
-        // $statusCustomers = CustomerStatus::all();
-
-        // return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render()]);
-
+            return ResponseHelper::error("Error al filtrar los clientes.");
+        }
     }
+
 
 }
