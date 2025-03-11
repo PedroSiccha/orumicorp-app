@@ -20,21 +20,21 @@ class AgentController extends Controller
     public function index()
     {
         try {
-            $jsonResponse  = $this->agentService->getAgentsData();
+            $data = $this->agentService->getAgentsData();
+            $agents = $data['agents'];
+            $areas = $data['areas'];
+            $roles = $data['roles'];
+            $rouletteSpin = $data['rouletteSpin'];
+            $dataUser = $data['dataUser'];
+            return view('agent.index', compact('agents', 'areas', 'roles', 'rouletteSpin', 'dataUser'));
 
-            $data = json_decode($jsonResponse->getContent());
-            $agents = $data->data->agents;
-            $areas = $data->data->areas;
-            $roles = $data->data->roles;
-            dd($agents, $areas, $roles);
-
-            return view('agent.index', compact('agents', 'areas', 'roles'/*, 'dataUser', 'rouletteSpin'*/));
         } catch (Exception $e) {
             Log::error("Error al obtener agentes: " . $e->getMessage());
-            // return redirect()->route('home')->with('error', 'No se pudieron cargar los agentes.');
+            return redirect()->route('home')->with('error', 'No se pudieron cargar los agentes.');
         }
-        
-    } 
+    }
+
+ 
 
     public function agentsPagination()
     {

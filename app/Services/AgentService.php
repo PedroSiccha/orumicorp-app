@@ -47,16 +47,31 @@ class AgentService {
     public function getAgentsData()
     {
         try {
-            return ResponseHelper::success('Datos obtenidos correctamente.', [
-                'agents' => $this->agentRepository->paginate(10),
-                'areas' => $this->areaRepository->getAllActive(),
-                'roles' => $this->rolesRepository->getAll()
-            ]);
+                $agents = $this->agentRepository->paginate(10);
+                $areas = $this->areaRepository->getAllActive();
+                $roles = $this->rolesRepository->getAll();
+                $dataUser = $this->agentRepository->getMyAgent();
+                $rouletteSpin = $dataUser->number_turns;
+
+
+            return [
+                'agents' => $agents,
+                'areas' => $areas,
+                'roles' => $roles,
+                'rouletteSpin' => $rouletteSpin,
+                'dataUser' => $dataUser
+            ];
+            // return ResponseHelper::success('Datos obtenidos correctamente.', [
+            //     'agents' => $this->agentRepository->paginate(10), // Mantiene la paginación de Laravel
+            //     'areas' => $this->areaRepository->getAllActive(), // Mantiene la colección de Eloquent
+            //     'roles' => $this->rolesRepository->getAll() // Mantiene la colección de Eloquent
+            // ]);
         } catch (Exception $e) {
             Log::error("Error en getAgentsData: " . $e->getMessage());
             return ResponseHelper::error('Error al obtener datos de agentes.');
         }
     }
+
 
     public function searchAgent(string $code)
     {
