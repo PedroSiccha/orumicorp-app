@@ -8,10 +8,12 @@ use App\Models\Campaing;
 use App\Models\Customers;
 use App\Models\CustomerStatus;
 use App\Models\Provider;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FilterController extends Controller
-{
+{ 
 
     public function filterAdvanced(Request $request)
     {
@@ -22,6 +24,9 @@ class FilterController extends Controller
         $dateInit = $request->dateInit;
         $dateEnd = $request->dateEnd;
         $limit = $request->limit;
+        $user = User::find(Auth::user()->id);
+        $roles = $user->getRoleNames()->first();
+        $agent = Agent::where('user_id', Auth::user()->id)->first();
         // dd($dateInit . "-------------> ". $da);
 
         // 🔹 Iniciar la consulta
@@ -97,6 +102,13 @@ class FilterController extends Controller
                     $query->whereBetween($column, [$dateInit, $dateEnd]);
                 }
             }
+        }
+
+        // 🔹 Filtrar clientes según el rol del usuario
+        if ($roles !== 'ADMINISTRADOR') {
+            $query->whereHas('assignaments', function ($q) use ($agent) {
+                $q->where('agent_id', $agent->id);
+            });
         }
 
         // 🔹 Obtener resultados paginados

@@ -55,7 +55,7 @@
                           <th>Comisión en Soles</th>
                           <th>Agente</th>
                           <th>Area</th>
-                          <th>Comentario</th>
+                          <th>Comentario</th> 
                       </tr>
                       </thead>
                       <tbody>

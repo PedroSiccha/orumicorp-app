@@ -33,6 +33,7 @@ class AgentBonusController extends Controller
         $user_id = Auth::user()->id;
         $user = User::where('id', $user_id)->first();
         $roles = $user->getRoleNames()->first();
+        // dd($roles);
 
         $agent = Agent::where('user_id', $user_id)->first();
         $client = Customers::where('user_id', $user_id)->first();
@@ -51,7 +52,7 @@ class AgentBonusController extends Controller
         $commissions = Commission::where('status', true)->get();
         $exchange_rates = ExchangeRate::where('status', true)->get();
         if ($roles == 'ADMINISTRADOR') {
-            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
+            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
                                 ->where('status', 1)
                                 ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
                                 ->with('action') // Carga la relación con actions (si está definida en el modelo)
@@ -82,7 +83,7 @@ class AgentBonusController extends Controller
 
         } else {
 
-            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
+            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
                                 ->where('status', 1)
                                 ->where('agent_id', $agent->id)
                                 ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
@@ -118,6 +119,7 @@ class AgentBonusController extends Controller
         }
 
         $reportTargetMensual = $target->sum('amount');
+        $amountPending = $amount + $amountRetiro;
 
         if ($target == null) {
             $target = new Target();
@@ -129,7 +131,7 @@ class AgentBonusController extends Controller
         $rouletteSpin = $agent->number_turns ?: 0;
         $areas = Area::where('status', true)->get();
 
-        return view('bonusAgente.index', compact('bonusAgent', 'percents', 'commissions', 'exchange_rates', 'target', 'amount', 'amountRetiro', 'premios1', 'premios2', 'dataUser', 'rouletteSpin', 'areas', 'reportTargetMensual'));
+        return view('bonusAgente.index', compact('bonusAgent', 'percents', 'commissions', 'exchange_rates', 'target', 'amount', 'amountRetiro', 'premios1', 'premios2', 'dataUser', 'rouletteSpin', 'areas', 'reportTargetMensual', 'amountPending'));
     }
 
     /**
@@ -200,14 +202,14 @@ class AgentBonusController extends Controller
         }
 
         if ($roles == 'ADMINISTRADOR') {
-            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
+            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
                                 ->where('status', 1)
                                 ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
                                 ->with('action') // Carga la relación con actions (si está definida en el modelo)
                                 ->get();
         } else {
 
-            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3]) // Filtra por action_id 1, 2 y 3
+            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
                                 ->where('status', 1)
                                 ->where('agent_id', $agent->id)
                                 ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
@@ -224,30 +226,78 @@ class AgentBonusController extends Controller
 
     public function saveRetiro(Request $request)
     {
-        $agent = Agent::where('dni', $request->dni)
-                        ->orWhere('code', $request->dni)
-                        ->first();
+        $codeCustomer = $request->dniCustomer;
+        $amount = $request->amount;
+        $observation = $request->observation;
+        $percentId = $request->percent_id;
+        $commissionId = $request->comission_id;
+        $exchangeRateId = $request->exchange_rate_id;
+        $codeAgent = $request->dniAgent;
+        $clientId = "";
+        $userId = Auth::user()->id;
+        $user = User::where('id', $userId)->first();
+        $roles = $user->getRoleNames()->first();
+        if ($codeCustomer > 0) {
+            $client = Customers::where('code', $codeCustomer)->first();
+            $clientId = $client->id;
+        }
+        $agent = Agent::where('code_voiso', $codeAgent)->first();
+        try {
+            $bonusAgent = new BonusAgent();
+            $bonusAgent->date_admission = Carbon::now();
+            $bonusAgent->amount = $amount;
+            $bonusAgent->observation = $observation;
+            $bonusAgent->status = true;
 
-        $action = new Action();
+            if ($percentId > 0) {
+                $bonusAgent->percent_id = $percentId;
+            }
+            if ($commissionId > 0) {
+                $bonusAgent->commission_id = $commissionId;
+            }
+            if ($exchangeRateId > 0) {
+                $bonusAgent->exchange_rate_id = $exchangeRateId;
+            }
+            $bonusAgent->agent_id = $agent->id;
+            $bonusAgent->action_id = 4;
+            if ($bonusAgent->save()) {
+                $sale = new Sales();
+                $sale->date_admission = Carbon::now();
+                $sale->amount = $amount;
+                $sale->observation = $observation;
+                $sale->status = true;
+                $sale->agent_id = $agent->id;
+                $sale->action_id = 4;
+                $sale->user_id = Auth::user()->id;
+                if ($sale->save()) {
+                    $title = "Correcto";
+                    $mensaje = "Registrado correctamente";
+                    $status = "success";
+                }
+            }
+        } catch (Exception $e) {
+            $title = 'Error';
+            $mensaje = 'Ocurrió un error: '.$e->getMessage();
+            $status = 'error';
+        }
+        if ($roles == 'ADMINISTRADOR') {
+            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
+                                ->where('status', 1)
+                                ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
+                                ->with('action') // Carga la relación con actions (si está definida en el modelo)
+                                ->get();
+        } else {
 
-        $sale = new Sales();
-        $sale->date_admission = Carbon::now();
-        $sale->amount = -1*($request->amount);
-        $sale->observation = $request->observation;
-        $sale->status = true;
-        $sale->percent = $request->percent;
-        $sale->commission = $request->commission;
-        $sale->exchange_rate = $request->exchange_rate;
-        $sale->agent_id = $agent->id;
-        $sale->action_id = 4;
-        $sale->user_id = Auth::user()->id;
-        if ($sale->save()) {
-            $resp = 1;
+            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
+                                ->where('status', 1)
+                                ->where('agent_id', $agent->id)
+                                ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
+                                ->with('action') // Carga la relación con actions (si está definida en el modelo)
+                                ->get();
+
         }
 
-        $bonusAgent = BonusAgent::where('status', true)->orderBy('date_admission')->get();
-
-        return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "resp"=>$resp]);
+        return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
     /**
