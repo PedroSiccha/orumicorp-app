@@ -22,7 +22,7 @@
                     </div>
                     <div class="form-group" id="roleSelector" style="display: none;">
                         <label>Seleccionar Rol:</label>
-                        <select id="roleSelector" class="form-control">
+                        <select id="roleSelectorId" class="form-control">
                             @foreach ($roles as $role)
                                 <option value="{{ $role->id }}">{{ $role->name }}</option>
                             @endforeach
@@ -171,7 +171,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" type="button" id="saveConfigBtn">Guardar</button>
+                <button class="btn btn-primary" type="button" id="saveConfigBtn">Guardar</button> 
                 <button class="btn btn-warning" type="button" id="resetConfigBtn">Restablecer Configuración</button>
                 <button class="btn btn-default" type="button" data-dismiss="modal">Cerrar</button>
             </div>

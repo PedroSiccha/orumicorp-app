@@ -8,12 +8,23 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         console.error("❌ ERROR: loadTableConfig no está definida.");
     }
+    // ✅ Evento para mostrar u ocultar el selector de roles
+    document.getElementById("configScope").addEventListener("change", function () {
+        var selectedValue = this.value;
+        var roleSelectorDiv = document.getElementById("roleSelector");
+
+        if (selectedValue === "role") {
+            roleSelectorDiv.style.display = "block"; // ✅ Mostrar si selecciona "Guardar para Rol"
+        } else {
+            roleSelectorDiv.style.display = "none"; // ✅ Ocultar si selecciona "Guardar para Usuario"
+        }
+    });
 });
 
 const tableName = "tabla_clientes";
 const configUrl = `/get-table-config/${tableName}`;
 const saveConfigUrl = `/save-table-config`;
-const resetConfigUrl = `/reset-table-config`;
+const resetConfigUrl = `/reset-table-config`; 
 
 function loadTableConfig() {
     console.log("📥 Cargando configuración desde el servidor...");
@@ -64,7 +75,7 @@ function saveTableConfig() {
     });
     
     let scope = document.getElementById("configScope").value;
-    let roleId = scope === "role" ? document.getElementById("roleSelector").value : null;
+    let roleId = scope === "role" ? document.getElementById("roleSelectorId").value : null;
     
     fetch(saveConfigUrl, {
         method: "POST",

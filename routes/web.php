@@ -206,8 +206,8 @@ Route::group(['middleware' => 'auth'], function () {
         return response()->json(['message' => 'Notificaciones actualizadas']);
     })->name('notifications.markAsSeen');
 
-    Route::post('/save-table-config', [TableConfigController::class, 'saveConfig'])->name('saveTableConfig');
-    Route::get('/get-table-config/{tableName}', [TableConfigController::class, 'getConfig'])->name('getTableConfig');
+    Route::post('/save-table-config', [TableConfigController::class, 'saveTableConfig'])->name('saveTableConfig');
+    Route::get('/get-table-config/{tableName}', [TableConfigController::class, 'getTableConfig'])->name('getTableConfig');
 
 });
 

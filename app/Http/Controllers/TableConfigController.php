@@ -45,6 +45,7 @@ class TableConfigController extends Controller
             'scope' => 'required|string',
             'role_id' => 'nullable|integer'
         ]);
+        // dd($request->role_id);
         
         $user = Auth::user();
         
@@ -60,7 +61,7 @@ class TableConfigController extends Controller
             $role = Role::find($request->role_id);
             if (!$role) {
                 return response()->json(['error' => 'Rol no encontrado'], 404);
-            }
+            } 
             RoleTableConfiguration::updateOrCreate(
                 ['role_id' => $role->id, 'table_name' => $request->table_name],
                 ['visible_columns' => json_encode($request->visible_columns)]

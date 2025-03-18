@@ -236,9 +236,9 @@ Clientes
 
     var filterOrderRoute = '{{ route("filterOrder") }}';
     var filterByAttrRoute = '{{ route("filterByAttr") }}';
-    var filterByDateRoute = '{{ route("filterByDate") }}';
+    var filterByDateRoute = '{{ route("filterByDate") }}'; 
 
-    var searchGeneralRoute = '{{ route("searchGeneralClient") }}';
+    var searchGeneralRoute = '{{ route("searchGeneralClient") }}'; 
     var sendMailRoute = '{{ route("sendMailClient") }}';
     var changeFolderRoute = '{{ route("changeFolderClient") }}';
     var liberarClienteRoute = '{{ route("liberarCliente") }}';
