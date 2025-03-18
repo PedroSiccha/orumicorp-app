@@ -8,6 +8,7 @@ use App\Models\Premio;
 use App\Models\Provider;
 use App\Models\Sales;
 use App\Models\User;
+use App\Services\MenuService;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -17,11 +18,12 @@ use Spatie\Permission\Models\Role;
 
 class DashboardController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    protected $menuService;
+    public function __construct(MenuService $menuService)
+    {
+        $this->menuService = $menuService;
+    }
+
     public function index()
     {
 
@@ -65,6 +67,20 @@ class DashboardController extends Controller
         $role = Role::find(1);
         $user->assignRole($role);
         */
+
+        // dd(session('default_route'));
+        if (!auth()->user()->can('Ver Tablero')) {
+            $menuItems = $this->menuService->getMenuItems();
+
+            // Encontrar la primera ruta accesible
+            $firstAccessible = collect($menuItems)->first(fn($item) => $item['can']);
+
+            if (!$firstAccessible) {
+                return redirect(route('login'))->with('error', 'No tienes acceso a ninguna sección.');
+            }
+
+            return redirect($firstAccessible['url']);
+        }
 
         $user_id = Auth::user()->id;
         $user = User::where('id', $user_id)->first();

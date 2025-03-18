@@ -10,6 +10,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class VoisoController extends Controller
 {
@@ -45,6 +46,35 @@ class VoisoController extends Controller
         }
     }
 
+    // public function initiateCall(Request $request)
+    // {
+    //     $user_id = Auth::user()->id;
+    //     $codeVoiso = Agent::where('user_id', $user_id)->first();
+    //     $data = [
+    //         'agent' => $codeVoiso->code_voiso,
+    //         'number' => $request->phone,
+    //     ];
+ 
+    //     $client = Customers::where('phone', $request->phone)->first();
+
+    //     $dataCustomer = [
+    //         'customer_id' => $client->id,
+    //         'description' => '',
+    //         'comment' => ''
+    //     ];
+
+    //     $response = Http::post('https://cc-dal01.voiso.com/api/v1/2a517cb66609906663cf7e5bd337ff168286eeacb0364d1d/click2call', $data);
+    //     if ($response->successful()) {
+    //         $comunicationData = $this->comunicationService->saveComunication($dataCustomer);
+    //         return response()->json(["errorMessage"=>$response->json(), "errorStatus"=>"", "status"=>$response->status(), "data"=>$comunicationData['data']]);
+    //     } else {
+    //         $errorResponse = json_decode($response->body(), true);
+    //         $errorMessage = $errorResponse['error'] ?? 'Error desconocido';
+    //         $errorStatus = $errorResponse['status'] ?? 'Error de estado';
+    //         return response()->json(["errorMessage"=>$errorMessage, "errorStatus"=>$errorStatus, "status"=>$response->status(), "data"=>""]);
+    //     }
+    // }
+
     public function initiateCall(Request $request)
     {
         $user_id = Auth::user()->id;
@@ -53,11 +83,11 @@ class VoisoController extends Controller
             'agent' => $codeVoiso->code_voiso,
             'number' => $request->phone,
         ];
- 
-        $client = Customers::where('phone', $request->phone)->first();
+
+        // $client = Customers::where('phone', $request->phone)->first();
 
         $dataCustomer = [
-            'customer_id' => $client->id,
+            'customer_id' => $request->customerId,
             'description' => '',
             'comment' => ''
         ];
@@ -65,12 +95,43 @@ class VoisoController extends Controller
         $response = Http::post('https://cc-dal01.voiso.com/api/v1/2a517cb66609906663cf7e5bd337ff168286eeacb0364d1d/click2call', $data);
         if ($response->successful()) {
             $comunicationData = $this->comunicationService->saveComunication($dataCustomer);
-            return response()->json(["errorMessage"=>$response->json(), "errorStatus"=>"", "status"=>$response->status(), "data"=>$comunicationData['data']]);
+            return response()->json([
+                "errorMessage" => $response->json(),
+                "errorStatus" => "",
+                "status" => $response->status(),
+                "data" => $comunicationData['data']
+                // "data" => "https://cc-dal01.voiso.com/stats"
+            ]);
         } else {
             $errorResponse = json_decode($response->body(), true);
             $errorMessage = $errorResponse['error'] ?? 'Error desconocido';
             $errorStatus = $errorResponse['status'] ?? 'Error de estado';
-            return response()->json(["errorMessage"=>$errorMessage, "errorStatus"=>$errorStatus, "status"=>$response->status(), "data"=>""]);
+            return response()->json([
+                "errorMessage" => $errorMessage,
+                "errorStatus" => $errorStatus,
+                "status" => $response->status(),
+                "data" => ""
+            ]);
         }
     }
+
+    public function getCallStatus(Request $request)
+    {
+        $callId = $request->call_id; // ID de la llamada obtenida al iniciarla
+
+        // URL de la API de Voiso para obtener el estado de la llamada
+        $url = "https://cc-dal01.voiso.com/api/v1/calls/$callId/status";
+
+        $response = Http::get($url, [
+            'Authorization' => 'Bearer TU_TOKEN_DE_API',
+        ]);
+
+        if ($response->successful()) {
+            return response()->json($response->json());
+        } else {
+            return response()->json(['error' => 'No se pudo obtener el estado de la llamada'], 500);
+        }
+    }
+
+
 }

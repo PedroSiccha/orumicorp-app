@@ -66,7 +66,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="updateClient(
+                <button class="btn btn-info " type="button" onclick="updateClient( 
                     '#eId',
                     '#eCode',
                     '#eName',

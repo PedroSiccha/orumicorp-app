@@ -9,20 +9,20 @@ use App\Models\Premio;
 use App\Models\Provider;
 use App\Models\Sales;
 use App\Models\User;
+use App\Services\MenuService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    
+    protected $menuService;
+    
+    public function __construct(MenuService $menuService)
     {
         $this->middleware('auth');
+        $this->menuService = $menuService;
     }
 
     /**
@@ -32,6 +32,20 @@ class HomeController extends Controller
      */
     public function index()
     {
+        // dd(session('default_route'));
+        if (!auth()->user()->can('Ver Tablero')) {
+            $menuItems = $this->menuService->getMenuItems();
+
+            // Encontrar la primera ruta accesible
+            $firstAccessible = collect($menuItems)->first(fn($item) => $item['can']);
+
+            if (!$firstAccessible) {
+                return redirect(route('login'))->with('error', 'No tienes acceso a ninguna sección.');
+            }
+
+            return redirect($firstAccessible['url']);
+        }
+
         $user_id = Auth::user()->id;
         $rouletteSpin = 0;
         $dateIn = null;

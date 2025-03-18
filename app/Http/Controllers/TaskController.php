@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class TaskController extends Controller
 {
@@ -51,7 +52,15 @@ class TaskController extends Controller
 
     public function obtenerEventos()
     {
+        $user = Auth::user();
+        $user = User::find($user->id);
+        $agent = Agent::where('user_id',  $user->id)->first();
+        $roles = $user->getRoleNames()->first();
         $eventos = Task::with('agent')->get();
+
+        if ($roles !== 'ADMINISTRADOR') {
+            $eventos = Task::with('agent')->where('agent_id', $agent->id)->get();
+        }
 
         $eventos_formateados = [];
         foreach ($eventos as $evento) {

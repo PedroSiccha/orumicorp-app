@@ -6,7 +6,7 @@ Clientes
 
 @section('content')
 <div class="row">
-    <div class="col-lg-12">
+    <div class="col-lg-12"> 
         <div class="ibox ">
             <div class="ibox-title">
                 <h5>Filtros</h5>
@@ -21,7 +21,7 @@ Clientes
                     <div class="col-sm-3">
                         <div class="input-group m-b">
                             <div class="input-group-prepend">
-                                <button id="filterButton" data-toggle="dropdown" class="btn btn-white dropdown-toggle" type="button">Filtrar Por: </button>
+                                <button id="filterButton" data-toggle="dropdown" class="btn btn-white dropdown-toggle" type="button"><a>Cod. Cliente</a></button>
                                 <ul class="dropdown-menu">
                                     <li><a href="#" class="dropdown-item">Cod. Cliente</a></li>
                                     <li><a href="#" class="dropdown-item">Asignado Por</a></li>
@@ -57,7 +57,6 @@ Clientes
                             <option>Seleccione Rango:</option>
                             <option>Última Llamada</option>
                             <option>Fecha de Ingreso</option>
-                            <option>Fecha de Última Llamada</option>
                             <option>Fecha de Última Asignación</option>
                         </select>
                     </div>
@@ -182,6 +181,24 @@ Clientes
     </div>
 </div>
 
+<!-- Modal para Voiso -->
+<div id="voisoModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Llamada con Voiso</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <iframe id="voisoIframe" src="" width="100%" height="500px" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @include('cliente.modal.modalChargeGroup')
 @include('cliente.modal.modalAsignAgent')
 @include('cliente.modal.modalGuardarNuevoCliente')
@@ -262,6 +279,8 @@ Clientes
 
 <!-- SUMMERNOTE -->
 <script src="{{ asset('js/plugins/summernote/summernote-bs4.js') }}"></script>
+<script src="{{ asset('js/utils/viewCheck.js') }}"></script>
+
 
 <script>
     $(document).on('click', '.dropdown-item', function(e) {
@@ -271,8 +290,8 @@ Clientes
 </script>
 
 <script>
-    $(document).ready(function() {
 
+    $(document).ready(function() {
         $('#datepicker').datepicker({
             format: "dd/mm/yyyy",
             autoclose: true,
@@ -322,7 +341,7 @@ Clientes
                     $('#tabClient').html(data);
                     $("#tabClient").show();
                     $("#skeleton-loader").hide();
-                    applyTableConfig();
+                    // applyTableConfig();
                 },
                 error: function () {
                     $('#tabClient').html('<p style="text-align: center; color: red;">Error al cargar los datos.</p>');
@@ -375,9 +394,27 @@ Clientes
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // markNotificationsAsSeen('clients');
+        const typeRange = document.getElementById("typeRange");
         const dateInit = document.getElementById("dateInitSearchGeneral");
         const dateEnd = document.getElementById("dateEndSearchGeneral");
+
+        function toggleDateInputs() {
+            if (typeRange.value === "Seleccione Rango:") {
+                dateInit.setAttribute("disabled", "true");
+                dateEnd.setAttribute("disabled", "true");
+                dateInit.value = "";
+                dateEnd.value = "";
+            } else {
+                dateInit.removeAttribute("disabled");
+                dateEnd.removeAttribute("disabled");
+            }
+        }
+
+        // Ejecutar al cargar la página para verificar el estado inicial
+        toggleDateInputs();
+
+        // Evento para cambiar el estado de los inputs al seleccionar un rango
+        typeRange.addEventListener("change", toggleDateInputs);
 
         function ejecutarFiltro() {
             filterAdvanced({
@@ -433,6 +470,16 @@ Clientes
             $(tableName).closest('.ibox-content').removeClass('sk-loading');
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("🔄 DOM completamente cargado. Aplicando configuración...");
+
+        if (typeof loadTableConfig === 'function') {
+            loadTableConfig();
+        } else {
+            console.error("❌ ERROR: loadTableConfig no está definida.");
+        }
+    });
 </script>
-<script src="{{ asset('js/utils/viewCheck.js') }}"></script>
+
 @endsection

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\GestionRuletaController;
 use App\Http\Controllers\MailchimpController;
+use App\Http\Controllers\TableConfigController;
 use App\Models\NotificationOnUpdateModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -68,6 +69,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/searchGeneralClient', [App\Http\Controllers\ClientsController::class, 'searchGeneralClient'])->name('searchGeneralClient');
     Route::post('/liberarCliente', [App\Http\Controllers\ClientsController::class, 'liberarCliente'])->name('liberarCliente');
     Route::post('/saveEventClient', [App\Http\Controllers\ClientsController::class, 'saveEventClient'])->name('saveEventClient');
+    Route::post('/updateClientProfile', [App\Http\Controllers\ClientsController::class, 'updateClientProfile'])->name('updateClientProfile');
 
     Route::get('/sales', [App\Http\Controllers\SalesController::class, 'index'])->middleware('markAsSeen:sales')->name('sales');
     Route::post('/searchCustomer', [App\Http\Controllers\SalesController::class, 'searchCustomer'])->name('searchCustomer');
@@ -203,6 +205,9 @@ Route::group(['middleware' => 'auth'], function () {
 
         return response()->json(['message' => 'Notificaciones actualizadas']);
     })->name('notifications.markAsSeen');
+
+    Route::post('/save-table-config', [TableConfigController::class, 'saveConfig'])->name('saveTableConfig');
+    Route::get('/get-table-config/{tableName}', [TableConfigController::class, 'getConfig'])->name('getTableConfig');
 
 });
 

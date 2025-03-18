@@ -460,54 +460,76 @@ class ClientService implements ClientInterface {
         $title = "Error";
         $mensaje = "Error desconocido";
         $status = "error";
-
+    
         try {
-
+            // ✅ Validar que los campos obligatorios no estén vacíos
+            if (empty($request->name) || empty($request->lastname) || empty($request->phone) || empty($request->email)) {
+                throw new Exception("Nombre, apellido, teléfono y correo son obligatorios.");
+            }
+    
+            // ✅ Buscar cliente por ID
             $client = Customers::find($request->id);
+            if (!$client) {
+                throw new Exception("Cliente no encontrado.");
+            }
+    
+            // ✅ Verificar si el email ya existe en otro cliente
+            $emailExists = Customers::where('email', $request->email)
+                ->where('id', '!=', $client->id) // Excluir el cliente actual
+                ->exists();
+    
+            if ($emailExists) {
+                throw new Exception("El correo electrónico ya está registrado en otro cliente.");
+            }
+    
+            // ✅ Verificar si el teléfono ya existe en otro cliente
+            $phoneExists = Customers::where('phone', $request->phone)
+                ->where('id', '!=', $client->id)
+                ->exists();
+    
+            if ($phoneExists) {
+                throw new Exception("El número de teléfono ya está registrado en otro cliente.");
+            }
+    
+            // ✅ Actualizar cliente
             $client->name = $request->name;
             $client->lastname = $request->lastname;
             $client->phone = $request->phone;
-            $client->optional_phone = $request->optionalPhone;
-            $client->country = $request->country;
-            $client->comment = $request->comment;
+            $client->optional_phone = $request->optionalPhone ?? null; // Opcional
+            $client->country = $request->country ?? null; // Opcional
+            $client->comment = $request->comment ?? null; // Opcional
             $client->email = $request->email;
-
+    
+            // ✅ Actualizar usuario relacionado
             $user = User::find($client->user_id);
-            $user->name = $request->name;
-
-            if ($client->save()) {
-                if ($user->save()) {
-                    $title = "Correcto";
-                    $mensaje = "Se actualizó el cliente correctamente";
-                    $status = "success";
-                } else {
-                    $title = "Error";
-                    $mensaje = "Hubo un error al actualizar el usuario del cliente";
-                    $status = "error";
-                }
-            } else {
-                $title = "Error";
-                $mensaje = "Hubo un error al actualizar el cliente";
-                $status = "error";
+            if ($user) {
+                $user->name = $request->name;
             }
-
+    
+            if ($client->save()) {
+                if ($user && !$user->save()) {
+                    throw new Exception("Hubo un error al actualizar el usuario del cliente.");
+                }
+                $title = "Correcto";
+                $mensaje = "Se actualizó el cliente correctamente.";
+                $status = "success";
+            } else {
+                throw new Exception("Hubo un error al actualizar el cliente.");
+            }
+    
         } catch (ValidationException $e) {
-            $title = "Error";
             $mensaje = $e->getMessage();
-            $status = "error";
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = "Verificar los datos del registro";
-            $status = "error";
+            $mensaje = $e->getMessage();
         }
-
+    
         return [
             'title' => $title,
             'mensaje' => $mensaje,
             'status' => $status
         ];
-
     }
+    
 
     public function deleteClient($request) {
         $title = "Error";
@@ -575,13 +597,14 @@ class ClientService implements ClientInterface {
         $lastProvider = $this->providerService->getLastProviderByCustomer($dataCommunication);
         $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
         $priorities = Priority::all();
+        $listAssignaments = Assignment::with(['agent', 'customer', 'assignedBy'])->where('customer_id', $id)->get();
         $eventos = Task::with('customer')->where('customer_id', $id)->get();
 
         $vistas = Views::with('agent')
                         ->where('customer_id', $dataCustomer->id)
                         ->get();
 
-        return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers', 'priorities', 'eventos', 'vistas');
+        return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers', 'priorities', 'eventos', 'vistas', 'listAssignaments');
 
     }
 
