@@ -554,46 +554,248 @@ class ClientService {
                 $query->where('id_status', $statusId);
             }
 
-            // Aplicar filtros por rango de fechas
-            if (!empty($typeRange) && $typeRange !== "Seleccione Rango:") {
-                $dateFilters = [
-                    "Última Llamada" => "comunications.date",
-                    "Fecha de Ingreso" => "date_admission",
-                    "Fecha de Última Llamada" => "comunications.date",
-                    "Fecha de Última Asignación" => "assignaments.date"
-                ];
+            $assignament = new Assignment();
+            $assignament->agent_id = $agent->id;
+            $assignament->customer_id = $request->id;
+            $assignament->date = Carbon::now();
+            $assignament->assignated_by_id = $user_id;
+            $assignament->status = 1;
+            $assignament->save();
 
-                if (isset($dateFilters[$typeRange]) && !empty($dateInit) && !empty($dateEnd) && $dateInit <= $dateEnd) {
-                    if (strpos($dateFilters[$typeRange], '.') !== false) {
-                        [$relation, $field] = explode('.', $dateFilters[$typeRange]);
-                        $query->whereHas($relation, function ($q) use ($field, $dateInit, $dateEnd) {
-                            $q->whereBetween($field, [$dateInit, $dateEnd]);
-                        });
-                    } else {
-                        $query->whereBetween($dateFilters[$typeRange], [$dateInit, $dateEnd]);
-                    }
-                }
-            }
+            $title = "Correcto";
+            $mensaje = "Se asignó correctamente el agente";
+            $status = "success";
 
-            // Paginar resultados
-            $customers = $query->paginate(10);
-
-            // Obtener datos adicionales
-            $data = [
-                'customers' => $customers,
-                'campaigns' => $this->campaingRepository->getAll(),
-                'providers' => $this->providerRepository->getAll(),
-                'statusCustomers' => $this->clientRepository->getAllStatus(),
-                'agents' => $this->agentRepository->allActive()
-            ];
-
-            return ResponseHelper::success("Clientes filtrados correctamente.", $data);
         } catch (Exception $e) {
-            Log::error("Error en filterAdvanced: " . $e->getMessage());
 
-            return ResponseHelper::error("Error al filtrar los clientes.");
+            $title = "Error";
+            $mensaje = "Ocurrió un error: " . $e->getMessage();
+            $status = "error";
+
         }
+
+        return [
+            'title' => $title,
+            'mensaje' => $mensaje,
+            'status' => $status
+        ];
+
     }
 
+    public function assignGroupAgent($request) {
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $agent = Agent::where('code_voiso', $request->dni_agent)
+                        // ->orWhere('code', $request->dni_agent)
+                        ->first();
+
+        $user_id = Auth::user()->id;
+
+        try {
+            foreach ($request->idGroupClientes as $idClient) {
+
+                $oldAssignments = Assignment::where('customer_id', $idClient)
+                                        ->where('status', 1)
+                                        ->get();
+
+                foreach ($oldAssignments as $oldAssign) {
+                    $oldAssign->status = 0;
+                    $oldAssign->save();
+                }
+
+                $assignament = new Assignment();
+                $assignament->agent_id = $agent->id;
+                $assignament->customer_id = $idClient;
+                $assignament->date = Carbon::now();
+                $assignament->assignated_by_id = $user_id;
+                $assignament->status = 1;
+                $assignament->save();
+
+            }
+
+            $title = "Correcto";
+            $mensaje = "Se asignó correctamente el agente";
+            $status = "success";
+
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Ocurrió un error: " . $e->getMessage();
+            $status = "error";
+        }
+
+        return [
+            'title' => $title,
+            'mensaje' => $mensaje,
+            'status' => $status
+        ];
+    }
+
+    public function changeStatusClient($request) {
+
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        $idClient = $request->id;
+        $client = Customers::find($idClient);
+        if ($client == null) {
+            $title = "Error";
+            $mensaje = "Hubo un error con el cliente";
+            $status = "error";
+        }
+        try {
+            $client->status = $request->status;
+            if ($client->save()) {
+                $title = "Correcto";
+                $mensaje = "Se cambió el estado del cliente";
+                $status = "success";
+            } else {
+                $title = "Error";
+                $mensaje = "No se pudo cambiar el estado del cliente";
+                $status = "error";
+            }
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Ocurrió un error: " . $e->getMessage();
+            $status = "error";
+        }
+
+        return [
+            'title' => $title,
+            'mensaje' => $mensaje,
+            'status' => $status
+        ];
+    }
+
+    public function updateClient($request) {
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+
+        try {
+
+            $client = Customers::find($request->id);
+            $client->name = $request->name;
+            $client->lastname = $request->lastname;
+            $client->phone = $request->phone;
+            $client->optional_phone = $request->optionalPhone;
+            $client->country = $request->country;
+            $client->comment = $request->comment;
+            $client->email = $request->email;
+
+            $user = User::find($client->user_id);
+            $user->name = $request->name;
+
+            if ($client->save()) {
+                if ($user->save()) {
+                    $title = "Correcto";
+                    $mensaje = "Se actualizó el cliente correctamente";
+                    $status = "success";
+                } else {
+                    $title = "Error";
+                    $mensaje = "Hubo un error al actualizar el usuario del cliente";
+                    $status = "error";
+                }
+            } else {
+                $title = "Error";
+                $mensaje = "Hubo un error al actualizar el cliente";
+                $status = "error";
+            }
+
+        } catch (ValidationException $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = "Verificar los datos del registro";
+            $status = "error";
+        }
+
+        return [
+            'title' => $title,
+            'mensaje' => $mensaje,
+            'status' => $status
+        ];
+
+    }
+
+    public function deleteClient($request) {
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+        $client = Customers::find($request->id);
+        if ($client == null) {
+            $title = "Error";
+            $mensaje = "Hubo un error con el cliente";
+            $status = "error";
+        }
+        try {
+            if ($client->delete()) {
+                $title = "Correcto";
+                $mensaje = "El cliente se elimninó correctamente";
+                $status = "success";
+            } else {
+                $title = "Error";
+                $mensaje = "No se pudo eliminar el cliente";
+                $status = "error";
+            }
+        } catch (Exception $e) {
+            $title = "Error";
+            $mensaje = $e->getMessage();
+            $status = "error";
+        }
+
+        return [
+            'title' => $title,
+            'mensaje' => $mensaje,
+            'status' => $status
+        ];
+    }
+
+    public function profileClient($id) {
+        $myRoles = $this->rolesService->getMyRoles();
+
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+        $client = Customers::where('user_id', $user_id)->first();
+        $rouletteSpin = $agent->number_turns ?: 0;
+
+        $dataUser = null;
+
+        if ($agent) {
+            $dataUser = $agent;
+        }
+
+        if ($client) {
+            $dataUser = $client;
+        }
+
+        $premios = $this->awardsService->chargeAwards();
+        $premios1 = $premios['premios1'];
+        $premios2 = $premios['premios2'];
+        $dataCustomer = Customers::where('id', $id)->first();
+        $dataCommunication = [
+            'customer_id' => $dataCustomer->id,
+        ];
+
+        $communications = $this->communicationService->getLocationByCustomer($dataCommunication);
+        $lastAssignament = $this->assignamentService->getLastAssignamentByCustomer($dataCommunication);
+        $lastCampaing = $this->campaingService->getLastCampaingByCustomer($dataCommunication);
+        $campaings = $this->campaingService->getAllCampaingsByCustomer($dataCommunication);
+        $lastProvider = $this->providerService->getLastProviderByCustomer($dataCommunication);
+        $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
+        $priorities = Priority::all();
+        $eventos = Task::with('customer')->where('customer_id', $id)->get();
+
+        $vistas = Views::with('agent')
+                        ->where('customer_id', $dataCustomer->id)
+                        ->get();
+
+        return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers', 'priorities', 'eventos', 'vistas');
+
+    }
 
 }

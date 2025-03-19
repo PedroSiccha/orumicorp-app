@@ -25,7 +25,6 @@ use App\Models\Task;
 use App\Models\User;
 use App\Rules\PhoneNumberFormat;
 use App\Services\AgentService;
-use App\Services\ClientService;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
@@ -57,63 +56,77 @@ class ClientsController extends Controller
 
     public function index()
     {
-        try {
-            $data = $this->clientService->getClientsData();
-
-            $customers = $data->customers;
-            $statusCustomers = $data->statusCustomers;
-            $roles = $data->roles;
-            $dataUser = $data->dataUser;
-            $providers = $data->providers;
-            $platforms = $data->platforms;
-            $traidings = $data->traidings;
-            $folders = $data->folders;
-            $agents = $data->agents;
-            $campaigns = $data->campaigns;
-            $rouletteSpin = $data->rouletteSpin;
-            $premios1 = $data->premios1;
-            $premios2 = $data->premios2;
-
-
-            return view('cliente.index', compact('customers', 'statusCustomers', 'roles', 'dataUser', 'providers', 'platforms', 'traidings', 'folders', 'agents', 'campaigns', 'rouletteSpin', 'premios1', 'premios2'));
-
-        } catch (Exception $e) {
-            Log::error("Error en ClientsController: " . $e->getMessage());
-            return redirect()->route('home')->with('error', 'No se pudieron cargar los clientes.');
-        }
+        $data = $this->clientService->index();
+        return view('cliente.index', $data);
     }
 
-    public function saveCustomer(StoreClientRequest $request)
+    public function clientsPagination(Request $request)
     {
-        // Llamamos a la función que devuelve un JSONResponse
-        $response = $this->clientService->saveClient($request->validated());
+        $myRoles = $this->rolesService->getMyRoles();
+        $myRolesId = $myRoles['rolesId']; 
 
-        // Convertimos la respuesta JSON en un array
-        $client = json_decode($response->getContent(), true); // Convierte el JSON en array
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
 
-        $data = $this->clientService->getClientsData();
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
-        // Ahora podemos acceder a los valores como un array
-        $customers = $data->customers;
-        $statusCustomers = $data->statusCustomers;
-        $roles = $data->roles;
-        $dataUser = $data->dataUser;
-        $providers = $data->providers;
-        $platforms = $data->platforms;
-        $traidings = $data->traidings;
-        $folders = $data->folders;
-        $agents = $data->agents;
-        $campaings = $data->campaigns;
-        $rouletteSpin = $data->rouletteSpin;
-        $premios1 = $data->premios1;
-        $premios2 = $data->premios2;
+        if ($myRoles['roles'] == 'ADMINISTRADOR') {
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit',
+                'folder'
+            ])->orderBy('date_admission', 'desc')->paginate($limit);
+            
+        } else {
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'assignaments',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit',
+                'folder'
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate($limit);
+        }
+        
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
 
-        return response()->json([
-            "view" => view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(),
-            "title" => $client['title'],
-            "text" => $client['mensaje'],
-            "status" => $client['status']
-        ]);
+        return view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'));
+    }
+
+
+    public function saveCustomer(Request $request)
+    {
+        $myRoles = $this->rolesService->getMyRoles();
+        $myRolesId = $myRoles['rolesId'];
+        $data = $this->clientService->saveClient($request);
+        $agent = $this->agentService->getAgent();
+        $customers = $this->getClients($myRoles['roles'], $agent);
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }
 
     public function clientsPagination(Request $request)
@@ -186,43 +199,173 @@ class ClientsController extends Controller
 
     public function changeStatusGroup(ChangeStatusGroupRequest $request)
     {
-        try {
-            $data = $this->clientService->changeStatusGroup($request->validated());
+        $title = 'Error';
+        $mensaje = 'Error desconocido';
+        $status = 'error';
 
-            $dataClients = $this->clientService->getClientsData();
-    
-            $customers = $dataClients->customers;
-            $agents = $dataClients->agents;
-            $campaings = $dataClients->campaigns;
-            $providers = $dataClients->providers;
-            $statusCustomers = $dataClients->statusCustomers;
-    
-            return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title" => $dataClients['title'], "text" => $dataClients['mensaje'], "status" => $dataClients['status']]);
+        $myRoles = $this->rolesService->getMyRoles();
+        $myRolesId = $myRoles['rolesId'];
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        try {
+            foreach ($request->idGroupClientes as $idClient) {
+
+                $client = Customers::find($idClient);
+                $client->id_status = $request->statusId;
+                $client->save();
+
+            }
+
+            $title = "Correcto";
+            $mensaje = "Actualización correcta";
+            $status = "success";
+
         } catch (Exception $e) {
-            Log::error("Error en ClientsController: " . $e->getMessage());
+            $title = "Error";
+            $mensaje = "Ocurrió un error: " . $e->getMessage();
+            $status = "error";
+        }
+
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(10);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'assignaments',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
         }
     }
 
     public function searchStatus(Request $request) {
         $customerStatusId = $request->customerStatusId;
 
-        $data = $this->clientService->searchCustomerByStatus($customerStatusId);
+        $myRoles = $this->rolesService->getMyRoles();
+        $myRolesId = $myRoles['rolesId'];
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
 
-        return response()->json(["view"=>view('cliente.list.listCustomer', compact($data))->render()]);
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->where('id_status', $customerStatusId)->orderBy('date_admission', 'desc')->paginate(50);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'assignaments',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->where('id_status', $customerStatusId)->orderBy('date_admission', 'desc')->paginate(10);
+
+        }
+
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
+
+        return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render()]);
 
     }
 
     public function changeStatusClient(ChangeStatusClientRequest $request)
     {
-        $data = $this->clientService->changeStatusClient($request->validated());
-        
-        $dataClients = $this->clientService->getClientsData();
-    
-        $customers = $dataClients->customers;
-        $agents = $dataClients->agents;
-        $campaings = $dataClients->campaigns;
-        $providers = $dataClients->providers;
-        $statusCustomers = $dataClients->statusCustomers;
+        $data = $this->clientService->changeStatusClient($request);
+        $myRoles = $this->rolesService->getMyRoles();
+
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(50);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'assignaments',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
+        }
+
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
 
         return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
 
@@ -232,28 +375,169 @@ class ClientsController extends Controller
     {
         $data = $this->clientService->updateClient($request);
 
-        $dataClients = $this->clientService->getClientsData();
-    
-        $customers = $dataClients->customers;
-        $agents = $dataClients->agents;
-        $campaings = $dataClients->campaigns;
-        $providers = $dataClients->providers;
-        $statusCustomers = $dataClients->statusCustomers;
+        $myRoles = $this->rolesService->getMyRoles();
+
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(50);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'assignaments',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
+        }
+
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
 
         return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
+    }
+
+    public function updateClientProfile(Request $request)
+    {
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+    
+        try {
+            if (empty($request->name) || empty($request->lastname) || empty($request->phone) || empty($request->email)) {
+                throw new Exception("Nombre, apellido, teléfono y correo son obligatorios.");
+            }
+            $client = Customers::find($request->id);
+            if (!$client) {
+                throw new Exception("Cliente no encontrado.");
+            }
+            $emailExists = Customers::where('email', $request->email)
+                ->where('id', '!=', $client->id)
+                ->exists();
+    
+            if ($emailExists) {
+                throw new Exception("El correo electrónico ya está registrado en otro cliente.");
+            }
+            $phoneExists = Customers::where('phone', $request->phone)
+                ->where('id', '!=', $client->id)
+                ->exists();
+    
+            if ($phoneExists) {
+                throw new Exception("El número de teléfono ya está registrado en otro cliente.");
+            }
+    
+            $client->name = $request->name;
+            $client->lastname = $request->lastname;
+            $client->phone = $request->phone;
+            $client->optional_phone = $request->optionalPhone ?? null;
+            $client->country = $request->country ?? null;
+            $client->comment = $request->comment ?? null;
+            $client->email = $request->email;
+    
+            $user = User::find($client->user_id);
+            if ($user) {
+                $user->name = $request->name;
+            }
+    
+            if ($client->save()) {
+                if ($user && !$user->save()) {
+                    throw new Exception("Hubo un error al actualizar el usuario del cliente.");
+                }
+                $title = "Correcto";
+                $mensaje = "Se actualizó el cliente correctamente.";
+                $status = "success";
+            } else {
+                throw new Exception("Hubo un error al actualizar el cliente.");
+            }
+    
+        } catch (ValidationException $e) {
+            $mensaje = $e->getMessage();
+        } catch (Exception $e) {
+            $mensaje = $e->getMessage();
+        }
+
+        $dataCustomer = Customers::where('id', $request->id)->first();
+
+        return response()->json(["view"=>view('cliente.components.dataClients', compact('dataCustomer'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+    
     }
 
     public function deleteClient(Request $request)
     {
         $data = $this->clientService->deleteClient($request);
 
-        $dataClients = $this->clientService->getClientsData();
-    
-        $customers = $dataClients->customers;
-        $agents = $dataClients->agents;
-        $campaings = $dataClients->campaigns;
-        $providers = $dataClients->providers;
-        $statusCustomers = $dataClients->statusCustomers;
+        $myRoles = $this->rolesService->getMyRoles();
+
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+
+        if ($myRoles['roles']== 'ADMINISTRADOR') {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->orderBy('date_admission', 'desc')->paginate(50);
+
+        } else {
+
+            $customers = Customers::with([
+                'user',
+                'agent',
+                'latestCampaign',
+                'latestSupplier',
+                'provider',
+                'statusCustomer',
+                'platform',
+                'traiding',
+                'assignaments',
+                'latestComunication',
+                'latestAssignamet',
+                'latestDeposit'
+            ])->whereHas('assignaments', function($query) use ($agent) {
+                $query->where('agent_id', $agent->id);
+            })->orderBy('date_admission', 'desc')->paginate(10);
+        }
+
+        $agents = Agent::all();
+        $campaings = Campaing::all();
+        $providers = Provider::all();
+        $statusCustomers = CustomerStatus::all();
 
         return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
 
@@ -568,6 +852,7 @@ class ClientsController extends Controller
         $myRolesId = $myRoles['rolesId'];
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
 
@@ -583,7 +868,7 @@ class ClientsController extends Controller
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->where($type, $id)->paginate(50);
+            ])->where($type, $id)->paginate($limit);
 
         } else {
 
@@ -603,7 +888,7 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
-            })->where($type, $id)->orderBy('date_admission', 'desc')->paginate(10);
+            })->where($type, $id)->orderBy('date_admission', 'desc')->paginate($limit);
 
         }
 
@@ -627,6 +912,7 @@ class ClientsController extends Controller
         $myRolesId = $myRoles['rolesId'];
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         if ($myRoles['roles']== 'ADMINISTRADOR') {
 
@@ -642,7 +928,7 @@ class ClientsController extends Controller
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->whereBetween($order, [$formattedDate, $formattedDate])->paginate(50);
+            ])->whereBetween($order, [$formattedDate, $formattedDate])->paginate($limit);
 
         } else {
 
@@ -661,7 +947,7 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
-            })->whereBetween($order, [$formattedDate, $formattedDate])->orderBy('date_admission', 'desc')->paginate(10);
+            })->whereBetween($order, [$formattedDate, $formattedDate])->orderBy('date_admission', 'desc')->paginate($limit);
 
         }
 
@@ -678,6 +964,7 @@ class ClientsController extends Controller
         $customerStatusId = $request->customerStatusId;
         $dateInit = Carbon::createFromFormat('m/d/Y', $request->dateInit)->format('Y-m-d');
         $dateEnd = Carbon::createFromFormat('m/d/Y', $request->dateEnd)->format('Y-m-d');
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         $data = $request->data;
         $myRoles = $this->rolesService->getMyRoles();
@@ -722,7 +1009,7 @@ class ClientsController extends Controller
             }
 
             // Ejecutar la consulta y paginar los resultados
-            $customers = $query->paginate(50);
+            $customers = $query->paginate($limit);
 
         } else {
 
@@ -771,7 +1058,7 @@ class ClientsController extends Controller
             }
 
             // Ordenar por fecha de admisión y paginar los resultados
-            $customers = $query->orderBy('date_admission', 'desc')->paginate(10);
+            $customers = $query->orderBy('date_admission', 'desc')->paginate($limit);
 
         }
 
@@ -788,6 +1075,7 @@ class ClientsController extends Controller
         $title = 'Error';
         $mensaje = 'Error desconocido';
         $status = 'error';
+        $limit = $request->input('limit', 10); // Por defecto muestra 10 registros
 
         try {
 
@@ -840,7 +1128,7 @@ class ClientsController extends Controller
                 'latestComunication',
                 'latestAssignamet',
                 'latestDeposit'
-            ])->orderBy('date_admission', 'desc')->paginate(10);
+            ])->orderBy('date_admission', 'desc')->paginate($limit);
 
         } else {
 
@@ -859,7 +1147,7 @@ class ClientsController extends Controller
                 'latestDeposit'
             ])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
-            })->orderBy('date_admission', 'desc')->paginate(10);
+            })->orderBy('date_admission', 'desc')->paginate($limit);
         }
 
         $agents = Agent::all();

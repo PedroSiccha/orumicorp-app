@@ -3,6 +3,7 @@
  <!-- Toastr JS -->
  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+ <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
 
 <script src="{{ mix('js/app.js') }}" defer></script>
     <script src="{{ asset('js/utils/updateClockMenu.js') }}"></script>
@@ -11,7 +12,7 @@
     {{-- <script src="{{ asset('js/task/task.js') }}" defer></script> --}}
     {{-- <script src="{{ asset('js/utils/notifications.js') }}"></script> --}}
     <!-- Mainly scripts -->
-    <script src="{{asset('js/jquery-3.1.1.min.js')}}"></script>
+    {{-- <script src="{{asset('js/jquery-3.1.1.min.js')}}"></script> --}}
     <script src="{{asset('js/popper.min.js')}}"></script>
     <script src="{{asset('js/bootstrap.js')}}"></script>
     <script src="{{asset('js/plugins/metisMenu/jquery.metisMenu.js')}}"></script>

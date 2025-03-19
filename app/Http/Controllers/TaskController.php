@@ -16,7 +16,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use PgSql\Lob;
 
 class TaskController extends Controller
 {
@@ -42,15 +41,27 @@ class TaskController extends Controller
 
     public function obtenerEventos()
     {
-        try {
-            $data = $this->taskService->getTask();
-            $eventos_formateados = $data->eventos_formateados;
-            return response()->json($eventos_formateados);
-        } catch (Exception $e) {
-            Log::error("Error en TaskController: " . $e->getMessage());
+        $eventos = Task::with('agent')->get();
+
+        $eventos_formateados = [];
+        foreach ($eventos as $evento) {
+            $eventos_formateados[] = [
+                'id' => $evento->id,
+                'title' => $evento->agent->name . " " . $evento->agent->lastname . " - " . $evento->name,
+                'start' => $evento->start,
+                'end' => $evento->end,
+                'backgroundColor' => $evento->priority->color,
+                'borderColor' => $evento->priority->color,
+            ];
         }
+        return response()->json($eventos_formateados);
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function guardarTask(Request $request)
     {
         try {

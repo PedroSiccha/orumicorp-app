@@ -10,6 +10,7 @@ use App\Models\Agent;
 use App\Models\Assignment;
 use App\Models\Comunications;
 use App\Models\Customers;
+use App\Models\CustomerStatus;
 use App\Models\Folder;
 use App\Models\Premio;
 use App\Models\User;
@@ -52,9 +53,10 @@ class CommentController extends Controller
         $myRoles = $this->rolesService->getMyRoles();
         $myRolesId = $myRoles['rolesId'];
         $contacts = [];
+        $customerStatus = CustomerStatus::get();
 
         if ($myRoles['roles'] == 'ADMINISTRADOR') {
-            $contacts = Customers::all()->map(function ($customer) {
+            $contacts = Customers::with(['statusCustomer'])->get()->map(function ($customer) {
                 return [
                     "id" => $customer->id,  // Suponiendo que `id` es el identificador único
                     "uuid" => $customer->callbell_uuid,  // Suponiendo que `id` es el identificador único
@@ -73,11 +75,12 @@ class CommentController extends Controller
                     "team" => $customer->callbel_team ?? [],
                     "channel" => $customer->callbel_channel ?? [],
                     "blockedAt" => $customer->callbel_blocked_at ?? null,
+                    "status" => $customer->statusCustomer->name ?? null
                 ];
             });
         } else {
 
-            $contacts = Customers::whereHas('assignaments', function($query) use ($agent) {
+            $contacts = Customers::with(['statusCustomer'])->whereHas('assignaments', function($query) use ($agent) {
                 $query->where('agent_id', $agent->id);
             })->get()->map(function ($customer) {
                 return [
@@ -98,6 +101,7 @@ class CommentController extends Controller
                     "team" => $customer->callbel_team ?? [],
                     "channel" => $customer->callbel_channel ?? [],
                     "blockedAt" => $customer->callbel_blocked_at ?? null,
+                    "status" => $customer->statusCustomer->name ?? null
                 ];
             });
         }
@@ -106,7 +110,7 @@ class CommentController extends Controller
             return response()->json(['contacts' => $contacts]);
         }
 
-        return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token'));
+        return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token', 'customerStatus'));
 
     }
 

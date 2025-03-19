@@ -4,11 +4,12 @@ function searchClient(options) {
     var alertError = options.alertError !== undefined ? options.alertError: '';
     var alertErrorText = options.alertErrorText !== undefined ? options.alertErrorText: '';
     var btnLadda = options.btnLadda !== undefined ? options.btnLadda: '';
+    var limit = $('#limit').val();
 
     var dni = $(inputDni).val();
     var l = Ladda.create(document.querySelector(btnLadda));
     l.start();
-    $.post(searchClientRoute, {dni: dni, _token: token})
+    $.post(searchClientRoute, {dni: dni, limit: limit, _token: token})
         .done(function(data) {
             if (data.name) {
                 $(inputName).val(data.name);

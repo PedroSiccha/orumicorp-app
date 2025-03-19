@@ -8,3 +8,14 @@ function filterChannelCallbell(options) {
             $(tableName).html(data.view);
         });
 }
+
+function filterStatusCallbell(options) {
+    var status = options.selectStatus !== undefined ? $(options.selectStatus).val(): '';
+    var tableName = options.tableName !== undefined ? options.tableName: '';
+    $.post(filterStatusRoute, { status: status, _token: token })
+        .done(function(data) {
+            $(tableName).empty();
+            $(tableName).html(data.view);
+        });
+}
+ 

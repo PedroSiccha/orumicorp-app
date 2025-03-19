@@ -16,7 +16,7 @@ $(document).ready(function () {
         } else {
             $('#asignarBtn').hide();
             $('#changeStatusBtn').hide();
-            $('#liberarClienteBtn').hide();
+            $('#liberarClienteBtn').hide();  
             $('#asignarFolderBtn').hide();
             $('#changeFolderBtn').hide();
         }

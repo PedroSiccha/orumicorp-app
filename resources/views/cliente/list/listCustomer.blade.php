@@ -1,15 +1,16 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>
+            <th class="column-0">
                 Seleccionar Todo
                 <div class="i-checks">
-                <label>
-                    <input type="checkbox" id="selectAllCheckboxes" class="i-checks flat" name="selectAll">
-                    <i></i>
-                </label>
-            </div></div></th>
-            <th>
+                    <label>
+                        <input type="checkbox" id="selectAllCheckboxes" class="i-checks flat" name="selectAll">
+                        <i></i>
+                    </label>
+                </div>
+            </th>
+            <th class="column-1">
                 <div class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         Última llamada
@@ -20,12 +21,14 @@
                     </div>
                 </div>
             </th>
-            <th>
+            @can('Perfil Cliente - Ver Codigo')
+            <th class="column-2">
                 <div class="dropdown">
                     COD. de Cliente
                 </div>
             </th>
-            <th>
+            @endcan
+            <th class="column-3">
                 <div class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         Fecha de Ingreso
@@ -36,7 +39,7 @@
                     </div>
                 </div>
             </th>
-            <th>
+            <th class="column-4">
                 <div class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         Fecha de Última Llamada
@@ -47,7 +50,7 @@
                     </div>
                 </div>
             </th>
-            <th>
+            <th class="column-5">
                 <div class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         Fecha de última Asignación
@@ -58,83 +61,93 @@
                     </div>
                 </div>
             </th>
-            <th>
+            <th class="column-6">
                 <div class="dropdown">
                     Asignado Por
                 </div>
             </th>
-            <th>
+            <th class="column-7">
                 <div class="dropdown">
                     Proveedor
                 </div>
             </th>
-            <th>
+            @can('Perfil Cliente - Ver Nombre')
+            <th class="column-8">
                 <div class="dropdown">
                     Nombre del Cliente
                 </div>
             </th>
-            <th>
+            @endcan
+            @can('Perfil Cliente - Ver Correo')
+            <th class="column-9">
                 <div class="dropdown">
                     Correo
                 </div>
             </th>
-            <th>
+            @endcan
+            @can('Perfil Cliente - Ver Telefono')
+            <th class="column-10">
                 <div class="dropdown">
                     Teléfono
                 </div>
             </th>
-            <th>
+            @endcan
+            @can('Perfil Cliente - Ver Telefono Opcional')
+            <th class="column-11">
                 <div class="dropdown">
                     Teléfono Opcional
                 </div>
             </th>
+            @endcan
             {{-- <th>
                 <div class="dropdown">
                     Ciudad
                 </div>
             </th> --}}
-            <th>
+            @can('Perfil Cliente - Ver Pais')
+            <th class="column-12">
                 <div class="dropdown">
                     País
                 </div>
             </th>
-            <th>
+            @endcan
+            <th class="column-13">
                 <div class="dropdown">
                     Estado
                 </div>
             </th>
-            <th>
+            <th class="column-14">
                 <div class="dropdown">
                     Agente
                 </div>
             </th>
-            <th>Comentario</th>
-            <th>
+            <th class="column-15">Comentario</th>
+            <th class="column-16">
                 <div class="dropdown">
                     Última Visita
                 </div>
             </th>
-            <th>
+            <th class="column-17">
                 <div class="dropdown">
                     FTD Date
                 </div>
             </th>
-            <th>
+            <th class="column-18">
                 <div class="dropdown">
                     Método
                 </div>
             </th>
-            <th>
+            <th class="column-19">
                 <div class="dropdown">
                     N° de Depósito
                 </div>
             </th>
-            <th>
+            <th class="column-20">
                 <div class="dropdown">
                     Total Depósito
                 </div>
             </th>
-            <th>
+            <th class="column-21">
                 <div class="dropdown">
                     Folder
                 </div>
@@ -148,44 +161,44 @@
                 <td>
                     <div class="i-checks"><label> <input type="checkbox" class="i-checks flat chekboxses" name="idGroupClientes[]" value="{{ $customer->id }}" id="idGroupClientes"> <i></i> </label></div>
                 </td>
-                <td>
+                <td class="column-1">
                     @if ($customer->latestComunication)
                         {{ date("d/m/Y", strtotime($customer->latestComunication->date)) }}
                     @else
                         Sin Comunicación
                     @endif
                 </td>
-                <td>{{ $customer->code }}</td>
-                <td>{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
-                <td>
+                <td class="column-2">{{ $customer->code }}</td>
+                <td class="column-3">{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
+                <td class="column-4">
                     @if ($customer->latestComunication)
                         {{ date("d/m/Y", strtotime($customer->latestComunication->date)) }}
                     @else
                         Sin Comunicación
                     @endif
                 </td>
-                <td>
+                <td class="column-5">
                     @if ($customer->latestAssignamet)
                         {{ date("d/m/Y", strtotime($customer->latestAssignamet->date)) }}
                     @else
                         Sin Asignacion
                     @endif
                 </td>
-                <td>
+                <td class="column-6">
                     @if ($customer->latestAssignametBy)
                         {{ $customer->latestAssignametBy->assignedBy->name }}
                     @else
                         Sin Asignacion
                     @endif
                 </td>
-                <td>
+                <td class="column-7">
                     @if ($customer->provider)
                         {{ $customer->provider->name }}
                     @else
                         Sin Proveedor
                     @endif
                 </td>
-                <td>
+                <td class="column-8">
                     @can('Ver Perfil Cliente')
                         <a onclick="saveVista({ client_id: '{{ $customer->id }}' })" href="{{ route('profileClient', ['id' => $customer->id]) }}">
                             {{ $customer->name }} {{ $customer->lastname }}
@@ -196,62 +209,62 @@
                         </a>
                     @endcan
                 </td>
-                <td>{{ $customer->email }}</td>
-                <td>{{ $customer->phone }}</td>
-                <td>{{ $customer->optiomal_phone }}</td> <!-- Modificar Número Opcional -->
+                <td class="column-9">{{ $customer->email }}</td>
+                <td class="column-10">{{ $customer->phone }}</td>
+                <td class="column-11">{{ $customer->optiomal_phone }}</td> <!-- Modificar Número Opcional -->
                 {{-- <td>{{ $customer->city }}</td> --}}
-                <td>{{ $customer->country }}</td>
-                <td>
+                <td class="column-12">{{ $customer->country }}</td>
+                <td class="column-13">
                     @if ($customer->statusCustomer)
                         {{ $customer->statusCustomer->name }}
                     @else
                         Sin Estado
                     @endif
                 </td> <!-- Modificar Tiene que ser de la tabla ESTADOS -->
-                <td>
+                <td class="column-14">
                     @if ($customer->latestAssignamet)
                         {{ $customer->latestAssignamet->agent->name }}
                     @else
                         Sin Asignacion
                     @endif
                 </td>
-                <td>
+                <td class="column-15">
                     @if ($customer->latestComunication)
                         {{ $customer->latestComunication->comment }}
                     @else
                         Sin Comentario
                     @endif
                 </td>
-                <td>{{ $customer->last_communication_date }}</td>
-                <td>
+                <td class="column-16">{{ $customer->last_communication_date }}</td>
+                <td class="column-17">
                     @if ($customer->latestDeposit)
                         {{ date("d/m/Y", strtotime($customer->latestDeposit->date)) }}
                     @else
                         Sin Depósito
                     @endif
                 </td>
-                <td>
+                <td class="column-18">
                     @if ($customer->latestDeposit)
                         {{ $customer->latestDeposit->transactionType->name }}
                     @else
                         Sin Depósito
                     @endif
                 </td>
-                <td>
+                <td class="column-19">
                     @if ($customer->latestDeposit)
                         {{ $customer->latestDeposit->number }}
                     @else
                         Sin Depósito
                     @endif
                 </td>
-                <td>
+                <td class="column-20">
                     @if ($customer->latestDeposit)
                         $ {{ $customer->latestDeposit->amount }}
                     @else
                         Sin Depósito
                     @endif
                 </td>
-                <td>
+                <td class="column-21">
                     @if ($customer->folder)
                         {{ $customer->folder->name }}
                     @else
@@ -260,10 +273,14 @@
                 </td>
                 <td>
                     <div class="d-flex align-items-center">
+                        @can('Asignar Folder')
                         <button class="btn btn-primary" type="button" onclick="changeFolder({customerId: '{{ $customer->id }}', folderId: '{{ $customer->folder_id }}', modal: '#modalChangeFolder'})"><i class="fa fa-refresh"></i> </button>
+                        @endcan
                         <button class="btn btn-info" type="button" onclick="sendMail({customerId: '{{ $customer->id }}', email: '{{ $customer->email }}', modal: '#modalSendMail'})"><i class="fa fa-paper-plane"></i> </button>
-                        @can('Llamadas VOISO')
-                        <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}', modal: '#modalCrearComentario', input: '#idComunication'})"><i class="fa fa-phone"></i> </button>
+                        @can('Llamadas VOISO') 
+                        <button class="btn btn-success" type="button" onclick="initiateCall({phone: '{{ $customer->phone }}', customerId: '{{ $customer->id }}', modal: '#voisoModal'})">
+                            <i class="fa fa-phone"></i>
+                        </button>
                         @endcan
                         @can('Asignar Agente')
                         <button class="btn btn-default " type="button" onclick="asignarAgente('{{ $customer->id }}', '{{ $customer->name }} {{ $customer->lastname }}', '#modalAsignarAgente', '#aId', '#nameClient')"><i class="fa fa-user"></i></button>
@@ -303,18 +320,7 @@
     </tbody>
 </table>
 {{ $customers->appends(['limit' => request('limit')])->links() }}
-<label for="limit">Mostrar:</label>
-<div class="col-sm-1 m-b-xs">
-    <select class="form-control-sm form-control input-s-sm inline" name="limit" id="limit">
-        <option value="5" {{ request('limit') == 5 ? 'selected' : '' }}>5</option>
-        <option value="10" {{ request('limit') == 10 ? 'selected' : '' }}>10</option>
-        <option value="20" {{ request('limit') == 20 ? 'selected' : '' }}>20</option>
-        <option value="50" {{ request('limit') == 50 ? 'selected' : '' }}>50</option>
-        <option value="100" {{ request('limit') == 100 ? 'selected' : '' }}>100</option>
-        <option value="500" {{ request('limit') == 500 ? 'selected' : '' }}>500</option>
-        <option value="1000" {{ request('limit') == 1000 ? 'selected' : '' }}>1000</option>
-    </select>
-</div>
+
 
 
 <script src="{{ asset('js/utils/viewCheck.js') }}"></script>

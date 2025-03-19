@@ -57,38 +57,33 @@ class GestionRuletaController extends Controller
     }
 
     // Guardar el premio obtenido
-    public function storeWinner(WinnerRequest $request)
+    public function storeWinner(Request $request)
     {
-        try {
-            $data = $this->depositService->saveDeposit($request);
-        } catch (Exception $e) {
-            Log::error("Error en DepositController: " . $e->getMessage());
+        $request->validate([
+            'prize_id' => 'required|exists:premios,id'
+        ]);
+
+        $user_id = Auth::user()->id;
+        $agent = Agent::where('user_id', $user_id)->first();
+        $premio = Premio::where('id', $request->prize_id)->first();
+
+        $sale = new Sales();
+        $sale->date_admission = Carbon::now();
+        $sale->status = true;
+        $sale->observation = "Giro de Ruleta";
+        $sale->commission = $premio->value;
+        $sale->agent_id = $agent->id;
+        $sale->action_id = '2';
+        $sale->user_id = $user_id;
+        if ($sale->save()) {
+            $cant_giro = $agent->number_turns;
+            $new_giro = 0;
+            if ($cant_giro > 0) {
+                $new_giro = $cant_giro - 1;
+            }
+            $agent->number_turns = $new_giro;
+            $agent->save();
         }
-        // $request->validate([
-        //     'prize_id' => 'required|exists:premios,id'
-        // ]);
-
-        // $user_id = Auth::user()->id;
-        // $agent = Agent::where('user_id', $user_id)->first();
-        // $premio = Premio::where('id', $request->prize_id)->first();
-
-        // $sale = new Sales();
-        // $sale->date_admission = Carbon::now();
-        // $sale->status = true;
-        // $sale->observation = "Giro de Ruleta";
-        // $sale->commission = $premio->value;
-        // $sale->agent_id = $agent->id;
-        // $sale->action_id = '2';
-        // $sale->user_id = $user_id;
-        // if ($sale->save()) {
-        //     $cant_giro = $agent->number_turns;
-        //     $new_giro = 0;
-        //     if ($cant_giro > 0) {
-        //         $new_giro = $cant_giro - 1;
-        //     }
-        //     $agent->number_turns = $new_giro;
-        //     $agent->save();
-        // }
 
         // // Aquí podrías guardar el premio en un historial
         // return response()->json(['message' => 'Premio registrado con éxito']);
