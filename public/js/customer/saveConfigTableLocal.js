@@ -100,5 +100,36 @@ function saveTableConfig() {
     .catch(error => console.error("❌ Error al guardar configuración:", error));
 }
 
+function resetTableConfig() {
+    
+    let selectedColumns = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"];
+    
+    let scope = document.getElementById("configScope").value;
+    let roleId = scope === "role" ? document.getElementById("roleSelectorId").value : null;
+    
+    fetch(saveConfigUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+        },
+        body: JSON.stringify({
+            table_name: tableName,
+            visible_columns: selectedColumns,
+            scope: scope,
+            role_id: roleId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("✅ Configuración guardada:", data);
+        $('#modalConfigTableLocal').modal('hide');
+        mostrarMensaje('Correcto', 'Configuración guardada correctamente.', 'success');
+        loadTableConfig();
+    })
+    .catch(error => console.error("❌ Error al guardar configuración:", error));
+}
+
 document.getElementById("saveConfigBtn").addEventListener("click", saveTableConfig);
+document.getElementById("resetConfigBtn").addEventListener("click", resetTableConfig);
 loadTableConfig();

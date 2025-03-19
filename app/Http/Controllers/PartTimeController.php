@@ -308,22 +308,31 @@ class PartTimeController extends Controller
     public function descargarReportePDF()
     {
         $assistances = Assistance::select(
-                                        'agents.name',
-                                        'agents.lastname',
-                                        'assistance.date',
-                                        DB::raw("MAX(CASE WHEN assistance.type = 'IN' THEN assistance.hour END) AS 'IN'"),
-                                        DB::raw("MAX(CASE WHEN assistance.type = 'IN-BREAK' THEN assistance.hour END) AS 'INBREAK'"),
-                                        DB::raw("MAX(CASE WHEN assistance.type = 'OUT-BREAK' THEN assistance.hour END) AS 'OUTBREAK'"),
-                                        DB::raw("MAX(CASE WHEN assistance.type = 'OUT' THEN assistance.hour END) AS 'OUT'")
-                                    )
-                                    ->join('agents', 'assistance.agent_id', '=', 'agents.id')
-                                    ->groupBy('agents.name', 'agents.lastname', 'assistance.date')
-                                    ->get();
+                'agents.name',
+                'agents.lastname',
+                'assistance.date',
+                DB::raw("MAX(CASE WHEN assistance.type = 'IN' THEN assistance.hour END) AS `IN`"),
+                DB::raw("MAX(CASE WHEN assistance.type = 'IN-BREAK' THEN assistance.hour END) AS `INBREAK`"),
+                DB::raw("MAX(CASE WHEN assistance.type = 'OUT-BREAK' THEN assistance.hour END) AS `OUTBREAK`"),
+                DB::raw("MAX(CASE WHEN assistance.type = 'OUT' THEN assistance.hour END) AS `OUT`")
+            )
+            ->join('agents', 'assistance.agent_id', '=', 'agents.id')
+            ->groupBy('agents.name', 'agents.lastname', 'assistance.date')
+            ->orderBy('assistance.date', 'DESC')  // ✅ Ordenar por fecha descendente
+            ->orderByRaw("FIELD(assistance.type, 'IN', 'IN-BREAK', 'OUT-BREAK', 'OUT')") // ✅ Ordenar por tipo lógico
+            ->orderBy('assistance.hour', 'ASC') // ✅ Ordenar por hora ascendente
+            ->get();
 
-        $pdf = new Dompdf();
+        // ✅ Configurar Dompdf con opciones
+        $options = new Options();
+        $options->set('defaultFont', 'Arial');
+        $options->set('isHtml5ParserEnabled', true);
+
+        $pdf = new Dompdf($options);
         $pdf->loadHtml(View::make('report.assistance_pdf', compact('assistances'))->render());
         $pdf->setPaper('A4', 'landscape');
         $pdf->render();
+
         return $pdf->stream('asistencia.pdf');
     }
 
