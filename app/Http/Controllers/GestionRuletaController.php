@@ -49,7 +49,7 @@ class GestionRuletaController extends Controller
 
     // Guardar el premio obtenido
     public function storeWinner(Request $request)
-    {
+    { 
         $request->validate([
             'prize_id' => 'required|exists:premios,id'
         ]);
@@ -57,12 +57,14 @@ class GestionRuletaController extends Controller
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
         $premio = Premio::where('id', $request->prize_id)->first();
+        // dd($premio);
 
         $sale = new Sales();
         $sale->date_admission = Carbon::now();
         $sale->status = true;
         $sale->observation = "Giro de Ruleta";
         $sale->commission = $premio->value;
+        $sale->amount = $premio->value;
         $sale->agent_id = $agent->id;
         $sale->action_id = '2';
         $sale->user_id = $user_id;

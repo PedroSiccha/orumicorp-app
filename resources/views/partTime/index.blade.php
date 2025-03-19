@@ -140,7 +140,7 @@
                             @can('Descargar Part Time Excel')
                                 <li><a href="{{ route('descargar-asistencia-excel') }}" class="dropdown-item"><i class="fa fa-file-excel-o"></i> Descargar Excel</a></li>
                             @endcan
-                            @can('Descargar Part Time PDF')
+                            @can('Descargar Part Time PDF') 
                                 <li><a href="{{ route('descargar-asistencia-pdf') }}" class="dropdown-item"><i class="fa fa-file-pdf-o"></i> Descargar PDF</a></li>
                             @endcan
 

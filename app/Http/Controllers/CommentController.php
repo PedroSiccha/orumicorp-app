@@ -10,6 +10,7 @@ use App\Models\Agent;
 use App\Models\Assignment;
 use App\Models\Comunications;
 use App\Models\Customers;
+use App\Models\CustomerStatus;
 use App\Models\Folder;
 use App\Models\Premio;
 use App\Models\User;
@@ -52,6 +53,7 @@ class CommentController extends Controller
         $myRoles = $this->rolesService->getMyRoles();
         $myRolesId = $myRoles['rolesId'];
         $contacts = [];
+        $customerStatus = CustomerStatus::get();
 
         if ($myRoles['roles'] == 'ADMINISTRADOR') {
             $contacts = Customers::with(['statusCustomer'])->get()->map(function ($customer) {
@@ -108,7 +110,7 @@ class CommentController extends Controller
             return response()->json(['contacts' => $contacts]);
         }
 
-        return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token'));
+        return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token', 'customerStatus'));
 
     }
 

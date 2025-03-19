@@ -89,7 +89,7 @@
             <div class="row">
               <div class="col-md-12">
                 <div class="site-info text-center">
-                  <p>Crafted by <a href="http://uideck.com" rel="nofollow">Pedro Siccha</a></p>
+                  <p>Crafted by <a href="#" rel="nofollow">Pedro Siccha</a></p>
                 </div>
               </div>
             </div>

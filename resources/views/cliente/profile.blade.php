@@ -31,12 +31,12 @@
         <div class="col-lg-4">
 
             <div class="ibox">
-                <div class="ibox-content">
+                <div class="ibox-content" id="componentDataClient">
                     <h3>Datos Personales</h3>
                     @can('Perfil Cliente - Ver Codigo')
                         <div class="form-group">
                             <label>Código</label>
-                            <input type="text" class="form-control" placeholder="Ingrese su código" id="code" value="{{ $dataCustomer->code }}">
+                            <input type="text" class="form-control" placeholder="Ingrese su código" id="code" value="{{ $dataCustomer->code }}" readonly>
                         </div>
                     @endcan
                     @can('Perfil Cliente - Ver Nombre')
@@ -69,19 +69,27 @@
                             <input type="text" class="form-control" placeholder="Ingrese su teléfono opcional" id="optionalPhone" value="{{ $dataCustomer->optional_phone }}">
                         </div>
                     @endcan
-                    @can('Perfil Cliente - Ver Ciudad')
+                    {{-- @can('Perfil Cliente - Ver Ciudad')
                         <div class="form-group">
                             <label>Ciudad</label>
                             <input type="text" class="form-control" placeholder="Ingrese su ciudad" id="city" value="{{ $dataCustomer->city }}">
                         </div>
-                    @endcan
+                    @endcan --}}
                     @can('Perfil Cliente - Ver Pais')
                         <div class="form-group">
                             <label>País</label>
                             <input type="text" class="form-control" placeholder="Ingrese su país" id="country" value="{{ $dataCustomer->country }}">
                         </div>
                     @endcan
-                    <button class="btn btn-primary btn-block">Actualizar</button>
+                    <button class="btn btn-primary btn-block" onclick="updateClientProfile(
+                        '#code',
+                        '#name',
+                        '#lastname',
+                        '#email',
+                        '#phone',
+                        '#optionalPhone',
+                        '#country',
+                        '#componentDataClient')">Actualizar</button> 
                 </div>
             </div>
         </div>
@@ -97,6 +105,7 @@
                         <li><a class="nav-link" data-toggle="tab" href="#tab-campaing"><i class="fa fa-cc"></i> Campañas</a></li>
                         <li><a class="nav-link" data-toggle="tab" href="#tab-provider"><i class="fa fa-group"></i> Proveedores</a></li>
                         <li><a class="nav-link" data-toggle="tab" href="#tab-views"><i class="fa fa-group"></i> Visualización</a></li>
+                        <li><a class="nav-link" data-toggle="tab" href="#tab-assignments"><i class="fa fa-group"></i> Asignaciones</a></li>
                     </ul>
                     <div class="tab-content">
                         <div id="tab-resum" class="tab-pane active">
@@ -393,6 +402,44 @@
                             </div>
                         </div>
 
+                        <div id="tab-assignments" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="ibox-content">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Agente</th>
+                                                <th>Fecha</th>
+                                                <th>Asignado Por</th>
+                                                <th>Comentario</th>
+                                                <th>Descripción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($listAssignaments as $listAssignament)
+                                                @if(is_object($listAssignament))
+                                                    <tr>
+                                                        <td>{{ $loop->iteration }}</td>
+                                                        <td>{{ $listAssignament->agent->name.' '.$listAssignament->agent->lastname ?? 'Sin Agente' }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($vista->date)->format('d/m/Y H:i:s') }}</td>
+                                                        <td>{{ $listAssignament->assignedBy->name.' '.$listAssignament->assignedBy->lastname ?? 'Sin Agente' }}</td>
+                                                        <td>{{ $listAssignament->comment }}</td>
+                                                        <td>{{ $listAssignament->descripcion }}</td>
+                                                    </tr>
+                                                @else
+                                                    <tr>
+                                                        <td colspan="4">Datos inválidos: {{ var_dump($listAssignament) }}</td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -409,6 +456,7 @@
     var searchAgentRoute = '{{ route("searchAgent") }}';
     var searchClientRoute = '{{ route("searchCustomer") }}';
     var asignAgentByProfileRoute = '{{ route("asignAgentByProfile") }}';
+    var updateClientProfileRoute = '{{ route("updateClientProfile") }}';
 
     document.addEventListener("DOMContentLoaded", function () {
         let dateInput = document.getElementById("dateEvent");
@@ -438,53 +486,54 @@
                 saveButton.disabled = true;
             } else {
                 dateInput.classList.remove("border-danger");
-                validateHours(); // Validar horas después de validar fecha
+                // validateHours(); // Validar horas después de validar fecha
+                
             }
         }
 
         // Función para validar las horas
-        function validateHours() {
-            let minHour = getMinHour();
-            let startTime = horaInicio.value;
-            let endTime = horaFin.value;
+        // function validateHours() {
+        //     let minHour = getMinHour();
+        //     let startTime = horaInicio.value;
+        //     let endTime = horaFin.value;
 
-            // Resetear clases y validaciones
-            horaInicio.classList.remove("border-danger");
-            horaFin.classList.remove("border-danger");
-            saveButton.disabled = false;
+        //     // Resetear clases y validaciones
+        //     horaInicio.classList.remove("border-danger");
+        //     horaFin.classList.remove("border-danger");
+        //     saveButton.disabled = false;
 
-            // Validar hora de inicio (debe ser al menos 1 hora después de la actual)
-            if (startTime && startTime < minHour) {
-                // alert("La hora de inicio debe ser al menos 1 hora después de la actual.");
-                horaInicio.value = "";
-                horaInicio.classList.add("border-danger");
-                saveButton.disabled = true;
-            }
+        //     // Validar hora de inicio (debe ser al menos 1 hora después de la actual)
+        //     if (startTime && startTime < minHour) {
+        //         // alert("La hora de inicio debe ser al menos 1 hora después de la actual.");
+        //         horaInicio.value = "";
+        //         horaInicio.classList.add("border-danger");
+        //         saveButton.disabled = true;
+        //     }
 
-            // Validar hora de fin (debe ser mayor que la hora actual + 1)
-            if (endTime && endTime < minHour) {
-                // alert("La hora de fin debe ser al menos 1 hora después de la actual.");
-                horaFin.value = "";
-                horaFin.classList.add("border-danger");
-                saveButton.disabled = true;
-            }
+        //     // Validar hora de fin (debe ser mayor que la hora actual + 1)
+        //     if (endTime && endTime < minHour) {
+        //         // alert("La hora de fin debe ser al menos 1 hora después de la actual.");
+        //         horaFin.value = "";
+        //         horaFin.classList.add("border-danger");
+        //         saveButton.disabled = true;
+        //     }
 
-            // Validar que la hora de fin sea mayor que la de inicio
-            if (startTime && endTime && endTime <= startTime) {
-                // alert("La hora de fin debe ser mayor que la hora de inicio.");
-                horaFin.value = "";
-                horaFin.classList.add("border-danger");
-                saveButton.disabled = true;
-            }
-        }
+        //     // Validar que la hora de fin sea mayor que la de inicio
+        //     if (startTime && endTime && endTime <= startTime) {
+        //         // alert("La hora de fin debe ser mayor que la hora de inicio.");
+        //         horaFin.value = "";
+        //         horaFin.classList.add("border-danger");
+        //         saveButton.disabled = true;
+        //     }
+        // }
 
         // Eventos de validación
         dateInput.addEventListener("input", validateDate);
         dateInput.addEventListener("change", validateDate);
-        horaInicio.addEventListener("input", validateHours);
-        horaInicio.addEventListener("change", validateHours);
-        horaFin.addEventListener("input", validateHours);
-        horaFin.addEventListener("change", validateHours);
+        // horaInicio.addEventListener("input", validateHours);
+        // horaInicio.addEventListener("change", validateHours);
+        // horaFin.addEventListener("input", validateHours);
+        // horaFin.addEventListener("change", validateHours);
     });
 
 

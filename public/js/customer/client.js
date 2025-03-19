@@ -76,3 +76,25 @@ function saveEventClient(options) {
         mostrarMensaje(data.title, data.text, data.status);
     });
 }
+
+function updateClientProfile(inputCode, inputName, inputLastName, inputEmail, inputPhone, inputOptionalPhone, inputCountry, tableName) {
+    var clientId = getClientIdFromURL();
+    var code = $(inputCode).val();
+    var name = $(inputName).val();
+    var lastname = $(inputLastName).val();
+    var email = $(inputEmail).val();
+    var phone = $(inputPhone).val();
+    var optionalPhone = $(inputOptionalPhone).val();
+    var country = $(inputCountry).val();
+
+    $.post(updateClientProfileRoute, {id: clientId, code: code, name: name, lastname: lastname, email: email, phone: phone, optionalPhone: optionalPhone, country: country, _token: token}).done(function(data) {
+        $(tableName).empty();
+        $(tableName).html(data.view);
+        mostrarMensaje(data.title, data.text, data.status);
+    });
+}
+
+function getClientIdFromURL() {
+    var pathArray = window.location.pathname.split('/'); // Divide la URL en partes
+    return pathArray[pathArray.length - 1]; // Toma el último elemento (el ID)
+}

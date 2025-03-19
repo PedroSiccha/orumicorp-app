@@ -466,6 +466,71 @@ class ClientsController extends Controller
         return response()->json(["view"=>view('cliente.list.listCustomer', compact('customers', 'agents', 'campaings', 'providers', 'statusCustomers'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }
 
+    public function updateClientProfile(Request $request)
+    {
+        $title = "Error";
+        $mensaje = "Error desconocido";
+        $status = "error";
+    
+        try {
+            if (empty($request->name) || empty($request->lastname) || empty($request->phone) || empty($request->email)) {
+                throw new Exception("Nombre, apellido, teléfono y correo son obligatorios.");
+            }
+            $client = Customers::find($request->id);
+            if (!$client) {
+                throw new Exception("Cliente no encontrado.");
+            }
+            $emailExists = Customers::where('email', $request->email)
+                ->where('id', '!=', $client->id)
+                ->exists();
+    
+            if ($emailExists) {
+                throw new Exception("El correo electrónico ya está registrado en otro cliente.");
+            }
+            $phoneExists = Customers::where('phone', $request->phone)
+                ->where('id', '!=', $client->id)
+                ->exists();
+    
+            if ($phoneExists) {
+                throw new Exception("El número de teléfono ya está registrado en otro cliente.");
+            }
+    
+            $client->name = $request->name;
+            $client->lastname = $request->lastname;
+            $client->phone = $request->phone;
+            $client->optional_phone = $request->optionalPhone ?? null;
+            $client->country = $request->country ?? null;
+            $client->comment = $request->comment ?? null;
+            $client->email = $request->email;
+    
+            $user = User::find($client->user_id);
+            if ($user) {
+                $user->name = $request->name;
+            }
+    
+            if ($client->save()) {
+                if ($user && !$user->save()) {
+                    throw new Exception("Hubo un error al actualizar el usuario del cliente.");
+                }
+                $title = "Correcto";
+                $mensaje = "Se actualizó el cliente correctamente.";
+                $status = "success";
+            } else {
+                throw new Exception("Hubo un error al actualizar el cliente.");
+            }
+    
+        } catch (ValidationException $e) {
+            $mensaje = $e->getMessage();
+        } catch (Exception $e) {
+            $mensaje = $e->getMessage();
+        }
+
+        $dataCustomer = Customers::where('id', $request->id)->first();
+
+        return response()->json(["view"=>view('cliente.components.dataClients', compact('dataCustomer'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+    
+    }
+
     public function deleteClient(Request $request)
     {
         $data = $this->clientService->deleteClient($request);

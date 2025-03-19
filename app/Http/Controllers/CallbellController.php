@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Interfaces\RolesInterface;
 use App\Models\Agent;
 use App\Models\Customers;
+use App\Models\CustomerStatus;
 use App\Models\MessageWhatsappModel;
 use App\Models\Premio;
 use App\Models\User;
@@ -134,6 +135,7 @@ class CallbellController extends Controller
                     "team" => $customer->callbel_team ?? [],
                     "channel" => $customer->callbel_channel ?? [],
                     "blockedAt" => $customer->callbel_blocked_at ?? null,
+                    "status" => $customer->statusCustomer->name ?? null
                 ];
             });
         } else {
@@ -159,12 +161,14 @@ class CallbellController extends Controller
                     "team" => $customer->callbel_team ?? [],
                     "channel" => $customer->callbel_channel ?? [],
                     "blockedAt" => $customer->callbel_blocked_at ?? null,
+                    "status" => $customer->statusCustomer->name ?? null
                 ];
             });
         }
+        $customerStatus = CustomerStatus::get();
 
         if ($request->ajax()) {
-            return response()->json(["view"=>view('whatsapp.components.list.listContacts', compact('contacts'))->render()]);
+            return response()->json(["view"=>view('whatsapp.components.list.listContacts', compact('contacts', 'customerStatus'))->render()]);
         }
 
 
@@ -316,6 +320,7 @@ class CallbellController extends Controller
                         "team" => $customer->callbel_team ?? [],
                         "channel" => $customer->callbel_channel ?? [],
                         "blockedAt" => $customer->callbel_blocked_at ?? null,
+                        "status" => $customer->statusCustomer->name ?? null
                     ];
                 });
             } else {
@@ -341,12 +346,14 @@ class CallbellController extends Controller
                         "team" => $customer->callbel_team ?? [],
                         "channel" => $customer->callbel_channel ?? [],
                         "blockedAt" => $customer->callbel_blocked_at ?? null,
+                        "status" => $customer->statusCustomer->name ?? null,
                     ];
                 });
             }
+            $customerStatus = CustomerStatus::get();
 
             if ($request->ajax()) {
-                return response()->json(['contacts' => $contacts, 'view' => view('whatsapp.components.list.listContacts', compact('contacts'))->render()]);
+                return response()->json(['contacts' => $contacts, 'view' => view('whatsapp.components.list.listContacts', compact('contacts', 'customerStatus'))->render()]);
             }
         }
 
@@ -369,17 +376,93 @@ class CallbellController extends Controller
                 "team" => $customer->callbel_team ?? [],
                 "channel" => $customer->callbel_channel ?? [],
                 "blockedAt" => $customer->callbel_blocked_at ?? null,
+                "status" => $customer->statusCustomer->name ?? null
             ];
         });
+        $customerStatus = CustomerStatus::get();
 
         // dd($contacts);
 
         if ($request->ajax()) {
             // return response()->json(['contacts' => $contacts]);
-            return response()->json(['contacts' => $contacts, 'view' => view('whatsapp.components.list.listContacts', compact('contacts'))->render()]);
+            return response()->json(['contacts' => $contacts, 'view' => view('whatsapp.components.list.listContacts', compact('contacts', 'customerStatus'))->render()]);
         }
 
         return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token'));
+    }
+
+    public function filterStatus(Request $request) {
+
+        $user_id = Auth::user()->id;
+        $user = User::where('id', $user_id)->first();
+        $roles = $user->getRoleNames()->first();
+        $agent = Agent::where('user_id', $user_id)->first();
+        $myRoles = $this->rolesService->getMyRoles();
+        $statusId = $request->status; 
+
+            if ($myRoles['roles'] == 'ADMINISTRADOR') {
+                $contacts = Customers::where('id_status', $statusId)->get()->map(function ($customer) {
+                    return [
+                        "id" => $customer->id,  // Suponiendo que `id` es el identificador único
+                        "uuid" => $customer->callbell_uuid,  // Suponiendo que `id` es el identificador único
+                        "name" => $customer->name,
+                        "lastname" => $customer->lastname,
+                        "phoneNumber" => $customer->phone, // Ajusta según el nombre del campo en la DB
+                        "avatarUrl" => $customer->img ?? null,
+                        "createdAt" => $customer->created_at->format('d/m/Y'),
+                        "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                        "source" => $customer->callbel_source ?? null,
+                        "href" => $customer->callbell_href,
+                        "conversationHref" => $customer->callbell_conversationHref,
+                        "tags" => $customer->callbel_tags ?? [],
+                        "assignedUser" => $customer->assigned_user_email ?? null,
+                        "customFields" => $customer->callbel_custom_fields ?? [],
+                        "team" => $customer->callbel_team ?? [],
+                        "channel" => $customer->callbel_channel ?? [],
+                        "blockedAt" => $customer->callbel_blocked_at ?? null,
+                        "status" => $customer->statusCustomer->name ?? null
+                    ];
+                });
+            } else {
+    
+                $contacts = Customers::whereHas('assignaments', function($query) use ($agent, $statusId) {
+                    $query->where('agent_id', $agent->id)->where('id_status', $statusId);
+                })->get()->map(function ($customer) {
+                    return [
+                        "id" => $customer->id,  // Suponiendo que `id` es el identificador único
+                        "uuid" => $customer->callbell_uuid,  // Suponiendo que `id` es el identificador único
+                        "name" => $customer->name,
+                        "lastname" => $customer->lastname,
+                        "phoneNumber" => $customer->phone, // Ajusta según el nombre del campo en la DB
+                        "avatarUrl" => $customer->img ?? null,
+                        "createdAt" => $customer->created_at->format('d/m/Y'),
+                        "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                        "source" => $customer->callbel_source ?? null,
+                        "href" => $customer->callbell_href,
+                        "conversationHref" => $customer->callbell_conversationHref,
+                        "tags" => $customer->callbel_tags ?? [],
+                        "assignedUser" => $customer->assigned_user_email ?? null,
+                        "customFields" => $customer->callbel_custom_fields ?? [],
+                        "team" => $customer->callbel_team ?? [],
+                        "channel" => $customer->callbel_channel ?? [],
+                        "blockedAt" => $customer->callbel_blocked_at ?? null,
+                        "status" => $customer->statusCustomer->name ?? null
+                    ];
+                });
+            }
+
+            $customerStatus = CustomerStatus::get();
+
+            if ($request->ajax()) {
+                return response()->json(['contacts' => $contacts, 'view' => view('whatsapp.components.list.listContacts', compact('contacts', 'customerStatus'))->render()]);
+            }
+
+        if ($request->ajax()) {
+            return response()->json(['contacts' => $contacts, 'view' => view('whatsapp.components.list.listContacts', compact('contacts', 'customerStatus'))->render()]);
+        }
+
+        return view('whatsapp.index', compact('premios1', 'premios2', 'rouletteSpin', 'dataUser', 'contacts','baseUrl', 'token'));
+
     }
 
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
+use App\Models\Assignment;
 use App\Models\Assistance;
 use App\Models\Customers;
 use App\Models\Premio;
@@ -53,7 +54,7 @@ class PerfilController extends Controller
                         ->selectRaw("MONTHNAME(CONCAT('2024-', month, '-01')) AS mes")
                         ->where('agent_id', $agent->id  )
                         ->paginate(5, ['*'], 'targets_page')->withQueryString();
-
+        
         $sales = Sales::select('sales.*', 'c.name', 'c.lastname')
                         ->join('customers as c', 'sales.customer_id', '=', 'c.id')
                         ->where('sales.agent_id', $agent->id)
