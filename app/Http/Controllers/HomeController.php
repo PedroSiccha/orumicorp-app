@@ -25,11 +25,6 @@ class HomeController extends Controller
         $this->menuService = $menuService;
     }
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
     public function index()
     {
         $user_id = Auth::user()->id;
