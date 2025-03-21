@@ -28,13 +28,11 @@
                       </thead>
                       <tbody>
                         @foreach ($roles as $rol)
-                            <tr onclick="verPermisos('{{ $rol->id }}')">
+                            <tr onclick="verPermisos('{{ $rol->id }}', '{{ $rol->name }}')">
                                 <td>{{ $rol->id }}</td>
                                 <td>{{ $rol->name }}</td>
                                 <td>{{ $rol->guard_name }}</td>
-                                <td>
-
-                                </td>
+                                <td></td>
                             </tr>
                         @endforeach
                       </tbody>
@@ -48,7 +46,7 @@
         @can('Ver Permisos de Roles')
         <div class="ibox ">
             <div class="ibox-title d-flex justify-content-between align-items-center">
-                <h5>Tabla de Permisos </h5>
+                <h5>Tabla de Permisos <span id="nombreRolSeleccionado"></span></h5>
                 <div>
                     @can('Asignar Permisos')
                         <button type="button" class="btn btn-default" onclick="asignarPermiso()" style="display: none;" id="btnAsignar"><i class="fa fa-plus"></i> Asignar Permiso</button>
@@ -196,9 +194,10 @@
             $('#modalPermisos').modal('show');
         }
 
-        function verPermisos(idRol) {
+        function verPermisos(idRol, name) {
             $('#idRol').val(idRol);
             $('#btnAsignar').show();
+            $("#nombreRolSeleccionado").text(` - ${name}`);
             $.post("{{ Route('verPermisos') }}", {id: idRol, _token: '{{ csrf_token() }}'}).done(function(data) {
                 $("#tabPermisos").empty();
                 $("#tabPermisos").html(data.view);

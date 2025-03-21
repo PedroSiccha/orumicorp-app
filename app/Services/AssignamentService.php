@@ -13,7 +13,7 @@ class AssignamentService implements AssignamentInterface {
         try {
             $customerId = $request['customer_id'];
 
-            $lastAssignment = Assignment::with(['agent', 'assignedBy'])->where('customer_id', $customerId)->where('status', 1)->orderBy('status', 'asc')->first();
+            $lastAssignment = Assignment::with(['agent', 'assignedBy'])->where('customer_id', $customerId)->where('status', 1)->orderBy('date', 'DESC')->first();
 
             if ($lastAssignment) {
                 return $lastAssignment;

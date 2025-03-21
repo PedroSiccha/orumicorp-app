@@ -40,7 +40,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/filterAgent', [App\Http\Controllers\AgentController::class, 'filterAgent'])->name('filterAgent');
     Route::post('/uploadImg', [App\Http\Controllers\AgentController::class, 'uploadImg'])->name('uploadImg');
     Route::post('/changePassword', [App\Http\Controllers\AgentController::class, 'changePassword'])->name('changePassword');
-    Route::get('/agentsPagination', [App\Http\Controllers\AgentController::class, 'agentsPagination'])->name('agentsPagination');
+    Route::post('/agentsPagination', [App\Http\Controllers\AgentController::class, 'agentsPagination'])->name('agentsPagination');
 
     Route::get('areas', [\App\Http\Controllers\AreaController::class, 'index'])->middleware('markAsSeen:areas')->name('areas');
     Route::post('/saveArea', [App\Http\Controllers\AreaController::class, 'saveArea'])->name('saveArea');
@@ -207,6 +207,7 @@ Route::group(['middleware' => 'auth'], function () {
     })->name('notifications.markAsSeen');
 
     Route::post('/save-table-config', [TableConfigController::class, 'saveTableConfig'])->name('saveTableConfig');
+    Route::post('/reset-table-config', [TableConfigController::class, 'resetTableConfig'])->name('resetTableConfig');
     Route::get('/get-table-config/{tableName}', [TableConfigController::class, 'getTableConfig'])->name('getTableConfig');
 
 });

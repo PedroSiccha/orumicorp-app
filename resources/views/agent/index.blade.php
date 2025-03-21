@@ -13,7 +13,7 @@
                   @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
                     <div class="col-sm-2 text-right">
                         @can('Filtrar Area Today')
-                            <select class="form-control m-b" name="area" id="area" onchange="filterAgent('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAgente')" onclick="filterAgent('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAgente')">
+                            <select class="form-control m-b" name="area" id="area" >
                                 @foreach($areas as $area)
                                 <option value = "{{ $area->id }}">{{ $area->name }}</option>
                                 @endforeach
@@ -22,12 +22,19 @@
                     </div>
                     <div class="col-sm-4">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control form-control-sm" placeholder="Buscar por nombre o código" id="inputCode" oninput="filterAgent('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAgente')">
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar por nombre o código" id="inputCode" >
                             <div class="input-group-append">
                                 <button class="btn btn-sm btn-default" type="button"><i class="fa fa-search"></i></button>
                             </div>
                         </div>
                     </div>
+                    <div class="col-sm-2">
+                        {{-- <button type="button" class="btn btn-warning" id="btnClearFilters">
+                            <i class="fa fa-eraser"></i> Limpiar filtros
+                        </button> --}}
+                        <button id="btnClearFilters" class="btn btn-outline btn-danger" type="button">Limpiar  <i class="fa fa-close"></i></button>
+                    </div>
+                    
                     @endif
 
                   <div class="col-sm-2 text-right">
@@ -38,7 +45,7 @@
               </div>
               <div class="ibox-content" id="tabAgente">
                 @include('agent.list.listAgent')
-              </div>
+              </div> 
           </div>
       </div>
   </div>
@@ -78,6 +85,14 @@
                             </td>
                             <td>
                                 <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese su apellido" id='eLastname'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Correo</strong>
+                            </td>
+                            <td>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Registro Correo" id='eEmail'>
                             </td>
                         </tr>
                         <tr>
@@ -351,20 +366,79 @@
     </script>
 
 <script>
-    $(document).on('click', '.pagination a', function(event) {
-        event.preventDefault();
-        let page = $(this).attr('href').split('page=')[1];
-        fetch_data(page);
+    $(document).ready(function() {
+        // Evita eventos duplicados
+        $("#inputCode, #area, #date_added_init, #date_added_end").off("input change").on("input change", function () {
+            // filterAgent("#area", "#inputCode", "#date_added_init", "#date_added_end", "#tabAgente");
+            fetch_data(1); // Resetear a la página 1 después de aplicar filtro
+        });
+
+        // Evita eventos duplicados en la paginación
+        $(document).off('click', '.pagination a').on('click', '.pagination a', function(event) {
+            event.preventDefault();
+            let page = $(this).attr('href').split('page=')[1];
+            fetch_data(page);
+        });
+
+        $("#btnClearFilters").on("click", function() {
+            // Resetear los filtros a su estado inicial
+            $("#area").prop('selectedIndex', 0); // Regresa al primer elemento del select
+            $("#inputCode").val(""); // Limpia el input de búsqueda
+            $("#date_added_init").val(""); // Borra la fecha inicial
+            $("#date_added_end").val(""); // Borra la fecha final
+
+            // Recargar la tabla con los datos originales (sin filtros)
+            fetch_data(1);
+        });
     });
 
+    // $(document).on('click', '.pagination a', function(event) {
+    //     event.preventDefault();
+    //     let page = $(this).attr('href').split('page=')[1];
+    //     fetch_data(page);
+    // });
+
+    // function fetch_data(page) {
+    //     $.ajax({
+    //         url: "/agentsPagination?page=" + page,
+    //         success: function(data) {
+    //             $('#tabAgente').html(data);
+    //         }
+    //     });
+    // }
+    let fetchTimeout; // Variable para evitar llamadas múltiples
+
     function fetch_data(page) {
-        $.ajax({
-            url: "/agentsPagination?page=" + page,
-            success: function(data) {
-                $('#tabAgente').html(data);
-            }
-        });
+        clearTimeout(fetchTimeout);
+
+        fetchTimeout = setTimeout(function () {
+            var area = $("#area").val();
+            var code = $("#inputCode").val();
+            var dateInit = $("#date_added_init").val();
+            var dateEnd = $("#date_added_end").val();
+
+            console.log("Ejecutando fetch_data en página:", page);
+
+            $.ajax({
+                url: "/agentsPagination?page=" + page,
+                type: "POST",
+                data: {
+                    area: area,
+                    code: code,
+                    dateInit: dateInit,
+                    dateEnd: dateEnd,
+                    _token: token
+                },
+                success: function (data) {
+                    $('#tabAgente').html(data);
+                }
+            });
+        }, 300);
     }
+
+
+
+
 </script>
 
 {{-- <script>

@@ -14,7 +14,7 @@ class CampaingService implements CampaingInterface {
     public function getAllCampaingsByCustomer($request) {
         try {
             $customerId = $request['customer_id'];
-            $campaings = Campaing::get();
+            $campaings = Campaing::orderBy('created_at', 'desc')->get();
             return $campaings;
         } catch (Exception $e) {
             dd($e);

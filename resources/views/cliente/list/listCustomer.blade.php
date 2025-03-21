@@ -198,6 +198,7 @@
                         Sin Proveedor
                     @endif
                 </td>
+                @can('Perfil Cliente - Ver Nombre')
                 <td class="column-8">
                     @can('Ver Perfil Cliente')
                         <a onclick="saveVista({ client_id: '{{ $customer->id }}' })" href="{{ route('profileClient', ['id' => $customer->id]) }}">
@@ -209,11 +210,20 @@
                         </a>
                     @endcan
                 </td>
+                @endcan
+                @can('Perfil Cliente - Ver Correo')
                 <td class="column-9">{{ $customer->email }}</td>
+                @endcan
+                @can('Perfil Cliente - Ver Telefono')
                 <td class="column-10">{{ $customer->phone }}</td>
+                @endcan
+                @can('Perfil Cliente - Ver Telefono Opcional')
                 <td class="column-11">{{ $customer->optiomal_phone }}</td> <!-- Modificar Número Opcional -->
+                @endcan
                 {{-- <td>{{ $customer->city }}</td> --}}
+                @can('Perfil Cliente - Ver Pais')
                 <td class="column-12">{{ $customer->country }}</td>
+                @endcan
                 <td class="column-13">
                     @if ($customer->statusCustomer)
                         {{ $customer->statusCustomer->name }}

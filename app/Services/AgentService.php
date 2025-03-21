@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
 
 class AgentService implements AgentInterface {
     protected $utils;
@@ -43,7 +44,7 @@ class AgentService implements AgentInterface {
             $dataUser = $client;
         }
 
-        $agents = Agent::orderBy('lastname')->paginate(10);
+        $agents = Agent::orderBy('created_at', 'desc')->paginate(10);
         $areas = Area::where('status', true)->get();
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
@@ -60,7 +61,7 @@ class AgentService implements AgentInterface {
         $name = "";
 
         try {
-            $agent = Agent::where('code_voiso', $request->codeVoiso)->orWhere('code', $request->codeVoiso)->first();
+            $agent = Agent::where('code_voiso', $request->codeVoiso)->orWhere('code', $request->codeVoiso)->orderBy('created_at', 'desc')->first();
 
             if (is_null($agent)) {
                 $mensaje = "El agente no existe";
@@ -180,8 +181,36 @@ class AgentService implements AgentInterface {
     public function updateAgent($requestData) {
         $resp = 0;
 
+        // Validar si el email ya existe en otro usuario
+        $emailExists = User::where('email', $requestData->email)
+                            ->where('id', '!=', function ($query) use ($requestData) {
+                                $query->select('user_id')->from('agents')->where('id', $requestData->id);
+                            })->exists();
+
+        if ($emailExists) {
+            return 0;
+            // return [
+            // 'title' => 'Error',
+            // 'mensaje' => 'El correo electrónico ya está en uso por otro usuario.',
+            // 'status' => 'error'
+            // ];
+        }
+
+        // Validar si el codeVoiso ya existe en otro agente
+        $codeVoisoExists = Agent::where('code_voiso', $requestData->codeVoiso)
+                                ->where('id', '!=', $requestData->id)
+                                ->exists();
+
+        if ($codeVoisoExists) {
+            return 0;
+            // return [
+            //     'title' => 'Error',
+            //     'mensaje' => 'El código Voiso ya está en uso por otro agente.',
+            //     'status' => 'error'
+            // ];
+        }
+
         $agent = Agent::find($requestData->id);
-        // $agent->code = $requestData->code;
         $agent->name = $requestData->name;
         $agent->lastname = $requestData->lastname;
         $agent->area_id = $requestData->area_id;
@@ -189,6 +218,7 @@ class AgentService implements AgentInterface {
         if ($agent->save()) {
             $user = User::find($agent->user_id);
             $user->name = $requestData->name;
+            $user->email = $requestData->email;
             if ($user->save()) {
                 if ($requestData->rol_id) {
                     $role = Role::find($requestData->rol_id);
@@ -265,7 +295,7 @@ class AgentService implements AgentInterface {
             $nombre = $dataImg->getClientOriginalName();
             $extension = $dataImg->getClientOriginalExtension();
             $nuevoNombre = $nombre . "." . $extension;
-            $subido = Storage::disk('perfil')->put($nombre, \File::get($dataImg));
+            $subido = Storage::disk('perfil')->put($nombre, File::get($dataImg));
             if ($subido) {
                 $urlGuardar = 'img/perfil/' . $nombre;
             }
@@ -313,7 +343,9 @@ class AgentService implements AgentInterface {
         $agents = Agent::where('area_id', $request->area)
                         ->where(function ($query) use ($search) {
                             $query->whereRaw('CONCAT(name, " ", lastname) LIKE ?', ['%'.$search.'%'])
+                                ->orWhere('code_voiso', 'like', '%'.$search.'%')
                                 ->orWhere('code', 'like', '%'.$search.'%');
+
                         })->paginate(10);
 
         return $agents;

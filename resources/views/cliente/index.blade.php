@@ -441,10 +441,12 @@ Clientes
         document.getElementById('typeRange').selectedIndex = 0;
         document.getElementById('dateInitSearchGeneral').value = '';
         document.getElementById('dateEndSearchGeneral').value = '';
-        document.getElementById('filterButton').textContent = 'Filtrar Por:';
+        document.getElementById('filterButton').textContent = 'Cod. Cliente';
+        document.getElementById("dateInitSearchGeneral").setAttribute("disabled", "true");
+        document.getElementById("dateEndSearchGeneral").setAttribute("disabled", "true");
 
         // Volver a cargar la tabla de clientes sin filtros
-        reloadClientTable();
+        reloadClientTable(); 
     });
 
     // Función para recargar la tabla de clientes sin filtros

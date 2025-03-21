@@ -589,7 +589,7 @@ class ClientService implements ClientInterface {
         $dataCommunication = [
             'customer_id' => $dataCustomer->id,
         ];
-
+ 
         $communications = $this->communicationService->getLocationByCustomer($dataCommunication);
         $lastAssignament = $this->assignamentService->getLastAssignamentByCustomer($dataCommunication);
         $lastCampaing = $this->campaingService->getLastCampaingByCustomer($dataCommunication);
@@ -597,11 +597,12 @@ class ClientService implements ClientInterface {
         $lastProvider = $this->providerService->getLastProviderByCustomer($dataCommunication);
         $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
         $priorities = Priority::all();
-        $listAssignaments = Assignment::with(['agent', 'customer', 'assignedBy'])->where('customer_id', $id)->get();
-        $eventos = Task::with('customer')->where('customer_id', $id)->get();
+        $listAssignaments = Assignment::with(['agent', 'customer', 'assignedBy'])->where('customer_id', $id)->orderBy('date', 'desc')->get();
+        $eventos = Task::with('customer')->where('customer_id', $id)->orderBy('date', 'desc')->get();
 
         $vistas = Views::with('agent')
                         ->where('customer_id', $dataCustomer->id)
+                        ->orderBy('viewed_at', 'desc')
                         ->get();
 
         return compact('rouletteSpin', 'dataUser', 'premios1', 'premios2', 'dataCustomer', 'communications', 'lastAssignament', 'lastCampaing', 'campaings', 'lastProvider', 'providers', 'priorities', 'eventos', 'vistas', 'listAssignaments');

@@ -127,7 +127,7 @@ class ComunicationService implements ComunicationInterface {
                 ->with(['agent', 'customer'])
                 ->orderBy('date', 'desc')
                 ->get();
-
+ 
             return $communications;
         } catch (\Exception $e) {
             return collect();

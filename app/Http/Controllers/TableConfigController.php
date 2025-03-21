@@ -74,14 +74,44 @@ class TableConfigController extends Controller
 
     public function resetTableConfig(Request $request)
     {
-        $request->validate(['table_name' => 'required|string']);
-        
+        $request->validate([
+            'table_name' => 'required|string',
+            'scope' => 'required|string',
+            'role_id' => 'nullable|integer'
+        ]);
+
         $user = Auth::user();
-        UserTableConfiguration::where('user_id', $user->id)
-                            ->where('table_name', $request->table_name)
-                            ->delete();
         
-        return response()->json(['message' => 'Configuración restablecida a valores por defecto']);
+        if ($request->scope === 'user') {
+            // Eliminar configuración para el usuario actual
+            UserTableConfiguration::where('user_id', $user->id)
+                                ->where('table_name', $request->table_name)
+                                ->delete();
+            return response()->json([
+                'visible_columns' => json_encode([]),
+                'message' => 'Configuración restablecida para el usuario'
+            ]);
+        }
+
+        if ($request->scope === 'role') {
+            $role = Role::find($request->role_id);
+            if (!$role) {
+                return response()->json(['error' => 'Rol no encontrado'], 404);
+            }
+            
+            // Eliminar configuración del rol seleccionado
+            RoleTableConfiguration::where('role_id', $role->id)
+                                ->where('table_name', $request->table_name)
+                                ->delete();
+            return response()->json([
+                'visible_columns' => json_encode([]),
+                'message' => 'Configuración restablecida para el rol'
+            ]);
+        }
+
+        return response()->json(['error' => 'Opción no válida'], 400);
     }
+
+
 
 }

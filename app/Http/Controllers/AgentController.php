@@ -20,11 +20,40 @@ class AgentController extends Controller
         return view('agent.index', $data);
     }
 
-    public function agentsPagination()
+    // public function agentsPagination()
+    // {
+    //     $agents = Agent::orderBy('created_at', 'desc')->paginate(10);
+    //     return view('agent.list.listAgent', compact('agents'))->render();
+    // }
+    public function agentsPagination(Request $request)
     {
-        $agents = Agent::orderBy('lastname')->paginate(10);
+        $query = Agent::query();
+
+        if ($request->has('area') && !empty($request->area)) {
+            $query->where('area_id', $request->area);
+        }
+
+        if ($request->has('code') && !empty($request->code)) {
+            $query->where(function ($q) use ($request) {
+                $q->whereRaw('CONCAT(name, " ", lastname) LIKE ?', ['%' . $request->code . '%'])
+                ->orWhere('code_voiso', 'like', '%' . $request->code . '%')
+                ->orWhere('code', 'like', '%' . $request->code . '%');
+            });
+        }
+
+        if ($request->has('dateInit') && !empty($request->dateInit)) {
+            $query->whereDate('created_at', '>=', $request->dateInit);
+        }
+
+        if ($request->has('dateEnd') && !empty($request->dateEnd)) {
+            $query->whereDate('created_at', '<=', $request->dateEnd);
+        }
+
+        $agents = $query->orderBy('created_at', 'desc')->paginate(10);
+
         return view('agent.list.listAgent', compact('agents'))->render();
     }
+
 
     public function searchAgent(Request $request)
     {
@@ -35,35 +64,35 @@ class AgentController extends Controller
     public function saveAgent(Request $request)
     {
         $data = $this->agentService->saveAgent($request);
-        $agents = Agent::orderBy('lastname')->paginate(10);
+        $agents = Agent::orderBy('created_at', 'desc')->paginate(10);
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }
 
     public function updateAgent(Request $request)
     {
         $resp = $this->agentService->updateAgent($request);
-        $agents = Agent::orderBy('lastname')->paginate(10);
+        $agents = Agent::orderBy('created_at', 'desc')->paginate(10);
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
     public function cambiarEstadoAgente(Request $request)
     {
         $resp = $this->agentService->cambiarEstadoAgente($request->id, $request->status);
-        $agents = Agent::orderBy('lastname')->paginate(10);
+        $agents = Agent::orderBy('created_at', 'desc')->paginate(10);
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
     public function eliminarAgente(Request $request)
     {
         $resp = $this->agentService->eliminarAgente($request->id);
-        $agents = Agent::orderBy('lastname')->paginate(10);
+        $agents = Agent::orderBy('created_at', 'desc')->paginate(10);
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 
     public function saveNumberTurns(Request $request)
     {
         $resp = $this->agentService->saveNumberTurns($request->id, $request->cant);
-        $agents = Agent::orderBy('lastname')->paginate(10);
+        $agents = Agent::orderBy('created_at', 'desc')->paginate(10);
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render(), "resp" => $resp]);
     }
 

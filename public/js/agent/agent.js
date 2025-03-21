@@ -11,6 +11,12 @@ function guardarNuevoAgente(inputName, inputLastname, inputCodeVoiso, inputEmail
 
         $(tableName).empty();
         $(tableName).html(data.view);
+        $(inputName).val("");
+        $(inputLastname).val("");
+        $(inputCodeVoiso).val("");
+        $(inputEmail).val("");
+        $(inputAreaId).prop('selectedIndex', 0);
+        $(inputRolId).prop('selectedIndex', 0);
         $(modal).modal('hide');
         mostrarMensaje(data.title, data.text, data.status);
 

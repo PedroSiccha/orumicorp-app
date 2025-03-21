@@ -13,6 +13,8 @@ function guardarComentario(options) {
 
         $(table).empty();
         $(table).html(data.view);
+        $(inputComentario).val('');
+        $(options.customerStatusId).prop('selectedIndex', 0);
         $(modal).modal('hide');
         mostrarMensaje(data.title, data.text, data.status);
 

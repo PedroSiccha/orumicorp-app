@@ -37,7 +37,7 @@ function openOrFocusCallPage(phone, token, comunicationId) {
 }
 
 // Función para mostrar el modal de comentario
-function mostrarComentarioModal(comunicationId) {
+function mostrarComentarioModal(comunicationId) { 
     $('#idComunication').val(comunicationId);
     $('#modalCrearComentario').modal('show');
 }

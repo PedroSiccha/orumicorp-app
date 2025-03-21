@@ -8,7 +8,7 @@
         <th>Porcentaje</th>
         <th>Comisión</th>
         <th>Tipo de Cambio</th>
-        <th>Comisión en Soles</th>
+        {{-- <th>Comisión en Soles</th> --}}
         <th>Agente</th>
         <th>Area</th>
         <th>Comentario</th>
@@ -21,11 +21,11 @@
               <td>{{ date("d/m/Y", strtotime($sale->date_admission)) }}</td>
               <td>{{ $sale->customer->id }}</td>
               <td>{{ $sale->customer->name }} {{ $sale->customer->lastname }}</td>
-              <td> $ {{ number_format($sale->amount, 2) }} </td>
+              <td> $ {{ number_format($sale->amount, 2) }} </td> 
               <td>{{ $sale->percent }}</td>
               <td> $ {{ number_format($sale->commission, 2) }}</td>
               <td>{{ $sale->exchange_rate }}</td>
-              <td>{{ $sale->commission }}</td>
+              {{-- <td>{{ $sale->commission }}</td> --}}
               <td>{{ $sale->agent->name }} {{ $sale->agent->lastname }}</td>
               <td>{{ $sale->agent->area->name }}</td>
               <td>{{ $sale->obsercation }}</td>

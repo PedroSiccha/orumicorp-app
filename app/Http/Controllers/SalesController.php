@@ -17,16 +17,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 use function PHPUnit\Framework\isNull;
 
 class SalesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    
     public function index()
     {
         $user_id = Auth::user()->id;
@@ -58,15 +55,15 @@ class SalesController extends Controller
         $exchange_rates = ExchangeRate::where('status', true)->get();
         if ($roles == 'ADMINISTRADOR') {
             $sales = Sales::where('status', true)
-            ->where('action_id', 1)
-            ->where(function ($query) use ($currentMonth, $currentYear, $previousMonth, $previousYear) {
-                $query->whereYear('date_admission', $currentYear)->whereMonth('date_admission', $currentMonth)
-                        ->orWhere(function ($query) use ($previousMonth, $previousYear) {
-                            $query->whereYear('date_admission', $previousYear)->whereMonth('date_admission', $previousMonth);
-                        });
-            })
-            ->orderBy('date_admission', 'desc')
-            ->get();
+                            ->where('action_id', 1)
+                            ->where(function ($query) use ($currentMonth, $currentYear, $previousMonth, $previousYear) {
+                                $query->whereYear('date_admission', $currentYear)->whereMonth('date_admission', $currentMonth)
+                                        ->orWhere(function ($query) use ($previousMonth, $previousYear) {
+                                            $query->whereYear('date_admission', $previousYear)->whereMonth('date_admission', $previousMonth);
+                                        });
+                            })
+                            ->orderBy('date_admission', 'desc')
+                            ->get();
         } else {
             $sales = Sales::where('status', true)
             ->where('action_id', 1)
@@ -244,12 +241,6 @@ class SalesController extends Controller
 
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function filterSales(Request $request)
     {
         try {
@@ -275,15 +266,15 @@ class SalesController extends Controller
                 throw new \Exception("Formato de fecha inválido en dateEnd.");
             }
     
-        } catch (\Exception $e) {
-            \Log::error('Error en conversión de fechas: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Error en conversión de fechas: ' . $e->getMessage());
             return response()->json(['error' => 'Formato de fecha inválido'], 400);
         }
     
         $codigo = $request->code;
         $areaId = $request->area;
     
-        \Log::info([
+        Log::info([
             'Filtrando Ventas desde' => $dateInit->toDateTimeString(),
             'Hasta' => $dateEnd->toDateTimeString(),
             'Fecha desde Request' => $request->dateInit,

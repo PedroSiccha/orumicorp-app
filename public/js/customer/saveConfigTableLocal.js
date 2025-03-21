@@ -43,16 +43,41 @@ function loadTableConfig() {
         .catch(error => console.error("❌ Error al obtener configuración:", error));
 }
 
+// function applyTableConfig(visibleColumns) {
+//     console.log("✅ Aplicando configuración:", visibleColumns);
+    
+//     document.querySelectorAll(".table th, .table td").forEach(el => {
+//         el.style.display = "";
+//     });
+    
+//     document.querySelectorAll(".column-toggle").forEach(toggle => {
+//         let columnIndex = toggle.dataset.column;
+//         let isVisible = visibleColumns.includes(columnIndex);
+//         toggle.checked = isVisible;
+        
+//         if (!isVisible) {
+//             document.querySelectorAll(`.table thead th:nth-child(${parseInt(columnIndex) + 1}), 
+//                                        .table tbody td:nth-child(${parseInt(columnIndex) + 1})`)
+//                 .forEach(el => el.style.display = "none");
+//         }
+//     });
+    
+//     if ($.fn.DataTable) {
+//         console.log("🔄 Redibujando DataTable...");
+//         $('.dataTables-example').DataTable().columns.adjust().draw();
+//     }
+// }
+
 function applyTableConfig(visibleColumns) {
     console.log("✅ Aplicando configuración:", visibleColumns);
     
     document.querySelectorAll(".table th, .table td").forEach(el => {
         el.style.display = "";
     });
-    
+
     document.querySelectorAll(".column-toggle").forEach(toggle => {
         let columnIndex = toggle.dataset.column;
-        let isVisible = visibleColumns.includes(columnIndex);
+        let isVisible = visibleColumns.length === 0 || visibleColumns.includes(columnIndex);
         toggle.checked = isVisible;
         
         if (!isVisible) {
@@ -61,12 +86,13 @@ function applyTableConfig(visibleColumns) {
                 .forEach(el => el.style.display = "none");
         }
     });
-    
+
     if ($.fn.DataTable) {
         console.log("🔄 Redibujando DataTable...");
         $('.dataTables-example').DataTable().columns.adjust().draw();
     }
 }
+
 
 function saveTableConfig() {
     let selectedColumns = [];
@@ -101,13 +127,10 @@ function saveTableConfig() {
 }
 
 function resetTableConfig() {
-    
-    let selectedColumns = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"];
-    
     let scope = document.getElementById("configScope").value;
     let roleId = scope === "role" ? document.getElementById("roleSelectorId").value : null;
-    
-    fetch(saveConfigUrl, {
+
+    fetch(resetConfigUrl, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -115,20 +138,40 @@ function resetTableConfig() {
         },
         body: JSON.stringify({
             table_name: tableName,
-            visible_columns: selectedColumns,
             scope: scope,
             role_id: roleId
         })
     })
     .then(response => response.json())
     .then(data => {
-        console.log("✅ Configuración guardada:", data);
-        $('#modalConfigTableLocal').modal('hide');
-        mostrarMensaje('Correcto', 'Configuración guardada correctamente.', 'success');
-        loadTableConfig();
+        if (data.message) {
+            mostrarMensaje("Correcto", data.message, "success");
+
+            // Restablecer todas las columnas a visibles
+            document.querySelectorAll(".column-toggle").forEach(el => {
+                el.checked = true;
+            });
+
+            // Volver a aplicar configuración con todas las columnas activadas
+            applyTableConfig([]);
+
+            // Ocultar el modal
+            $('#modalConfigTableLocal').modal('hide');
+
+            // 🔄 Recargar la tabla para reflejar los cambios
+            reloadClientTable(); 
+        } else {
+            mostrarMensaje("Error", data.error, "error");
+        }
     })
-    .catch(error => console.error("❌ Error al guardar configuración:", error));
+    .catch(error => {
+        console.error("❌ Error en la solicitud:", error);
+        mostrarMensaje("Error", "Hubo un problema al restablecer la configuración.", "error");
+    });
 }
+
+
+
 
 document.getElementById("saveConfigBtn").addEventListener("click", saveTableConfig);
 document.getElementById("resetConfigBtn").addEventListener("click", resetTableConfig);

@@ -1251,4 +1251,41 @@ class ClientsController extends Controller
 
         return response()->json(["view"=>view('cliente.list.tabTaskClient', compact('eventos'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
+
+    public function resetTableConfig(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $scope = $request->scope; // "user" o "role"
+            $roleId = $request->role_id ?? null;
+
+            if ($scope === "user") {
+                // Eliminar configuración de la tabla para el usuario actual
+                Configuration::where('user_id', $user->id)
+                            ->where('view', 'tabClient')
+                            ->delete();
+            } elseif ($scope === "role" && $roleId) {
+                // Eliminar configuración de la tabla para el rol seleccionado
+                Configuration::where('role_id', $roleId)
+                            ->where('view', 'tabClient')
+                            ->delete();
+            } else {
+                return response()->json([
+                    "status" => "error",
+                    "message" => "Error en el alcance seleccionado."
+                ], 400);
+            }
+
+            return response()->json([
+                "status" => "success",
+                "message" => "La configuración se ha restablecido correctamente."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                "status" => "error",
+                "message" => "Error al restablecer la configuración: " . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

@@ -32,7 +32,7 @@
                     onclick="guardarComentario({inputComunication: '#idComunication', modal: '#modalCrearComentario', inputComentario: '#txtComentario', customerStatusId: '#statusCustomerComent', table: '#tabClient'})"><i
                         class="fa fa-save"></i> Guardar</button>
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i>
-                    Cancelar</button>
+                    Cancelar</button> 
             </div>
         </div>
     </div>

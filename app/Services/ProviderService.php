@@ -14,7 +14,7 @@ class ProviderService implements ProviderInterface {
             $customerId = $request['customer_id'];
             $providers = Provider::whereHas('customers', function($query) use ($customerId) {
                 $query->where('customer_id', $customerId);
-            })->with('customers')->get();
+            })->with('customers')->orderBy('created_at', 'desc')->get();
             return response()->json([
                 'status' => 'success',
                 'data' => $providers,

@@ -12,7 +12,7 @@
                 <div class="row">
                 <div class="col-sm-1">
                   <h5>Tabla Ventas </h5>
-                </div>
+                </div> 
                 @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
                   <div class="col-sm-2">
                     @can('Filtrar Today')
@@ -30,7 +30,7 @@
                 </div>
                 <div class="col-sm-2 text-right">
                     @can('Filtrar Area Today')
-                        <select class="form-control m-b" name="area" id="area" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')" onclick="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
+                        <select class="form-control m-b" name="area" id="area" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
                             @foreach($areas as $area)
                             <option value = "{{ $area->id }}">{{ $area->name }}</option>
                             @endforeach
@@ -64,7 +64,7 @@
                           <th>Porcentaje</th>
                           <th>Comisión</th>
                           <th>Tipo de Cambio</th>
-                          <th>Comisión en Soles</th>
+                          {{-- <th>Comisión en Soles</th> --}}
                           <th>Agente</th>
                           <th>Area</th>
                           <th>Comentario</th>
@@ -81,7 +81,7 @@
                                 <td>{{ $sale->percent }}</td>
                                 <td> $ {{ number_format($sale->commission, 2) }}</td>
                                 <td>{{ $sale->exchange_rate }}</td>
-                                <td>{{ $sale->commission }}</td>
+                                {{-- <td>{{ $sale->commission }}</td> --}}
                                 <td>{{ $sale->agent->name }} {{ $sale->agent->lastname }}</td>
                                 <td>{{ $sale->agent->area->name }}</td>
                                 <td>{{ $sale->obsercation }}</td>
@@ -302,7 +302,7 @@
                                 <strong>Tipo de Cambio</strong>
                             </td>
                             <td>
-                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese el tipo de cambio" id='eTypeChange' readonly>
+                                <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Ingrese el tipo de cambio" id='eTypeChange'>
                             </td>
                         </tr>
                         <tr>

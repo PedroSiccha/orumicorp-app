@@ -14,6 +14,17 @@ function createSales(options) {
     $.post(saveSaleRoute, {dniCustomer: dniCustomer, dniAgent: dniAgent,  amount: amount, percent: percent, exchange_rate: exchange_rate, commission: commission, observation: observation, typeSales: typeSales, _token: token}).done(function(data) {
         $(tableName).empty();
         $(tableName).html(data.view);
+
+        $(options.dniCustomer).val("");
+        $(options.dniAgent).val("");
+        $(options.amount).val("");
+        $(options.percent).val("");
+        $(options.exchange_rate).val("");
+        $(options.commission).val("");
+        $(options.observation).val("");
+        $("#nameCustomer").val("");
+        $("#nameAgent").val("");
+
         $(modal).modal('hide');
         mostrarMensaje(data.title, data.text, data.status);
     }).always(function() {
