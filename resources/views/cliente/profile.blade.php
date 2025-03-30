@@ -23,7 +23,7 @@
                     </small>
                 </div>
             </div>
-        </div>
+        </div> 
     </div>
 
     <div class="row col-md-12">
@@ -274,26 +274,24 @@
                                             <th>Agente</th>
                                             <th>Prioridad</th>
                                             <th>Detalle</th>
-                                            <th>Estado</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($eventos as $evento)
                                                 <tr>
                                                     <td>{{ $evento->id }}</td>
-                                                    <td>13/05/2024</td>
-                                                    <td>13:30</td>
-                                                    <td>14:30</td>
-                                                    <td>Evento de Prueba</td>
-                                                    <td>Agente Prueba</td>
-                                                    <td>BAJO</td>
-                                                    <td>Esto es una prueba</td>
-                                                    <td>Pendiente</td>
+                                                    <td>Fecha del evento: {{ $evento->formatted_date }}</td>
+                                                    <td>{{ $evento->timeStart }}</td>
+                                                    <td>{{ $evento->timeEnd }}</td>
+                                                    <td>{{ $evento->name }}</td>
+                                                    <td>{{ $evento->agent->name }} {{ $evento->agent->lastname }}</td>
+                                                    <td>{{ $evento->priority->name }}</td>
+                                                    <td>{{ $evento->description }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
-                                </div>
+                                </div>                                
                             </div>
                         </div>
                         <div id="tab-campaing" class="tab-pane">

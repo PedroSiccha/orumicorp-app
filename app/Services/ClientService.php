@@ -44,6 +44,7 @@ class ClientService implements ClientInterface {
     protected $campaingService;
     protected $providerService;
     protected $utils;
+    protected $dateService;
 
     public function __construct(
         UserInterface $userService,
@@ -54,6 +55,7 @@ class ClientService implements ClientInterface {
         CampaingInterface $campaingService,
         ProviderInterface $providerService,
         Utils $utils,
+        DateService $dateService
     ) {
         $this->userService = $userService;
         $this->rolesService = $rolesService;
@@ -63,6 +65,7 @@ class ClientService implements ClientInterface {
         $this->campaingService = $campaingService;
         $this->providerService = $providerService;
         $this->utils = $utils;
+        $this->dateService = $dateService;
     }
 
     public function index() {
@@ -598,7 +601,11 @@ class ClientService implements ClientInterface {
         $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
         $priorities = Priority::all();
         $listAssignaments = Assignment::with(['agent', 'customer', 'assignedBy'])->where('customer_id', $id)->orderBy('date', 'desc')->get();
-        $eventos = Task::with('customer')->where('customer_id', $id)->orderBy('date', 'desc')->get();
+        $eventos = Task::with(['customer', 'agent', 'priority'])->where('customer_id', $id)->orderBy('date', 'desc')->get();
+        // Iteramos cada evento para asignar la fecha formateada
+        $eventos->each(function ($evento) {
+            $evento->formatted_date = $this->dateService->formatDate($evento->date);
+        });
 
         $vistas = Views::with('agent')
                         ->where('customer_id', $dataCustomer->id)
