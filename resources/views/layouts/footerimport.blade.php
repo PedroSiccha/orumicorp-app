@@ -274,6 +274,9 @@
             ];
 
     </script>
-    <script src="{{ asset('js/utils/getNotify.js') }}"></script>
+    @can('Ver Notificacion Shooter')
+        <script src="{{ asset('js/utils/getNotify.js') }}"></script>     
+    @endcan
+    
     <script src="{{ asset('js/rouletteManagement/ruleta.js') }}"></script>
 @yield('script')
