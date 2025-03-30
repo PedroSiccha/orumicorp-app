@@ -116,8 +116,7 @@ class StatisticsTodayController extends Controller
      */
     public function filterStatistics(Request $request)
     {
-        $user_id = Auth::user()->id;
-        $user = User::where('id', $user_id)->first();
+        $user = User::where('id', Auth::user()->id)->first();
         $roles = $user->getRoleNames()->first();
 
         $dateInit = DateTime::createFromFormat('d/m/Y', $request->dateInit)->format('Y-m-d');
@@ -130,76 +129,61 @@ class StatisticsTodayController extends Controller
 
         if ($roles == 'ADMINISTRADOR') {
             $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                            ->selectRaw('
-                                a.name, 
-                                a.lastname,
-                                SUM(CASE WHEN sales.action_id = 1 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
-                                SUM(CASE WHEN sales.action_id = 1 AND DATE(sales.created_at) = ? THEN sales.amount ELSE 0 END) AS total_amount_day,
-                                SUM(CASE WHEN sales.action_id = 1 AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? THEN sales.amount ELSE 0 END) AS total_amount_month
-                            ')
-                            ->addSelect(DB::raw('
-                                (SELECT COUNT(*) FROM sales 
-                                WHERE sales.action_id = 1 
-                                AND DATE(sales.created_at) = ? 
-                                AND sales.agent_id = a.id) AS total_sales_day
-                            '))
-                            ->addSelect(DB::raw('
-                                (SELECT COUNT(*) FROM sales 
-                                WHERE sales.action_id = 1 
-                                AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? 
-                                AND sales.agent_id = a.id) AS total_sales_month
-                            '))
-                            ->where('a.area_id', $request->area)
-                            ->where('sales.agent_id', $agent->id)
-                            ->whereBetween('sales.date_admission', [$dateInit, $dateEnd])
-                            ->groupBy('a.id')
-                            ->orderBy('total_amount_day', 'DESC')
-                            ->setBindings([
-                                $currentDate,   // Primer placeholder: DATE(sales.created_at) = ?
-                                $currentMonth,  // Segundo placeholder: DATE_FORMAT(sales.created_at, "%Y-%m") = ?
-                                $currentDate,   // Tercer placeholder: en subselect para total_sales_day
-                                $currentMonth,  // Cuarto placeholder: en subselect para total_sales_month
-                                $request->area, // Quinto placeholder: where 'a.area_id' = ?
-                                $dateInit,      // Sexto placeholder: whereBetween - inicio
-                                $dateEnd        // Séptimo placeholder: whereBetween - fin
-                            ])
-                            ->get();
+                ->selectRaw('
+                    a.name, 
+                    a.lastname,
+                    SUM(CASE WHEN sales.action_id = 1 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
+                    SUM(CASE WHEN sales.action_id = 1 AND DATE(sales.created_at) = ? THEN sales.amount ELSE 0 END) AS total_amount_day,
+                    SUM(CASE WHEN sales.action_id = 1 AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? THEN sales.amount ELSE 0 END) AS total_amount_month,
+                    (SELECT COUNT(*) FROM sales 
+                     WHERE sales.action_id = 1 
+                       AND DATE(sales.created_at) = ? 
+                       AND sales.agent_id = a.id) AS total_sales_day,
+                    (SELECT COUNT(*) FROM sales 
+                     WHERE sales.action_id = 1 
+                       AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? 
+                       AND sales.agent_id = a.id) AS total_sales_month
+                ', [
+                    $currentDate,   // para total_amount_day
+                    $currentMonth,  // para total_amount_month
+                    $currentDate,   // para total_sales_day
+                    $currentMonth   // para total_sales_month
+                ])
+                ->where('a.area_id', $request->area)
+                ->whereBetween('sales.date_admission', [$dateInit, $dateEnd])
+                ->groupBy('a.id')
+                ->orderBy('total_amount_day', 'DESC')
+                ->get();
         } else {
             $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                        ->selectRaw('
-                            a.name, 
-                            a.lastname,
-                            SUM(CASE WHEN sales.action_id = 1 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
-                            SUM(CASE WHEN sales.action_id = 1 AND DATE(sales.created_at) = ? THEN sales.amount ELSE 0 END) AS total_amount_day,
-                            SUM(CASE WHEN sales.action_id = 1 AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? THEN sales.amount ELSE 0 END) AS total_amount_month
-                        ')
-                        ->addSelect(DB::raw('
-                            (SELECT COUNT(*) FROM sales 
-                            WHERE sales.action_id = 1 
-                            AND DATE(sales.created_at) = ? 
-                            AND sales.agent_id = a.id) AS total_sales_day
-                        '))
-                        ->addSelect(DB::raw('
-                            (SELECT COUNT(*) FROM sales 
-                            WHERE sales.action_id = 1 
-                            AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? 
-                            AND sales.agent_id = a.id) AS total_sales_month
-                        '))
-                        ->where('a.area_id', $request->area)
-                        ->whereBetween('sales.date_admission', [$dateInit, $dateEnd])
-                        ->groupBy('a.id')
-                        ->orderBy('total_amount_day', 'DESC')
-                        ->setBindings([
-                            $currentDate,   // Primer placeholder: DATE(sales.created_at) = ?
-                            $currentMonth,  // Segundo placeholder: DATE_FORMAT(sales.created_at, "%Y-%m") = ?
-                            $currentDate,   // Tercer placeholder: en subselect para total_sales_day
-                            $currentMonth,  // Cuarto placeholder: en subselect para total_sales_month
-                            $request->area, // Quinto placeholder: where 'a.area_id' = ?
-                            $dateInit,      // Sexto placeholder: whereBetween - inicio
-                            $dateEnd        // Séptimo placeholder: whereBetween - fin
-                        ])
-                        ->get();
+                ->selectRaw('
+                    a.name, 
+                    a.lastname,
+                    SUM(CASE WHEN sales.action_id = 1 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
+                    SUM(CASE WHEN sales.action_id = 1 AND DATE(sales.created_at) = ? THEN sales.amount ELSE 0 END) AS total_amount_day,
+                    SUM(CASE WHEN sales.action_id = 1 AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? THEN sales.amount ELSE 0 END) AS total_amount_month,
+                    (SELECT COUNT(*) FROM sales 
+                     WHERE sales.action_id = 1 
+                       AND DATE(sales.created_at) = ? 
+                       AND sales.agent_id = a.id) AS total_sales_day,
+                    (SELECT COUNT(*) FROM sales 
+                     WHERE sales.action_id = 1 
+                       AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? 
+                       AND sales.agent_id = a.id) AS total_sales_month
+                ', [
+                    $currentDate,
+                    $currentMonth,
+                    $currentDate,
+                    $currentMonth
+                ])
+                ->where('a.area_id', $request->area)
+                ->where('sales.agent_id', $agent->id)
+                ->whereBetween('sales.date_admission', [$dateInit, $dateEnd])
+                ->groupBy('a.id')
+                ->orderBy('total_amount_day', 'DESC')
+                ->get();
         }
+        
         
 
 
