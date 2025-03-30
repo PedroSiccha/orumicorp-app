@@ -131,7 +131,7 @@
                             </td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="dniCustomer" placeholder="Ingrese el DNI o Código del cliente">
+                                    <input type="text" class="form-control" id="dniCustomer" placeholder="CODIGO DE CLIENTE">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-primary ladda-button-client" data-style="zoom-in" onclick="searchClient({ inputDni: '#dniCustomer', inputName: '#nameCustomer', alertError: '#alertError', alertErrorText: '#alertErrorText', btnLadda: '.ladda-button-client' })"><i class="fa fa-search"></i></button>
                                     </div>
@@ -152,7 +152,7 @@
                             </td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="dniAgent" placeholder="Ingrese el DNI o Código del agente">
+                                    <input type="text" class="form-control" id="dniAgent" placeholder="ID DEL AGENTE">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-primary ladda-button-agent" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniAgent', inputName: '#nameAgent', alertError:  '#alertError', alertErrorText: '#alertErrorText', btnLadda: '.ladda-button-agent' })"><i class="fa fa-search"></i></button>
                                     </div>
@@ -244,7 +244,7 @@
                             </td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="eIdClient" placeholder="Ingrese el DNI o Código del cliente">
+                                    <input type="text" class="form-control" id="eIdClient" placeholder="CODIGO DE CLIENTE">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-primary" onclick="searchClient('#dniCustomer', '#nameCustomer')"><i class="fa fa-search"></i></button>
                                     </div>
@@ -265,8 +265,8 @@
                             </td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="eIdAgent" placeholder="Ingrese el DNI o Código del agente" hidden>
-                                    <input type="text" class="form-control" id="eCodAgent" placeholder="Ingrese el DNI o Código del agente">
+                                    <input type="text" class="form-control" id="eIdAgent" placeholder="ID DEL AGENTE" hidden>
+                                    <input type="text" class="form-control" id="eCodAgent" placeholder="ID DEL AGENTE">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-primary" onclick="searchAgent('#eCodAgent', '#eNameAgent')"><i class="fa fa-search"></i></button>
                                     </div>
