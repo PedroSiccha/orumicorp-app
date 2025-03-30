@@ -1224,6 +1224,8 @@ class ClientsController extends Controller
 
         if ($codeAgent) {
             $agent = Agent::where('code_voiso', $request->codeAgent)->first();
+        } else {
+            $agent = Agent::where('user_id', Auth::user()->id)->first();
         }
 
         try {

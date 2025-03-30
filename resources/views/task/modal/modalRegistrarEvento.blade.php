@@ -18,7 +18,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Fecha</label>
                     <div class="col-lg-9">
-                        <input type="date" placeholder="Nombre del evento" class="form-control" id='dateEvent' name='dateEvent' readonly>
+                        <input type="date" placeholder="Nombre del evento" class="form-control" id='dateEvent' name='dateEvent'>
                     </div>
                 </div>
                 <div class="form-group row">

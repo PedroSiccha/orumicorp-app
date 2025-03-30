@@ -24,9 +24,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             let selectedDate = info.dateStr; // FullCalendar ya lo da en "YYYY-MM-DD"
 
-            console.log("selectedDate:", selectedDate);
-            console.log("today (America/Lima):", todayStr);
-
             // ✅ Comparar correctamente las fechas
             if (selectedDate >= todayStr) {
                 $("#modalRegistrarEvento").modal("show");
