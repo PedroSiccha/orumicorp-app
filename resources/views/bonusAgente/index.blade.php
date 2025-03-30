@@ -52,6 +52,7 @@
                       <tr>
                           <th>Fecha de Ingreso</th>
                           <th>Bono</th>
+                          <th>Monto en Soles</th>
                           <th>Comisión en Soles</th>
                           <th>Agente</th>
                           <th>Area</th>
@@ -63,7 +64,8 @@
                             <tr @if(number_format($ba->amount, 2) <= 0) class="table-danger" @endif>
                                 <td>{{ date("d/m/Y", strtotime($ba->date_admission)) }}</td>
                                 <td> $ {{ number_format($ba->amount, 2) }}</td>
-                                <td>S/. {{ number_format($ba->amount*3.5, 2) }}</td>
+                                <td>S/. {{ number_format($ba->amount, 2) }}</td>
+                                <td>S/. {{ number_format($ba->comission, 2) }}</td>
                                 <td>
                                     @can('Ver Perfil Agente')
                                     <a href="{{ route('perfilUsuario', ['id' => $ba->agent->id]) }}">
