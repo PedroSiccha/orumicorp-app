@@ -46,25 +46,53 @@ class StatisticsTodayController extends Controller
 
         if ($roles == 'ADMINISTRADOR') {
             $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                            ->selectRaw('a.name, a.lastname,
-                                        SUM(CASE WHEN sales.action_id = 4 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
-                                        SUM(CASE WHEN DATE(sales.created_at) = ? THEN sales.amount ELSE 0 END) AS total_amount_day,
-                                        SUM(CASE WHEN DATE_FORMAT(sales.created_at, "%Y-%m") = ? THEN sales.amount ELSE 0 END) AS total_amount_month')
-                            ->addSelect(DB::raw('(SELECT COUNT(*) FROM sales WHERE DATE(sales.created_at) = ? AND sales.agent_id = a.id) AS total_sales_day'))
-                            ->addSelect(DB::raw('(SELECT COUNT(*) FROM sales WHERE DATE_FORMAT(sales.created_at, "%Y-%m") = ? AND sales.agent_id = a.id) AS total_sales_month'))
+                            ->selectRaw('
+                                a.name, 
+                                a.lastname,
+                                SUM(CASE WHEN sales.action_id = 1 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
+                                SUM(CASE WHEN sales.action_id = 1 AND DATE(sales.created_at) = ? THEN sales.amount ELSE 0 END) AS total_amount_day,
+                                SUM(CASE WHEN sales.action_id = 1 AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? THEN sales.amount ELSE 0 END) AS total_amount_month
+                            ')
+                            ->addSelect(DB::raw('
+                                (SELECT COUNT(*) FROM sales 
+                                WHERE sales.action_id = 1 
+                                AND DATE(sales.created_at) = ? 
+                                AND sales.agent_id = a.id) AS total_sales_day
+                            '))
+                            ->addSelect(DB::raw('
+                                (SELECT COUNT(*) FROM sales 
+                                WHERE sales.action_id = 1 
+                                AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? 
+                                AND sales.agent_id = a.id) AS total_sales_month
+                            '))
                             ->groupBy('a.id')
                             ->orderBy('total_amount_day', 'DESC')
                             ->setBindings([$currentDate, $currentMonth, $currentDate, $currentMonth])
                             ->get();
+
+
         } else {
 
             $sales = Sales::join('agents as a', 'sales.agent_id', '=', 'a.id')
-                            ->selectRaw('a.name, a.lastname,
-                                        SUM(CASE WHEN sales.action_id = 4 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
-                                        SUM(CASE WHEN DATE(sales.created_at) = ? THEN sales.amount ELSE 0 END) AS total_amount_day,
-                                        SUM(CASE WHEN DATE_FORMAT(sales.created_at, "%Y-%m") = ? THEN sales.amount ELSE 0 END) AS total_amount_month')
-                            ->addSelect(DB::raw('(SELECT COUNT(*) FROM sales WHERE DATE(sales.created_at) = ? AND sales.agent_id = a.id) AS total_sales_day'))
-                            ->addSelect(DB::raw('(SELECT COUNT(*) FROM sales WHERE DATE_FORMAT(sales.created_at, "%Y-%m") = ? AND sales.agent_id = a.id) AS total_sales_month'))
+                            ->selectRaw('
+                                a.name, 
+                                a.lastname,
+                                SUM(CASE WHEN sales.action_id = 1 THEN sales.amount ELSE 0 END) AS total_amount_action_4,
+                                SUM(CASE WHEN sales.action_id = 1 AND DATE(sales.created_at) = ? THEN sales.amount ELSE 0 END) AS total_amount_day,
+                                SUM(CASE WHEN sales.action_id = 1 AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? THEN sales.amount ELSE 0 END) AS total_amount_month
+                            ')
+                            ->addSelect(DB::raw('
+                                (SELECT COUNT(*) FROM sales 
+                                WHERE sales.action_id = 1 
+                                AND DATE(sales.created_at) = ? 
+                                AND sales.agent_id = a.id) AS total_sales_day
+                            '))
+                            ->addSelect(DB::raw('
+                                (SELECT COUNT(*) FROM sales 
+                                WHERE sales.action_id = 1 
+                                AND DATE_FORMAT(sales.created_at, "%Y-%m") = ? 
+                                AND sales.agent_id = a.id) AS total_sales_month
+                            '))
                             ->where('sales.agent_id', $agent->id)
                             ->groupBy('a.id')
                             ->orderBy('total_amount_day', 'DESC')
