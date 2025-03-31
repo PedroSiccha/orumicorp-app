@@ -10,25 +10,28 @@
           <div class="ibox ">
               <div class="ibox-title d-flex justify-content-between align-items-center">
                 <div class="row">
-                <div class="col-sm-1">
+                <div class="col-sm-12">
                   <h5>Tabla Ventas </h5>
                 </div> 
-                @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
-                  <div class="col-sm-2">
+                {{-- @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR')) --}}
+                <div class="col-sm-12 mt-2">
+                    @include('components.sales.filters', ['areas' => $areas])
+                </div>
+                  {{-- <div class="col-sm-2">
                     @can('Filtrar Today')
                     <div class="input-group date">
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
                     </div>
                     @endcan
-                </div>
-                <div class="col-sm-2">
+                </div> --}}
+                {{-- <div class="col-sm-2">
                     @can('Filtrar Today')
                     <div class="input-group date">
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
                     </div>
                     @endcan
-                </div>
-                <div class="col-sm-2 text-right">
+                </div> --}}
+                {{-- <div class="col-sm-2 text-right">
                     @can('Filtrar Area Today')
                         <select class="form-control m-b" name="area" id="area" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
                             @foreach($areas as $area)
@@ -36,23 +39,30 @@
                             @endforeach
                         </select>
                     @endcan
-                </div>
-                <div class="col-sm-3">
+                </div> --}}
+                {{-- <div class="col-sm-3">
                     <div class="input-group mb-3">
                         <input type="text" class="form-control form-control-sm" placeholder="Buscar por nombre o código" id="inputCode" oninput="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
                         <div class="input-group-append">
                             <button class="btn btn-sm btn-default" type="button"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
-                </div>
-                @endif
+                </div> --}}
+                {{-- @endif
                   <div class="col-sm-2">
                     @can('Registrar Ventas')
                         <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalVenta')"><i class="fa fa-plus"></i> Registrar Venta</button>
                     @endcan
-                  </div>
+                  </div> --}}
                 </div>
               </div>
+              <div id="skeleton-loader" class="d-none">
+                <div class="text-center py-5">
+                    <i class="fa fa-spinner fa-spin fa-3x text-muted"></i>
+                    <p class="mt-2">Cargando resultados...</p>
+                </div>
+            </div>
+            
               <div class="ibox-content" id="tabVenta">
                   <table class="table table-striped">
                       <thead>
@@ -254,7 +264,7 @@
                         <tr>
                             <td>
                                 <strong>Datos del Cliente</strong>
-                            </td>
+                            </td> 
                             <td>
                                 <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Nombre del cliente" id='eNameClient' readonly>
                             </td>
@@ -343,28 +353,34 @@
 @endsection
 @section('script')
     <script>
-        $(document).ready(function() {
-            $('#date_added_init').datepicker({
-                    todayBtn: "linked",
-                    keyboardNavigation: false,
-                    forceParse: false,
-                    calendarWeeks: true,
-                    autoclose: true
-            });
-            $('#date_added_end').datepicker({
-                    todayBtn: "linked",
-                    keyboardNavigation: false,
-                    forceParse: false,
-                    calendarWeeks: true,
-                    autoclose: true
-            });
+        $('#date_added_init').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayBtn: 'linked',
+            todayHighlight: true
         });
+
+        $('#date_added_end').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayBtn: 'linked',
+            todayHighlight: true
+        });
+
+        const today = new Date();
+        const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
+
+        $('#date_added_init').datepicker('setDate', firstDayOfYear);
+        $('#date_added_end').datepicker('setDate', today);
+
+
         var searchClientRoute = '{{ route("searchCustomer") }}';
         var saveSaleRoute = '{{ Route("saveSale") }}';
         var updateSaleRoute = '{{ Route("updateSale") }}';
         var searchAgentRoute = '{{ route("searchAgent") }}';
         var filterSalesRoute = '{{ route("filterSales") }}';
         var token = '{{ csrf_token() }}';
+        var agentSearchRoute = '{{ route("agents.search") }}';
     </script>
 
     <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
@@ -376,12 +392,5 @@
     <script src="{{ asset('js/agent/searchAgent.js') }}"></script>
     <script src="{{ asset('js/sales/filterSales.js') }}"></script>
     <script src="{{ asset('js/sales/editSale.js') }}"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            markNotificationsAsSeen('sales');
-        });
-    </script>
-
 
 @endsection

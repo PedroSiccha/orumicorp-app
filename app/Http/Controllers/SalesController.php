@@ -18,7 +18,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+ 
 use function PHPUnit\Framework\isNull;
 
 class SalesController extends Controller
@@ -244,64 +244,50 @@ class SalesController extends Controller
     public function filterSales(Request $request)
     {
         try {
-            if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $request->dateInit)) {
-                $dateParts = explode('/', $request->dateInit);
-                if ((int)$dateParts[0] > 12) {
-                    $dateInit = Carbon::createFromFormat('d/m/Y', $request->dateInit)->startOfDay();
-                } else {
-                    $dateInit = Carbon::createFromFormat('m/d/Y', $request->dateInit)->startOfDay();
-                }
-            } else {
-                throw new \Exception("Formato de fecha inválido en dateInit.");
+            // Validar formato y existencia de las fechas
+            if (empty($request->dateInit) || empty($request->dateEnd)) {
+                return response()->json(['error' => 'Ambas fechas son requeridas.'], 422);
             }
-    
-            if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $request->dateEnd)) {
-                $dateParts = explode('/', $request->dateEnd);
-                if ((int)$dateParts[0] > 12) {
-                    $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->endOfDay();
-                } else {
-                    $dateEnd = Carbon::createFromFormat('m/d/Y', $request->dateEnd)->endOfDay();
-                }
-            } else {
-                throw new \Exception("Formato de fecha inválido en dateEnd.");
-            }
-    
-        } catch (Exception $e) {
-            Log::error('Error en conversión de fechas: ' . $e->getMessage());
-            return response()->json(['error' => 'Formato de fecha inválido'], 400);
+
+            $dateInit = Carbon::createFromFormat('d/m/Y', $request->dateInit)->startOfDay();
+            $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->endOfDay();
+
+        } catch (\Exception $e) {
+            Log::error('Error al convertir fechas: ' . $e->getMessage());
+            return response()->json(['error' => 'Formato de fecha inválido.'], 422);
         }
-    
-        $codigo = $request->code;
+
+        // Extraer filtros adicionales
         $areaId = $request->area;
-    
-        Log::info([
-            'Filtrando Ventas desde' => $dateInit->toDateTimeString(),
-            'Hasta' => $dateEnd->toDateTimeString(),
-            'Fecha desde Request' => $request->dateInit,
-            'Fecha hasta Request' => $request->dateEnd
-        ]);
+        $agentId = $request->agentId;
 
-        $sales = Sales::whereHas('agent', function ($query) use ($codigo, $areaId) {
-                    if (!empty($areaId)) {
-                        $query->where('area_id', $areaId);
-                    }
-                    if (!empty($codigo)) {
-                        $query->where(function ($q) use ($codigo) {
-                            $q->where('code_voiso', $codigo)
-                                ->orWhere('name', 'LIKE', "%$codigo%")
-                                ->orWhere('lastname', 'LIKE', "%$codigo%");
-                        });
-                    }
-                })
-                ->whereDate('date_admission', '>=', $dateInit->toDateTimeString())
-                ->whereDate('date_admission', '<=', $dateEnd->toDateTimeString())
-                ->with(['agent', 'customer']) // Evitar N+1 queries
-                ->get();
+        // Consulta principal con relación y condiciones
+        $query = Sales::with(['agent.area', 'customer'])
+            ->whereBetween('date_admission', [$dateInit, $dateEnd]);
 
+        // Filtro por área (opcional)
+        if (!empty($areaId)) {
+            $query->whereHas('agent', function ($q) use ($areaId) {
+                $q->where('area_id', $areaId);
+            });
+        }
+
+        // Filtro por agente (opcional)
+        if (!empty($agentId)) {
+            $query->where('agent_id', $agentId);
+        }
+
+        $sales = $query->paginate(10); // o el número que prefieras
         $totalAmount = $sales->sum('amount');
 
-        return response()->json(["view"=>view('venta.list.listSale', compact('sales', 'totalAmount'))->render()]);
+        // Renderizar vista parcial de la tabla
+        $view = view('venta.list.listSale', compact('sales', 'totalAmount'))->render();
+
+        return response()->json(['view' => $view]);
     }
+
+
+
 
     /**
      * Show the form for editing the specified resource.
