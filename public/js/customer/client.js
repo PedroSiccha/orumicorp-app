@@ -72,6 +72,31 @@ function saveEventClient(options) {
     $.post(saveEventClientRoute, {idClient: idClient, date: date, nameEvent: nameEvent, description: description, dniClient: dniClient, codeAgent: codeAgent, hourInit: hourInit, hourEnd: hourEnd, idPriority: idPriority, _token: token}).done(function(data) {
         $(tableName).empty();
         $(tableName).html(data.view);
+        // Limpieza de los campos individualmente
+        if (options.inputDateEvent !== undefined) {
+            $(options.inputDateEvent).val('');
+        }
+        if (options.inputNombreEvent !== undefined) {
+            $(options.inputNombreEvent).val('');
+        }
+        if (options.inputDescriptionEvent !== undefined) {
+            $(options.inputDescriptionEvent).val('');
+        }
+        if (options.inputDniClient !== undefined) {
+            $(options.inputDniClient).val('');
+        }
+        if (options.inputCodeAgent !== undefined) {
+            $(options.inputCodeAgent).val('');
+        }
+        if (options.inputHourInit !== undefined) {
+            $(options.inputHourInit).val('');
+        }
+        if (options.inputHourEnd !== undefined) {
+            $(options.inputHourEnd).val('');
+        }
+        if (options.inputIdPriority !== undefined) {
+            $(options.inputIdPriority).prop('selectedIndex', 0);
+        }
         $(modal).modal('hide');
         mostrarMensaje(data.title, data.text, data.status);
     });

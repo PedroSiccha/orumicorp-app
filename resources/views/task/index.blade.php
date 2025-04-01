@@ -21,7 +21,7 @@
 <script src="{{ asset('js/customer/uploadExcel.js') }}"></script>
 <script src="{{ asset('js/task/saveEvent.js') }}"></script>
 <script src="{{ asset('js/task/editEvent.js') }}"></script>
-<script src="{{ asset('js/task/deleteEvent.js') }}"></script>
+<script src="{{ asset('js/task/deleteEvent.js') }}"></script> 
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
 <script src="{{ asset('js/task/getEventById.js') }}"></script>
 <script>

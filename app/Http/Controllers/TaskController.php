@@ -184,7 +184,8 @@ class TaskController extends Controller
     public function getEventById(Request $request)
     {
         $id = $request->id;
-        $evento = Task::with('customer')->find($id);
+        $evento = Task::with(['customer', 'agent', 'priority'])->find($id);
+        // dd($evento);
         return response()->json($evento);
     }
 
