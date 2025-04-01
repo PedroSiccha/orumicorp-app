@@ -181,7 +181,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Agente</label>
                     <div class="input-group col-lg-9">
-                        <input type="text" class="form-control" id="dniAgent" placeholder="Ingrese el DNI o Código del cliente">
+                        <input type="text" class="form-control" id="dniAgent" placeholder="ID DEL AGENTE">
                         <div class="input-group-append">
                             <button type="button" class="btn btn-primary ladda-button-agent-create-bonus" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniAgent', inputName: '#nameAgent', alertError: '#alertErrorCreateBonus', alertErrorText: '#alertErrorTextCreateBonus', btnLadda: '.ladda-button-agent-create-bonus' })"><i class="fa fa-search"></i></button>
                         </div>
@@ -225,7 +225,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Agente</label>
                     <div class="input-group col-lg-9">
-                        <input type="text" class="form-control" id="dniDiscountAgent" placeholder="Ingrese el DNI o Código del agente">
+                        <input type="text" class="form-control" id="dniDiscountAgent" placeholder="ID DEL AGENTE">
                         <div class="input-group-append">
                             <button type="button" class="btn btn-primary ladda-button-agent-create-descuento" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniDiscountAgent', inputName: '#nameDiscountAgent', alertError: '#alertErrorCreateDescuento', alertErrorText: '#alertErrorTextCreateDescuento', btnLadda: '.ladda-button-agent-create-descuento' })"><i class="fa fa-search"></i></button>
                         </div>
@@ -270,7 +270,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Agente</label>
                     <div class="input-group col-lg-9">
-                        <input type="text" class="form-control" id="dniTargetAgent" placeholder="Ingrese el DNI o Código del agente">
+                        <input type="text" class="form-control" id="dniTargetAgent" placeholder="ID DEL AGENTE">
                         <div class="input-group-append">
                             <button type="button" class="btn btn-primary ladda-button-agent-registrar-target" data-style="zoom-in" onclick="searchAgent({inputcodeVoiso: '#dniTargetAgent', inputName: '#nameTargetAgent', alertError: '#alertErrorRegistrarTarget', alertErrorText: '#alertErrorTextRegistrarTarget', btnLadda: '.ladda-button-agent-registrar-target' })"><i class="fa fa-search"></i></button>
                         </div>
@@ -310,7 +310,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Agente</label>
                     <div class="input-group col-lg-9">
-                        <input type="text" class="form-control" id="dniAgentRetiro" placeholder="Ingrese el DNI o Código del agente">
+                        <input type="text" class="form-control" id="dniAgentRetiro" placeholder="ID DEL AGENTE">
                         <div class="input-group-append">
                             <button type="button" class="btn btn-primary ladda-button-agent-registrar-retiro" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniAgentRetiro', inputName: '#nameAgentRetiro', alertError: '#alertErrorRegistrarRetiro', alertErrorText: '#alertErrorTextRegistrarRetiro', btnLadda: '.ladda-button-agent-registrar-retiro' })"><i class="fa fa-search"></i></button>
                         </div>
