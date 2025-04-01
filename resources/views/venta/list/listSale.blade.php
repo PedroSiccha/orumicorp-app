@@ -2,7 +2,7 @@
     <thead>
         <tr>
             <th>Fecha de Ingreso</th>
-            <th>ID de Cliente</th>
+            <th>Código de Cliente</th>
             <th>Nombre del Cliente</th>
             <th>Monto</th>
             <th>Porcentaje</th>
@@ -18,11 +18,11 @@
         @foreach ($sales as $sale)
             <tr>
                 <td>{{ date('d/m/Y', strtotime($sale->date_admission)) }}</td>
-                <td>{{ optional($sale->customer)->id }}</td>
+                <td>{{ optional($sale->customer)->code }}</td>
                 <td>{{ optional($sale->customer)->name }} {{ optional($sale->customer)->lastname }}</td>
-                <td>$ {{ number_format($sale->amount, 2) }}</td>
+                <td>S/. {{ number_format($sale->amount, 2) }}</td>
                 <td>{{ $sale->percent }}</td>
-                <td>$ {{ number_format($sale->commission, 2) }}</td>
+                <td>S/. {{ number_format($sale->commission, 2) }}</td>
                 <td>{{ $sale->exchange_rate }}</td>
                 <td>{{ optional($sale->agent)->name }} {{ optional($sale->agent)->lastname }}</td>
                 <td>{{ optional(optional($sale->agent)->area)->name }}</td>
