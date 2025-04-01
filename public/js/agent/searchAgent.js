@@ -25,5 +25,6 @@ function searchAgent(options) {
     })
     .always(function() {
         l.stop();
-    });
+    }); 
 }
+ 
