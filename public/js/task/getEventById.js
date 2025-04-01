@@ -8,7 +8,6 @@ function getEventById(id, modal) {
         var minutosEnd = end.getMinutes();
         var timeStart = horaStart + ':' + minutosStart;
         var timeEnd = horaEnd + ':' + minutosEnd;
-        console.log(timeStart);
         $('#id').val(data.id);
         $('#dateEvent').val(data.date);
         $('#nombreEvento').val(data.name);
@@ -18,7 +17,8 @@ function getEventById(id, modal) {
         $('#horaInicio').val(timeStart);
         $('#horaFin').val(timeEnd);
         $('#priority_id').val(data.priority_id);
-        console.log('STAR ' + data.start);
+        $('#codeAgent').val(data.agent.code);
+        $('#nameAgent').val(data.agent.name + ' ' + data.agent.lastname);
         $("#modalRegistrarEvento").modal("show");
 
     });

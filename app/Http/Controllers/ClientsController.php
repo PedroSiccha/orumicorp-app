@@ -21,6 +21,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Rules\PhoneNumberFormat;
 use App\Services\AgentService;
+use App\Services\DateService;
 use Carbon\Carbon as CarbonCarbon;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -36,18 +37,20 @@ use Webpatser\Countries\Countries;
 
 class ClientsController extends Controller
 {
-    protected $clientService, $userService, $rolesService, $agentService, $assignamentService;
+    protected $clientService, $userService, $rolesService, $agentService, $assignamentService, $dateService;
 
     public function __construct(
         ClientInterface $clientService,
         RolesInterface $rolesService,
         AgentService $agentService,
         AssignamentInterface $assignamentService,
+        DateService $dateService
     ) {
         $this->clientService = $clientService;
         $this->rolesService = $rolesService;
         $this->agentService = $agentService;
         $this->assignamentService = $assignamentService;
+        $this->dateService = $dateService;
     }
 
     public function index()
@@ -1221,6 +1224,8 @@ class ClientsController extends Controller
 
         if ($codeAgent) {
             $agent = Agent::where('code_voiso', $request->codeAgent)->first();
+        } else {
+            $agent = Agent::where('user_id', Auth::user()->id)->first();
         }
 
         try {
@@ -1247,7 +1252,11 @@ class ClientsController extends Controller
             $status = "error";
         }
 
-        $eventos = Task::with('customer')->where('customer_id', $idClient)->get();
+        $eventos = Task::with(['customer', 'agent', 'priority'])->where('customer_id', $idClient)->orderBy('date', 'desc')->get();
+        // Iteramos cada evento para asignar la fecha formateada
+        $eventos->each(function ($evento) {
+            $evento->formatted_date = $this->dateService->formatDate($evento->date);
+        });
 
         return response()->json(["view"=>view('cliente.list.tabTaskClient', compact('eventos'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }

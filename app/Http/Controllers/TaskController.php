@@ -139,7 +139,12 @@ class TaskController extends Controller
         $mensaje = "Error desconocido";
         $status = "error";
 
-        $agent = Agent::where('code', $request->codAgent)->first();
+        if ($request->codAgent) {
+            $agent = Agent::where('code', $request->codAgent)->first();
+        } else {
+            $agent = Agent::where('user_id', Auth::user()->id)->first();
+        }
+        
         $priority = Priority::where('id', $request->priorityEvent)->first();
         $client = Customers::where('code', $request->codCustomer)->first();
 
@@ -179,7 +184,8 @@ class TaskController extends Controller
     public function getEventById(Request $request)
     {
         $id = $request->id;
-        $evento = Task::with('customer')->find($id);
+        $evento = Task::with(['customer', 'agent', 'priority'])->find($id);
+        // dd($evento);
         return response()->json($evento);
     }
 

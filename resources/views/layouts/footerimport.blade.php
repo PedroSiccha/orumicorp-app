@@ -4,6 +4,8 @@
  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
  <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
 
 <script src="{{ mix('js/app.js') }}" defer></script>
     <script src="{{ asset('js/utils/updateClockMenu.js') }}"></script>
@@ -274,6 +276,9 @@
             ];
 
     </script>
-    <script src="{{ asset('js/utils/getNotify.js') }}"></script>
+    @can('Ver Notificacion Shooter')
+        <script src="{{ asset('js/utils/getNotify.js') }}"></script>     
+    @endcan
+    
     <script src="{{ asset('js/rouletteManagement/ruleta.js') }}"></script>
 @yield('script')
