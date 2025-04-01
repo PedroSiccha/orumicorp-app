@@ -26,10 +26,35 @@ function updateSale(options) {
     var modal = options.modal !== undefined ? options.modal : '';
     var tableName = options.tableName !== undefined ? options.tableName : '';
     var typeSales = options.typeSales !== undefined ? options.typeSales : '';
-    $.post(updateSaleRoute, {eId: eId, eIdClient: eIdClient, eCodAgent: eCodAgent, eIdAgent: eIdAgent, eAmount: eAmount, ePercent: ePercent, eTypeChange: eTypeChange, eComission: eComission, eObservation: eObservation, typeSales: typeSales, _token: token}).done(function(data) {
+    const dateInit = $('#date_added_init').val() ?? '';
+    const dateEnd = $('#date_added_end').val() ?? '';
+    const area = $('#area').val() ?? '';
+    const agentId = $('#inputAgentSelect').val() ?? '';
+    const page = 1;
+    $.post(updateSaleRoute, {
+        eId,
+        eIdClient,
+        eCodAgent,
+        eIdAgent,
+        eAmount,
+        ePercent,
+        eTypeChange,
+        eComission,
+        eObservation,
+        typeSales,
+        dateInit,
+        dateEnd,
+        area,
+        agentId,
+        page,
+        _token: token
+    }).done(function(data) {
         $(tableName).empty();
         $(tableName).html(data.view);
         $(modal).modal('hide');
         mostrarMensaje(data.title, data.text, data.status);
+    }).fail(function(err) {
+        console.error("Error en la actualización de venta:", err);
+        mostrarMensaje("Error", "No se pudo actualizar la venta. Intenta nuevamente.", "error");
     });
 }

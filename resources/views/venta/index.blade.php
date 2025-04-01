@@ -195,6 +195,9 @@
                 <input type="text" class="form-control" id="eId" hidden>
             </div>
             <div class="modal-body">
+                <div id="alertErrorEdit" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorTextEdit"></span>
+                </div>
                 <table class="table m-b-xs">
                     <tbody>
                         <tr hidden>
@@ -227,7 +230,7 @@
                                     <input type="text" class="form-control" id="eIdAgent" placeholder="Ingrese el DNI o Código del agente" hidden>
                                     <input type="text" class="form-control" id="eCodAgent" placeholder="Ingrese el DNI o Código del agente">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-primary" onclick="searchAgent('#eCodAgent', '#eNameAgent')"><i class="fa fa-search"></i></button>
+                                        <button type="button" class="btn btn-primary ladda-button-agent-edit" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#eCodAgent', inputName: '#eNameAgent', alertError:  '#alertErrorEdit', alertErrorText: '#alertErrorTextEdit', btnLadda: '.ladda-button-agent-edit' })"><i class="fa fa-search"></i></button>
                                     </div>
                                 </div>
                             </td>

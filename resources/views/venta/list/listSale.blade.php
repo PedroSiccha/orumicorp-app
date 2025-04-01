@@ -26,7 +26,7 @@
                 <td>{{ $sale->exchange_rate }}</td>
                 <td>{{ optional($sale->agent)->name }} {{ optional($sale->agent)->lastname }}</td>
                 <td>{{ optional(optional($sale->agent)->area)->name }}</td>
-                <td>{{ $sale->obsercation }}</td>
+                <td>{{ $sale->observation }}</td>
                 <td>
                     @can('Editar Venta')
                         <button class="btn btn-warning" type="button"
@@ -41,7 +41,7 @@
                                 '{{ optional($sale->agent)->id }}',
                                 '{{ optional($sale->agent)->code_voiso }}',
                                 '{{ optional($sale->agent)->name }} {{ optional($sale->agent)->lastname }}',
-                                '{{ $sale->obsercation }}',
+                                '{{ $sale->observation }}',
                                 '#modalEditarVenta',
                                 '#eId',
                                 '#eIdClient',
