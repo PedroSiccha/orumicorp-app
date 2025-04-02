@@ -19,7 +19,7 @@
                 <div class="">
                     <div>
                         <h2 class="no-margins">
-                            {{ $dataUser->name }} {{ $dataUser->lastname }}
+                            {{ $dataUser->name }} {{ $dataUser->lastname }} 
                         </h2>
                         <h4>{{ Auth::user()->email }}</h4>
                         <small>

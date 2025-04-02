@@ -14,6 +14,7 @@
                     <div class="col-sm-2 text-right">
                         @can('Filtrar Area Today')
                             <select class="form-control m-b" name="area" id="area" >
+                                <option value="">-- Todas las áreas --</option> 
                                 @foreach($areas as $area)
                                 <option value = "{{ $area->id }}">{{ $area->name }}</option>
                                 @endforeach
