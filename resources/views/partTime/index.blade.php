@@ -19,7 +19,7 @@
                     Registro de Asistencia
                 </h3>
 
-                <div class="form-group" id="data_2">
+                <div class="form-group" id="data_2"> 
                     <label class="font-normal">Entrada</label>
                     @if ( $dateIn )
                         <button class="btn btn-outline btn-success  dim form-control" type="button" @if($dateOut) onclick="registerAssitance('{{ date('Y-m-d') }}', '#comentario', 'IN', '#panelButton', '#tabAssistance')" @endif><i class="fa fa-address-card-o"></i> {{ $dateIn->hour }}</button>
@@ -95,17 +95,18 @@
                     </div>
                     <div class="col-sm-2">
                         <div class="input-group date">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-2 text-right">
                         <div class="input-group date">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" onchange="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')">
                         </div>
                     </div>
                     <div class="col-sm-2 text-right">
                         @can('Filtrar Area Today')
                             <select class="form-control m-b" name="area" id="area" onchange="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')" onclick="filterAssitance('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabAssistance')">
+                                <option value="">-- Todas las Áreas --</option>
                                 @foreach($areas as $area)
                                 <option value = "{{ $area->id }}">{{ $area->name }}</option>
                                 @endforeach
@@ -138,10 +139,12 @@
                         </a>
                         <ul class="dropdown-menu dropdown-user">
                             @can('Descargar Part Time Excel')
-                                <li><a href="{{ route('descargar-asistencia-excel') }}" class="dropdown-item"><i class="fa fa-file-excel-o"></i> Descargar Excel</a></li>
+                                {{-- <li><a href="{{ route('descargar-asistencia-excel') }}" class="dropdown-item"><i class="fa fa-file-excel-o"></i> Descargar Excel</a></li> --}}
+                                <li><a id="excelDownload" href="#" class="dropdown-item"><i class="fa fa-file-excel-o"></i> Descargar Excel</a></li>
                             @endcan
                             @can('Descargar Part Time PDF') 
-                                <li><a href="{{ route('descargar-asistencia-pdf') }}" class="dropdown-item"><i class="fa fa-file-pdf-o"></i> Descargar PDF</a></li>
+                                {{-- <li><a href="{{ route('descargar-asistencia-pdf') }}" class="dropdown-item"><i class="fa fa-file-pdf-o"></i> Descargar PDF</a></li> --}}
+                                <li><a id="pdfDownload" href="#" class="dropdown-item"><i class="fa fa-file-pdf-o"></i> Descargar PDF</a></li>
                             @endcan
 
                         </ul>
@@ -271,14 +274,16 @@
                 keyboardNavigation: false,
                 forceParse: false,
                 calendarWeeks: true,
-                autoclose: true
+                autoclose: true,
+                format: "dd/mm/yyyy"
         });
         $('#date_added_end').datepicker({
                 todayBtn: "linked",
                 keyboardNavigation: false,
                 forceParse: false,
                 calendarWeeks: true,
-                autoclose: true
+                autoclose: true,
+                format: "dd/mm/yyyy"
         });
         $('#dateInitVacations').datepicker({
                 todayBtn: "linked",
@@ -301,14 +306,10 @@
     var token = '{{ csrf_token() }}';
 </script>
 <script src="{{ asset('js/partTime/registerAssitance.js') }}"></script>
-<script src="{{ asset('js/partTime/filterAssitance.js') }}"></script>
+<script src="{{ asset('js/partTime/filterAssitance.js') }}"></script> 
 <script src="{{ asset('js/partTime/createVacations.js') }}"></script>
+<script src="{{ asset('js/partTime/resourceDownload.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        markNotificationsAsSeen('parttime');
-    });
-</script>
 
 @endsection
