@@ -8,3 +8,4 @@ function filterAssitance(inputArea, inputCode, inputDateInit, inputDateEnd, tabl
         $(tableName).html(data.view);
     });
 }
+ 
