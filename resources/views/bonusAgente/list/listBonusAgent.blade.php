@@ -2,33 +2,41 @@
     <thead>
     <tr>
         <th>Fecha de Ingreso</th>
-        <th>Bono</th>
         <th>Monto en Soles</th>
+        <th>Comisión</th>
         <th>Comisión en Soles</th>
         <th>Agente</th>
-        <th>Area</th>
+        <th>Área</th>
         <th>Comentario</th>
     </tr>
     </thead>
     <tbody>
-      @foreach ($bonusAgent as $ba)
-            <tr @if(number_format($ba->amount, 2) <= 0) class="table-danger" @endif>
-              <td>{{ date("d/m/Y", strtotime($ba->date_admission)) }}</td>
-              <td> $ {{ number_format($ba->amount, 2) }}</td>
-              <td>S/. {{ number_format($ba->amount, 2) }}</td>
-              <td>S/. {{ number_format($ba->amount, 2) }}</td>
-              <td>
+    @forelse ($bonusAgent as $ba)
+        <tr @if(number_format($ba->amount, 2) <= 0) class="table-danger" @endif>
+            <td>{{ \Carbon\Carbon::parse($ba->date_admission)->format('d/m/Y') }}</td>
+            <td>S/. {{ $ba->observation === 'Giro de Ruleta' ? '0.00' : number_format($ba->amount, 2) }}</td>
+            <td>$ {{ number_format($ba->commission / 3.5, 2) }}</td>
+            <td>S/. {{ number_format($ba->commission, 2) }}</td>
+            <td>
                 @can('Ver Perfil Agente')
-                <a href="{{ route('perfilUsuario', ['id' => $ba->agent->id]) }}">
+                    <a href="{{ route('perfilUsuario', ['id' => $ba->agent->id]) }}">
                 @endcan
-                {{ $ba->agent->name }} {{ $ba->agent->lastname }}
+                    {{ $ba->agent->name }} {{ $ba->agent->lastname }}
                 @can('Ver Perfil Agente')
-                </a>
+                    </a>
                 @endcan
-              </td>
-              <td>{{ $ba->agent->area->name }}</td>
-              <td>{{ $ba->observation }}</td>
-          </tr>
-      @endforeach
+            </td>
+            <td>{{ $ba->agent->area->name }}</td>
+            <td>{{ $ba->observation }}</td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="7" class="text-center">No hay registros disponibles.</td>
+        </tr>
+    @endforelse
     </tbody>
 </table>
+
+<div class="mt-3">
+    {!! $bonusAgent->links() !!}
+</div>
