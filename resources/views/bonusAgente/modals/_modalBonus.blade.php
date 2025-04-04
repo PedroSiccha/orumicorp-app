@@ -18,7 +18,7 @@
                         <input type="text" class="form-control" id="dniAgent" placeholder="Ingrese el DNI o Código del cliente">
                         <div class="input-group-append">
                             <button type="button" class="btn btn-primary ladda-button-agent-create-bonus" data-style="zoom-in"
-                                    onclick="searchAgent({ 
+                                    onclick="searchAgentV2({ 
                                         inputcodeVoiso: '#dniAgent', 
                                         inputName: '#nameAgent', 
                                         alertError: '#alertErrorCreateBonus', 
@@ -54,16 +54,20 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-info" type="button"
-                        onclick="createBonus({
-                            dniAgent: '#dniAgent',
-                            commission: '#commission',
-                            inputObservation: '#observation',
-                            modal: '#modalBonus',
-                            table: '#tabBonus',
-                            typeSales: '2'
-                        })">
+                    onclick="createBonus({
+                        dniAgent: '#dniAgent',
+                        commission: '#commission',
+                        inputObservation: '#observation',
+                        inputName: '#nameAgent',
+                        alertError: '#alertErrorCreateBonus',
+                        alertErrorText: '#alertErrorTextCreateBonus',
+                        modal: '#modalBonus',
+                        table: '#tabBonus',
+                        typeSales: '2'
+                    })">
                     <i class="fa fa-save"></i> Guardar
                 </button>
+
                 <button class="btn btn-default" data-dismiss="modal" type="button">
                     <i class="fa fa-trash"></i> Cancelar
                 </button>

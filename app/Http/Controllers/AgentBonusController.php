@@ -226,173 +226,284 @@ class AgentBonusController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function saveBonus(Request $request)
+
+     public function saveBonus(Request $request)
     {
-        $title = 'Error';
-        $mensaje = 'Error desconocido';
-        $status = 'error';
-
-        $user_id = Auth::user()->id;
-        $user = User::where('id', $user_id)->first();
-        $roles = $user->getRoleNames()->first();
-
-        $client_id = "";
-        if ($request->dniCustomer > 0) {
-            $client = Customers::where('code', $request->dniCustomer)->first();
-            $client_id = $client->id;
-        }
-
-        $codeAgt = $request->dniAgent;
+        $codeAgent = $request->dniAgent;
         $amount = $request->amount;
         $observation = $request->observation;
 
-        $agent = Agent::where('code_voiso', $codeAgt)->first();
+        $user = Auth::user();
+        $agent = Agent::where('code_voiso', $codeAgent)->first();
+
+        if (!$agent) {
+            return response()->json([
+                'title' => 'Error',
+                'text' => 'Agente no encontrado.',
+                'status' => 'error'
+            ]);
+        }
 
         try {
-            $bonusAgent = new BonusAgent();
-            $bonusAgent->date_admission = Carbon::now();
-            $bonusAgent->amount = $amount;
-            $bonusAgent->observation = $observation;
-            $bonusAgent->status = true;
-            // $bonusAgent->customer_id = $client_id;
-            if ($request->percent_id > 0) {
-                $bonusAgent->percent_id = $request->percent_id;
-            }
-            if ($request->commission_id > 0) {
-                $bonusAgent->commission_id = $request->commission_id;
-            }
-            if ($request->exchange_rate_id > 0) {
-                $bonusAgent->exchange_rate_id = $request->exchange_rate_id;
-            }
-            $bonusAgent->agent_id = $agent->id;
-            $bonusAgent->action_id = 1;
-            if ($bonusAgent->save()) {
+            // Guardar en BonusAgent
+            $bonus = new BonusAgent();
+            $bonus->date_admission = Carbon::now();
+            $bonus->amount = $amount;
+            $bonus->observation = $observation;
+            $bonus->status = 1;
+            $bonus->agent_id = $agent->id;
+            $bonus->action_id = 2; // Acción: BONO
+            $bonus->save();
 
-                $sale = new Sales();
-                $sale->date_admission = Carbon::now();
-                $sale->amount = $amount;
-                $sale->observation = $observation;
-                $sale->status = true;
-                $sale->agent_id = $agent->id;
-                $sale->action_id = 2;
-                $sale->user_id = Auth::user()->id;
-                if ($sale->save()) {
-                    $title = "Correcto";
-                    $mensaje = "Registrado correctamente";
-                    $status = "success";
-                }
-            }
+            // Guardar en Sales
+            $sale = new Sales();
+            $sale->date_admission = Carbon::now();
+            $sale->commission = $amount;
+            $sale->observation = $observation;
+            $sale->status = 1;
+            $sale->agent_id = $agent->id;
+            $sale->action_id = 2;
+            $sale->user_id = $user->id;
+            $sale->save();
+
+            return response()->json([
+                'title' => 'Correcto',
+                'text' => 'Bono registrado correctamente',
+                'status' => 'success'
+            ]);
+
         } catch (Exception $e) {
-            $title = 'Error';
-            $mensaje = 'Ocurrió un error: '.$e->getMessage();
-            $status = 'error';
+            return response()->json([
+                'title' => 'Error',
+                'text' => 'Ocurrió un error: ' . $e->getMessage(),
+                'status' => 'error'
+            ]);
         }
-
-        if ($roles == 'ADMINISTRADOR') {
-            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
-                                ->where('status', 1)
-                                ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
-                                ->with('action') // Carga la relación con actions (si está definida en el modelo)
-                                ->get();
-        } else {
-
-            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
-                                ->where('status', 1)
-                                ->where('agent_id', $agent->id)
-                                ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
-                                ->with('action') // Carga la relación con actions (si está definida en el modelo)
-                                ->get();
-
-        }
-
-
-        //$bonusAgent = BonusAgent::where('status', true)->orderBy('date_admission', 'desc')->get();
-
-        return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
+
+
+    // public function saveBonus(Request $request)
+    // {
+    //     $title = 'Error';
+    //     $mensaje = 'Error desconocido';
+    //     $status = 'error';
+
+    //     $user_id = Auth::user()->id;
+    //     $user = User::where('id', $user_id)->first();
+    //     $roles = $user->getRoleNames()->first();
+
+    //     $client_id = "";
+    //     if ($request->dniCustomer > 0) {
+    //         $client = Customers::where('code', $request->dniCustomer)->first();
+    //         $client_id = $client->id;
+    //     }
+
+    //     $codeAgt = $request->dniAgent;
+    //     $amount = $request->amount;
+    //     $observation = $request->observation;
+
+    //     $agent = Agent::where('code_voiso', $codeAgt)->first();
+
+    //     try {
+    //         $bonusAgent = new BonusAgent();
+    //         $bonusAgent->date_admission = Carbon::now();
+    //         $bonusAgent->amount = $amount;
+    //         $bonusAgent->observation = $observation;
+    //         $bonusAgent->status = true;
+    //         // $bonusAgent->customer_id = $client_id;
+    //         if ($request->percent_id > 0) {
+    //             $bonusAgent->percent_id = $request->percent_id;
+    //         }
+    //         if ($request->commission_id > 0) {
+    //             $bonusAgent->commission_id = $request->commission_id;
+    //         }
+    //         if ($request->exchange_rate_id > 0) {
+    //             $bonusAgent->exchange_rate_id = $request->exchange_rate_id;
+    //         }
+    //         $bonusAgent->agent_id = $agent->id;
+    //         $bonusAgent->action_id = 1;
+    //         if ($bonusAgent->save()) {
+
+    //             $sale = new Sales();
+    //             $sale->date_admission = Carbon::now();
+    //             $sale->amount = $amount;
+    //             $sale->observation = $observation;
+    //             $sale->status = true;
+    //             $sale->agent_id = $agent->id;
+    //             $sale->action_id = 2;
+    //             $sale->user_id = Auth::user()->id;
+    //             if ($sale->save()) {
+    //                 $title = "Correcto";
+    //                 $mensaje = "Registrado correctamente";
+    //                 $status = "success";
+    //             }
+    //         }
+    //     } catch (Exception $e) {
+    //         $title = 'Error';
+    //         $mensaje = 'Ocurrió un error: '.$e->getMessage();
+    //         $status = 'error';
+    //     }
+
+    //     if ($roles == 'ADMINISTRADOR') {
+    //         $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
+    //                             ->where('status', 1)
+    //                             ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
+    //                             ->with('action') // Carga la relación con actions (si está definida en el modelo)
+    //                             ->get();
+    //     } else {
+
+    //         $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
+    //                             ->where('status', 1)
+    //                             ->where('agent_id', $agent->id)
+    //                             ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
+    //                             ->with('action') // Carga la relación con actions (si está definida en el modelo)
+    //                             ->get();
+
+    //     }
+
+
+    //     //$bonusAgent = BonusAgent::where('status', true)->orderBy('date_admission', 'desc')->get();
+
+    //     return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
+    // }
+
+    // public function saveRetiro(Request $request)
+    // {
+    //     $codeCustomer = $request->dniCustomer;
+    //     $amount = $request->amount;
+    //     $observation = $request->observation;
+    //     $percentId = $request->percent_id;
+    //     $commissionId = $request->comission_id;
+    //     $exchangeRateId = $request->exchange_rate_id;
+    //     $codeAgent = $request->dniAgent;
+    //     $clientId = "";
+    //     $userId = Auth::user()->id;
+    //     $user = User::where('id', $userId)->first();
+    //     $roles = $user->getRoleNames()->first();
+    //     if ($codeCustomer > 0) {
+    //         $client = Customers::where('code', $codeCustomer)->first();
+    //         $clientId = $client->id;
+    //     }
+    //     $agent = Agent::where('code_voiso', $codeAgent)->first();
+    //     try {
+    //         $bonusAgent = new BonusAgent();
+    //         $bonusAgent->date_admission = Carbon::now();
+    //         $bonusAgent->amount = $amount;
+    //         $bonusAgent->observation = $observation;
+    //         $bonusAgent->status = true;
+
+    //         if ($percentId > 0) {
+    //             $bonusAgent->percent_id = $percentId;
+    //         }
+    //         if ($commissionId > 0) {
+    //             $bonusAgent->commission_id = $commissionId;
+    //         }
+    //         if ($exchangeRateId > 0) {
+    //             $bonusAgent->exchange_rate_id = $exchangeRateId;
+    //         }
+    //         $bonusAgent->agent_id = $agent->id;
+    //         $bonusAgent->action_id = 4;
+    //         if ($bonusAgent->save()) {
+    //             $sale = new Sales();
+    //             $sale->date_admission = Carbon::now();
+    //             $sale->commission = $amount;
+    //             $sale->observation = $observation;
+    //             $sale->status = true;
+    //             $sale->agent_id = $agent->id;
+    //             $sale->action_id = 4;
+    //             $sale->user_id = Auth::user()->id;
+    //             if ($sale->save()) {
+    //                 $title = "Correcto";
+    //                 $mensaje = "Registrado correctamente";
+    //                 $status = "success";
+    //             }
+    //         }
+    //     } catch (Exception $e) {
+    //         $title = 'Error';
+    //         $mensaje = 'Ocurrió un error: '.$e->getMessage();
+    //         $status = 'error';
+    //     }
+    //     if ($roles == 'ADMINISTRADOR') {
+    //         $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
+    //                             ->where('status', 1)
+    //                             ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
+    //                             ->with('action') // Carga la relación con actions (si está definida en el modelo)
+    //                             ->get();
+    //     } else {
+
+    //         $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
+    //                             ->where('status', 1)
+    //                             ->where('agent_id', $agent->id)
+    //                             ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
+    //                             ->with('action') // Carga la relación con actions (si está definida en el modelo)
+    //                             ->get();
+
+    //     }
+
+    //     return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
+    // }
 
     public function saveRetiro(Request $request)
     {
-        $codeCustomer = $request->dniCustomer;
+        $codeAgent = $request->dniAgent;
         $amount = $request->amount;
         $observation = $request->observation;
-        $percentId = $request->percent_id;
-        $commissionId = $request->comission_id;
-        $exchangeRateId = $request->exchange_rate_id;
-        $codeAgent = $request->dniAgent;
-        $clientId = "";
-        $userId = Auth::user()->id;
-        $user = User::where('id', $userId)->first();
-        $roles = $user->getRoleNames()->first();
-        if ($codeCustomer > 0) {
-            $client = Customers::where('code', $codeCustomer)->first();
-            $clientId = $client->id;
-        }
+
+        $user = Auth::user();
         $agent = Agent::where('code_voiso', $codeAgent)->first();
+
+        if (!$agent) {
+            return response()->json([
+                'title' => 'Error',
+                'text' => 'Agente no encontrado.',
+                'status' => 'error'
+            ]);
+        }
+
         try {
-            $bonusAgent = new BonusAgent();
-            $bonusAgent->date_admission = Carbon::now();
-            $bonusAgent->amount = $amount;
-            $bonusAgent->observation = $observation;
-            $bonusAgent->status = true;
+            // Guardar en BonusAgent
+            $bonus = new BonusAgent();
+            $bonus->date_admission = Carbon::now();
+            $bonus->amount = $amount;
+            $bonus->observation = $observation;
+            $bonus->status = 1;
+            $bonus->agent_id = $agent->id;
+            $bonus->action_id = 4;
+            $bonus->save();
 
-            if ($percentId > 0) {
-                $bonusAgent->percent_id = $percentId;
-            }
-            if ($commissionId > 0) {
-                $bonusAgent->commission_id = $commissionId;
-            }
-            if ($exchangeRateId > 0) {
-                $bonusAgent->exchange_rate_id = $exchangeRateId;
-            }
-            $bonusAgent->agent_id = $agent->id;
-            $bonusAgent->action_id = 4;
-            if ($bonusAgent->save()) {
-                $sale = new Sales();
-                $sale->date_admission = Carbon::now();
-                $sale->amount = $amount;
-                $sale->observation = $observation;
-                $sale->status = true;
-                $sale->agent_id = $agent->id;
-                $sale->action_id = 4;
-                $sale->user_id = Auth::user()->id;
-                if ($sale->save()) {
-                    $title = "Correcto";
-                    $mensaje = "Registrado correctamente";
-                    $status = "success";
-                }
-            }
+            // Guardar en Sales
+            $sale = new Sales();
+            $sale->date_admission = Carbon::now();
+            $sale->commission = $amount;
+            $sale->observation = $observation;
+            $sale->status = 1;
+            $sale->agent_id = $agent->id;
+            $sale->action_id = 4;
+            $sale->user_id = $user->id;
+            $sale->save();
+
+            return response()->json([
+                'title' => 'Correcto',
+                'text' => 'Descuento registrado correctamente',
+                'status' => 'success'
+            ]);
+
         } catch (Exception $e) {
-            $title = 'Error';
-            $mensaje = 'Ocurrió un error: '.$e->getMessage();
-            $status = 'error';
+            return response()->json([
+                'title' => 'Error',
+                'text' => 'Ocurrió un error: ' . $e->getMessage(),
+                'status' => 'error'
+            ]);
         }
-        if ($roles == 'ADMINISTRADOR') {
-            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
-                                ->where('status', 1)
-                                ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
-                                ->with('action') // Carga la relación con actions (si está definida en el modelo)
-                                ->get();
-        } else {
-
-            $bonusAgent = Sales::whereIn('action_id', [1, 2, 3, 4]) // Filtra por action_id 1, 2 y 3
-                                ->where('status', 1)
-                                ->where('agent_id', $agent->id)
-                                ->orderBy('created_at', 'DESC') // Ordena por fecha de admisión de forma descendente
-                                ->with('action') // Carga la relación con actions (si está definida en el modelo)
-                                ->get();
-
-        }
-
-        return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
+
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
-     */
+     */ 
     public function filterBonus(Request $request)
     {
         $user_id = Auth::user()->id;
@@ -461,31 +572,6 @@ class AgentBonusController extends Controller
             'viewTable' => view('bonusAgente.partials._tabBonus', compact('bonusAgent'))->render(),
             'viewTotals' => view('bonusAgente.partials._tabTotalTarget', compact('reportTargetMensual', 'amount', 'amountRetiro', 'cuotaPendiente'))->render(),
         ]);
-    }
-
-
-
-    private function getFilteredBonus(Request $request = null)
-    {
-        $query = Sales::with(['agent.area'])
-                ->whereIn('action_id', [1, 2, 3, 4])
-                ->where('status', 1);
-    
-        if ($request) {
-            if ($request->filled('area')) {
-                $query->whereHas('agent', fn($q) => $q->where('area_id', $request->area));
-            }
-            if ($request->filled('agent_id')) {
-                $query->where('agent_id', $request->agent_id);
-            }
-            if ($request->filled('dateInit') && $request->filled('dateEnd')) {
-                $from = Carbon::createFromFormat('d/m/Y', $request->dateInit)->startOfDay();
-                $to = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->endOfDay();
-                $query->whereBetween('date_admission', [$from, $to]);
-            }
-        }
-    
-        return $query->orderByDesc('date_admission')->paginate(10);
     }
 
     /**

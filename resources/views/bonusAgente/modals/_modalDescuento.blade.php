@@ -19,7 +19,7 @@
                     <div class="input-group col-lg-9">
                         <input type="text" class="form-control" id="dniDiscountAgent" placeholder="Ingrese el DNI o Código del agente">
                         <div class="input-group-append">
-                            <button type="button" class="btn btn-primary ladda-button-agent-create-descuento" data-style="zoom-in" onclick="searchAgent({
+                            <button type="button" class="btn btn-primary ladda-button-agent-create-descuento" data-style="zoom-in" onclick="searchAgentV2({
                                 inputcodeVoiso: '#dniDiscountAgent',
                                 inputName: '#nameDiscountAgent',
                                 alertError: '#alertErrorCreateDescuento',

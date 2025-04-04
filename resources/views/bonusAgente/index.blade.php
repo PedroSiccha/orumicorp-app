@@ -117,9 +117,17 @@
     });
 
     var filterBonusRoute = '{{ route("filterBonus") }}';
+    var searchAgentRoute = '{{ route("searchAgent") }}';
+    var saveRetiroRoute = '{{ route("saveRetiro") }}';
+    var saveBonusRoute = '{{ route("saveBonus") }}';
+    var saveTargetRoute = '{{ route("saveTarget") }}';
     var token = '{{ csrf_token() }}';
 </script>
-<script src="{{ asset('js/bonusAgent/filterBonus.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
-
+<script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
+<script src="{{ asset('js/bonusAgent/filterBonus.js') }}"></script>
+<script src="{{ asset('js/bonusAgent/createDiscount.js') }}"></script>
+<script src="{{ asset('js/bonusAgent/createBonus.js') }}"></script>
+<script src="{{ asset('js/bonusAgent/createTarget.js') }}"></script>
+<script src="{{ asset('js/agent/searchAgent.js') }}"></script>
 @endsection
