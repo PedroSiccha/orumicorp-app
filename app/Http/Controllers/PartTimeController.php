@@ -13,10 +13,12 @@ use DateTime;
 use Illuminate\Support\Facades\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Throwable;
 
 class PartTimeController extends Controller
 {
@@ -232,21 +234,9 @@ class PartTimeController extends Controller
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
 
-        $startDate = $request->dateInit; // Fecha de inicio
-        $endDate = $request->dateEnd; // Fecha de fin
-
-        // Convertir fechas al formato YYYY-MM-DD si vienen en MM/DD/YYYY
-        if ($startDate) {
-            $startDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
-        } else {
-            $startDate = Carbon::now()->toDateString(); // Fecha actual por defecto
-        }
-
-        if ($endDate) {
-            $endDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
-        } else {
-            $endDate = Carbon::now()->toDateString(); // Fecha actual por defecto
-        }
+        // Convertir fechas al formato interno (YYYY-MM-DD)
+        $startDate = $this->parseDate($request->dateInit) ?? Carbon::now()->toDateString();
+        $endDate = $this->parseDate($request->dateEnd) ?? Carbon::now()->toDateString();
 
        // Construcción de la consulta con JOINs para incluir el área del agente
         $query = DB::table('assistance as a')
@@ -299,42 +289,122 @@ class PartTimeController extends Controller
         return response()->json(["view"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render()]);
     }
 
+    // Función para convertir string dd/mm/yyyy a Y-m-d
+    private function parseDate($date)
+    {
+        try {
+            return Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d');
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
+    // Formateo limpio
+    // private function formatAssistances($assistances)
+    // {
+    //     $formatted = [];
+    //     $types = ['IN', 'IN-BREAK', 'OUT-BREAK', 'OUT'];
+
+    //     foreach ($assistances as $record) {
+    //         $date = Carbon::parse($record->date)->format('d/m/Y');
+    //         $agentName = $record->agent_name . " " . $record->last_name;
+    //         $type = $record->type;
+
+    //         $formatted[$date][$agentName]['area'] = $record->area_name;
+    //         $formatted[$date][$agentName][$type][] = [
+    //             'hour' => $record->hour,
+    //             'observation' => $record->observation
+    //         ];
+    //     }
+
+    //     return $formatted;
+    // }
+
     /**
      * Display the specified resource.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function descargarReportePDF()
+    public function descargarReportePDF(Request $request)
     {
-        $assistances = Assistance::select(
-                'agents.name',
-                'agents.lastname',
-                'assistance.date',
-                DB::raw("MAX(CASE WHEN assistance.type = 'IN' THEN assistance.hour END) AS `IN`"),
-                DB::raw("MAX(CASE WHEN assistance.type = 'IN-BREAK' THEN assistance.hour END) AS `INBREAK`"),
-                DB::raw("MAX(CASE WHEN assistance.type = 'OUT-BREAK' THEN assistance.hour END) AS `OUTBREAK`"),
-                DB::raw("MAX(CASE WHEN assistance.type = 'OUT' THEN assistance.hour END) AS `OUT`")
-            )
-            ->join('agents', 'assistance.agent_id', '=', 'agents.id')
-            ->groupBy('agents.name', 'agents.lastname', 'assistance.date')
-            ->orderBy('assistance.date', 'DESC')  // ✅ Ordenar por fecha descendente
-            ->orderByRaw("FIELD(assistance.type, 'IN', 'IN-BREAK', 'OUT-BREAK', 'OUT')") // ✅ Ordenar por tipo lógico
-            ->orderBy('assistance.hour', 'ASC') // ✅ Ordenar por hora ascendente
-            ->get();
+        $dateStart = $request->input('date_start');
+        $dateEnd = $request->input('date_end');
+        $areaId = $request->input('area');
+        $code = $request->input('code');
 
-        // ✅ Configurar Dompdf con opciones
+        $query = Assistance::with('agent')
+            ->select('agent_id', 'date', 'hour', 'type', 'observation')
+            ->join('agents', 'assistance.agent_id', '=', 'agents.id');
+
+        if ($dateStart && $dateEnd) {
+            $start = Carbon::createFromFormat('d/m/Y', $dateStart)->format('Y-m-d');
+            $end = Carbon::createFromFormat('d/m/Y', $dateEnd)->format('Y-m-d');
+            $query->whereBetween('assistance.date', [$start, $end]);
+        }
+
+        if ($areaId) {
+            $query->where('agents.area_id', $areaId);
+        }
+
+        if ($code) {
+            $query->where(function ($q) use ($code) {
+                $q->where('agents.name', 'like', '%' . $code . '%')
+                ->orWhere('agents.lastname', 'like', '%' . $code . '%')
+                ->orWhere('agents.code_voiso', 'like', '%' . $code . '%');
+            });
+        }
+
+        $data = $query->orderBy('date')->orderBy('hour')->get();
+
+        // Agrupar por fecha + agente
+        $grouped = $data->groupBy(fn($a) => $a->date . '_' . $a->agent_id);
+
+        $assistances = collect();
+
+        foreach ($grouped as $group) {
+            $first = $group->first();
+            $agent = $first->agent;
+
+            $record = [
+                'date' => $first->date,
+                'agent' => $agent->name . ' ' . $agent->lastname,
+                'IN' => '',
+                'INBREAK' => '',
+                'OUTBREAK' => '',
+                'OUT' => '',
+            ];
+
+            foreach ($group as $entry) {
+                $value = $entry->hour;
+                if (!empty($entry->observation)) {
+                    $value .= "<br><small>" . $entry->observation . "</small>";
+                }
+
+                switch ($entry->type) {
+                    case 'IN': $record['IN'] = $value; break;
+                    case 'IN-BREAK': $record['INBREAK'] = $value; break;
+                    case 'OUT-BREAK': $record['OUTBREAK'] = $value; break;
+                    case 'OUT': $record['OUT'] = $value; break;
+                }
+            }
+
+            $assistances->push($record);
+        }
+
         $options = new Options();
         $options->set('defaultFont', 'Arial');
         $options->set('isHtml5ParserEnabled', true);
 
         $pdf = new Dompdf($options);
-        $pdf->loadHtml(View::make('report.assistance_pdf', compact('assistances'))->render());
+        $pdf->loadHtml(view('report.assistance_pdf', ['assistances' => $assistances])->render());
         $pdf->setPaper('A4', 'landscape');
         $pdf->render();
 
         return $pdf->stream('asistencia.pdf');
     }
+
+
 
     /**
      * Show the form for editing the specified resource.
@@ -342,10 +412,25 @@ class PartTimeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function descargarReporteExcel()
+    public function descargarReporteExcel(Request $request)
     {
-        return Excel::download(new AsistenciasExport, 'asistencias.xlsx');
+        try {
+            return Excel::download(
+                new AsistenciasExport(
+                    $request->input('date_start'),
+                    $request->input('date_end'),
+                    $request->input('area'),
+                    $request->input('code')
+                ),
+                'asistencias.xlsx'
+            );
+        } catch (Throwable $e) {
+            dd($e->getMessage());
+            return response($e->getMessage(), 500); // Devuelve el mensaje exacto
+        }
     }
+
+
 
     /**
      * Update the specified resource in storage.
