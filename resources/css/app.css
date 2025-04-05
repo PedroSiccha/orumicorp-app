@@ -1,0 +1,14 @@
+@import './bootstrap.min.css';
+@import './font-awesome/css/font-awesome.css';
+@import './animate.css';
+@import './style.css';
+@import './plugins/datapicker/datepicker3.css';
+@import './plugins/iCheck/custom.css';
+@import './plugins/dataTables/datatables.min.css';
+@import './plugins/morris/morris-0.4.3.min.css';
+@import './calendar/style.css';
+@import './plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css';
+@import './plugins/summernote/summernote-bs4.css';
+@import './roulette.css';
+@import 'select2/dist/css/select2.min.css';
+@import 'toastr/build/toastr.min.css';

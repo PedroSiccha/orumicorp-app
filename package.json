@@ -1,13 +1,8 @@
 {
     "private": true,
     "scripts": {
-        "dev": "npm run development",
-        "development": "mix",
-        "watch": "mix watch",
-        "watch-poll": "mix watch -- --watch-options-poll=1000",
-        "hot": "mix watch --hot",
-        "prod": "npm run production",
-        "production": "mix --production"
+        "dev": "vite",
+        "build": "vite build"
     },
     "devDependencies": {
         "@babel/core": "^7.26.0",
@@ -16,13 +11,16 @@
         "axios": "^0.25",
         "babel-loader": "^9.2.1",
         "bootstrap": "^5.2.3",
-        "laravel-mix": "^6.0.6",
+        "laravel-vite-plugin": "^1.2.0",
         "lodash": "^4.17.19",
         "postcss": "^8.1.14",
-        "sass": "^1.56.1"
+        "sass": "^1.56.1",
+        "vite": "^6.2.5"
     },
     "dependencies": {
         "laravel-echo": "^1.17.0",
-        "pusher-js": "^8.4.0-rc2"
+        "pusher-js": "^8.4.0-rc2",
+        "select2": "^4.1.0-rc.0",
+        "toastr": "^2.1.4"
     }
 }
