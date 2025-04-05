@@ -25,27 +25,8 @@ class HomeController extends Controller
         $this->menuService = $menuService;
     }
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
     public function index()
     {
-        // dd(session('default_route'));
-        if (!auth()->user()->can('Ver Tablero')) {
-            $menuItems = $this->menuService->getMenuItems();
-
-            // Encontrar la primera ruta accesible
-            $firstAccessible = collect($menuItems)->first(fn($item) => $item['can']);
-
-            if (!$firstAccessible) {
-                return redirect(route('login'))->with('error', 'No tienes acceso a ninguna sección.');
-            }
-
-            return redirect($firstAccessible['url']);
-        }
-
         $user_id = Auth::user()->id;
         $rouletteSpin = 0;
         $dateIn = null;

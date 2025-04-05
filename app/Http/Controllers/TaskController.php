@@ -10,57 +10,38 @@ use App\Models\Premio;
 use App\Models\Priority;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\TaskService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    protected $taskService;
+
+    public function __construct(TaskService $taskService) {
+        $this->taskService = $taskService;
+    }
+    
     public function index()
     {
-        $user_id = Auth::user()->id;
-        $user = User::where('id', $user_id)->first();
-        $roles = $user->getRoleNames()->first();
-
-        $agent = Agent::where('user_id', $user_id)->first();
-        $client = Customers::where('user_id', $user_id)->first();
-        $rouletteSpin = $agent->number_turns ?: 0;
-
-        $dataUser = null;
-
-        if ($agent) {
-            $dataUser = $agent;
+        try {
+            $data = $this->taskService->getTaskData();
+            $areas = $data->areas;
+            $rouletteSpin = $data->rouletteSpin;
+            $priorities = $data->priorities;
+            return view('task.index', compact('premios1', 'premios2', 'dataUser', 'areas', 'rouletteSpin', 'priorities'));
+        } catch (Exception $e) {
+            Log::error("Error en TaskController: " . $e->getMessage());
         }
-
-        if ($client) {
-            $dataUser = $client;
-        }
-
-        $areas = Area::where('status', 1)->get();
-        $premios1 = Premio::where('status', true)->where('type', 1)->get();
-        $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        $priorities = Priority::all();
-        return view('task.index', compact('premios1', 'premios2', 'dataUser', 'areas', 'rouletteSpin', 'priorities'));
     }
 
     public function obtenerEventos()
     {
-        $user = Auth::user();
-        $user = User::find($user->id);
-        $agent = Agent::where('user_id',  $user->id)->first();
-        $roles = $user->getRoleNames()->first();
         $eventos = Task::with('agent')->get();
-
-        if ($roles !== 'ADMINISTRADOR') {
-            $eventos = Task::with('agent')->where('agent_id', $agent->id)->get();
-        }
 
         $eventos_formateados = [];
         foreach ($eventos as $evento) {
@@ -83,58 +64,17 @@ class TaskController extends Controller
      */
     public function guardarTask(Request $request)
     {
-        $fecha = date("Y-m-d", strtotime($request->fecha));
-        $titulo = $request->titulo;
-        $descripcion = $request->descripcion;
-        $horaInicio = $request->horaInicio;
-        $horaFin = $request->horaFin;
-        $img = $request->imgEvento;
-        $nomArchivo = trim($img);
-        $urlGuardar = '';
-        $resp = 0;
-        $user_id = Auth::user()->id;
-        $agent = Agent::where('user_id', $user_id)->first();
-
-        if ($request->hasFile('imgEvento')) {
-            $nombre=$img->getClientOriginalName();
-            $extension=$img->getClientOriginalExtension();
-            $nuevoNombre=$nombre.".".$extension;
-            $subido = Storage::disk('task')->put($nombre, File::get($img));
-            if($subido){
-                $urlGuardar='img/task/'.$nombre;
-            }
-        }
-
         try {
-            $task = new Task();
-            $task->name = $titulo;
-            $task->description = $descripcion;
-            $task->document = $urlGuardar;
-            $task->timeStart = $horaInicio;
-            $task->timeEnd = $horaFin;
-            $task->date = $fecha;
-            $task->agent_id = $agent->id;
-            $task->start = $horaInicio;
-            $task->end = $horaFin;
-            if ($task->save()) {
-                $resp = 1;
-            }
+            $data = $this->taskService->saveTask($request);
+            return response()->json($data);
         } catch (Exception $e) {
-            dd("Error: " . $e->getMessage());
+            Log::error("Error en TaskController: " . $e->getMessage());
         }
-
-
-        return response()->json(['resp' => $resp]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function saveEvent(Request $request)
     {
+<<<<<<< HEAD
         $title = "Error";
         $mensaje = "Error desconocido";
         $status = "error";
@@ -148,130 +88,51 @@ class TaskController extends Controller
         $priority = Priority::where('id', $request->priorityEvent)->first();
         $client = Customers::where('code', $request->codCustomer)->first();
 
+=======
+>>>>>>> feature/fix-presentation
         try {
-            $task = new Task();
-            $task->name = $request->nameEvent;
-            $task->description = $request->descriptionEvent;
-            $task->document = '';
-            $task->timeStart = $request->desde;
-            $task->timeEnd = $request->hasta;
-            $task->date = $request->dateEvent;
-            $task->agent_id = $agent->id;
-            $task->priority_id = $priority->id;
-            $task->customer_id = $client->id;
-            $task->start = $request->dateEvent ." ".$request->desde;
-            $task->end = $request->dateEvent ." ".$request->hasta;
-            if ($task->save()) {
-                $title = "Correcto";
-                $mensaje = "El evento se creó correctamente";
-                $status = "success";
-            }
+            $data = $this->taskService->saveEvent($request);
+            return response()->json($data);
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            Log::error("Error en TaskController: " . $e->getMessage());
         }
-
-        return response()->json(["title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function getEventById(Request $request)
     {
+<<<<<<< HEAD
         $id = $request->id;
         $evento = Task::with(['customer', 'agent', 'priority'])->find($id);
         // dd($evento);
         return response()->json($evento);
+=======
+        try {
+            $data = $this->taskService->getEventById($request);
+            return response()->json($data);
+        } catch (Exception $e) {
+            Log::error("Error en TaskController: " . $e->getMessage());
+        }
+>>>>>>> feature/fix-presentation
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function editEvent(Request $request)
     {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-
-        $user_id = Auth::user()->id;
-        $agent = Agent::where('user_id', $user_id)->first();
-        $priority = Priority::where('id', $request->priorityEvent)->first();
-        $client = Customers::where('code', $request->codCustomer)->first();
-
-        //dd($request->idEvent);
-
         try {
-            $task = Task::find($request->idEvent);
-            $task->name = $request->nameEvent;
-            $task->description = $request->descriptionEvent;
-            $task->document = '';
-            $task->timeStart = $request->desde;
-            $task->timeEnd = $request->hasta;
-            $task->date = $request->dateEvent;
-            $task->agent_id = $agent->id;
-            $task->priority_id = $priority->id;
-            $task->customer_id = $client->id;
-            $task->start = $request->dateEvent ." ".$request->desde;
-            $task->end = $request->dateEvent ." ".$request->hasta;
-            if ($task->save()) {
-                $title = "Correcto";
-                $mensaje = "El evento se modificó correctamente";
-                $status = "success";
-            }
+            $data = $this->taskService->editEvent($request);
+            return response()->json($data);
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            Log::error("Error en TaskController: " . $e->getMessage());
         }
-
-        return response()->json(["title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function deleteEvent(Request $request)
     {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-
         try {
-            $task = Task::find($request->idEvent);
-            if ($task->delete()) {
-                $title = "Correcto";
-                $mensaje = "El evento se eliminó correctamente";
-                $status = "success";
-            }
+            $data = $this->taskService->deleteEvent($request);
+            return response()->json($data);
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            Log::error("Error en TaskController: " . $e->getMessage());
         }
-
-        return response()->json(["title"=>$title, "text"=>$mensaje, "status"=>$status]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

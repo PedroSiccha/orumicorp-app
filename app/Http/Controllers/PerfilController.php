@@ -10,17 +10,22 @@ use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\Sales;
 use App\Models\Target;
+use App\Services\PerfilService;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PerfilController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    protected $profileService;
+
+    public function __construct(PerfilService $profileService) {
+        $this->profileService = $profileService;
+    }
+
     public function perfilUsuario($id)
     {
 
@@ -41,6 +46,7 @@ class PerfilController extends Controller
         if ($client) {
             $dataUser = $client;
         }
+
 
         $premios1 = Premio::where('status', true)->where('type', 1)->get();
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
@@ -81,73 +87,13 @@ class PerfilController extends Controller
                             ->where('sales.agent_id', $agent->id)
                             ->whereMonth('sales.created_at', date("m"))
                             ->sum('sales.amount');
-
         return view('profile.index', compact('premios1', 'premios2', 'dataUser', 'rouletteSpin', 'dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut', 'clients', 'targets', 'sales', 'targetMensual', 'ingresosActuales', 'amountRetiro'));
+        try {
+            $data = $this->profileService->getProfileData();
+        } catch (Exception $e) {
+            Log::error("Error en PerfilController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar los datos del perfil.');
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

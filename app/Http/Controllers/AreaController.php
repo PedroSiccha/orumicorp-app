@@ -2,116 +2,132 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AreaRequest;
 use App\Models\Area;
 use App\Http\Requests\StoreareaRequest;
 use App\Http\Requests\UpdateareaRequest;
 use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\Premio;
+use App\Services\AreaService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AreaController extends Controller
 {
+    protected $areaService;
+
+    public function __construct(AreaService $areaService) {
+        $this->areaService = $areaService;
+    }
 
     public function index()
     {
-        $user_id = Auth::user()->id;
-
-        $agent = Agent::where('user_id', $user_id)->first();
-        $client = Customers::where('user_id', $user_id)->first();
-        $rouletteSpin = $agent->number_turns ?: 0;
-
-        $dataUser = null;
-
-        if ($agent) {
-            $dataUser = $agent;
+        try {
+            $data = $this->areaService->getAreasData();
+            $areas = $data->areas;
+            $dataUser = $data->dataUser;
+            $rouletteSpin = $data->rouletteSpin;
+            return view('area.index', compact('areas', 'premios1', 'premios2', 'dataUser', 'rouletteSpin'));
+        } catch (Exception $e) {
+            Log::error("Error en AreaController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las áreas.');
         }
+    }
 
-        if ($client) {
-            $dataUser = $client;
+    public function saveArea(AreaRequest $request)
+    {
+        try {
+            $data = $this->areaService->saveArea($request);
+            $areas = $data->areas;
+            return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
+        } catch (Exception $e) {
+            Log::error("Error en AreaController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las áreas.');
         }
+        // $resp = 0;
 
-        $premios1 = Premio::where('status', true)->where('type', 1)->get();
-        $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        $areas = Area::get();
-        return view('area.index', compact('areas', 'premios1', 'premios2', 'dataUser', 'rouletteSpin'));
+        // $area = new Area();
+        // $area->name = $request->name;
+        // $area->description = $request->description;
+        // $area->status = true;
+        // if ($area->save()) {
+        //     $resp = 1;
+        // }
+
+        // $areas = Area::get();
+        
     }
 
-    public function saveArea(Request $request)
+    public function updateArea(AreaRequest $request)
     {
-        $resp = 0;
-
-        $area = new Area();
-        $area->name = $request->name;
-        $area->description = $request->description;
-        $area->status = true;
-        if ($area->save()) {
-            $resp = 1;
+        try {
+            $data = $this->areaService->updateArea($request);
+            $areas = $data->areas;
+            return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
+        } catch (Exception $e) {
+            Log::error("Error en AreaController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las áreas.');
+            //throw $th;
         }
+        // $resp = 0;
 
-        $areas = Area::get();
+        // $area = Area::find($request->id);
+        // $area->name = $request->name;
+        // $area->description = $request->description;
+        // if ($area->save()) {
+        //     $resp = 1;
+        // }
 
-        return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
+        // $areas = Area::get();
+        
     }
 
-    public function updateArea(Request $request)
+    public function changeStatusArea(AreaRequest $request)
     {
-        $resp = 0;
-
-        $area = Area::find($request->id);
-        $area->name = $request->name;
-        $area->description = $request->description;
-        if ($area->save()) {
-            $resp = 1;
+        try {
+            $data = $this->areaService->changeStatusArea($request);
+            $areas = $data->areas;
+            return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
+        } catch (Exception $e) {
+            Log::error("Error en AreaController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las áreas.');
         }
+        // $resp = 0;
 
-        $areas = Area::get();
+        // $area = Area::find($request->id);
+        // $area->status = $request->status;
+        // if ($area->save()) {
+        //     $resp = 1;
+        // }
 
-        return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
+        // $areas = Area::get();
+
+        // return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
     }
 
-    public function changeStatusArea(Request $request)
+    public function deleteArea(AreaRequest $request)
     {
-        $resp = 0;
-
-        $area = Area::find($request->id);
-        $area->status = $request->status;
-        if ($area->save()) {
-            $resp = 1;
+        try {
+            $data = $this->areaService->deleteArea($request);
+            $areas = $data->areas;
+            return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
+        } catch (Exception $e) {
+            Log::error("Error en AreaController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las áreas.');
         }
+        // $resp = 0;
 
-        $areas = Area::get();
+        // $area = Area::find($request->id);
+        // if ($area->delete()) {
+        //     $resp = 1;
+        // }
 
-        return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
+        // $areas = Area::get();
+
+        // return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
     }
 
-    public function deleteArea(Request $request)
-    {
-        $resp = 0;
-
-        $area = Area::find($request->id);
-        if ($area->delete()) {
-            $resp = 1;
-        }
-
-        $areas = Area::get();
-
-        return response()->json(["view"=>view('area.list.listArea', compact('areas'))->render(), "resp"=>$resp]);
-    }
-
-    public function edit(area $area)
-    {
-        //
-    }
-
-    public function update(UpdateareaRequest $request, area $area)
-    {
-        //
-    }
-
-    public function destroy(area $area)
-    {
-        //
-    }
 }

@@ -2,10 +2,6 @@
 
 namespace App\Services;
 
-use Sendinblue\Client\Configuration;
-use Sendinblue\Client\Api\TransactionalEmailsApi;
-use Sendinblue\Client\Model\SendSmtpEmail;
-use Exception;
 use Illuminate\Support\Facades\Http;
 
 class BrevoService

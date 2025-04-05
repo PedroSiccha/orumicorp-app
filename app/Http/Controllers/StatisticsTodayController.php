@@ -8,34 +8,37 @@ use App\Models\Customers;
 use App\Models\Premio;
 use App\Models\Sales;
 use App\Models\User;
+use App\Services\StatisticsService;
 use Carbon\Carbon;
 use DateTime;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class StatisticsTodayController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    protected $statisticsTodayService;
+
+    public function __construct(StatisticsService $statisticsTodayService) {
+        $this->statisticsTodayService = $statisticsTodayService;
+    }
+    
     public function index()
     {
-        $user_id = Auth::user()->id;
-        $user = User::where('id', $user_id)->first();
-        $roles = $user->getRoleNames()->first();
-
-        $agent = Agent::where('user_id', $user_id)->first();
-        $client = Customers::where('user_id', $user_id)->first();
-        $rouletteSpin = $agent->number_turns ?: 0;
-
-        $dataUser = null;
-
-        if ($agent) {
-            $dataUser = $agent;
+        try {
+            $data = $this->statisticsTodayService->getStatisticsTodayData();
+            $sales = $data->sales;
+            $areas = $data->areas;
+            $rouletteSpin = $data->rouletteSpin;
+            return view('todayStatistics.index', compact('sales', 'premios1', 'premios2', 'dataUser', 'areas', 'rouletteSpin'));
+        } catch (Exception $e) {
+            Log::error("Error en StatisticsTodayController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las estadísticas.');
         }
+<<<<<<< HEAD
 
         if ($client) {
             $dataUser = $client;
@@ -107,15 +110,13 @@ class StatisticsTodayController extends Controller
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
 
         return view('todayStatistics.index', compact('sales', 'premios1', 'premios2', 'dataUser', 'areas', 'rouletteSpin'));
+=======
+>>>>>>> feature/fix-presentation
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function filterStatistics(Request $request)
     {
+<<<<<<< HEAD
         $user = User::where('id', Auth::user()->id)->first();
         $roles = $user->getRoleNames()->first();
 
@@ -201,61 +202,15 @@ class StatisticsTodayController extends Controller
         //                     ->get();
 
         return response()->json(["view"=>view('todayStatistics.components.tabStatistics', compact('sales'))->render()]);
+=======
+        try {
+            $data = $this->statisticsTodayService->filterStatistics($request);
+            $sales = $data->sales;
+            return response()->json(["view"=>view('todayStatistics.components.tabStatistics', compact('sales'))->render()]);
+        } catch (Exception $e) {
+            Log::error("Error en StatisticsTodayController: " . $e->getMessage());
+        }
+>>>>>>> feature/fix-presentation
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

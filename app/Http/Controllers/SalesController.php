@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SaleRequest;
 use App\Models\Agent;
 use App\Models\Area;
 use App\Models\Commission;
@@ -11,6 +12,7 @@ use App\Models\Percent;
 use App\Models\Premio;
 use App\Models\Sales;
 use App\Models\User;
+use App\Services\SalesService;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
@@ -18,23 +20,28 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+<<<<<<< HEAD
 use Illuminate\Validation\ValidationException;
+=======
+>>>>>>> feature/fix-presentation
 
 use function PHPUnit\Framework\isNull;
 
 class SalesController extends Controller
 {
+<<<<<<< HEAD
     
     public function index()
     {
         $user_id = Auth::user()->id;
         $user = User::where('id', $user_id)->first();
         $roles = $user->getRoleNames()->first();
+=======
+>>>>>>> feature/fix-presentation
 
-        $agent = Agent::where('user_id', $user_id)->first();
-        $client = Customers::where('user_id', $user_id)->first();
-        $rouletteSpin = $agent->number_turns ?: 0;
+    protected $saleService;
 
+<<<<<<< HEAD
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
 
@@ -84,13 +91,31 @@ class SalesController extends Controller
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $areas = Area::where('status', true)->get();
         return view('venta.index', compact('percents', 'commissions', 'exchange_rates', 'sales', 'premios1', 'premios2', 'dataUser', 'rouletteSpin', 'totalAmount', 'areas'));
+=======
+    public function __construct(SalesService $saleService) {
+        $this->saleService = $saleService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function index()
+    {
+        return view('venta.index', compact('percents', 'commissions', 'exchange_rates', 'sales', 'premios1', 'premios2', 'dataUser', 'rouletteSpin', 'totalAmount', 'areas'));
+        try {
+            $data = $this->saleService->getSaleData();
+            $percents = $data->percents;
+            $commissions = $data->commissions;
+            $exchange_rates = $data->exchange_rates;
+            $sales = $data->sales;
+            $rouletteSpin = $data->rouletteSpin;
+            $totalAmount = $sales->sum('amount');
+            $areas = $data->areas;
+            return view('venta.index', compact('percents', 'commissions', 'exchange_rates', 'sales', 'premios1', 'premios2', 'dataUser', 'rouletteSpin', 'totalAmount', 'areas'));
+        } catch (Exception $e) {
+            Log::error("Error en SalesController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las ventas.');
+        }
+>>>>>>> feature/fix-presentation
+    }
+
     public function searchCustomer(Request $request)
     {
         $title = "Error";
@@ -125,47 +150,10 @@ class SalesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function saveSale(Request $request)
+    public function saveSale(SaleRequest $request)
     {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-        $client_id = null;
-        $commission = 0;
-        $amount = 0;
-
-        if ($request->dniCustomer != null) {
-            $client = Customers::where('id', $request->dniCustomer)
-                  ->orWhere('code', $request->dniCustomer)
-                  ->first();
-
-            $client_id = $client->id;
-        }
-
-        $agent = Agent::where('code_voiso', $request->dniAgent)
-                 ->orWhere('code', $request->dniAgent)
-                 ->first();
-
-        if ($agent == null) {
-            $title = "Error";
-            $mensaje = "Hubo un error con el agente";
-            $status = "error";
-        }
-
-        if ($request->typeSales == 3) {
-            $commission = (-1)*$request->commission;
-        } else {
-            $commission = $request->commission;
-        }
-
-        if ($request->amount) {
-            $amount = $request->amount;
-        } else {
-            $amount = $commission;
-        }
-
-
         try {
+<<<<<<< HEAD
             $sale = new Sales();
             $sale->date_admission = Carbon::now();
             $sale->amount = $amount;
@@ -226,8 +214,22 @@ class SalesController extends Controller
                 "text"   => $mensaje,
                 "status" => $status
             ]);
+=======
+            $data = $this->saleService->saveSale($request);
+            $bonusAgent = $data->bonusAgent;
+            return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        } catch (Exception $e) {
+            Log::error("Error en SalesController: " . $e->getMessage());
+>>>>>>> feature/fix-presentation
         }
+        // $title = "Error";
+        // $mensaje = "Error desconocido";
+        // $status = "error";
+        // $client_id = null;
+        // $commission = 0;
+        // $amount = 0;
 
+<<<<<<< HEAD
         // ⚠️ Convertir fechas al formato correcto
         // try {
         //     $dateInit = Carbon::createFromFormat('d/m/Y', $request->dateInit)->startOfDay();
@@ -273,6 +275,67 @@ class SalesController extends Controller
             "text"   => $mensaje,
             "status" => $status
         ]);
+=======
+        // if ($request->dniCustomer != null) {
+        //     $client = Customers::where('id', $request->dniCustomer)
+        //           ->orWhere('code', $request->dniCustomer)
+        //           ->first();
+
+        //     $client_id = $client->id;
+        // }
+
+        // $agent = Agent::where('code_voiso', $request->dniAgent)
+        //          ->orWhere('code', $request->dniAgent)
+        //          ->first();
+
+        // if ($agent == null) {
+        //     $title = "Error";
+        //     $mensaje = "Hubo un error con el agente";
+        //     $status = "error";
+        // }
+
+        // if ($request->typeSales == 3) {
+        //     $commission = (-1)*$request->commission;
+        // } else {
+        //     $commission = $request->commission;
+        // }
+
+        // if ($request->amount) {
+        //     $amount = $request->amount;
+        // } else {
+        //     $amount = $commission;
+        // }
+
+
+        // try {
+        //     $sale = new Sales();
+        //     $sale->date_admission = Carbon::now();
+        //     $sale->amount = $amount;
+        //     $sale->observation = $request->observation;
+        //     $sale->status = true;
+        //     $sale->customer_id = $client_id;
+        //     $sale->percent = $request->percent;
+        //     $sale->commission = $commission;
+        //     $sale->exchange_rate = $request->exchange_rate;
+        //     $sale->agent_id = $agent->id;
+        //     $sale->action_id = $request->typeSales;
+        //     $sale->user_id = Auth::user()->id;
+        //     if ($sale->save()) {
+        //         $title = "Correcto";
+        //         $mensaje = "La venta se registró correctamente";
+        //         $status = "success";
+        //     } else {
+        //         $title = "Error";
+        //         $mensaje = "Hubo un error al guardar la venta";
+        //         $status = "error";
+        //     }
+
+        // } catch (Exception $e) {
+        //     $title = "Error";
+        //     $mensaje = "Error: ".$e;
+        //     $status = "error";
+        // }
+>>>>>>> feature/fix-presentation
 
         // switch ($request->typeSales) {
         //     case 1:
@@ -325,6 +388,7 @@ class SalesController extends Controller
     public function filterSales(Request $request)
     {
         try {
+<<<<<<< HEAD
             // Validar formato y existencia de las fechas
             if (empty($request->dateInit) || empty($request->dateEnd)) {
                 return response()->json(['error' => 'Ambas fechas son requeridas.'], 422);
@@ -376,45 +440,62 @@ class SalesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+=======
+            $data = $this->saleService->filterSales($request);
+            $sales = $data->sales;
+            $totalAmount = $data->totalAmount;
+            return response()->json(["view"=>view('venta.list.listSale', compact('sales', 'totalAmount'))->render()]);
+        } catch (Exception $e) {
+            Log::error("Error en SalesController: " . $e->getMessage());
+        }
+    }
+
+>>>>>>> feature/fix-presentation
     public function obtenerDatosVentas()
     {
-        $year = now()->year;
-        $totalVentas = DB::table(DB::raw('(SELECT 1 AS mes UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12) meses'))
-            ->crossJoin('areas')
-            ->leftJoin(DB::raw('(SELECT MONTH(date_admission) AS mes, agents.area_id, SUM(amount) AS amount FROM sales INNER JOIN agents ON sales.agent_id = agents.id WHERE YEAR(date_admission) = '.$year.' GROUP BY mes, agents.area_id) sales'), function ($join) {
-                $join->on('meses.mes', '=', 'sales.mes')->on('areas.id', '=', 'sales.area_id');
-            })
-            ->select(
-                'meses.mes as mes',
-                'areas.name as area',
-                DB::raw('COALESCE(SUM(sales.amount), 0) AS total_ventas')
-            )
-            ->groupBy('meses.mes', 'areas.name')
-            ->orderBy('meses.mes', 'asc')
-            ->orderBy('areas.name', 'asc')
-            ->get();
-
-        $lineData = [
-            'labels' => ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
-            'datasets' => []
-        ];
-
-        $areas = $totalVentas->pluck('area')->unique()->toArray();
-
-        foreach ($areas as $area) {
-            $ventasPorArea = $totalVentas->where('area', $area)->pluck('total_ventas')->toArray();
-            $color = $this->randomColor();
-            $lineData['datasets'][] = [
-                'label' => $area,
-                'backgroundColor' => $color,
-                'borderColor' => $color,
-                'pointBackgroundColor' => $color,
-                'pointBorderColor' => '#fff',
-                'data' => $ventasPorArea
-            ];
+        try {
+            $data = $this->saleService->getSaleData();
+            $lineData = $this->getLineData($data);
+        } catch (Exception $e) {
+            Log::error("Error en SalesController: " . $e->getMessage());
         }
+        // $year = now()->year;
+        // $totalVentas = DB::table(DB::raw('(SELECT 1 AS mes UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12) meses'))
+        //     ->crossJoin('areas')
+        //     ->leftJoin(DB::raw('(SELECT MONTH(date_admission) AS mes, agents.area_id, SUM(amount) AS amount FROM sales INNER JOIN agents ON sales.agent_id = agents.id WHERE YEAR(date_admission) = '.$year.' GROUP BY mes, agents.area_id) sales'), function ($join) {
+        //         $join->on('meses.mes', '=', 'sales.mes')->on('areas.id', '=', 'sales.area_id');
+        //     })
+        //     ->select(
+        //         'meses.mes as mes',
+        //         'areas.name as area',
+        //         DB::raw('COALESCE(SUM(sales.amount), 0) AS total_ventas')
+        //     )
+        //     ->groupBy('meses.mes', 'areas.name')
+        //     ->orderBy('meses.mes', 'asc')
+        //     ->orderBy('areas.name', 'asc')
+        //     ->get();
 
-        return response()->json($lineData);
+        // $lineData = [
+        //     'labels' => ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+        //     'datasets' => []
+        // ];
+
+        // $areas = $totalVentas->pluck('area')->unique()->toArray();
+
+        // foreach ($areas as $area) {
+        //     $ventasPorArea = $totalVentas->where('area', $area)->pluck('total_ventas')->toArray();
+        //     $color = $this->randomColor();
+        //     $lineData['datasets'][] = [
+        //         'label' => $area,
+        //         'backgroundColor' => $color,
+        //         'borderColor' => $color,
+        //         'pointBackgroundColor' => $color,
+        //         'pointBorderColor' => '#fff',
+        //         'data' => $ventasPorArea
+        //     ];
+        // }
+
+        // return response()->json($lineData);
     }
 
     private function randomColor()
@@ -429,8 +510,9 @@ class SalesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function updateSale(Request $request)
+    public function updateSale(SaleRequest $request)
     {
+<<<<<<< HEAD
         // Definimos estructura de respuesta inicial
         $title = "Error";
         $mensaje = "Error desconocido";
@@ -499,6 +581,14 @@ class SalesController extends Controller
                 "text" => "No se pudo interpretar el rango de fechas.",
                 "status" => "error"
             ]);
+=======
+        try {
+            $data = $this->saleService->updateSale($request);
+            $bonusAgent = $data->bonusAgent;
+            return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        } catch (Exception $e) {
+            Log::error("Error en SalesController: " . $e->getMessage());
+>>>>>>> feature/fix-presentation
         }
 
         // Aplicar filtros para mostrar la tabla actualizada
@@ -606,6 +696,7 @@ class SalesController extends Controller
         // }
     }
 
+<<<<<<< HEAD
 
     /**
      * Remove the specified resource from storage.
@@ -617,4 +708,6 @@ class SalesController extends Controller
     {
         //
     }
+=======
+>>>>>>> feature/fix-presentation
 }

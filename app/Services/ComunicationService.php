@@ -1,107 +1,102 @@
 <?php
 namespace App\Services;
 
-use App\Interfaces\ComunicationInterface;
-use App\Models\Agent;
-use App\Models\Comunications;
-use App\Models\CustomerStatus;
-use App\Models\User;
+use App\Enums\StatusEnum;
+use App\Helpers\ResponseHelper;
+use App\Interfaces\AgentRepositoryInterface;
+use App\Interfaces\ClientStatusRepositoryInterface;
+use App\Interfaces\ComunicationRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
-class ComunicationService implements ComunicationInterface {
+class ComunicationService
+{
 
-    public function __construct()
-    {}
+    protected $userRepository, $agentRepository, $comunicationRepository, $customerStatusRepository;
 
-    public function saveComunication($request) {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-        $data = "";
-
-        try {
-            $user_id = Auth::user()->id;
-            $agent = Agent::where('user_id', $user_id)->first();
-
-            $comunication = new Comunications();
-            $comunication->agent_id = $agent->id;
-            $comunication->tipo = 'Llamada';
-            $comunication->customer_id = $request['customer_id'];
-            $comunication->date = Carbon::now();
-            $comunication->descripcion = $request['description'];
-            $comunication->comment = $request['comment'];
-            $comunication->status = "NUEVO";
-            if ($comunication->save()) {
-                $title = "Correcto";
-                $mensaje = "Comunication Success";
-                $status = "success";
-                $data = $comunication->id;
-            }
-
-        } catch (\Throwable $th) {
-            $title = "Error";
-            $mensaje = $th->getMessage();
-            $status = "error";
-            $data = "";
-        }
-        return ['title' => $title, 'mensaje' => $mensaje, 'status' => $status, 'data' => $data];
+    public function __construct(
+        UserRepositoryInterface $userRepository,
+        AgentRepositoryInterface $agentRepository,
+        ComunicationRepositoryInterface $comunicationRepository, 
+        ClientStatusRepositoryInterface $customerStatusRepository
+    ) {
+        $this->userRepository = $userRepository;
+        $this->agentRepository = $agentRepository;
+        $this->comunicationRepository = $comunicationRepository;
+        $this->customerStatusRepository = $customerStatusRepository;
     }
 
-    public function updateComunication($request) {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-
-        $statusCustomer_id = $request['customerStatusId'];
-        $statusCommunicationName = "";
-
-        if ($statusCustomer_id) {
-            $statusCommunication = CustomerStatus::find($request['customerStatusId']);
-            $statusCommunicationName = $statusCommunication->name;
-        }
-
+    public function saveComunication(array $data)
+    {
+        DB::beginTransaction();
         try {
+            $agent = $this->agentRepository->getMyAgent();
 
-            $user_id = Auth::user()->id;
-            $agent = Agent::where('user_id', $user_id)->first();
-
-            $comunication = Comunications::find($request['comunicationId']);
-            $comunication->comment = $request['comment'];
-            $comunication->status = $statusCommunicationName;
-
-            if ($comunication->save()) {
-                $title = "Correcto";
-                $mensaje = "Comunication Update";
-                $status = "success";
+            if (!$agent) {
+                return ResponseHelper::error("No se encontró el agente asociado.");
             }
 
-        } catch (ValidationException $e) {
-            $title = "Error";
-            $mensaje = $e->getMessage();
-            $status = "error";
+            $data['agent_id'] = $agent->id;
+            $data['date'] = Carbon::now();
+            $data['tipo'] = 'Llamada';
+            $data['status'] = StatusEnum::NUEVO->value;
+
+            $comunication = $this->comunicationRepository->save($data);
+            DB::commit();
+
+            return ResponseHelper::success("Comunicación guardada correctamente.", ['comunication' => $comunication]);
+        } catch (Throwable $e) { 
+            DB::rollBack();
+            Log::error("Error inesperado en updateComunication: " . $e->getMessage());
+            return ResponseHelper::error("Ocurrió un error inesperado. Contacte con soporte.");
+        }        
+    }
+
+    public function updateComunication(array $data)
+    {
+        DB::beginTransaction();
+        try {
+            $customerStatus = $this->customerStatusRepository->findById($data['customerStatusId']);
+            $statusCommunicationName = $customerStatus ? $customerStatus->name : null;
+
+            $comunication = $this->comunicationRepository->findById($data['comunicationId']);
+
+            if (!$comunication) {
+                return ResponseHelper::error("Comunicación no encontrada.");
+            }
+
+            $data['status'] = $statusCommunicationName;
+
+            $updated = $this->comunicationRepository->update($comunication, $data);
+            DB::commit();
+
+            return ResponseHelper::success("Comunicación actualizada correctamente.", ['comunication' => $updated]);
+        } catch (Throwable $e) { 
+            DB::rollBack();
+            Log::error("Error inesperado en updateComunication: " . $e->getMessage());
+            return ResponseHelper::error("Ocurrió un error inesperado. Contacte con soporte.");
+        }        
+    }
+
+    public function getLocationByAgent(int $agentId)
+    {
+        try {
+            $communications = $this->comunicationRepository->getComunicationsByAgent($agentId);
+            return ResponseHelper::success("Historial de comunicaciones del agente obtenido correctamente.", ['communications' => $communications]);
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = "Verificar los datos del registro";
-            $status = "error";
+            Log::error("Error en getLocationByAgent: " . $e->getMessage());
+            return ResponseHelper::error("Error al obtener el historial de comunicaciones del agente.");
         }
-
-        return [
-            'title' => $title,
-            'mensaje' => $mensaje,
-            'status' => $status
-        ];
     }
 
-    public function getLocationByAgent($request) {
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-        $data = [];
-
+    public function getLocationByCustomer(int $customerId)
+    {
         try {
+<<<<<<< HEAD
             $communication = Comunications::where('agent_id', $request['agent_id'])->get();
             $title = "Correcto";
             $mensaje = "Lista de Communication";
@@ -131,6 +126,13 @@ class ComunicationService implements ComunicationInterface {
             return $communications;
         } catch (\Exception $e) {
             return collect();
+=======
+            $communications = $this->comunicationRepository->getComunicationsByCustomer($customerId);
+            return ResponseHelper::success("Historial de comunicaciones del cliente obtenido correctamente.", ['communications' => $communications]);
+        } catch (Exception $e) {
+            Log::error("Error en getLocationByCustomer: " . $e->getMessage());
+            return ResponseHelper::error("Error al obtener el historial de comunicaciones del cliente.");
+>>>>>>> feature/fix-presentation
         }
     }
 

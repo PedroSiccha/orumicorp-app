@@ -154,7 +154,7 @@ Clientes
                     <div class="col-sm-3">
                         <div class="input-group"><input placeholder="Search" type="text" class="form-control form-control-sm"> <span class="input-group-append"> <button type="button" class="btn btn-sm btn-primary">Go!
                         </button> </span></div>
- 
+
                     </div> --}}
                 </div>
                 <div id="skeleton-loader">
@@ -205,7 +205,7 @@ Clientes
 @include('cliente.modal.modalEditarCliente')
 @include('cliente.modal.modalAsignarAgente')
 @include('cliente.modal.callModal')
-@include('cliente.modal.modalConfigTable')
+{{-- @include('cliente.modal.modalConfigTable') --}}
 @include('cliente.modal.modalConfigTableLocal')
 @include('cliente.modal.modalCrearComentario')
 @include('cliente.modal.modalChangeStatus')

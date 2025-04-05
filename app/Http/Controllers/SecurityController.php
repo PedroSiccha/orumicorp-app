@@ -6,18 +6,22 @@ use App\Http\Controllers\Controller;
 use App\Models\Agent;
 use App\Models\Customers;
 use App\Models\Premio;
+use App\Services\SecurityService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class SecurityController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    protected $securityService;
+
+    public function __construct(SecurityService $securityService) {
+        $this->securityService = $securityService;
+    }
+
     public function index()
     {
 
@@ -159,50 +163,32 @@ class SecurityController extends Controller
         // $permission = Permission::create(['name' => 'Perfil Cliente - Ver Ciudad']);
         // $permission = Permission::create(['name' => 'Perfil Cliente - Ver Pais']);
 
-        $user_id = Auth::user()->id;
-
-        $agent = Agent::where('user_id', $user_id)->first();
-        $client = Customers::where('user_id', $user_id)->first();
-        $rouletteSpin = $agent->number_turns ?: 0;
-
-        $dataUser = null;
-
-        if ($agent) {
-            $dataUser = $agent;
+        try {
+            $data = $this->securityService->getSecurityData();
+            $roles = $data->roles;
+            $permisos = $data->permisos;
+            $rouletteSpin = $data->rouletteSpin;
+            return view('security.index', compact('roles', 'permisos', 'rouletteSpin'));
+        } catch (Exception $e) {
+            Log::error("Error en SecurityController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar los datos de seguridad.');
         }
-
-        if ($client) {
-            $dataUser = $client;
-        }
-
-        $roles = Role::paginate(10)->withQueryString();
-        $permisos = Permission::get();
-        $premios1 = Premio::where('status', true)->where('type', 1)->get();
-        $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        return view('security.index', compact('premios1', 'premios2', 'roles', 'permisos', 'dataUser', 'rouletteSpin'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function saveRol(Request $request)
     {
-        $resp = 0;
-
-        $role = Role::create(['name' => $request->name]);
-        if ($role) {
-            $resp = 1;
+        try {
+            $data = $this->securityService->saveRol($request);
+            $roles = $data->roles;
+            return response()->json(["view"=>view('security.components.tabRoles', compact('roles'))->render(), "resp"=>$resp]);
+        } catch (Exception $e) {
+            Log::error("Error en SecurityController: " . $e->getMessage());
         }
-
-        $roles = Role::get();
-
-        return response()->json(["view"=>view('security.components.tabRoles', compact('roles'))->render(), "resp"=>$resp]);
     }
 
     public function verPermisos(Request $request)
     {
+<<<<<<< HEAD
         $rol = Role::where('id', $request->id)->first();
 
         // Si el rol no existe, retornamos respuesta vacía o con error según convenga
@@ -237,88 +223,37 @@ class SecurityController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+=======
+        try {
+            $data = $this->securityService->getPermisos($request);
+            $permisos = $data->permisos;
+            return response()->json(["view"=>view('security.components.tabPermisos', compact('permisos'))->render()]);
+        } catch (Exception $e) {
+            Log::error("Error en SecurityController: " . $e->getMessage());
+        }
+    }
+
+>>>>>>> feature/fix-presentation
     public function asignarPermisoRol(Request $request)
     {
-        $resp = 0;
-
-        $rol_id = $request->rol_id;
-        $permiso_id = $request->idPermiso;
-
-        $rol = Role::findById($rol_id);
-
-        for ($i=0; $i < count($permiso_id) ; $i++) {
-
-            $permiso = Permission::find($permiso_id);
-
-            $rol->givePermissionTo($permiso);
-
-            if ($rol) {
-                $resp = 1;
-            }
-
+        try {
+            $data = $this->securityService->asignarPermisoRol($request);
+            $permisos = $data->permisos;
+            return response()->json(["view"=>view('security.components.tabPermisos', compact('permisos'))->render(), "resp"=>$resp]);
+        } catch (Exception $e) {
+            Log::error("Error en SecurityController: " . $e->getMessage());
         }
-
-        if ($rol) {
-            $permisos = $rol->permissions;
-        }
-
-        return response()->json(["view"=>view('security.components.tabPermisos', compact('permisos'))->render(), "resp"=>$resp]);
-
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function deletePermiso(Request $request)
     {
-        $rol = Role::findById($request->idRol);
-        $permiso = Permission::find($request->idPermiso);
-        $rol->revokePermissionTo($permiso);
-
-        $rol = Role::where('id', $request->idRol)->first();
-
-        if ($rol) {
-            $permisos = $rol->permissions;
+        try {
+            $data = $this->securityService->deletePermiso($request);
+            $permisos = $data->permisos;
+            return response()->json(["view"=>view('security.components.tabPermisos', compact('permisos'))->render()]);
+        } catch (Exception $e) {
+            Log::error("Error en SecurityController: " . $e->getMessage());
         }
-
-        return response()->json(["view"=>view('security.components.tabPermisos', compact('permisos'))->render()]);
-
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

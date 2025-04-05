@@ -25,22 +25,15 @@
 
 <body>
     <div id="wrapper">
-        {{-- Sidebar --}}
-        @include('partials.sidebar')
-        <div id="page-wrapper" class="gray-bg">
-            {{-- Navbar --}}
-            @include('partials.navbar')
 
-            {{-- Contenido dinámico --}}
+        @include('partials.sidebar')
+
+        <div id="page-wrapper" class="gray-bg">
+            @include('partials.navbar')
             <div class="wrapper wrapper-content animated fadeInRight">
                 @yield('content')
             </div>
-
-            {{-- Footer --}}
             @include('partials.footer')
-
-            
-
         </div>
 
         <div id="celebration" class="hidden">
@@ -65,15 +58,13 @@
                                 <div id="pointer"></div>
                                 <canvas id="roulette" width="400" height="400"></canvas>
                                 <button id="spinButton">🎰 Girar</button>
-                            </div> 
-                                                                                
+                            </div>                                      
                             <div id="celebration" class="hidden">
                                 <div class="celebration-content">
                                     <h1 id="winner-message">🎉 ¡Ganaste! 🎉</h1>
                                     <button onclick="closeCelebration()">Aceptar</button>
                                 </div>
                             </div>  
-
                         </div>
                     </div>
 
@@ -82,8 +73,12 @@
                 </div>
             </div>
         </div>
+
         @include('cliente.modal.modalCrearComentario')
+
     </div>
+
     @include('layouts.footerimport')
+    
 </body>
 </html>

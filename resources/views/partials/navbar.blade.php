@@ -2,6 +2,15 @@
     <div class="navbar-header">
         <a class="navbar-minimalize minimalize-styl-2 btn btn-primary" href="#"><i class="fa fa-bars"></i></a>
     </div>
+    {{-- Mostrar el nombre del usuario autenticado --}}
+    @if(Auth::check())
+        @php
+            $usuario = Auth::user();
+        @endphp
+        <span class="navbar-text ml-3">
+            <b>Bienvenido, {{ $usuario->name }}</b>
+        </span>
+    @endif
     <ul class="nav navbar-top-links navbar-right">
         <li><a id="dateMenu"></a></li>
         <li><a id="clockMenu"></a></li>

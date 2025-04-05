@@ -4,107 +4,54 @@ namespace App\Http\Controllers;
 
 use App\Models\CategoryFolder;
 use App\Http\Controllers\Controller;
+use App\Services\CategoryFolderService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CategoryFolderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
+
+    protected $categoryFolderService;
+
+    public function __construct(CategoryFolderService $categoryFolderService) {
+        $this->categoryFolderService = $categoryFolderService;
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function saveCategoryFolder(Request $request)
+    
+    public function saveCategoryFolder(CategoryRequest $request)
     {
-        $name = $request->name;
-        $title = 'Error';
-        $mensaje = 'Error desconocido';
-        $status = 'error';
-
         try {
-            $categoryFolder = new CategoryFolder();
-            $categoryFolder->name = $name;
-            $categoryFolder->status = true;
-            if ($categoryFolder->save()) {
-                $title = "Correcto";
-                $mensaje = "Categoría de folder creado correctamente";
-                $status = "success";
-            } else {
-                $title = 'Error';
-                $mensaje = 'Error desconocido';
-                $status = 'error';
-            }
+            $data = $this->categoryFolderService->saveCategoryFolder($request);
+            $categoryFolders = $data->categoryFolders;
+            return response()->json(["view"=>view('categoryFolder.list.listCategoryFolder', compact('categoryFolders'))->render(), "resp"=>$resp]);
         } catch (Exception $e) {
-            $title = 'Error';
-            $mensaje = 'Ocurrió un error: '.$e->getMessage();
-            $status = 'error';
+            Log::error("Error en CategoryFolderController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar las categorías de folder.');
         }
-        return response()->json(["title" => $title, "text" => $mensaje, "status" => $status]);
+        // $name = $request->name;
+        // $title = 'Error';
+        // $mensaje = 'Error desconocido';
+        // $status = 'error';
+
+        // try {
+        //     $categoryFolder = new CategoryFolder();
+        //     $categoryFolder->name = $name;
+        //     $categoryFolder->status = true;
+        //     if ($categoryFolder->save()) {
+        //         $title = "Correcto";
+        //         $mensaje = "Categoría de folder creado correctamente";
+        //         $status = "success";
+        //     } else {
+        //         $title = 'Error';
+        //         $mensaje = 'Error desconocido';
+        //         $status = 'error';
+        //     }
+        // } catch (Exception $e) {
+        //     $title = 'Error';
+        //     $mensaje = 'Ocurrió un error: '.$e->getMessage();
+        //     $status = 'error';
+        // }
+        // return response()->json(["title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\CategoryFolder  $categoryFolder
-     * @return \Illuminate\Http\Response
-     */
-    public function show(CategoryFolder $categoryFolder)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\CategoryFolder  $categoryFolder
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(CategoryFolder $categoryFolder)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\CategoryFolder  $categoryFolder
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, CategoryFolder $categoryFolder)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\CategoryFolder  $categoryFolder
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(CategoryFolder $categoryFolder)
-    {
-        //
-    }
 }

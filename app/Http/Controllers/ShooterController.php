@@ -14,170 +14,121 @@ use App\Models\Folder;
 use App\Models\Premio;
 use App\Models\Shooter;
 use App\Models\User;
+use App\Services\ShooterService;
 // use App\Notifications\InitNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ShooterController extends Controller
 {
 
+    protected $shooterService;
+
+    public function __construct(ShooterService $shooterService) {
+        $this->shooterService = $shooterService;
+    }
+
     public function index()
     {
-        $user_id = Auth::user()->id;
-        $user = User::where('id', $user_id)->first();
-        $roles = $user->getRoleNames()->first();
-        $agent = Agent::where('user_id', $user_id)->first();
-        $dataUser = $agent;
-        $clients = [];
-
-        // $user = User::find($user_id); // Usuario al que enviarás la notificación
-        // $user->notify(new InitNotification(['message' => '¡Notificación en tiempo real  SEND!']));
-
-
-        $agent = Agent::where('user_id', $user_id)->first();
-        $premios1 = Premio::where('status', true)->where('type', 1)->get();
-        $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        $rouletteSpin = $agent->number_turns ?: 0;
-        $clients = Customers::where('id_status', 1)->with(['latestComunication', 'latestCampaign', 'latestSupplier'])->get();
-
-        $shooter = Shooter::where('status', 1)->first();
-        $na = CustomerStatus::where('name', 'NA')->first();
-        $na_1 = CustomerStatus::where('name', 'NA 1')->first();
-        $na_2 = CustomerStatus::where('name', 'NA 2')->first();
-        $na_3 = CustomerStatus::where('name', 'NA 3')->first();
-
-        //dd($na_1);
-
-        if ($shooter) {
-            $clients = Customers::where('folder_id', $shooter->folder_id)->whereNotIn('id_status', [$na->id, $na_1->id, $na_2->id, $na_3->id])->get();
+        try {
+            $data = $this->shooterService->getShooterData();
+            $rouletteSpin = $data->rouletteSpin;
+            $clients = $data->clients;
+            $shooter = $data->shooter;
+            $folders = $data->folders;
+            $statusCustomers = $data->statusCustomers;
+            return view('shooter.index', compact('rouletteSpin', 'dataUser', 'clients', 'shooter', 'folders', 'statusCustomers'));
+        } catch (Exception $e) {
+            Log::error("Error en ShooterController: " . $e->getMessage());
+            return redirect()->route('home')->with('error', 'No se pudieron cargar los datos de shooter.');
         }
-
-        $folders = Folder::where('status', 1)->get();
-        $statusCustomers = CustomerStatus::all();
-
-        return view('shooter.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'clients', 'shooter', 'folders', 'statusCustomers'));
     }
 
     public function administrarShoter()
     {
-        $user_id = Auth::user()->id;
-        $user = User::where('id', $user_id)->first();
-        $roles = $user->getRoleNames()->first();
-        $agent = Agent::where('user_id', $user_id)->first();
-        $dataUser = $agent;
-
-
-        $agent = Agent::where('user_id', $user_id)->first();
-        $premios1 = Premio::where('status', true)->where('type', 1)->get();
-        $premios2 = Premio::where('status', true)->where('type', 2)->get();
-        $rouletteSpin = $agent->number_turns ?: 0;
-
-        $categoryFolders = CategoryFolder::where('status', 1)->get();
-        $folders = Folder::where('status', 1)->where('category_id', 1)->get();
-
-        return view('shooter.details.index', compact('premios1', 'premios2','rouletteSpin', 'dataUser', 'categoryFolders', 'folders'));
+        try {
+            $data = $this->shooterService->getShooterAdmin();
+            $rouletteSpin = $data->rouletteSpin;
+            $categoryFolders = $data->categoryFolders;
+            $folders = $data->folders;
+            return view('shooter.admin.index', compact('rouletteSpin', 'dataUser', 'categoryFolders', 'folders'));
+        } catch (Exception $e) {
+            Log::error("Error en ShooterController: " . $e->getMessage());
+        }
     }
 
     public function viewFolder(Request $request)
     {
-        $folders = Folder::where('status', 1)->where('category_id', $request->categoryId)->get();
-        return response()->json(["view"=>view('shooter.components.listFolder', compact('folders'))->render()]);
+        try {
+            $data = $this->shooterService->getFolderData($request);
+            $folders = $data->folders;
+            return response()->json(["view"=>view('shooter.components.listFolder', compact('folders'))->render()]);
+        } catch (Exception $e) {
+            Log::error("Error en ShooterController: " . $e->getMessage());
+        }
     }
 
     public function viewListClients(Request $request)
     {
-
-        $clients = Customers::where('status', 1)->where('folder_id', $request->folderId)->get();
-        return response()->json(["view"=>view('shooter.components.listClient', compact('clients'))->render()]);
+        try {
+            $data = $this->shooterService->getClientsByFolder($request);
+            $clients = $data->clients;
+            return response()->json(["view"=>view('shooter.components.listClient', compact('clients'))->render()]);
+        } catch (Exception $e) {
+            Log::error("Error en ShooterController: " . $e->getMessage());
+        }
     }
 
     public function viewResumClient(Request $request)
     {
-        $client = Customers::with(['latestComunication', 'latestAssignamet', 'statusCustomer', 'latestCampaign', 'latestSupplier', 'traiding'])->find($request->clientId);
-        $comunications = Comunications::where('customer_id', $client->id)->get();
-        return response()->json(["view"=>view('shooter.components.detailClient', compact('client', 'comunications'))->render()]);
+        try {
+            $data = $this->shooterService->getResumClient($request);
+            $client = $data->client;
+            $comunications = $data->comunications;
+            return response()->json(["view"=>view('shooter.components.detailClient', compact('client', 'comunications'))->render()]);
+        } catch (Exception $e) {
+            Log::error("Error en ShooterController: " . $e->getMessage());
+        }
     }
 
     public function activeShooter(Request $request)
     {
-        $folder_id = $request->folder_id;
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-        $shooter_id = 0;
-        $clients = [];
-
         try {
-            $message = "Este es un mensaje de notificación en tiempo real!";
-            // broadcast(new RealTimeNotification($message));
+            $data = $this->shooterService->activeShooter($request);
+            $shooter = $data->shooter;
+            $dataClients = $this->shooterService->getClientsByFolder($request);
+            $clients = $dataClients->clients;
+            return response()->json(["view"=>view('shooter.components.btnActiveAdmin', compact('shooter'))->render(), "viewClients"=>view('shooter.table.tableShooter', compact('clients', 'shooter'))->render(), "shooter_id" => $shooter->id, "title" => 'Éxito', "text" => 'Shooter activado', "status" => 'success']);
         } catch (Exception $e) {
+            Log::error("Error en ShooterController: " . $e->getMessage());
         }
-
-
-
-        try {
-            $shooter = new Shooter();
-            $shooter->status = true;
-            $shooter->start = Carbon::now();
-            $shooter->folder_id = $folder_id;
-            if ($shooter->save()) {
-                $title = "Éxito";
-                $status = "success";
-                $shooter_id = $shooter->id;
-                $mensaje = "Shooter activado";
-            }
-        } catch (Exception $e) {
-            $title = "Error";
-            $status = "error";
-            $mensaje = "Hubo un error en SHOOTER";
-            echo("Error: " . $e->getMessage());
-        }
-        $shooter = Shooter::where('status', true)->first();
-        $na = CustomerStatus::where('name', 'NA')->first();
-        $na_1 = CustomerStatus::where('name', 'NA 1')->first();
-        $na_2 = CustomerStatus::where('name', 'NA 2')->first();
-        $na_3 = CustomerStatus::where('name', 'NA 3')->first();
-        if ($shooter) {
-            $clients = Customers::where('folder_id', $shooter->folder_id)->whereNotIn('id_status', [$na->id, $na_1->id, $na_2->id, $na_3->id])->get();
-        }
-        return response()->json(["view"=>view('shooter.components.btnActiveAdmin', compact('shooter'))->render(), "viewClients"=>view('shooter.table.tableShooter', compact('clients', 'shooter'))->render(), "shooter_id" => $shooter_id, "title" => $title, "text" => $mensaje, "status" => $status]);
+        
+        // if ($shooter) {
+        //     $clients = Customers::where('folder_id', $shooter->folder_id)->whereNotIn('id_status', [$na->id, $na_1->id, $na_2->id, $na_3->id])->get();
+        // }
+        // return response()->json(["view"=>view('shooter.components.btnActiveAdmin', compact('shooter'))->render(), "viewClients"=>view('shooter.table.tableShooter', compact('clients', 'shooter'))->render(), "shooter_id" => $shooter_id, "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
     public function disableShooter(Request $request)
     {
-        $shooter_id = $request->shooter_id;
-        $title = "Error";
-        $mensaje = "Error desconocido";
-        $status = "error";
-        $clients = [];
-
         try {
-            $shooter = Shooter::find($shooter_id);
-            $shooter->end = Carbon::now();
-            $shooter->status = false;
-            if ($shooter->save()) {
-                $title = "Éxito";
-                $status = "success";
-                $mensaje = "Shooter apagado";
-            }
+            $data = $this->shooterService->disableShooter($request);
+            $shooter = $data->shooter;
+            $dataClients = $this->shooterService->getClientsByFolder($request);
+            $clients = $dataClients->clients;
+            return response()->json(["view"=>view('shooter.components.btnActiveAdmin', compact('shooter'))->render(), "viewClients"=>view('shooter.table.tableShooter', compact('clients', 'shooter'))->render(), "title" => 'Éxito', "text" => 'Shooter apagado', "status" => 'success']);
         } catch (Exception $e) {
-            $title = "Error";
-            $status = "error";
-            $mensaje = "Hubo un error en SHOOTER";
-            echo("Error: " . $e->getMessage());
+            Log::error("Error en ShooterController: " . $e->getMessage());
         }
-        $shooter = Shooter::where('status', true)->first();
-        $na = CustomerStatus::where('name', 'NA')->first();
-        $na_1 = CustomerStatus::where('name', 'NA 1')->first();
-        $na_2 = CustomerStatus::where('name', 'NA 2')->first();
-        $na_3 = CustomerStatus::where('name', 'NA 3')->first();
-        if ($shooter) {
-            $clients = Customers::where('folder_id', $shooter->folder_id)->whereNotIn('id_status', [$na->id, $na_1->id, $na_2->id, $na_3->id])->get();
-        }
-        return response()->json(["view"=>view('shooter.components.btnActiveAdmin', compact('shooter'))->render(), "viewClients"=>view('shooter.table.tableShooter', compact('clients', 'shooter'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
+        
+        // if ($shooter) {
+        //     $clients = Customers::where('folder_id', $shooter->folder_id)->whereNotIn('id_status', [$na->id, $na_1->id, $na_2->id, $na_3->id])->get();
+        // }
+        // return response()->json(["view"=>view('shooter.components.btnActiveAdmin', compact('shooter'))->render(), "viewClients"=>view('shooter.table.tableShooter', compact('clients', 'shooter'))->render(), "title" => $title, "text" => $mensaje, "status" => $status]);
     }
 
     public function uploadExcelByFolder(Request $request)
@@ -204,30 +155,15 @@ class ShooterController extends Controller
     }
 
     public function notiffyShooter() {
-        $type = "";
-        $message = "";
-        $shooter = "0";
-        $phone = "";
-
-        $user_id = Auth::user()->id;
-        $agent = Agent::where('user_id', $user_id)->first();
-
-        $shooter = Shooter::where('status', 1)->first();
-
-        if ($shooter) {
-            $clients = Customers::where('folder_id', $shooter->folder_id)->get();
-
-            if ($clients->isNotEmpty()) {
-                $randomClient = $clients->random();
-                $message = "Llamada activa con " . $randomClient->name;
-                $phone = $randomClient->phone;
-                $type = "info";
-                $shooter = "1";
-            }
-
+        try {
+            $data = $this->shooterService->notiffyShooter();
+            $shooter = $data->shooter;
+            $type = $data->type;
+            $message = $data->message;
+            $phone = $data->phone;
+            return response()->json(["type" => $type, "message" => $message, "shooter" => $shooter, "phone" => $phone]);
+        } catch (Exception $e) {
+            Log::error("Error en ShooterController: " . $e->getMessage());
         }
-
-        return response()->json(["type" => $type, "message" => $message, "shooter" => $shooter, "phone" => $phone]);
-
     }
 }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Agent extends Model
 {
     protected $table = 'agents';
-    protected $fillable = ['id', 'code', 'name', 'lastname', 'code_voiso', 'status', 'number_turns', 'img'. 'status_voiso'];
+    protected $fillable = ['id', 'code', 'name', 'lastname', 'code_voiso', 'status', 'number_turns', 'img'. 'status_voiso', 'uuid'];
 
     public function area()
     {
