@@ -41,7 +41,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/uploadImg', [App\Http\Controllers\AgentController::class, 'uploadImg'])->name('uploadImg');
     Route::post('/changePassword', [App\Http\Controllers\AgentController::class, 'changePassword'])->name('changePassword');
     Route::post('/agentsPagination', [App\Http\Controllers\AgentController::class, 'agentsPagination'])->name('agentsPagination');
+
+    Route::get('/agents/search', [App\Http\Controllers\AgentController::class, 'searchAjax'])->name('searchAgentAjax');
+
     Route::get('/agents/search', [App\Http\Controllers\AgentController::class, 'search'])->name('agents.search');
+
 
     Route::get('areas', [\App\Http\Controllers\AreaController::class, 'index'])->middleware('markAsSeen:areas')->name('areas');
     Route::post('/saveArea', [App\Http\Controllers\AreaController::class, 'saveArea'])->name('saveArea');
