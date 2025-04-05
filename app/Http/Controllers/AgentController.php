@@ -136,4 +136,32 @@ class AgentController extends Controller
 
         return response()->json($results);
     }
+
+    public function search(Request $request)
+    {
+        $query = $request->get('term', '');
+
+        $agents = Agent::query()
+            ->select('id', 'name', 'lastname', 'code_voiso')
+            ->where('status', 1)
+            ->when($query, function ($q) use ($query) {
+                $q->where(function ($sub) use ($query) {
+                    $sub->where('name', 'LIKE', "%{$query}%")
+                        ->orWhere('lastname', 'LIKE', "%{$query}%")
+                        ->orWhere('code_voiso', 'LIKE', "%{$query}%");
+                });
+            })
+            ->limit(20)
+            ->get();
+
+        return response()->json([
+            'results' => $agents->map(function ($agent) {
+                return [
+                    'id' => $agent->id,
+                    'text' => "{$agent->name} {$agent->lastname} ({$agent->code_voiso})"
+                ];
+            })
+        ]);
+    }
+
 }

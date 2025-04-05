@@ -22,6 +22,7 @@
                         </button>
                     @endcan
                 </div>
+
             </div>       
                     
             
@@ -44,6 +45,160 @@
                         </div>
                         <div class="col-md-3 mb-2">
                             <select class="form-control" id="inputCode" style="width: 100%"></select>
+
+
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div class="modal inmodal fade" id="modalBonus" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Registrar Bonus</h4>
+            </div>
+            <div class="modal-body">
+                <div id="alertErrorCreateBonus" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorTextCreateBonus"></span>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Agente</label>
+                    <div class="input-group col-lg-9">
+                        <input type="text" class="form-control" id="dniAgent" placeholder="ID DEL AGENTE">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-primary ladda-button-agent-create-bonus" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniAgent', inputName: '#nameAgent', alertError: '#alertErrorCreateBonus', alertErrorText: '#alertErrorTextCreateBonus', btnLadda: '.ladda-button-agent-create-bonus' })"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Datos del Agente</label>
+                    <div class="col-lg-9">
+                        <input type="text" placeholder="Nombre del agente" class="form-control" id='nameAgent' readonly>
+                    </div>
+                </div>
+                <div class="form-group row"><label class="col-lg-3 col-form-label">Bono</label>
+                    <div class="col-lg-9">
+                        <input type="number" placeholder="Ingrese el bono" class="form-control" id="commission">
+                    </div>
+                </div>
+                <div class="form-group row"><label class="col-lg-3 col-form-label">Comentario</label>
+                    <div class="col-lg-9"><textarea class="form-control" placeholder="Ingrese su comentario" id="observation"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info " type="button" onclick="createBonus({dniAgent: '#dniAgent', commission: '#commission', inputObservation: '#observation', modal: '#modalBonus', table: '#tabBonus', typeSales: '2'})"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal inmodal fade" id="modalDescuento" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div    class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Registrar Descuento</h4>
+            </div>
+            <div class="modal-body">
+                <div id="alertErrorCreateDescuento" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorTextCreateDescuento"></span>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Agente</label>
+                    <div class="input-group col-lg-9">
+                        <input type="text" class="form-control" id="dniDiscountAgent" placeholder="ID DEL AGENTE">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-primary ladda-button-agent-create-descuento" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniDiscountAgent', inputName: '#nameDiscountAgent', alertError: '#alertErrorCreateDescuento', alertErrorText: '#alertErrorTextCreateDescuento', btnLadda: '.ladda-button-agent-create-descuento' })"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Datos del Agente</label>
+                    <div class="col-lg-9">
+                        <input type="text" placeholder="Nombre del agente" class="form-control" id='nameDiscountAgent' readonly>
+                    </div>
+                </div>
+                <div class="form-group row"><label class="col-lg-3 col-form-label">Monto</label>
+                    <div class="col-lg-9">
+                        <input type="number" placeholder="Ingrese un monto" class="form-control" id="amountDiscount">
+                    </div>
+                </div>
+                <div class="form-group row"><label class="col-lg-3 col-form-label">Comentario</label>
+                    <div class="col-lg-9"><textarea class="form-control" placeholder="Ingrese su comentario" id="observationDiscount"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info " type="button" onclick="createDiscount({dniAgent: '#dniDiscountAgent', commission: '#amountDiscount', inputObservation: '#observationDiscount', modal: '#modalDescuento', table: '#tabBonus', typeSales: '3'})"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal inmodal fade" id="modalRegistrarTarget" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Registrar Target</h4>
+                <small>{{ date("F") }}</small>
+            </div>
+            <div class="modal-body">
+                <div id="alertErrorRegistrarTarget" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorTextRegistrarTarget"></span>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Agente</label>
+                    <div class="input-group col-lg-9">
+                        <input type="text" class="form-control" id="dniTargetAgent" placeholder="ID DEL AGENTE">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-primary ladda-button-agent-registrar-target" data-style="zoom-in" onclick="searchAgent({inputcodeVoiso: '#dniTargetAgent', inputName: '#nameTargetAgent', alertError: '#alertErrorRegistrarTarget', alertErrorText: '#alertErrorTextRegistrarTarget', btnLadda: '.ladda-button-agent-registrar-target' })"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Datos del Agente</label>
+                    <div class="col-lg-9">
+                        <input type="text" placeholder="Nombre del agente" class="form-control" id='nameTargetAgent' readonly>
+                    </div>
+                </div>
+                <div class="form-group row"><label class="col-lg-3 col-form-label">Monto</label>
+                    <div class="col-lg-9">
+                        <input type="number" placeholder="Ingrese un moneto" class="form-control" id="amountTarget">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info " type="button" onclick="createTarget('#amountTarget', '#dniTargetAgent', '#modalRegistrarTarget', '#tabTarget')"><i class="fa fa-save"></i> Guardar</button>
+                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal inmodal fade" id="modalRegistrarRetiro" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Registrar Retiro</h4>
+            </div>
+            <div class="modal-body">
+                <div id="alertErrorRegistrarRetiro" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorTextRegistrarRetiro"></span>
+                </div>
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Agente</label>
+                    <div class="input-group col-lg-9">
+                        <input type="text" class="form-control" id="dniAgentRetiro" placeholder="ID DEL AGENTE">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-primary ladda-button-agent-registrar-retiro" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniAgentRetiro', inputName: '#nameAgentRetiro', alertError: '#alertErrorRegistrarRetiro', alertErrorText: '#alertErrorTextRegistrarRetiro', btnLadda: '.ladda-button-agent-registrar-retiro' })"><i class="fa fa-search"></i></button>
+
                         </div>
                         <div class="col-md-2 mb-2">
                             <button class="btn btn-warning btn-sm" id="btnClearFilters"><i class="fa fa-eraser"></i> Limpiar Filtros</button>

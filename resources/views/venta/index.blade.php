@@ -10,25 +10,28 @@
           <div class="ibox ">
               <div class="ibox-title d-flex justify-content-between align-items-center">
                 <div class="row">
-                <div class="col-sm-1">
+                <div class="col-sm-12">
                   <h5>Tabla Ventas </h5>
                 </div> 
-                @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
-                  <div class="col-sm-2">
+                {{-- @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR')) --}}
+                <div class="col-sm-12 mt-2">
+                    @include('components.sales.filters', ['areas' => $areas])
+                </div>
+                  {{-- <div class="col-sm-2">
                     @can('Filtrar Today')
                     <div class="input-group date">
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
                     </div>
                     @endcan
-                </div>
-                <div class="col-sm-2">
+                </div> --}}
+                {{-- <div class="col-sm-2">
                     @can('Filtrar Today')
                     <div class="input-group date">
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
                     </div>
                     @endcan
-                </div>
-                <div class="col-sm-2 text-right">
+                </div> --}}
+                {{-- <div class="col-sm-2 text-right">
                     @can('Filtrar Area Today')
                         <select class="form-control m-b" name="area" id="area" onchange="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
                             @foreach($areas as $area)
@@ -36,76 +39,32 @@
                             @endforeach
                         </select>
                     @endcan
-                </div>
-                <div class="col-sm-3">
+                </div> --}}
+                {{-- <div class="col-sm-3">
                     <div class="input-group mb-3">
                         <input type="text" class="form-control form-control-sm" placeholder="Buscar por nombre o código" id="inputCode" oninput="filterSales('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabVenta')">
                         <div class="input-group-append">
                             <button class="btn btn-sm btn-default" type="button"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
-                </div>
-                @endif
+                </div> --}}
+                {{-- @endif
                   <div class="col-sm-2">
                     @can('Registrar Ventas')
                         <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalVenta')"><i class="fa fa-plus"></i> Registrar Venta</button>
                     @endcan
-                  </div>
+                  </div> --}}
                 </div>
               </div>
+              <div id="skeleton-loader" class="d-none">
+                <div class="text-center py-5">
+                    <i class="fa fa-spinner fa-spin fa-3x text-muted"></i>
+                    <p class="mt-2">Cargando resultados...</p>
+                </div>
+            </div>
+            
               <div class="ibox-content" id="tabVenta">
-                  <table class="table table-striped">
-                      <thead>
-                      <tr>
-                          <th>Fecha de Ingreso</th>
-                          <th>ID de Cliente</th>
-                          <th>Nombre del Cliente</th>
-                          <th>Monto</th>
-                          <th>Porcentaje</th>
-                          <th>Comisión</th>
-                          <th>Tipo de Cambio</th>
-                          {{-- <th>Comisión en Soles</th> --}}
-                          <th>Agente</th>
-                          <th>Area</th>
-                          <th>Comentario</th>
-                          <th>Acción</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                        @foreach ($sales as $sale)
-                            <tr>
-                                <td>{{ date("d/m/Y", strtotime($sale->date_admission)) }}</td>
-                                <td>{{ $sale->customer->id }}</td>
-                                <td>{{ $sale->customer->name }} {{ $sale->customer->lastname }}</td>
-                                <td> $ {{ number_format($sale->amount, 2) }} </td>
-                                <td>{{ $sale->percent }}</td>
-                                <td> $ {{ number_format($sale->commission, 2) }}</td>
-                                <td>{{ $sale->exchange_rate }}</td>
-                                {{-- <td>{{ $sale->commission }}</td> --}}
-                                <td>{{ $sale->agent->name }} {{ $sale->agent->lastname }}</td>
-                                <td>{{ $sale->agent->area->name }}</td>
-                                <td>{{ $sale->obsercation }}</td>
-                                <td>
-                                    @can('Editar Venta')
-                                        <button class="btn btn-warning " type="button" onclick="editarSale('{{ $sale->id }}', '{{ $sale->customer->id }}', '{{ $sale->customer->name }} {{ $sale->customer->lastname }}', '{{ $sale->amount }}', '{{ $sale->percent }}', '{{ $sale->exchange_rate }}', '{{ $sale->comission }}', '{{ $sale->agent->id }}', '{{ $sale->agent->code }}', '{{ $sale->agent->name }} {{ $sale->agent->lastname }}', '{{ $sale->obsercation }}', '#modalEditarVenta', '#eId', '#eIdClient', '#eNameClient', '#eAmount', '#ePercent', '#eTypeChange', '#eComission', '#eIdAgent', '#eCodAgent', '#eNameAgent', '#eObservation')"><i class="fa fa-pencil"></i></button>
-                                    @endcan
-                                </td>
-                            </tr>
-                        @endforeach
-                        <tr>
-                            <td></td>
-                            <td>TOTAL</td>
-                            <td>:</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>$ {{ number_format($totalAmount, 2) }}</td>
-                            <td></td>
-                        </tr>
-                      </tbody>
-                  </table>
+                  
               </div>
           </div>
       </div>
@@ -131,7 +90,7 @@
                             </td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="dniCustomer" placeholder="Ingrese el DNI o Código del cliente">
+                                    <input type="text" class="form-control" id="dniCustomer" placeholder="CODIGO DE CLIENTE">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-primary ladda-button-client" data-style="zoom-in" onclick="searchClient({ inputDni: '#dniCustomer', inputName: '#nameCustomer', alertError: '#alertError', alertErrorText: '#alertErrorText', btnLadda: '.ladda-button-client' })"><i class="fa fa-search"></i></button>
                                     </div>
@@ -152,7 +111,7 @@
                             </td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="dniAgent" placeholder="Ingrese el DNI o Código del agente">
+                                    <input type="text" class="form-control" id="dniAgent" placeholder="ID DEL AGENTE">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-primary ladda-button-agent" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniAgent', inputName: '#nameAgent', alertError:  '#alertError', alertErrorText: '#alertErrorText', btnLadda: '.ladda-button-agent' })"><i class="fa fa-search"></i></button>
                                     </div>
@@ -236,6 +195,9 @@
                 <input type="text" class="form-control" id="eId" hidden>
             </div>
             <div class="modal-body">
+                <div id="alertErrorEdit" class="alert alert-danger alert-dismissable d-none">
+                    <span id="alertErrorTextEdit"></span>
+                </div>
                 <table class="table m-b-xs">
                     <tbody>
                         <tr hidden>
@@ -244,7 +206,7 @@
                             </td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="eIdClient" placeholder="Ingrese el DNI o Código del cliente">
+                                    <input type="text" class="form-control" id="eIdClient" placeholder="CODIGO DE CLIENTE">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-primary" onclick="searchClient('#dniCustomer', '#nameCustomer')"><i class="fa fa-search"></i></button>
                                     </div>
@@ -254,7 +216,7 @@
                         <tr>
                             <td>
                                 <strong>Datos del Cliente</strong>
-                            </td>
+                            </td> 
                             <td>
                                 <input style='font-size: large;' type='text' class='form-control text-success' placeholder="Nombre del cliente" id='eNameClient' readonly>
                             </td>
@@ -265,10 +227,10 @@
                             </td>
                             <td>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="eIdAgent" placeholder="Ingrese el DNI o Código del agente" hidden>
-                                    <input type="text" class="form-control" id="eCodAgent" placeholder="Ingrese el DNI o Código del agente">
+                                    <input type="text" class="form-control" id="eIdAgent" placeholder="ID DEL AGENTE" hidden>
+                                    <input type="text" class="form-control" id="eCodAgent" placeholder="ID DEL AGENTE">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-primary" onclick="searchAgent('#eCodAgent', '#eNameAgent')"><i class="fa fa-search"></i></button>
+                                        <button type="button" class="btn btn-primary ladda-button-agent-edit" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#eCodAgent', inputName: '#eNameAgent', alertError:  '#alertErrorEdit', alertErrorText: '#alertErrorTextEdit', btnLadda: '.ladda-button-agent-edit' })"><i class="fa fa-search"></i></button>
                                     </div>
                                 </div>
                             </td>
@@ -343,28 +305,34 @@
 @endsection
 @section('script')
     <script>
-        $(document).ready(function() {
-            $('#date_added_init').datepicker({
-                    todayBtn: "linked",
-                    keyboardNavigation: false,
-                    forceParse: false,
-                    calendarWeeks: true,
-                    autoclose: true
-            });
-            $('#date_added_end').datepicker({
-                    todayBtn: "linked",
-                    keyboardNavigation: false,
-                    forceParse: false,
-                    calendarWeeks: true,
-                    autoclose: true
-            });
+        $('#date_added_init').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayBtn: 'linked',
+            todayHighlight: true
         });
+
+        $('#date_added_end').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayBtn: 'linked',
+            todayHighlight: true
+        });
+
+        const today = new Date();
+        const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
+
+        $('#date_added_init').datepicker('setDate', firstDayOfYear);
+        $('#date_added_end').datepicker('setDate', today);
+
+
         var searchClientRoute = '{{ route("searchCustomer") }}';
         var saveSaleRoute = '{{ Route("saveSale") }}';
         var updateSaleRoute = '{{ Route("updateSale") }}';
         var searchAgentRoute = '{{ route("searchAgent") }}';
         var filterSalesRoute = '{{ route("filterSales") }}';
         var token = '{{ csrf_token() }}';
+        var agentSearchRoute = '{{ route("agents.search") }}';
     </script>
 
     <script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
@@ -376,12 +344,5 @@
     <script src="{{ asset('js/agent/searchAgent.js') }}"></script>
     <script src="{{ asset('js/sales/filterSales.js') }}"></script>
     <script src="{{ asset('js/sales/editSale.js') }}"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            markNotificationsAsSeen('sales');
-        });
-    </script>
-
 
 @endsection

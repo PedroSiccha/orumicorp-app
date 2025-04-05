@@ -325,7 +325,7 @@ class AgentService implements AgentInterface {
         $status = "error";
 
         $user = Auth::user();
-        $user = User::find($user->id);
+        $user = User::find($request->userId);
         $user->password = Hash::make($request->password);
 
         if ($user->save()) {

@@ -64,8 +64,10 @@ class CommentController extends Controller
                     "lastname" => $customer->lastname,
                     "phoneNumber" => $customer->phone, // Ajusta según el nombre del campo en la DB
                     "avatarUrl" => $customer->img ?? null,
-                    "createdAt" => $customer->created_at->format('d/m/Y'),
-                    "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                    // "createdAt" => $customer->created_at->format('d/m/Y'),
+                    // "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                    "createdAt" => Carbon::parse($customer->created_at)->format('d/m/Y'),
+                    "closedAt" => $customer->closed_at ? Carbon::parse($customer->closed_at)->format('d/m/Y') : null,
                     "source" => $customer->callbel_source ?? null,
                     "href" => $customer->callbell_href,
                     "conversationHref" => $customer->callbell_conversationHref,
@@ -90,8 +92,10 @@ class CommentController extends Controller
                     "lastname" => $customer->lastname,
                     "phoneNumber" => $customer->phone, // Ajusta según el nombre del campo en la DB
                     "avatarUrl" => $customer->img ?? null,
-                    "createdAt" => $customer->created_at->format('d/m/Y'),
-                    "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                    // "createdAt" => $customer->created_at->format('d/m/Y'),
+                    // "closedAt" => $customer->closed_at ? $customer->closed_at->format('d/m/Y') : null,
+                    "createdAt" => Carbon::parse($customer->created_at)->format('d/m/Y'),
+                    "closedAt" => $customer->closed_at ? Carbon::parse($customer->closed_at)->format('d/m/Y') : null,
                     "source" => $customer->callbel_source ?? null,
                     "href" => $customer->callbell_href,
                     "conversationHref" => $customer->callbell_conversationHref,
@@ -116,7 +120,7 @@ class CommentController extends Controller
 
 
     public function getChatDetails(Request $request)
-    {
+    { 
         $baseUrl = env('CALLBELL_API_BASE_URL');
         $token = env('CALLBELL_API_TOKEN');
 

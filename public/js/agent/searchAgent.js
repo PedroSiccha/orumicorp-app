@@ -25,7 +25,7 @@ function searchAgent(options) {
     })
     .always(function() {
         l.stop();
-    });
+    }); 
 }
 
 function searchAgentV2({ inputcodeVoiso, inputName, alertError, alertErrorText, btnLadda }) {

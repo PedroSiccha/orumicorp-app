@@ -3,6 +3,19 @@
     Whatsapp
 @endsection
 @section('content')
+<style>
+    #btn-send-message {
+        position: relative;
+        min-width: 100px;
+    }
+    #btn-spinner {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+</style>
+
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <h2>Whatsapp</h2>
@@ -17,7 +30,7 @@
             </li>
         </ol>
     </div>
-    <div class="col-lg-2"></div>
+    <div class="col-lg-2"></div> 
 </div>
 
 <div class="row">
@@ -54,7 +67,15 @@
                 <div>
                     <div class="feed-activity-list" id="contacts-list">
                         @foreach ($contacts as $contact)
-                        <div class="feed-element" onclick="verDetalleChat('{{ $contact['uuid'] }}', '{{ $contact['phoneNumber'] }}')">
+                        <div class="feed-element"
+                            onclick="verDetalleChat(
+                                '{{ $contact['uuid'] }}',
+                                '{{ $contact['phoneNumber'] }}',
+                                '{{ $contact['name'] ?? '' }}',
+                                '{{ $contact['lastname'] ?? '' }}',
+                                '{{ $contact['avatarUrl'] ?? 'img/logo/basic_logo.png' }}'
+                            )">
+
                             <a href="#" class="float-left">
                                 <img alt="image" class="rounded-circle mr-3" src="{{ $contact['avatarUrl'] ?? 'img/logo/basic_logo.png' }}" width="40" height="40">
                                 @if ($contact['source'] === 'whatsapp')
@@ -85,14 +106,24 @@
     <div class="col-md-8" id="chat-details">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 id="chat-client-name">Cliente</h5>
+                <div class="d-flex align-items-center" id="chat-header-info">
+                    <img id="chat-client-avatar" src="img/logo/basic_logo.png" width="40" height="40" class="rounded-circle mr-2">
+                    <h5 id="chat-client-name" class="mb-0">Cliente</h5>
+                </div>
+                
                 <button class="btn btn-success btn-sm" onclick="iniciarNuevoMensaje()">
                     <i class="fa fa-plus"></i> Nuevo Mensaje
                 </button>
             </div>
-            <div class="card-body" id="chat-messages">
-                <!-- Aquí se cargarán los mensajes del chat -->
+            <div class="card-body">
+                <div id="loading-chat" class="text-center my-3" style="display: none;">
+                    <img src="https://i.gifer.com/ZZ5H.gif" width="40" alt="Cargando...">
+                    <p>Cargando mensajes...</p>
+                </div>
+            
+                <div id="chat-messages"></div>
             </div>
+            
         </div>
     </div>
 </div>
@@ -171,6 +202,11 @@
             return;
         }
 
+        // ✅ Mostrar loader en botón
+        $('#btn-text').addClass('d-none');
+        $('#btn-spinner').removeClass('d-none');
+        $('#btn-send-message').attr('disabled', true);
+
         fetch("{{ route('sendMessage') }}", {
             method: 'POST',
             headers: {
@@ -181,7 +217,10 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data.message);
+             // ✅ Ocultar spinner y restaurar botón
+            $('#btn-text').removeClass('d-none');
+            $('#btn-spinner').addClass('d-none');
+            $('#btn-send-message').attr('disabled', false);
 
             if (data.message.status === 'enqueued') {
                 document.getElementById('inputMessage').value = "";
@@ -190,23 +229,21 @@
                 document.getElementById('inputMessage').value = "";
                 // alert('Error al enviar el mensaje. Inténtalo de nuevo.');
             }
-            if (uuid === '000' || uuid === "") {
+            if (!uuid || uuid === '000') {
                 obtenerDatosContacto(phone, id);
                 // location.reload();
             } else {
-                verDetalleChat(uuid, phone);
+                verDetalleChat(uuid, phone, '', '', '');
             }
+            // verDetalleChat(uuid, phone, 'sdfsdf', 'dfsdf', 'dfsdf');
         })
         .catch(error => {
-            console.error('Error:', error);
+            $('#btn-text').removeClass('d-none');
+            $('#btn-spinner').addClass('d-none');
+            $('#btn-send-message').attr('disabled', false);
             document.getElementById('inputMessage').value = "";
             // alert('Hubo un problema al enviar el mensaje.');
         });
     }
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        markNotificationsAsSeen('whatsapp');
-    });
 </script>
 @endsection

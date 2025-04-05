@@ -25,7 +25,7 @@
                               <th>Tipo</th>
                               <th>Acción</th>
                         </tr>
-                      </thead>
+                      </thead> 
                       <tbody>
                         @foreach ($roles as $rol)
                             <tr onclick="verPermisos('{{ $rol->id }}', '{{ $rol->name }}')">
@@ -191,6 +191,7 @@
         }
 
         function asignarPermiso() {
+            loadAssignedPermissions();
             $('#modalPermisos').modal('show');
         }
 
@@ -198,11 +199,24 @@
             $('#idRol').val(idRol);
             $('#btnAsignar').show();
             $("#nombreRolSeleccionado").text(` - ${name}`);
-            $.post("{{ Route('verPermisos') }}", {id: idRol, _token: '{{ csrf_token() }}'}).done(function(data) {
+            $.post("{{ Route('verPermisos') }}", {id: idRol, _token: '{{ csrf_token() }}'}).done(function(data) { 
                 $("#tabPermisos").empty();
                 $("#tabPermisos").html(data.view);
             });
         }
+
+        function loadAssignedPermissions() {
+            var rol_id = $('#idRol').val();
+            $.post("{{ route('verPermisos') }}", { id: rol_id, format: 'json', _token: '{{ csrf_token() }}' })
+            .done(function(data) {
+                // data.assignedPermissions es un arreglo de IDs asignados
+                $('.chekboxses').each(function() {
+                    var permisoId = parseInt($(this).val());
+                    $(this).prop('checked', data.assignedPermissions.includes(permisoId));
+                });
+            });
+        }
+
 
         function guardarNuevoRol() {
             var name = $("#name").val();

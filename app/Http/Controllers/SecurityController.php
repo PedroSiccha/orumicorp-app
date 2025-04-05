@@ -205,12 +205,31 @@ class SecurityController extends Controller
     {
         $rol = Role::where('id', $request->id)->first();
 
-        if ($rol) {
-            $permisos = $rol->permissions;
+        // Si el rol no existe, retornamos respuesta vacía o con error según convenga
+        if (!$rol) {
+            if ($request->has('format') && $request->format == 'json') {
+                return response()->json(['assignedPermissions' => []]);
+            }
+            return response()->json([
+                "view" => view('security.components.tabPermisos', ['permisos' => []])->render()
+            ]);
         }
 
-        return response()->json(["view"=>view('security.components.tabPermisos', compact('permisos'))->render()]);
+        // Obtenemos los permisos asignados al rol
+        $permisos = $rol->permissions;
+
+        // Si se solicita formato JSON, retornamos solo los IDs asignados
+        if ($request->has('format') && $request->format == 'json') {
+            $assignedPermissions = $permisos->pluck('id')->toArray();
+            return response()->json(['assignedPermissions' => $assignedPermissions]);
+        }
+
+        // Caso contrario, retornamos la vista renderizada para actualizar la tabla
+        return response()->json([
+            "view" => view('security.components.tabPermisos', compact('permisos'))->render()
+        ]);
     }
+
 
     /**
      * Store a newly created resource in storage.

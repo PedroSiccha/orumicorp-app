@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Sales extends Model
 {
     protected $table = 'sales';
-    protected $fillable = ['id', 'date_admission', 'amount', 'percent', 'exchange_rate', 'commission', 'observation', 'status'];
+    protected $fillable = ['id', 'date_admission', 'amount', 'percent', 'exchange_rate', 'commission', 'observation', 'status', 'agent_id', 'user_id', 'action_id', 'customer_id'];
 
     public function customer() {
         return $this->belongsTo(Customers::class);

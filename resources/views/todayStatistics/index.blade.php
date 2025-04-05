@@ -16,14 +16,14 @@
             <div class="col-sm-4">
                 @can('Filtrar Today')
                 <div class="input-group date">
-                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control">
                 </div>
                 @endcan
             </div>
             <div class="col-sm-4">
                 @can('Filtrar Today')
                 <div class="input-group date">
-                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterStatistics('#area', '#date_added_init', '#date_added_end', '#tabStatistics')">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" onchange="filterStatistics('#area', '#date_added_init', '#date_added_end', '#tabStatistics')">
                 </div>
                 @endcan
             </div>
@@ -51,7 +51,7 @@
               </div>
               <div class="ibox-content" id="tabStatistics">
 
-                  <table class="table table-striped">
+                  {{-- <table class="table table-striped">
                       <thead>
                       <tr>
                           <th>N°</th>
@@ -121,7 +121,7 @@
 
                         @endforeach
                       </tbody>
-                  </table>
+                  </table> --}}
               </div>
           </div>
       </div>
@@ -131,20 +131,26 @@
 <script>
     $(document).ready(function() {
         $('#date_added_init').datepicker({
-                todayBtn: "linked",
-                keyboardNavigation: false,
-                forceParse: false,
-                calendarWeeks: true,
-                autoclose: true
-        });
+            format: "dd/mm/yyyy",
+            todayBtn: "linked",
+            todayHighlight: true,
+            keyboardNavigation: false,
+            forceParse: false,
+            calendarWeeks: true,
+            autoclose: true
+        }).datepicker('setDate', new Date());
+
         $('#date_added_end').datepicker({
-                todayBtn: "linked",
-                keyboardNavigation: false,
-                forceParse: false,
-                calendarWeeks: true,
-                autoclose: true
-        });
+            format: "dd/mm/yyyy",
+            todayBtn: "linked",
+            todayHighlight: true,
+            keyboardNavigation: false,
+            forceParse: false,
+            calendarWeeks: true,
+            autoclose: true
+        }).datepicker('setDate', new Date());
     });
+
     var filterStatisticsRoute = '{{ route("filterStatistics") }}';
     var token = '{{ csrf_token() }}';
 </script>
