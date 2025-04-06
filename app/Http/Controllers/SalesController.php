@@ -20,28 +20,21 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-<<<<<<< HEAD
 use Illuminate\Validation\ValidationException;
-=======
->>>>>>> feature/fix-presentation
 
 use function PHPUnit\Framework\isNull;
 
 class SalesController extends Controller
 {
-<<<<<<< HEAD
     
     public function index()
     {
         $user_id = Auth::user()->id;
         $user = User::where('id', $user_id)->first();
         $roles = $user->getRoleNames()->first();
-=======
->>>>>>> feature/fix-presentation
 
     protected $saleService;
 
-<<<<<<< HEAD
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
 
@@ -91,7 +84,6 @@ class SalesController extends Controller
         $premios2 = Premio::where('status', true)->where('type', 2)->get();
         $areas = Area::where('status', true)->get();
         return view('venta.index', compact('percents', 'commissions', 'exchange_rates', 'sales', 'premios1', 'premios2', 'dataUser', 'rouletteSpin', 'totalAmount', 'areas'));
-=======
     public function __construct(SalesService $saleService) {
         $this->saleService = $saleService;
     }
@@ -113,7 +105,6 @@ class SalesController extends Controller
             Log::error("Error en SalesController: " . $e->getMessage());
             return redirect()->route('home')->with('error', 'No se pudieron cargar las ventas.');
         }
->>>>>>> feature/fix-presentation
     }
 
     public function searchCustomer(Request $request)

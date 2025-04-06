@@ -77,6 +77,12 @@
     {{-- <script src="https://js.pusher.com/7.2/pusher.min.js"></script> --}}
 
     <script>
+        window.token = "{{ csrf_token() }}";
+        window.notiffyShooterRoute = "{{ route('notiffyShooter') }}";
+    </script>
+    
+
+    <script>
             var updateGiroRoute = '{{ route("updateGiro") }}';
             var getPremioRoute = '{{ route("getPremio") }}';
             var notiffyShooterRoute = '{{ route("notiffyShooter") }}';

@@ -25,11 +25,9 @@ use App\Models\Task;
 use App\Models\User;
 use App\Rules\PhoneNumberFormat;
 use App\Services\AgentService;
-<<<<<<< HEAD
+use App\Services\ClientService;
 use App\Services\DateService;
 use Carbon\Carbon as CarbonCarbon;
-=======
->>>>>>> feature/fix-presentation
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;

@@ -1,0 +1,9 @@
+/* resources/css/components/clock.css */
+.clock-style {
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    margin: 50px;
+    font-family: 'Arial', sans-serif;
+  }
+  

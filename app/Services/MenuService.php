@@ -12,8 +12,8 @@ class MenuService
             [
                 'label' => 'Tablero',
                 'icon' => 'fa fa-home',
-                'url' => route('dashboard'),
-                'route' => 'dashboard',
+                'url' => route('home'),
+                'route' => 'home',
                 'can' => $user->can('Ver Tablero'),
                 'notification' => NotificationOnUpdateModel::where('user_id', auth()->id())->where('module', 'agents')->where('is_seen', false)->count()
             ],

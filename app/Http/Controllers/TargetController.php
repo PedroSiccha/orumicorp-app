@@ -4,10 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agent;
 use App\Models\Target;
-<<<<<<< HEAD
-=======
 use App\Services\TargetService;
->>>>>>> feature/fix-presentation
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +12,6 @@ use Illuminate\Support\Facades\Log;
 
 class TargetController extends Controller
 {
-<<<<<<< HEAD
     // public function saveTarget(Request $request)
     // {
     //     $title = "Error";
@@ -137,7 +133,6 @@ class TargetController extends Controller
             $title = "Error";
             $mensaje = "Hubo un error al actualizar el target";
             $status = "error";
-=======
 
     protected $targetService;
 
@@ -166,7 +161,6 @@ class TargetController extends Controller
             return response()->json(["viewDiv"=>view('profile.components.divTarget', compact('targets'))->render(), "viewTable"=>view('profile.components.tabTarget', compact('targets'))->render(), "viewTotal"=>view('profile.components.tabTotalTarget', compact('targetMensual'))->render(), "resp"=>$resp]);
         } catch (Exception $e) {
             Log::error("Error en TargetController: " . $e->getMessage());
->>>>>>> feature/fix-presentation
         }
     }
 

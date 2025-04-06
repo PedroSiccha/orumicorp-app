@@ -101,7 +101,6 @@ class HomeController extends Controller
             $listClientsProvider = Customers::where('id_provider', $providerId)->whereMonth('date_admission', Carbon::now()->month)->whereYear('date_admission', Carbon::now()->year)->with('statusCustomer')->get();
         }
 
-
-        return view('home', compact('premios1', 'premios2', 'dataUser', 'rouletteSpin', 'cantAgents', 'cantClients', 'montoVenta', 'montoRetencion', 'montosPorAgente', 'dateIn', 'cantClientsRegisterProvider', 'cantClientsActiveProvider', 'cantClientsProvider', 'listClientsProvider', 'percentClientsActiveProvider', 'percentClientsRegisterProvider'));
+        return view('home.home', compact('premios1', 'premios2', 'dataUser', 'rouletteSpin', 'cantAgents', 'cantClients', 'montoVenta', 'montoRetencion', 'montosPorAgente', 'dateIn', 'cantClientsRegisterProvider', 'cantClientsActiveProvider', 'cantClientsProvider', 'listClientsProvider', 'percentClientsActiveProvider', 'percentClientsRegisterProvider'));
     }
 }

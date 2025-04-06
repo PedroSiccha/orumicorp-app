@@ -12,3 +12,4 @@
 @import './roulette.css';
 @import 'select2/dist/css/select2.min.css';
 @import 'toastr/build/toastr.min.css';
+@import './components/clock.css';
