@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Contracts\Repositories\AssistanceRepositoryInterface;
+use App\Contracts\Repositories\SalesRepositoryInterface;
 use App\Interfaces\AgentBonusRepositoryInterface;
 use App\Interfaces\AgentInterface;
 use App\Interfaces\AssignamentInterface;
@@ -18,7 +20,6 @@ use App\Interfaces\UserInterface;
 use App\Repositories\AgentRepository;
 use App\Interfaces\AgentRepositoryInterface;
 use App\Interfaces\AreaRepositoryInterface;
-use App\Interfaces\AssistanceRepositoryInterface;
 use App\Repositories\AwardRepository;
 use App\Repositories\CampaingRepository;
 use App\Interfaces\CampaingRepositoryInterface;
@@ -46,7 +47,6 @@ use App\Repositories\ProviderRepository;
 use App\Interfaces\ProviderRepositoryInterface;
 use App\Repositories\RolRepository;
 use App\Interfaces\RolRepositoryInterface;
-use App\Interfaces\SalesRepositoryInterface;
 use App\Interfaces\SecurityRepositoryInterface;
 use App\Interfaces\ShooterRepositoryInterface;
 use App\Interfaces\StatysticsRepositoryInterface;

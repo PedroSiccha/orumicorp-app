@@ -19,7 +19,7 @@
         @include('home.partials._chartVentas')
     @endcan
 
-    @can('Rankig de Ventas Tablero')
+    @can('Rankig de Ventas Tablero') 
         @include('home.partials._rankingVentas')
     @endcan
 
@@ -29,4 +29,7 @@
 
     @include('cliente.modal.modalChargeGroup')
 
+@endsection
+@section('script')
+    @include('home.partials._script')
 @endsection

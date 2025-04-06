@@ -10,6 +10,8 @@ use App\Models\Area;
 use App\Models\Assistance;
 use App\Models\Customers;
 use App\Models\Premio;
+use App\Services\Assistance\ObtenerVistaAsistenciaService;
+use App\Services\Assistance\RegistrarAsistenciaService;
 use App\Services\PartTimeService;
 use Carbon\Carbon;
 use DateTime;
@@ -27,120 +29,162 @@ use Throwable;
 class PartTimeController extends Controller
 {
 
-    protected $partTimeService;
+    // protected $partTimeService;
 
-    public function __construct(PartTimeService $partTimeService) {
-        $this->partTimeService = $partTimeService;
+    protected $registrar;
+    protected $obtenerVista;
+
+
+    public function __construct(
+        // PartTimeService $partTimeService,
+
+        RegistrarAsistenciaService $registrar,
+        ObtenerVistaAsistenciaService $obtenerVista
+    ) {
+        // $this->partTimeService = $partTimeService;
+
+        $this->registrar = $registrar;
+        $this->obtenerVista = $obtenerVista;
     }
 
-    public function index()
+    public function registerAssistance(Request $request)
     {
         try {
-            $data = $this->partTimeService->getPartTimeData();
-            $dateIn = $data->dateIn;
-            $dateBreakIn = $data->dateBreakIn;
-            $dateBreakOut = $data->dateBreakOut;
-            $dateOut = $data->dateOut;
-            $assistances = $data->assistances;
-            $rouletteSpin = $data->rouletteSpin;
-            $areas = $data->areas;
-            $formattedData = $data->formattedData;
-            $types = $data->types;
-            return view('partTime.index', compact('premios1', 'premios2', 'dataUser', 'dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut', 'assistances', 'rouletteSpin', 'areas', 'formattedData', 'types'));
+            $data = $request->only(['hour', 'date', 'type', 'observation']);
+            $this->registrar->ejecutar($data);
+
+            $agentId = Auth::user()->agent->id ?? null;
+            if (!$agentId) {
+                throw new Exception('El usuario actual no tiene un agente asignado.');
+            }
+
+            $views = $this->obtenerVista->ejecutar($agentId);
+
+            return response()->json([
+                'status' => 'success',
+                'title' => 'Correcto',
+                'text' => 'Asistencia registrada correctamente',
+                'view' => $views['view'],
+                'viewTable' => $views['viewTable'],
+            ]);
         } catch (Exception $e) {
-            Log::error("Error en PartTimeController: " . $e->getMessage());
-            return redirect()->route('home')->with('error', 'No se pudieron cargar los datos de tiempo parcial.');
+            Log::error('Error al registrar asistencia: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'title' => 'Error',
+                'text' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function registerAssistance(AssistanceRequest $request)
-    {
-        try {
-            $data = $this->partTimeService->registerAssistance($request);
-            $dateIn = $data->dateIn;
-            $dateBreakIn = $data->dateBreakIn;
-            $dateBreakOut = $data->dateBreakOut;
-            $dateOut = $data->dateOut;
-            return response()->json(["view"=>view('partTime.components.panelButton', compact('dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut'))->render(), "viewTable"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
-        } catch (Exception $e) {
-            Log::error("Error en PartTimeController: " . $e->getMessage());
-        }
-    }
+    // public function index()
+    // {
+    //     try {
+    //         $data = $this->partTimeService->getPartTimeData();
+    //         $dateIn = $data->dateIn;
+    //         $dateBreakIn = $data->dateBreakIn;
+    //         $dateBreakOut = $data->dateBreakOut;
+    //         $dateOut = $data->dateOut;
+    //         $assistances = $data->assistances;
+    //         $rouletteSpin = $data->rouletteSpin;
+    //         $areas = $data->areas;
+    //         $formattedData = $data->formattedData;
+    //         $types = $data->types;
+    //         return view('partTime.index', compact('premios1', 'premios2', 'dataUser', 'dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut', 'assistances', 'rouletteSpin', 'areas', 'formattedData', 'types'));
+    //     } catch (Exception $e) {
+    //         Log::error("Error en PartTimeController: " . $e->getMessage());
+    //         return redirect()->route('home')->with('error', 'No se pudieron cargar los datos de tiempo parcial.');
+    //     }
+    // }
 
-    public function filterAssistance(AssistanceRequest $request)
-    {
-<<<<<<< HEAD
+    // public function registerAssistance(AssistanceRequest $request)
+    // {
+    //     try {
+    //         $data = $this->partTimeService->registerAssistance($request);
+    //         $dateIn = $data->dateIn;
+    //         $dateBreakIn = $data->dateBreakIn;
+    //         $dateBreakOut = $data->dateBreakOut;
+    //         $dateOut = $data->dateOut;
+    //         return response()->json(["view"=>view('partTime.components.panelButton', compact('dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut'))->render(), "viewTable"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+    //     } catch (Exception $e) {
+    //         Log::error("Error en PartTimeController: " . $e->getMessage());
+    //     }
+    // }
 
-        $nombre = $request->code;
-        $area = $request->area;
+    // public function filterAssistance(AssistanceRequest $request)
+    // {
 
-        $user_id = Auth::user()->id;
-        $agent = Agent::where('user_id', $user_id)->first();
+    //     $nombre = $request->code;
+    //     $area = $request->area;
 
-        // Convertir fechas al formato interno (YYYY-MM-DD)
-        $startDate = $this->parseDate($request->dateInit) ?? Carbon::now()->toDateString();
-        $endDate = $this->parseDate($request->dateEnd) ?? Carbon::now()->toDateString();
+    //     $user_id = Auth::user()->id;
+    //     $agent = Agent::where('user_id', $user_id)->first();
 
-       // Construcción de la consulta con JOINs para incluir el área del agente
-        $query = DB::table('assistance as a')
-                    ->join('agents as ag', 'a.agent_id', '=', 'ag.id')
-                    ->join('areas as ar', 'ag.area_id', '=', 'ar.id') // Relación con áreas
-                    ->select(
-                        'a.date',  // Agregamos la fecha para la agrupación
-                        'a.agent_id',
-                        'ag.name as agent_name',
-                        'ag.lastname as last_name',
-                        'ar.name as area_name', // Nombre del área del agente
-                        'a.hour',
-                        'a.type',
-                        'a.observation'
-                    )
-                    ->whereBetween('a.date', [$startDate, $endDate]) 
-                    ->orderBy('a.date', 'DESC')  // Ordenamos por fecha
-                    ->orderBy('a.hour', 'ASC');
+    //     // Convertir fechas al formato interno (YYYY-MM-DD)
+    //     $startDate = $this->parseDate($request->dateInit) ?? Carbon::now()->toDateString();
+    //     $endDate = $this->parseDate($request->dateEnd) ?? Carbon::now()->toDateString();
 
-        // Si se ingresó un nombre de agente, aplicamos el filtro
-        if (!empty($nombre)) {
-            $query->where(DB::raw("CONCAT(ag.name, ' ', ag.lastname)"), 'LIKE', "%{$nombre}%");
-        }
+    //    // Construcción de la consulta con JOINs para incluir el área del agente
+    //     $query = DB::table('assistance as a')
+    //                 ->join('agents as ag', 'a.agent_id', '=', 'ag.id')
+    //                 ->join('areas as ar', 'ag.area_id', '=', 'ar.id') // Relación con áreas
+    //                 ->select(
+    //                     'a.date',  // Agregamos la fecha para la agrupación
+    //                     'a.agent_id',
+    //                     'ag.name as agent_name',
+    //                     'ag.lastname as last_name',
+    //                     'ar.name as area_name', // Nombre del área del agente
+    //                     'a.hour',
+    //                     'a.type',
+    //                     'a.observation'
+    //                 )
+    //                 ->whereBetween('a.date', [$startDate, $endDate]) 
+    //                 ->orderBy('a.date', 'DESC')  // Ordenamos por fecha
+    //                 ->orderBy('a.hour', 'ASC');
 
-        if (!empty($area)) {
-            $query->where('ag.area_id', $area);
-        }
+    //     // Si se ingresó un nombre de agente, aplicamos el filtro
+    //     if (!empty($nombre)) {
+    //         $query->where(DB::raw("CONCAT(ag.name, ' ', ag.lastname)"), 'LIKE', "%{$nombre}%");
+    //     }
 
-        // Obtener los resultados
-        $assistances = $query->get();
+    //     if (!empty($area)) {
+    //         $query->where('ag.area_id', $area);
+    //     }
 
-        // **Nueva estructura** para mostrar correctamente las fechas
-        $formattedData = [];
-        $types = ['IN', 'IN-BREAK', 'OUT-BREAK', 'OUT']; // Tipos fijos
+    //     // Obtener los resultados
+    //     $assistances = $query->get();
 
-        foreach ($assistances as $record) {
-            $date = Carbon::parse($record->date)->format('d/m/Y'); // Formateamos la fecha a DD/MM/YYYY
-            $agentName = $record->agent_name . " " . $record->last_name;
-            $area = $record->area_name; // Se añade el área
+    //     // **Nueva estructura** para mostrar correctamente las fechas
+    //     $formattedData = [];
+    //     $types = ['IN', 'IN-BREAK', 'OUT-BREAK', 'OUT']; // Tipos fijos
+
+    //     foreach ($assistances as $record) {
+    //         $date = Carbon::parse($record->date)->format('d/m/Y'); // Formateamos la fecha a DD/MM/YYYY
+    //         $agentName = $record->agent_name . " " . $record->last_name;
+    //         $area = $record->area_name; // Se añade el área
     
-            $type = $record->type;
+    //         $type = $record->type;
     
-            $formattedData[$date][$agentName]['area'] = $area; // Se almacena el área en la estructura
-            $formattedData[$date][$agentName][$type][] = [
-                'hour' => $record->hour,
-                'observation' => $record->observation
-            ];
-        }
+    //         $formattedData[$date][$agentName]['area'] = $area; // Se almacena el área en la estructura
+    //         $formattedData[$date][$agentName][$type][] = [
+    //             'hour' => $record->hour,
+    //             'observation' => $record->observation
+    //         ];
+    //     }
 
-        return response()->json(["view"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render()]);
-    }
+    //     return response()->json(["view"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render()]);
+    // }
 
     // Función para convertir string dd/mm/yyyy a Y-m-d
-    private function parseDate($date)
-    {
-        try {
-            return Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d');
-        } catch (Exception $e) {
-            return null;
-        }
-    }
+    // private function parseDate($date)
+    // {
+    //     try {
+    //         return Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d');
+    //     } catch (Exception $e) {
+    //         return null;
+    //     }
+    // }
 
     // Formateo limpio
     // private function formatAssistances($assistances)
@@ -169,100 +213,97 @@ class PartTimeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function descargarReportePDF(Request $request)
-=======
-        try {
-            $data = $this->partTimeService->filterAssistance($request);
-            $assistances = $data->assistances;
-            $formattedData = $data->formattedData;
-            $types = $data->types;
-            return response()->json(["view"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render()]);
-        } catch (Exception $e) {
-            Log::error("Error en PartTimeController: " . $e->getMessage());
-        }
+    // public function descargarReportePDF(Request $request) {
+    //     try {
+    //         $data = $this->partTimeService->filterAssistance($request);
+    //         $assistances = $data->assistances;
+    //         $formattedData = $data->formattedData;
+    //         $types = $data->types;
+    //         return response()->json(["view"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render()]);
+    //     } catch (Exception $e) {
+    //         Log::error("Error en PartTimeController: " . $e->getMessage());
+    //     }
 
-    }
+    // }
 
-    public function descargarReportePDF()
->>>>>>> feature/fix-presentation
-    {
-        $dateStart = $request->input('date_start');
-        $dateEnd = $request->input('date_end');
-        $areaId = $request->input('area');
-        $code = $request->input('code');
+    // public function descargarReportePDF()
+    // {
+    //     $dateStart = $request->input('date_start');
+    //     $dateEnd = $request->input('date_end');
+    //     $areaId = $request->input('area');
+    //     $code = $request->input('code');
 
-        $query = Assistance::with('agent')
-            ->select('agent_id', 'date', 'hour', 'type', 'observation')
-            ->join('agents', 'assistance.agent_id', '=', 'agents.id');
+    //     $query = Assistance::with('agent')
+    //         ->select('agent_id', 'date', 'hour', 'type', 'observation')
+    //         ->join('agents', 'assistance.agent_id', '=', 'agents.id');
 
-        if ($dateStart && $dateEnd) {
-            $start = Carbon::createFromFormat('d/m/Y', $dateStart)->format('Y-m-d');
-            $end = Carbon::createFromFormat('d/m/Y', $dateEnd)->format('Y-m-d');
-            $query->whereBetween('assistance.date', [$start, $end]);
-        }
+    //     if ($dateStart && $dateEnd) {
+    //         $start = Carbon::createFromFormat('d/m/Y', $dateStart)->format('Y-m-d');
+    //         $end = Carbon::createFromFormat('d/m/Y', $dateEnd)->format('Y-m-d');
+    //         $query->whereBetween('assistance.date', [$start, $end]);
+    //     }
 
-        if ($areaId) {
-            $query->where('agents.area_id', $areaId);
-        }
+    //     if ($areaId) {
+    //         $query->where('agents.area_id', $areaId);
+    //     }
 
-        if ($code) {
-            $query->where(function ($q) use ($code) {
-                $q->where('agents.name', 'like', '%' . $code . '%')
-                ->orWhere('agents.lastname', 'like', '%' . $code . '%')
-                ->orWhere('agents.code_voiso', 'like', '%' . $code . '%');
-            });
-        }
+    //     if ($code) {
+    //         $query->where(function ($q) use ($code) {
+    //             $q->where('agents.name', 'like', '%' . $code . '%')
+    //             ->orWhere('agents.lastname', 'like', '%' . $code . '%')
+    //             ->orWhere('agents.code_voiso', 'like', '%' . $code . '%');
+    //         });
+    //     }
 
-        $data = $query->orderBy('date')->orderBy('hour')->get();
+    //     $data = $query->orderBy('date')->orderBy('hour')->get();
 
-        // Agrupar por fecha + agente
-        $grouped = $data->groupBy(fn($a) => $a->date . '_' . $a->agent_id);
+    //     // Agrupar por fecha + agente
+    //     $grouped = $data->groupBy(fn($a) => $a->date . '_' . $a->agent_id);
 
-        $assistances = collect();
+    //     $assistances = collect();
 
-        foreach ($grouped as $group) {
-            $first = $group->first();
-            $agent = $first->agent;
+    //     foreach ($grouped as $group) {
+    //         $first = $group->first();
+    //         $agent = $first->agent;
 
-            $record = [
-                'date' => $first->date,
-                'agent' => $agent->name . ' ' . $agent->lastname,
-                'IN' => '',
-                'INBREAK' => '',
-                'OUTBREAK' => '',
-                'OUT' => '',
-            ];
+    //         $record = [
+    //             'date' => $first->date,
+    //             'agent' => $agent->name . ' ' . $agent->lastname,
+    //             'IN' => '',
+    //             'INBREAK' => '',
+    //             'OUTBREAK' => '',
+    //             'OUT' => '',
+    //         ];
 
-            foreach ($group as $entry) {
-                $value = $entry->hour;
-                if (!empty($entry->observation)) {
-                    $value .= "<br><small>" . $entry->observation . "</small>";
-                }
+    //         foreach ($group as $entry) {
+    //             $value = $entry->hour;
+    //             if (!empty($entry->observation)) {
+    //                 $value .= "<br><small>" . $entry->observation . "</small>";
+    //             }
 
-                switch ($entry->type) {
-                    case 'IN': $record['IN'] = $value; break;
-                    case 'IN-BREAK': $record['INBREAK'] = $value; break;
-                    case 'OUT-BREAK': $record['OUTBREAK'] = $value; break;
-                    case 'OUT': $record['OUT'] = $value; break;
-                }
-            }
+    //             switch ($entry->type) {
+    //                 case 'IN': $record['IN'] = $value; break;
+    //                 case 'IN-BREAK': $record['INBREAK'] = $value; break;
+    //                 case 'OUT-BREAK': $record['OUTBREAK'] = $value; break;
+    //                 case 'OUT': $record['OUT'] = $value; break;
+    //             }
+    //         }
 
-            $assistances->push($record);
-        }
+    //         $assistances->push($record);
+    //     }
 
-        $options = new Options();
-        $options->set('defaultFont', 'Arial');
-        $options->set('isHtml5ParserEnabled', true);
+    //     $options = new Options();
+    //     $options->set('defaultFont', 'Arial');
+    //     $options->set('isHtml5ParserEnabled', true);
 
-        $pdf = new Dompdf($options);
-        $pdf->loadHtml(view('report.assistance_pdf', ['assistances' => $assistances])->render());
-        $pdf->setPaper('A4', 'landscape');
-        $pdf->render();
+    //     $pdf = new Dompdf($options);
+    //     $pdf->loadHtml(view('report.assistance_pdf', ['assistances' => $assistances])->render());
+    //     $pdf->setPaper('A4', 'landscape');
+    //     $pdf->render();
 
-        return $pdf->stream('asistencia.pdf');
-    }
+    //     return $pdf->stream('asistencia.pdf');
+    // }
 
-<<<<<<< HEAD
 
 
     /**
@@ -271,28 +312,25 @@ class PartTimeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function descargarReporteExcel(Request $request)
-=======
-    public function descargarReporteExcel()
->>>>>>> feature/fix-presentation
-    {
-        try {
-            return Excel::download(
-                new AsistenciasExport(
-                    $request->input('date_start'),
-                    $request->input('date_end'),
-                    $request->input('area'),
-                    $request->input('code')
-                ),
-                'asistencias.xlsx'
-            );
-        } catch (Throwable $e) {
-            dd($e->getMessage());
-            return response($e->getMessage(), 500); // Devuelve el mensaje exacto
-        }
-    }
+    // public function descargarReporteExcel(Request $request)
+    // public function descargarReporteExcel()
+    // {
+    //     try {
+    //         return Excel::download(
+    //             new AsistenciasExport(
+    //                 $request->input('date_start'),
+    //                 $request->input('date_end'),
+    //                 $request->input('area'),
+    //                 $request->input('code')
+    //             ),
+    //             'asistencias.xlsx'
+    //         );
+    //     } catch (Throwable $e) {
+    //         dd($e->getMessage());
+    //         return response($e->getMessage(), 500); // Devuelve el mensaje exacto
+    //     }
+    // }
 
-<<<<<<< HEAD
 
 
     /**
@@ -302,20 +340,18 @@ class PartTimeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function registerVacations(Request $request)
-=======
-    public function registerVacations(PartTimeRequest $request)
->>>>>>> feature/fix-presentation
-    {
-        try {
-            $data = $this->partTimeService->registerVacations($request);
-            $dateIn = $data->dateIn;
-            $dateBreakIn = $data->dateBreakIn;
-            $dateBreakOut = $data->dateBreakOut;
-            $dateOut = $data->dateOut;
-            return response()->json(["view"=>view('partTime.components.panelButton', compact('dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut'))->render(), "viewTable"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
-        } catch (Exception $e) {
-            Log::error("Error en PartTimeController: " . $e->getMessage());
-        }
-    }
+    // public function registerVacations(Request $request)
+    // public function registerVacations(PartTimeRequest $request)
+    // {
+    //     try {
+    //         $data = $this->partTimeService->registerVacations($request);
+    //         $dateIn = $data->dateIn;
+    //         $dateBreakIn = $data->dateBreakIn;
+    //         $dateBreakOut = $data->dateBreakOut;
+    //         $dateOut = $data->dateOut;
+    //         return response()->json(["view"=>view('partTime.components.panelButton', compact('dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut'))->render(), "viewTable"=>view('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+    //     } catch (Exception $e) {
+    //         Log::error("Error en PartTimeController: " . $e->getMessage());
+    //     }
+    // }
 }

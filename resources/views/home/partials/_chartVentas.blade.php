@@ -10,7 +10,7 @@
                     <h3 class="font-bold no-margins">Ventas</h3>
                 </div>
 
-                <div class="m-t-sm">
+                <div class="m-t-sm"> 
                     <div class="row">
                         <div class="col-md-12">
                             @include('home.partials.shimmers._shimmerChart')

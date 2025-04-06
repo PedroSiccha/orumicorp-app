@@ -18,9 +18,11 @@
         "vite": "^6.2.5"
     },
     "dependencies": {
+        "chart.js": "^4.4.8",
         "laravel-echo": "^1.17.0",
         "pusher-js": "^8.4.0-rc2",
         "select2": "^4.1.0-rc.0",
+        "sweetalert2": "^11.17.2",
         "toastr": "^2.1.4"
     }
 }

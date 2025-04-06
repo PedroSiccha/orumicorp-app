@@ -1,6 +1,6 @@
 // resources/js/modules/home/dashboard.js
 import updateClock from '@/helpers/updateClock';
-import registerAssitance from '@/partTime/registerAssitance';
+import registerAssitance from '@/modules/partTime/registerAssitance';
 import mostrarNuevoModal from '@/helpers/mostrarNuevoModal';
 import { mostrarMensaje } from '@/helpers/mostrarMensaje';
 import Chart from 'chart.js/auto';
@@ -20,39 +20,40 @@ if (!dateIn) {
 
 // Cargar gráfico de ventas
 function cargarGraficoVentas() {
+  const canvas = document.getElementById('lineChart');
+  if (!ventasRoute || !canvas) return;
+
   fetch(ventasRoute)
     .then(res => res.json())
     .then(data => {
-      const ctx = document.getElementById('lineChart')?.getContext('2d');
-      if (!ctx) return;
-
-      const chart = new Chart(ctx, {
+      const ctx = canvas.getContext('2d');
+      new Chart(ctx, {
         type: 'line',
         data: {
-          labels: [
-            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-          ],
+          labels: data.labels,
           datasets: data.datasets,
         },
         options: {
           responsive: true,
-        },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
       });
-
-      updateClock(); // Reloj en el modal
+      // 🔥 Ocultar shimmer después de cargar
+      const shimmerChart = document.getElementById('shimmer-line-chart');
+      if (shimmerChart) shimmerChart.remove();
     })
-    .catch(error => {
-      console.error('Error al cargar gráfico de ventas:', error);
-      mostrarMensaje({ tipo: 'error', mensaje: 'No se pudo cargar el gráfico' });
-    });
+    .catch(err => console.error('Error cargando gráfico:', err));
 }
+
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
-  cargarGraficoVentas();
+  updateClock();
 
-  // Botón de asistencia
+  cargarGraficoVentas(); // ✅ Llamamos ahora correctamente
+
   const btnMarcar = document.getElementById('btnMarcarAsistencia');
   if (btnMarcar) {
     btnMarcar.addEventListener('click', () => {
@@ -67,14 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Simular carga (puedes usar delay de 500ms si lo deseas)
   setTimeout(() => {
     const shimmerRanking = document.getElementById('shimmer-ranking');
     const rankingReal = document.getElementById('ranking-real');
 
     if (shimmerRanking) shimmerRanking.remove();
     if (rankingReal) rankingReal.classList.remove('d-none');
-  }, 500); // tiempo estimado de carga visual
-
-
+  }, 500);
 });
+
