@@ -26,7 +26,7 @@ class AssistanceRepository implements AssistanceRepositoryInterface
                          ->get();
     }
 
-    public function getTodayGrouped()
+    public function getTodayGrouped(): Collection
     {
         $currentDate = Carbon::now()->toDateString();
 

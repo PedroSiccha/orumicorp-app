@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Interfaces\AwardRepositoryInterface;
+use App\Contracts\Repositories\AwardRepositoryInterface;
 use App\Models\Premio;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

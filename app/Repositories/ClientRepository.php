@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Interfaces\ClientRepositoryInterface;
+use App\Contracts\Repositories\ClientRepositoryInterface;
 use App\Models\Customers;
 use App\Models\CustomerStatus;
 use Exception;

@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Interfaces\CategoryFolderRepositoryInterface;
+use App\Contracts\Repositories\CategoryFolderRepositoryInterface;
 use App\Models\CategoryFolder;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

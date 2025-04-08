@@ -1,7 +1,7 @@
 <?php
 namespace App\Repositories;
 
-use App\Interfaces\ClientStatusRepositoryInterface;
+use App\Contracts\Repositories\ClientStatusRepositoryInterface;
 use App\Models\CustomerStatus;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

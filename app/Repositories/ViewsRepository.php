@@ -1,7 +1,7 @@
 <?php
 namespace App\Repositories;
 
-use App\Interfaces\ViewsRepositoryInterface;
+use App\Contracts\Repositories\ViewsRepositoryInterface;
 use App\Models\Views;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

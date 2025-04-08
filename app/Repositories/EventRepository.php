@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Exceptions\RepositoryException;
-use App\Interfaces\EventRepositoryInterface;
+use App\Contracts\Repositories\EventRepositoryInterface;
 use App\Models\Task;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

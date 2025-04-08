@@ -31,52 +31,74 @@ class PartTimeController extends Controller
 
     // protected $partTimeService;
 
-    protected $registrar;
-    protected $obtenerVista;
+    protected $registrarAsistencia;
+    protected $obtenerAsistencia;
 
 
     public function __construct(
         // PartTimeService $partTimeService,
 
-        RegistrarAsistenciaService $registrar,
-        ObtenerVistaAsistenciaService $obtenerVista
+        RegistrarAsistenciaService $registrarAsistencia,
+        ObtenerVistaAsistenciaService $obtenerAsistencia
     ) {
         // $this->partTimeService = $partTimeService;
 
-        $this->registrar = $registrar;
-        $this->obtenerVista = $obtenerVista;
+        $this->registrarAsistencia = $registrarAsistencia;
+        $this->obtenerAsistencia = $obtenerAsistencia;
     }
 
     public function registerAssistance(Request $request)
     {
         try {
             $data = $request->only(['hour', 'date', 'type', 'observation']);
-            $this->registrar->ejecutar($data);
-
-            $agentId = Auth::user()->agent->id ?? null;
-            if (!$agentId) {
-                throw new Exception('El usuario actual no tiene un agente asignado.');
-            }
-
-            $views = $this->obtenerVista->ejecutar($agentId);
+            $this->registrarAsistencia->ejecutar($data);
 
             return response()->json([
                 'status' => 'success',
                 'title' => 'Correcto',
                 'text' => 'Asistencia registrada correctamente',
-                'view' => $views['view'],
-                'viewTable' => $views['viewTable'],
-            ]);
+            ], 201); // <- mejor semántica para creación exitosa
         } catch (Exception $e) {
-            Log::error('Error al registrar asistencia: ' . $e->getMessage());
+            Log::error('Error registrando asistencia: ' . $e->getMessage());
 
             return response()->json([
                 'status' => 'error',
-                'title' => 'Error',
-                'text' => $e->getMessage(),
+                'title' => 'Error al registrar asistencia',
+                'text' => 'Verifica tu conexión o intenta nuevamente.',
             ], 500);
         }
     }
+
+
+    public function obtenerAsistencia()
+    {
+        try {
+            $agentId = Auth::user()->agent->id ?? null;
+
+            if (!$agentId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'El usuario no tiene agente asignado.'
+                ], 422);
+            }
+
+            $data = $this->obtenerAsistencia->ejecutar($agentId);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $data, // Datos estructurados listos para el frontend
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error obteniendo asistencia: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No se pudo cargar la asistencia',
+            ], 500);
+        }
+    }
+
+
 
     // public function index()
     // {

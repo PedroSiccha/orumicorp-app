@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Interfaces\TraidingRepositoryInterface;
+use App\Contracts\Repositories\TraidingRepositoryInterface;
 use App\Models\Traiding;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

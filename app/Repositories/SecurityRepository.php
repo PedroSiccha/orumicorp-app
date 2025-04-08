@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Exceptions\RepositoryException;
-use App\Interfaces\SecurityRepositoryInterface;
+use App\Contracts\Repositories\SecurityRepositoryInterface;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;

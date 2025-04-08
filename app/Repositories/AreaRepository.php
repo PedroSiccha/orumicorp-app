@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Enums\StatusIntEnum;
-use App\Interfaces\AreaRepositoryInterface;
+use App\Contracts\Repositories\AreaRepositoryInterface;
 use App\Models\Area;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

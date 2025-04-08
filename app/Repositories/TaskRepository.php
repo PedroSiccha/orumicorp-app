@@ -1,7 +1,7 @@
 <?php
 namespace App\Repositories;
 
-use App\Interfaces\TaskRepositoryInterface;
+use App\Contracts\Repositories\TaskRepositoryInterface;
 use App\Models\Task;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Interfaces\ExchangeRepositoryInrterface;
+use App\Contracts\Repositories\ExchangeRepositoryInrterface;
 use App\Models\ExchangeRate;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

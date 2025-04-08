@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Interfaces\TransactionTypeRepositoryInterface;
+use App\Contracts\Repositories\TransactionTypeRepositoryInterface;
 use App\Models\TransactionType;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

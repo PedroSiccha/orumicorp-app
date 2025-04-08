@@ -3,7 +3,7 @@ namespace App\Repositories;
 
 use App\Enums\StatusEnum;
 use App\Exceptions\RepositoryException;
-use App\Interfaces\PlatformRepositoryInterface;
+use App\Contracts\Repositories\PlatformRepositoryInterface;
 use App\Models\Platform;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;

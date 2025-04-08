@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Interfaces\CampaingRepositoryInterface;
+use App\Contracts\Repositories\CampaingRepositoryInterface;
 use App\Models\Campaing;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

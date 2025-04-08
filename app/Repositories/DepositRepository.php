@@ -1,7 +1,7 @@
 <?php
 namespace App\Repositories;
 
-use App\Interfaces\DepositRepositoryInterface;
+use App\Contracts\Repositories\DepositRepositoryInterface;
 use App\Models\Deposit;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

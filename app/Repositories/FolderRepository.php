@@ -4,7 +4,7 @@ namespace App\Repositories;
 use App\Enums\StatusEnum;
 use Illuminate\Database\Eloquent\Collection;
 use App\Exceptions\RepositoryException;
-use App\Interfaces\FolderRepositoryInterface;
+use App\Contracts\Repositories\FolderRepositoryInterface;
 use App\Models\Customers;
 use App\Models\Folder;
 use Illuminate\Database\QueryException;

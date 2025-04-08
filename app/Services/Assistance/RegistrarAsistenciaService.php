@@ -5,30 +5,31 @@ use App\Contracts\Repositories\AssistanceRepositoryInterface;
 use App\Models\Agent;
 use Illuminate\Support\Facades\Auth;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class RegistrarAsistenciaService
 {
-    protected $repo;
+    protected AssistanceRepositoryInterface $repository;
 
-    public function __construct(AssistanceRepositoryInterface $repo)
+    public function __construct(AssistanceRepositoryInterface $repository)
     {
-        $this->repo = $repo;
+        $this->repository = $repository;
     }
 
     public function ejecutar(array $data): void
     {
-        $user = Auth::user();
-        if (!$user) {
-            throw new Exception("Usuario no autenticado.");
-        }
-
-        $agent = Agent::where('user_id', $user->id)->first();
+        $agent = Agent::where('user_id', Auth::user()->id)->first();
         if (!$agent) {
-            throw new Exception("No se encontró un agente vinculado al usuario.");
+            throw new Exception('El usuario actual no tiene un agente asignado.');
         }
 
         $data['agent_id'] = $agent->id;
 
-        $this->repo->create($data);
+        try {
+            $this->repository->create($data);
+        } catch (Exception $e) {
+            Log::error('Error al registrar asistencia: ' . $e->getMessage());
+            throw new Exception('No se pudo registrar la asistencia. Intente más tarde.');
+        }
     }
 }

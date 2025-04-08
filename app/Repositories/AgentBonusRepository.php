@@ -1,7 +1,7 @@
 <?php
 namespace App\Repositories;
 
-use App\Interfaces\AgentBonusRepositoryInterface;
+use App\Contracts\Repositories\AgentBonusRepositoryInterface;
 use App\Models\BonusAgent;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

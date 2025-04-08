@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Enums\StatusEnum;
-use App\Interfaces\ShooterRepositoryInterface;
+use App\Contracts\Repositories\ShooterRepositoryInterface;
 use App\Models\Shooter;
 use Exception;
 use Illuminate\Support\Facades\Log;

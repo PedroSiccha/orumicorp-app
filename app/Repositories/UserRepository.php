@@ -1,7 +1,7 @@
 <?php
 namespace App\Repositories;
 
-use App\Interfaces\UserRepositoryInterface;
+use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\QueryException;

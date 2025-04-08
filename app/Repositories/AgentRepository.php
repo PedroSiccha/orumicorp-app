@@ -1,8 +1,8 @@
 <?php
 namespace App\Repositories;
 
+use App\Contracts\Repositories\AgentRepositoryInterface;
 use App\Enums\StatusEnum;
-use App\Interfaces\AgentRepositoryInterface;
 use App\Models\Agent;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;

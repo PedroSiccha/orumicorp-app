@@ -1,28 +1,34 @@
 {{-- resources/views/home/partials/_modalAsistencia.blade.php --}}
-<div class="modal inmodal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Marque su asistencia</h4>
-                <input type="hidden" id="aId" placeholder="Nombre del cliente" class="form-control" readonly hidden>
+<div class="modal fade show" id="myModal" tabindex="-1" role="dialog" aria-modal="true" data-backdrop="static" data-keyboard="false" style="display: block;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-light border-bottom">
+                <h4 class="modal-title font-weight-bold">Marque su asistencia</h4>
             </div>
 
             <div class="modal-body">
-                <div class="form-group row">
+                <div class="form-group row align-items-center">
                     <label class="col-lg-3 col-form-label">Hora de Ingreso</label>
-                    <div class="input-group col-lg-9">
-                        <div class="input-group-append">
-                            <div id="clock" class="clock-style"></div>
-                        </div>
+                    <div class="col-lg-9">
+                        <div id="clock" class="clock-style text-center skeleton"></div>
+                    </div>
+                </div>
+
+                <div class="form-group row d-none">
+                    <label class="col-lg-3 col-form-label">Comentario</label>
+                    <div class="col-lg-9">
+                        <input type="text" id="comentario" class="form-control" placeholder="Comentario (opcional)">
                     </div>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button id="btnMarcarAsistencia"
-                        class="btn btn-info"
-                        data-fecha="{{ date('Y-m-d') }}"
-                        type="button">
+            <div class="modal-footer d-flex justify-content-end">
+                <button 
+                    type="button" 
+                    class="btn btn-info" 
+                    id="btnMarcarAsistencia"
+                    data-fecha="{{ date('Y-m-d') }}"
+                >
                     <i class="fa fa-save"></i> MARCAR
                 </button>
             </div>

@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Exceptions\RepositoryException;
-use App\Interfaces\ProviderRepositoryInterface;
+use App\Contracts\Repositories\ProviderRepositoryInterface;
 use App\Models\Provider;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;

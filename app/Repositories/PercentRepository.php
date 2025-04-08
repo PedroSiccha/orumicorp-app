@@ -3,7 +3,7 @@ namespace App\Repositories;
 
 use App\Enums\StatusEnum;
 use Illuminate\Database\Eloquent\Collection;
-use App\Interfaces\PercentRepositoryInterface;
+use App\Contracts\Repositories\PercentRepositoryInterface;
 use App\Models\Percent;
 use Exception;
 use Illuminate\Database\QueryException;

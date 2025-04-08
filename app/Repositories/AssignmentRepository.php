@@ -3,7 +3,7 @@ namespace App\Repositories;
 
 use App\Enums\StatusEnum;
 use App\Models\Assignment;
-use App\Repositories\Contracts\AssignmentRepositoryInterface;
+use App\Contracts\Repositories\AssignmentRepositoryInterface;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;

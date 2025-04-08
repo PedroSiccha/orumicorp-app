@@ -7,40 +7,23 @@ use Illuminate\Support\Carbon;
 
 class ObtenerVistaAsistenciaService
 {
-    protected $repo;
+    protected AssistanceRepositoryInterface $repository;
 
-    public function __construct(AssistanceRepositoryInterface $repo)
+    public function __construct(AssistanceRepositoryInterface $repository)
     {
-        $this->repo = $repo;
+        $this->repository = $repository;
     }
 
-    public function ejecutar($agentId): array
+    public function ejecutar(int $agentId): array
     {
-        $dateIn = $this->repo->getTodayByAgent($agentId)->where('type', 'IN')->first();
-        $dateBreakIn = $this->repo->getTodayByAgent($agentId)->where('type', 'IN-BREAK')->first();
-        $dateBreakOut = $this->repo->getTodayByAgent($agentId)->where('type', 'OUT-BREAK')->first();
-        $dateOut = $this->repo->getTodayByAgent($agentId)->where('type', 'OUT')->first();
-
-        $assistances = $this->repo->getTodayGrouped();
-
-        $formattedData = [];
-        $types = ['IN', 'IN-BREAK', 'OUT-BREAK', 'OUT'];
-
-        foreach ($assistances as $record) {
-            $date = Carbon::parse($record->date)->format('d/m/Y');
-            $agentName = $record->agent_name . ' ' . $record->last_name;
-            $area = $record->area_name;
-
-            $formattedData[$date][$agentName]['area'] = $area;
-            $formattedData[$date][$agentName][$record->type][] = [
-                'hour' => $record->hour,
-                'observation' => $record->observation
-            ];
-        }
+        $date = Carbon::now()->toDateString();
 
         return [
-            'view' => View::make('partTime.components.panelButton', compact('dateIn', 'dateBreakIn', 'dateBreakOut', 'dateOut'))->render(),
-            'viewTable' => View::make('partTime.components.tabAssistance', compact('assistances', 'formattedData', 'types'))->render()
+            'dateIn'       => $this->repository->getTodayByAgent($agentId, $date, 'IN'),
+            'dateBreakIn'  => $this->repository->getTodayByAgent($agentId, $date, 'IN-BREAK'),
+            'dateBreakOut' => $this->repository->getTodayByAgent($agentId, $date, 'OUT-BREAK'),
+            'dateOut'      => $this->repository->getTodayByAgent($agentId, $date, 'OUT'),
+            'assistances'  => $this->repository->getTodayGrouped(),
         ];
     }
 }
