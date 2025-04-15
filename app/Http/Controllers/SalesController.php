@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 use function PHPUnit\Framework\isNull;
 
@@ -186,57 +187,137 @@ class SalesController extends Controller
                 $mensaje = "Hubo un error al guardar la venta";
                 $status = "error";
             }
+            $sales = Sales::with(['agent.area', 'customer'])
+                            ->orderBy('date_admission', 'desc')
+                            ->paginate(10);
+
+            $totalAmount = $sales->getCollection()->sum('amount');
+
+
+            // Seleccionar la vista correspondiente
+            // if ($request->typeSales == 1) {
+            $view = view('venta.list.listSale', compact('sales', 'totalAmount'))->render();
+
+            return response()->json([
+                "view"   => $view,
+                "title"  => $title,
+                "text"   => $mensaje,
+                "status" => $status
+            ]);
 
         } catch (Exception $e) {
             $title = "Error";
             $mensaje = "Error: ".$e;
             $status = "error";
+            $sales = Sales::with(['agent.area', 'customer'])
+                            ->orderBy('date_admission', 'desc')
+                            ->paginate(10);
+
+            $totalAmount = $sales->getCollection()->sum('amount');
+
+
+            // Seleccionar la vista correspondiente
+            // if ($request->typeSales == 1) {
+            $view = view('venta.list.listSale', compact('sales', 'totalAmount'))->render();
+
+            return response()->json([
+                "view"   => $view,
+                "title"  => $title,
+                "text"   => $mensaje,
+                "status" => $status
+            ]);
         }
 
-        switch ($request->typeSales) {
-            case 1:
+        // ⚠️ Convertir fechas al formato correcto
+        // try {
+        //     $dateInit = Carbon::createFromFormat('d/m/Y', $request->dateInit)->startOfDay();
+        //     $dateEnd  = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->endOfDay();
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         "title" => "Error en fechas",
+        //         "text" => "No se pudo interpretar el rango de fechas.",
+        //         "status" => "error"
+        //     ]);
+        // }
 
-                $currentMonth = Carbon::now()->month;
-                $currentYear = Carbon::now()->year;
+        // $sales = Sales::with(['agent.area', 'customer'])->paginate(10)/*->whereBetween('date_admission', [$dateInit, $dateEnd])*/;
 
-                $previousMonth = Carbon::now()->subMonth()->month;
-                $previousYear = Carbon::now()->subMonth()->year;
+        // Filtro por área (opcional)
+        // if (!empty($areaId)) {
+        //     $query->whereHas('agent', function ($q) use ($areaId) {
+        //         $q->where('area_id', $areaId);
+        //     });
+        // }
 
-                $sales = Sales::where('status', true)
-                                ->where('action_id', $request->typeSales)
-                                ->where(function ($query) use ($currentMonth, $currentYear, $previousMonth, $previousYear) {
-                                    $query->whereYear('date_admission', $currentYear)->whereMonth('date_admission', $currentMonth)
-                                            ->orWhere(function ($query) use ($previousMonth, $previousYear) {
-                                                $query->whereYear('date_admission', $previousYear)->whereMonth('date_admission', $previousMonth);
-                                            });
-                                })
-                                ->orderBy('date_admission', 'desc')
-                                ->get();
-                $totalAmount = $sales->sum('amount');
+        // // Filtro por agente (opcional)
+        // if (!empty($agentId)) {
+        //     $query->where('agent_id', $agentId);
+        // }
 
-                return response()->json(["view"=>view('venta.list.listSale', compact('sales', 'totalAmount'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
-                break;
-            case 2:
-                $bonusAgent = Sales::where('status', true)
-                                    ->where('action_id', 2)
-                                    ->orWhere('action_id', 3)
-                                    ->orderBy('created_at', 'desc')
-                                    ->get();
+        // $sales = $query->paginate(10); // o el número que prefieras
 
-                return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
-                break;
-            case 3:
-                $bonusAgent = Sales::where('status', true)
-                            ->where('action_id', 2)
-                            ->orWhere('action_id', 3)
-                            ->orderBy('created_at', 'desc')
-                            ->get();
+        $sales = Sales::with(['agent.area', 'customer'])
+                    ->orderBy('date_admission', 'desc')
+                    ->paginate(10);
 
-                return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
-                break;
-            default:
-                echo "Opción no válida";
-        }
+        $totalAmount = $sales->getCollection()->sum('amount');
+
+
+        // Seleccionar la vista correspondiente
+        // if ($request->typeSales == 1) {
+        $view = view('venta.list.listSale', compact('sales', 'totalAmount'))->render();
+
+        return response()->json([
+            "view"   => $view,
+            "title"  => $title,
+            "text"   => $mensaje,
+            "status" => $status
+        ]);
+
+        // switch ($request->typeSales) {
+        //     case 1:
+
+        //         $currentMonth = Carbon::now()->month;
+        //         $currentYear = Carbon::now()->year;
+
+        //         $previousMonth = Carbon::now()->subMonth()->month;
+        //         $previousYear = Carbon::now()->subMonth()->year;
+
+        //         $sales = Sales::where('status', true)
+        //                         ->where('action_id', $request->typeSales)
+        //                         ->where(function ($query) use ($currentMonth, $currentYear, $previousMonth, $previousYear) {
+        //                             $query->whereYear('date_admission', $currentYear)->whereMonth('date_admission', $currentMonth)
+        //                                     ->orWhere(function ($query) use ($previousMonth, $previousYear) {
+        //                                         $query->whereYear('date_admission', $previousYear)->whereMonth('date_admission', $previousMonth);
+        //                                     });
+        //                         })
+        //                         ->orderBy('date_admission', 'desc')
+        //                         ->get();
+        //         $totalAmount = $sales->sum('amount');
+
+        //         return response()->json(["view"=>view('venta.list.listSale', compact('sales', 'totalAmount'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        //         break;
+        //     case 2:
+        //         $bonusAgent = Sales::where('status', true)
+        //                             ->where('action_id', 2)
+        //                             ->orWhere('action_id', 3)
+        //                             ->orderBy('created_at', 'desc')
+        //                             ->get();
+
+        //         return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        //         break;
+        //     case 3:
+        //         $bonusAgent = Sales::where('status', true)
+        //                     ->where('action_id', 2)
+        //                     ->orWhere('action_id', 3)
+        //                     ->orderBy('created_at', 'desc')
+        //                     ->get();
+
+        //         return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
+        //         break;
+        //     default:
+        //         echo "Opción no válida";
+        // }
 
 
     }
@@ -244,64 +325,50 @@ class SalesController extends Controller
     public function filterSales(Request $request)
     {
         try {
-            if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $request->dateInit)) {
-                $dateParts = explode('/', $request->dateInit);
-                if ((int)$dateParts[0] > 12) {
-                    $dateInit = Carbon::createFromFormat('d/m/Y', $request->dateInit)->startOfDay();
-                } else {
-                    $dateInit = Carbon::createFromFormat('m/d/Y', $request->dateInit)->startOfDay();
-                }
-            } else {
-                throw new \Exception("Formato de fecha inválido en dateInit.");
+            // Validar formato y existencia de las fechas
+            if (empty($request->dateInit) || empty($request->dateEnd)) {
+                return response()->json(['error' => 'Ambas fechas son requeridas.'], 422);
             }
-    
-            if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $request->dateEnd)) {
-                $dateParts = explode('/', $request->dateEnd);
-                if ((int)$dateParts[0] > 12) {
-                    $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->endOfDay();
-                } else {
-                    $dateEnd = Carbon::createFromFormat('m/d/Y', $request->dateEnd)->endOfDay();
-                }
-            } else {
-                throw new \Exception("Formato de fecha inválido en dateEnd.");
-            }
-    
+
+            $dateInit = Carbon::createFromFormat('d/m/Y', $request->dateInit)->startOfDay();
+            $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->endOfDay();
+
         } catch (Exception $e) {
-            Log::error('Error en conversión de fechas: ' . $e->getMessage());
-            return response()->json(['error' => 'Formato de fecha inválido'], 400);
+            Log::error('Error al convertir fechas: ' . $e->getMessage());
+            return response()->json(['error' => 'Formato de fecha inválido.'], 422);
         }
-    
-        $codigo = $request->code;
+
+        // Extraer filtros adicionales
         $areaId = $request->area;
-    
-        Log::info([
-            'Filtrando Ventas desde' => $dateInit->toDateTimeString(),
-            'Hasta' => $dateEnd->toDateTimeString(),
-            'Fecha desde Request' => $request->dateInit,
-            'Fecha hasta Request' => $request->dateEnd
-        ]);
+        $agentId = $request->agentId;
 
-        $sales = Sales::whereHas('agent', function ($query) use ($codigo, $areaId) {
-                    if (!empty($areaId)) {
-                        $query->where('area_id', $areaId);
-                    }
-                    if (!empty($codigo)) {
-                        $query->where(function ($q) use ($codigo) {
-                            $q->where('code_voiso', $codigo)
-                                ->orWhere('name', 'LIKE', "%$codigo%")
-                                ->orWhere('lastname', 'LIKE', "%$codigo%");
-                        });
-                    }
-                })
-                ->whereDate('date_admission', '>=', $dateInit->toDateTimeString())
-                ->whereDate('date_admission', '<=', $dateEnd->toDateTimeString())
-                ->with(['agent', 'customer']) // Evitar N+1 queries
-                ->get();
+        // Consulta principal con relación y condiciones
+        $query = Sales::with(['agent.area', 'customer'])
+            ->whereBetween('date_admission', [$dateInit, $dateEnd]);
 
+        // Filtro por área (opcional)
+        if (!empty($areaId)) {
+            $query->whereHas('agent', function ($q) use ($areaId) {
+                $q->where('area_id', $areaId);
+            });
+        }
+
+        // Filtro por agente (opcional)
+        if (!empty($agentId)) {
+            $query->where('agent_id', $agentId);
+        }
+
+        $sales = $query->paginate(10); // o el número que prefieras
         $totalAmount = $sales->sum('amount');
 
-        return response()->json(["view"=>view('venta.list.listSale', compact('sales', 'totalAmount'))->render()]);
+        // Renderizar vista parcial de la tabla
+        $view = view('venta.list.listSale', compact('sales', 'totalAmount'))->render();
+
+        return response()->json(['view' => $view]);
     }
+
+
+
 
     /**
      * Show the form for editing the specified resource.
@@ -364,100 +431,181 @@ class SalesController extends Controller
      */
     public function updateSale(Request $request)
     {
+        // Definimos estructura de respuesta inicial
         $title = "Error";
         $mensaje = "Error desconocido";
         $status = "error";
-        $commission = 0;
-        $amount = 0;
-
-        $agent = Agent::where('code_voiso', $request->eCodAgent)
-                 ->first();
-
-        if ($request->typeSales == 3) {
-            $commission = (-1)*$request->eComission;
-        } else {
-            $commission = $request->eComission;
-        }
-
-        if ($request->eAmount) {
-            $amount = $request->eAmount;
-        } else {
-            $amount = $commission;
-        }
-
 
         try {
-            $sale = Sales::where('id', $request->eId)->first();
-            $sale->amount = $amount;
-            $sale->observation = $request->eObservation;
-            $sale->status = true;
-            $sale->percent = $request->ePercent;
-            $sale->commission = $commission;
-            $sale->exchange_rate = $request->eTypeChange;
-            $sale->action_id = $request->typeSales;
-            $sale->agent_id = $agent->id;
-            $sale->user_id = Auth::user()->id;
-            if ($sale->save()) {
-                $title = "Correcto";
-                $mensaje = "La venta se actualizó correctamente";
-                $status = "success";
-            } else {
-                $title = "Error";
-                $mensaje = "Hubo un error al actualizar la venta";
-                $status = "error";
-            }
+            // Validación inicial
+            $request->validate([
+                'eId' => 'required|exists:sales,id',
+                'eCodAgent' => 'required|string|exists:agents,code_voiso',
+                'typeSales' => 'required|in:1,2,3',
+            ]);
 
+            // Buscar agente por código
+            $agent = Agent::where('code_voiso', $request->eCodAgent)->first();
+
+            // Calcular comisión
+            $commission = ($request->typeSales == 3)
+                ? -1 * $request->eComission
+                : $request->eComission;
+
+            // Usar amount si viene, o asumir comisión como monto
+            $amount = $request->filled('eAmount') ? $request->eAmount : $commission;
+
+            // Buscar la venta
+            $sale = Sales::findOrFail($request->eId);
+            // dd('Nuevo agente:', $agent->id, 'Agente actual:', $sale->agent_id);
+            // Actualizar campos
+            $sale->update([
+                'amount' => $amount,
+                'observation' => $request->eObservation,
+                'status' => true,
+                'percent' => $request->ePercent,
+                'commission' => $commission,
+                'exchange_rate' => $request->eTypeChange,
+                'action_id' => $request->typeSales,
+                'agent_id' => $agent->id,
+                'user_id' => auth()->id(),
+            ]);
+
+            $title = "Correcto";
+            $mensaje = "La venta se actualizó correctamente";
+            $status = "success";
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                "title" => "Validación incorrecta",
+                "text" => implode(', ', $e->validator->errors()->all()),
+                "status" => "warning"
+            ]);
         } catch (Exception $e) {
-            $title = "Error";
-            $mensaje = "Error: ".$e;
-            $status = "error";
+            return response()->json([
+                "title" => "Error inesperado",
+                "text" => "No se pudo actualizar la venta. Detalles: " . $e->getMessage(),
+                "status" => "error"
+            ]);
         }
 
-        switch ($request->typeSales) {
-            case 1:
-
-                $currentMonth = Carbon::now()->month;
-                $currentYear = Carbon::now()->year;
-
-                $previousMonth = Carbon::now()->subMonth()->month;
-                $previousYear = Carbon::now()->subMonth()->year;
-
-                $sales = Sales::where('status', true)
-                                ->where('action_id', $request->typeSales)
-                                ->where(function ($query) use ($currentMonth, $currentYear, $previousMonth, $previousYear) {
-                                    $query->whereYear('date_admission', $currentYear)->whereMonth('date_admission', $currentMonth)
-                                            ->orWhere(function ($query) use ($previousMonth, $previousYear) {
-                                                $query->whereYear('date_admission', $previousYear)->whereMonth('date_admission', $previousMonth);
-                                            });
-                                })
-                                ->orderBy('date_admission', 'desc')
-                                ->get();
-                $totalAmount = $sales->sum('amount');
-
-                return response()->json(["view"=>view('venta.list.listSale', compact('sales', 'totalAmount'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
-                break;
-            case 2:
-                $bonusAgent = Sales::where('status', true)
-                                    ->where('action_id', 2)
-                                    ->orWhere('action_id', 3)
-                                    ->orderBy('created_at', 'desc')
-                                    ->get();
-
-                return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
-                break;
-            case 3:
-                $bonusAgent = Sales::where('status', true)
-                            ->where('action_id', 2)
-                            ->orWhere('action_id', 3)
-                            ->orderBy('created_at', 'desc')
-                            ->get();
-
-                return response()->json(["view"=>view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(), "title"=>$title, "text"=>$mensaje, "status"=>$status]);
-                break;
-            default:
-                echo "Opción no válida";
+        // ⚠️ Convertir fechas al formato correcto
+        try {
+            $dateInit = Carbon::createFromFormat('d/m/Y', $request->dateInit)->startOfDay();
+            $dateEnd  = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->endOfDay();
+        } catch (Exception $e) {
+            return response()->json([
+                "title" => "Error en fechas",
+                "text" => "No se pudo interpretar el rango de fechas.",
+                "status" => "error"
+            ]);
         }
+
+        // Aplicar filtros para mostrar la tabla actualizada
+        // $salesQuery = Sales::with(['agent.area', 'customer'])
+        //                     ->where('status', true)
+        //                     ->where('action_id', $request->typeSales)
+        //                     ->whereBetween('date_admission', [$dateInit, $dateEnd]);
+
+        // if (!empty($request->area)) {
+        //     $salesQuery->whereHas('agent', function ($query) use ($request) {
+        //         $query->where('area_id', $request->area);
+        //     });
+        // }
+
+        // if (!empty($request->agentId)) {
+        //     $salesQuery->where('agent_id', $request->agentId);
+        // }
+
+        // $sales = $salesQuery->orderBy('date_admission', 'desc')->paginate(10);
+
+        // Consulta principal con relación y condiciones
+        $query = Sales::with(['agent.area', 'customer'])->whereBetween('date_admission', [$dateInit, $dateEnd]);
+
+        // Filtro por área (opcional)
+        if (!empty($areaId)) {
+            $query->whereHas('agent', function ($q) use ($areaId) {
+                $q->where('area_id', $areaId);
+            });
+        }
+
+        // Filtro por agente (opcional)
+        if (!empty($agentId)) {
+            $query->where('agent_id', $agentId);
+        }
+
+        $sales = $query->paginate(10); // o el número que prefieras
+
+        $totalAmount = $sales->sum('amount');
+
+        // Seleccionar la vista correspondiente
+        // if ($request->typeSales == 1) {
+            $view = view('venta.list.listSale', compact('sales', 'totalAmount'))->render();
+        // } else {
+        //     $view = view('bonusAgente.list.listBonusAgent', compact('sales'))->render();
+        // }
+
+        return response()->json([
+            "view"   => $view,
+            "title"  => $title,
+            "text"   => $mensaje,
+            "status" => $status
+        ]);
+
+        // Obtener lista según tipo de venta
+        // switch ($request->typeSales) {
+        //     case 1:
+        //         $currentMonth = Carbon::now()->month;
+        //         $currentYear = Carbon::now()->year;
+        //         $previousMonth = Carbon::now()->subMonth()->month;
+        //         $previousYear = Carbon::now()->subMonth()->year;
+
+        //         $sales = Sales::where('status', true)
+        //             ->where('action_id', 1)
+        //             ->where(function ($query) use ($currentMonth, $currentYear, $previousMonth, $previousYear) {
+        //                 $query->whereYear('date_admission', $currentYear)->whereMonth('date_admission', $currentMonth)
+        //                     ->orWhere(function ($q) use ($previousMonth, $previousYear) {
+        //                         $q->whereYear('date_admission', $previousYear)
+        //                             ->whereMonth('date_admission', $previousMonth);
+        //                     });
+        //             })
+        //             ->orderBy('date_admission', 'desc')
+        //             ->paginate(10); // Usa paginate
+
+        //         $totalAmount = $sales->sum('amount');
+
+        //         return response()->json([
+        //             "view" => view('venta.list.listSale', compact('sales', 'totalAmount'))->render(),
+        //             "title" => $title,
+        //             "text" => $mensaje,
+        //             "status" => $status
+        //         ]);
+
+        //     case 2:
+        //     case 3:
+        //         // Se combinan tipo 2 y 3
+        //         dd("AQ UI");
+        //         $bonusAgent = Sales::where('status', true)
+        //                             ->whereIn('action_id', [2, 3])
+        //                             ->orderBy('created_at', 'desc')
+        //                             ->paginate(10); // Usa paginate
+
+        //         return response()->json([
+        //             "view" => view('bonusAgente.list.listBonusAgent', compact('bonusAgent'))->render(),
+        //             "title" => $title,
+        //             "text" => $mensaje,
+        //             "status" => $status
+        //         ]);
+
+        //     default:
+        //         return response()->json([
+        //             "title" => "Error",
+        //             "text" => "Tipo de venta no válido",
+        //             "status" => "error"
+        //         ]);
+        // }
     }
+
 
     /**
      * Remove the specified resource from storage.

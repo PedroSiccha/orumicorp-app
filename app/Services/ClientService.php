@@ -600,7 +600,19 @@ class ClientService implements ClientInterface {
         $lastProvider = $this->providerService->getLastProviderByCustomer($dataCommunication);
         $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
         $priorities = Priority::all();
-        $listAssignaments = Assignment::with(['agent', 'customer', 'assignedBy'])->where('customer_id', $id)->orderBy('date', 'desc')->get();
+        // $listAssignaments = Assignment::with(['agent', 'customer', 'assignedBy'])->where('customer_id', $id)->orderBy('date', 'desc')->get();
+        $asignaciones = Assignment::with(['agent', 'customer', 'assignedBy'])
+                                    ->where('customer_id', $dataCustomer->id)
+                                    ->orderBy('date', 'desc')
+                                    ->get();
+
+        // Agregamos manualmente el agente del usuario que asignó
+        foreach ($asignaciones as $asignacion) {
+            $asignacion->asignadorAgente = Agent::where('user_id', optional($asignacion->assignedBy)->id)->first();
+        }
+        $listAssignaments = $asignaciones;
+
+
         $eventos = Task::with(['customer', 'agent', 'priority'])->where('customer_id', $id)->orderBy('date', 'desc')->get();
         // Iteramos cada evento para asignar la fecha formateada
         $eventos->each(function ($evento) {

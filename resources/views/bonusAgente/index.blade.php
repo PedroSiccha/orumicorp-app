@@ -1,166 +1,51 @@
 @extends('layouts.app')
 
 @section('title')
-      Bonus de Agente
+    Bonus de Agente
 @endsection
 
 @section('content')
 <div class="row">
-      <div class="col-lg-12">
-          <div class="ibox ">
-              <div class="ibox-title d-flex justify-content-between align-items-center">
-                  <h5>Tabla Bonus </h5>
-                  @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
-                    <div class="col-sm-2">
-                        <div class="input-group date">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_init" type="text" class="form-control" value="01/01/2024">
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="input-group date">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input id="date_added_end" type="text" class="form-control" value="12/31/2024" onchange="filterBonus('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabBonus')">
-                        </div>
-                    </div>
-                    <div class="col-sm-2 text-right">
-                        <select class="form-control m-b" name="area" id="area" onchange="filterBonus('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabBonus')" onclick="filterBonus('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabBonus')">
-                            @foreach($areas as $area)
-                            <option value = "{{ $area->id }}">{{ $area->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control form-control-sm" placeholder="Buscar por nombre o código" id="inputCode" oninput="filterBonus('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabBonus')">
-                            <div class="input-group-append">
-                                <button class="btn btn-sm btn-default" type="button"><i class="fa fa-search"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-                  <div>
+    <div class="col-lg-12">
+        <div class="ibox">
+            <div class="ibox-title d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Tabla Bonus</h5>
+                <div class="d-flex">
                     @can('Registrar Descuento')
-                    <button type="button" class="btn btn-danger" type="button" onclick="mostrarNuevoModal('#modalDescuento')"><i class="fa fa-plus"></i> Registrar Descuento</button>
+                        <button class="btn btn-danger btn-sm" onclick="mostrarNuevoModal('#modalDescuento')">
+                            <i class="fa fa-plus"></i> Registrar Descuento
+                        </button>
                     @endcan
                     @can('Registrar Bonus')
-                    <button type="button" class="btn btn-default" type="button" onclick="mostrarNuevoModal('#modalBonus')"><i class="fa fa-plus"></i> Registrar Bonus</button>
+                        <button class="btn btn-default btn-sm ms-2" onclick="mostrarNuevoModal('#modalBonus')">
+                            <i class="fa fa-plus"></i> Registrar Bonus
+                        </button>
                     @endcan
-                  </div>
-              </div>
-              <div class="ibox-content" id="tabBonus">
-                  <table class="table table-striped">
-                      <thead>
-                      <tr>
-                          <th>Fecha de Ingreso</th>
-                          <th>Bono</th>
-                          <th>Comisión en Soles</th>
-                          <th>Agente</th>
-                          <th>Area</th>
-                          <th>Comentario</th> 
-                      </tr>
-                      </thead>
-                      <tbody>
-                        @foreach ($bonusAgent as $ba)
-                            <tr @if(number_format($ba->amount, 2) <= 0) class="table-danger" @endif>
-                                <td>{{ date("d/m/Y", strtotime($ba->date_admission)) }}</td>
-                                <td> $ {{ number_format($ba->amount, 2) }}</td>
-                                <td>S/. {{ number_format($ba->amount*3.5, 2) }}</td>
-                                <td>
-                                    @can('Ver Perfil Agente')
-                                    <a href="{{ route('perfilUsuario', ['id' => $ba->agent->id]) }}">
-                                    @endcan
-                                    {{ $ba->agent->name }} {{ $ba->agent->lastname }}
-                                    @can('Ver Perfil Agente')
-                                    </a>
-                                    @endcan
-                                </td>
-                                <td>{{ $ba->agent->area->name }}</td>
-                                <td>{{ $ba->observation }}</td>
-                            </tr>
-                        @endforeach
-                      </tbody>
-                  </table>
-
-                  <div class="col-lg-12">
-                    <div class="ibox ">
-                        <div class="ibox-title">
-                            <h5>Totales</h5>
-                            @can('Registrar Target')
-                                <div class="ibox-tools">
-                                    <a onclick="mostrarNuevoModal('#modalCreateTarget')">
-                                        <i class="fa fa-plus"></i>
-                                    </a>
-                                </div>
-                            @endcan
-                        </div>
-                        @can('Bonus Agente - Target Mensual')
-                            <div class="ibox-content navy-bg">
-                                <div class="row" id="tabTotalTarget">
-                                    <div class="col-4">
-                                        <h4>Target Mensual</h4>
-                                    </div>
-
-                                    <div class="col-4">
-                                        <h4>$ {{ isset($reportTargetMensual) ? number_format(($reportTargetMensual), 2): '0.00' }}</h4>
-                                    </div>
-                                    <div class="col-4">
-                                        <h4>S/. {{ isset($reportTargetMensual) ? number_format(($reportTargetMensual)*3.5, 2): '0.00' }}</h4>
-                                    </div>
-                                </div>
-                            </div>
-                        @endcan
-                            
-                        @can('Bonus Agente - Ingresos Actuales')
-                            <div class="ibox-content yellow-bg">
-                                <div class="row">
-                                    <div class="col-4">
-                                        <h4>Ingresos Actuales</h4>
-                                    </div>
-
-                                    <div class="col-4">
-                                        <h4>$ {{ isset($amount) ? number_format(($amount), 2): '0.00' }}</h4>
-                                    </div>
-                                    <div class="col-4">
-                                        <h4>S/. {{ isset($amount) ? number_format(($amount), 2): '0.00' }}</h4>
-                                    </div>
-                                </div>
-                            </div>
-                        @endcan
-                        
-                        @can('Bonus Agente - Descuentos Actuales')
-                            <div class="ibox-content red-bg">
-                                <div class="row">
-                                    <div class="col-4">
-                                        <h4>Descuentos Actuales</h4>
-                                    </div>
-
-                                    <div class="col-4">
-                                        <h4>$ {{ isset($amountRetiro) ? number_format(($amountRetiro), 2): '0.00' }}</h4>
-                                    </div>
-                                    <div class="col-4">
-                                        <h4>S/. {{ isset($amountRetiro) ? number_format(($amountRetiro)*3.5, 2): '0.00' }}</h4>
-                                    </div>
-                                </div>
-                            </div>
-                        @endcan
-                            
-                        @can('Bonus Agente - Cuota Pendiente')
-                            <div class="ibox-content lazur-bg">
-                                <div class="row">
-                                    <div class="col-4">
-                                        <h4>Cuota Pendiente</h4>
-                                    </div>
-
-                                    <div class="col-4">
-                                        <h4>$ {{ isset($reportTargetMensual) ? number_format(($reportTargetMensual - $amount), 2): '0.00' }}</h4>
-                                    </div>
-                                    <div class="col-4">
-                                        <h4>S/. {{ isset($reportTargetMensual) ? number_format(($reportTargetMensual - $amount)*3.5, 2): '0.00' }}</h4>
-                                    </div>
-                                </div>
-                            </div>
-                        @endcan
-                    </div>
                 </div>
+
+            </div>       
+                    
+            
+            <div class="ibox-content pt-2 pb-2">
+                <div class="row">
+                    @if (auth()->check() && auth()->user()->hasRole('ADMINISTRADOR'))
+                        <div class="col-md-2 mb-2">
+                            <input type="text" class="form-control" id="date_added_init" placeholder="Fecha inicio" value="{{ date('01/01/Y') }}">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <input type="text" class="form-control" id="date_added_end" placeholder="Fecha fin" value="{{ date('d/m/Y') }}">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <select class="form-control" id="area">
+                                <option value="">TODOS</option>
+                                @foreach($areas as $area)
+                                    <option value="{{ $area->id }}">{{ $area->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <select class="form-control" id="inputCode" style="width: 100%"></select>
+
 
               </div>
           </div>
@@ -181,7 +66,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Agente</label>
                     <div class="input-group col-lg-9">
-                        <input type="text" class="form-control" id="dniAgent" placeholder="Ingrese el DNI o Código del cliente">
+                        <input type="text" class="form-control" id="dniAgent" placeholder="ID DEL AGENTE">
                         <div class="input-group-append">
                             <button type="button" class="btn btn-primary ladda-button-agent-create-bonus" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniAgent', inputName: '#nameAgent', alertError: '#alertErrorCreateBonus', alertErrorText: '#alertErrorTextCreateBonus', btnLadda: '.ladda-button-agent-create-bonus' })"><i class="fa fa-search"></i></button>
                         </div>
@@ -225,7 +110,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Agente</label>
                     <div class="input-group col-lg-9">
-                        <input type="text" class="form-control" id="dniDiscountAgent" placeholder="Ingrese el DNI o Código del agente">
+                        <input type="text" class="form-control" id="dniDiscountAgent" placeholder="ID DEL AGENTE">
                         <div class="input-group-append">
                             <button type="button" class="btn btn-primary ladda-button-agent-create-descuento" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniDiscountAgent', inputName: '#nameDiscountAgent', alertError: '#alertErrorCreateDescuento', alertErrorText: '#alertErrorTextCreateDescuento', btnLadda: '.ladda-button-agent-create-descuento' })"><i class="fa fa-search"></i></button>
                         </div>
@@ -270,7 +155,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Agente</label>
                     <div class="input-group col-lg-9">
-                        <input type="text" class="form-control" id="dniTargetAgent" placeholder="Ingrese el DNI o Código del agente">
+                        <input type="text" class="form-control" id="dniTargetAgent" placeholder="ID DEL AGENTE">
                         <div class="input-group-append">
                             <button type="button" class="btn btn-primary ladda-button-agent-registrar-target" data-style="zoom-in" onclick="searchAgent({inputcodeVoiso: '#dniTargetAgent', inputName: '#nameTargetAgent', alertError: '#alertErrorRegistrarTarget', alertErrorText: '#alertErrorTextRegistrarTarget', btnLadda: '.ladda-button-agent-registrar-target' })"><i class="fa fa-search"></i></button>
                         </div>
@@ -310,82 +195,94 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Agente</label>
                     <div class="input-group col-lg-9">
-                        <input type="text" class="form-control" id="dniAgentRetiro" placeholder="Ingrese el DNI o Código del agente">
+                        <input type="text" class="form-control" id="dniAgentRetiro" placeholder="ID DEL AGENTE">
                         <div class="input-group-append">
                             <button type="button" class="btn btn-primary ladda-button-agent-registrar-retiro" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#dniAgentRetiro', inputName: '#nameAgentRetiro', alertError: '#alertErrorRegistrarRetiro', alertErrorText: '#alertErrorTextRegistrarRetiro', btnLadda: '.ladda-button-agent-registrar-retiro' })"><i class="fa fa-search"></i></button>
+
                         </div>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label">Datos del Agente</label>
-                    <div class="col-lg-9">
-                        <input type="text" placeholder="Nombre del agente" class="form-control" id='nameAgentRetiro' readonly>
-                    </div>
-                </div>
-                <div class="form-group row"><label class="col-lg-3 col-form-label">Monto</label>
-                    <div class="col-lg-9">
-                        <input type="number" placeholder="Ingrese un moneto" class="form-control" id="amountRetiro">
-                    </div>
-                </div>
-                <div class="form-group row"><label class="col-lg-3 col-form-label">Tipo de Pago</label>
-                    <div class="col-lg-9">
-                        <select class="form-control m-b" name="percent_id" id="percent_id">
-                            <option>Seleccione un porcentaje</option>
-                            @foreach($percents as $percent)
-                                <option value = "{{ $percent->id }}">{{ $percent->description }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div class="col-md-2 mb-2">
+                            <button class="btn btn-warning btn-sm" id="btnClearFilters"><i class="fa fa-eraser"></i> Limpiar Filtros</button>
+                        </div>
+                    @endif
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-info " type="button" onclick="createRetirement('#dniAgentRetiro', '#amountRetiro', '#modalRegistrarRetiro', '#tabRetiroEfectivo')"><i class="fa fa-save"></i> Guardar</button>
-                <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-trash"></i> Cancelar</button>
-            </div>
+            
+            <div class="ibox-content" id="tabBonus">
+                {{-- Shimmer placeholders visibles al cargar --}}
+                <div id="shimmer-wrapper-table" class="_shimmerTable">
+                    @include('bonusAgente.partials._shimmerTable')
+                </div>
+            
+                {{-- <div id="shimmer-wrapper-totals" class="_shimmerTotals">
+                    @include('bonusAgente.partials._shimmerTotals')
+                </div> --}}
+            
+                {{-- Contenedores reales que serán reemplazados vía AJAX --}}
+                <div id="bonus-table-wrapper" style="display: none;"></div>
+                <div id="bonus-total-wrapper" style="display: none;"></div>
+            </div>                       
         </div>
     </div>
 </div>
+
+@include('bonusAgente.modals._modalBonus')
+@include('bonusAgente.modals._modalDescuento')
+@include('bonusAgente.modals._modalTarget')
+@include('bonusAgente.modals._modalRetiro')
 @endsection
+
 @section('script')
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        filterBonus('#area', '#inputCode', '#date_added_init', '#date_added_end', '#tabBonus');
+    });
+
     $(document).ready(function() {
         $('#date_added_init').datepicker({
-                todayBtn: "linked",
-                keyboardNavigation: false,
-                forceParse: false,
-                calendarWeeks: true,
-                autoclose: true
+            format: 'dd/mm/yyyy',
+            autoclose: true
         });
         $('#date_added_end').datepicker({
-                todayBtn: "linked",
-                keyboardNavigation: false,
-                forceParse: false,
-                calendarWeeks: true,
-                autoclose: true
+            format: 'dd/mm/yyyy',
+            autoclose: true
         });
     });
-    var saveTargetRoute = '{{ route("saveTarget") }}';
+
+    $('#inputCode').select2({
+        placeholder: "Buscar por nombre o código",
+        minimumInputLength: 2,
+        ajax: {
+            url: '{{ route("searchAgentAjax") }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return { q: params.term };
+            },
+            processResults: function (data) {
+                return { results: data };
+            },
+            cache: true
+        },
+        templateResult: function (agent) {
+            return agent.text;
+        },
+        templateSelection: function (agent) {
+            return agent.text || agent.id;
+        }
+    });
+
+    var filterBonusRoute = '{{ route("filterBonus") }}';
     var searchAgentRoute = '{{ route("searchAgent") }}';
     var saveRetiroRoute = '{{ route("saveRetiro") }}';
-    var searchClientRoute = '{{ Route("searchCustomer") }}';
-    var saveBonusRoute = '{{ Route("saveBonus") }}';
-    var saveSaleRoute = '{{ Route("saveSale") }}';
-    var filterBonusRoute = '{{ route("filterBonus") }}';
+    var saveBonusRoute = '{{ route("saveBonus") }}';
+    var saveTargetRoute = '{{ route("saveTarget") }}';
     var token = '{{ csrf_token() }}';
 </script>
-<script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
 <script src="{{ asset('js/utils/mostrarNuevoModal.js') }}"></script>
-<script src="{{ asset('js/agent/searchAgent.js') }}"></script>
-<script src="{{ asset('js/customer/searchClient.js') }}"></script>
-<script src="{{ asset('js/bonusAgent/createTarget.js') }}"></script>
-<script src="{{ asset('js/bonusAgent/createRetirement.js') }}"></script>
-<script src="{{ asset('js/bonusAgent/createBonus.js') }}"></script>
-<script src="{{ asset('js/bonusAgent/createDiscount.js') }}"></script>
-<script src="{{ asset('js/sales/createSales.js') }}"></script>
+<script src="{{ asset('js/utils/mostrarMensaje.js') }}"></script>
 <script src="{{ asset('js/bonusAgent/filterBonus.js') }}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        markNotificationsAsSeen('bonusagent');
-    });
-</script>
+<script src="{{ asset('js/bonusAgent/createDiscount.js') }}"></script>
+<script src="{{ asset('js/bonusAgent/createBonus.js') }}"></script>
+<script src="{{ asset('js/bonusAgent/createTarget.js') }}"></script>
+<script src="{{ asset('js/agent/searchAgent.js') }}"></script>
 @endsection

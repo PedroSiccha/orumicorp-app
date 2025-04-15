@@ -38,7 +38,7 @@
                     <label class="col-lg-3 col-form-label">Código del Agente</label>
                     <div class="col-lg-9">
                         <div class="input-group">
-                            <input type="text" class="form-control" id="codeAgent" placeholder="Ingrese el código del agente">
+                            <input type="text" class="form-control" id="codeAgent" placeholder="ID DEL AGENTE">
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-primary ladda-button-agent-new-deposit" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#codeAgent', inputName: '#nameAgent', alertError: '#alertErrorNuevoDeposito', alertErrorText: '#alertErrorTextNuevoDeposito', btnLadda: '.ladda-button-agent-new-deposit' })"><i class="fa fa-search"></i></button>
                             </div>
@@ -56,7 +56,7 @@
                     <label class="col-lg-3 col-form-label">Código del Cliente</label>
                     <div class="col-lg-9">
                         <div class="input-group">
-                            <input type="text" class="form-control" id="dniCustomer" placeholder="Ingrese el DNI o Código del cliente">
+                            <input type="text" class="form-control" id="dniCustomer" placeholder="CODIGO DE CLIENTE">
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-primary ladda-button-client-new-deposit" data-style="zoom-in" onclick="searchClient({ inputDni: '#dniCustomer', inputName: '#nameCustomer', alertError: '#alertErrorNuevoDeposito', alertErrorText: '#alertErrorTextNuevoDeposito', btnLadda: '.ladda-button-client-new-deposit' })"><i class="fa fa-search"></i></button>
                             </div>

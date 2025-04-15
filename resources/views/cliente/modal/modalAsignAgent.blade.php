@@ -14,7 +14,7 @@
                     <label class="col-lg-3 col-form-label">Agente</label>
                     <div class="input-group col-lg-9">
                         <input type="text" class="form-control" id="dniGroupAgent"
-                            placeholder="Ingrese el DNI o Código del agente">
+                            placeholder="ID DEL AGENTE">
                         <div class="input-group-append">
                             <button type="button" class="btn btn-primary ladda-button-agent" data-style="zoom-in"
                                 onclick="searchAgent({ inputcodeVoiso: '#dniGroupAgent', inputName: '#nameGroupAgent', alertError: '#alertError', alertErrorText: '#alertErrorText', btnLadda: '.ladda-button-agent'})"><i

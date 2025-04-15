@@ -420,8 +420,8 @@
                                                     <tr>
                                                         <td>{{ $loop->iteration }}</td>
                                                         <td>{{ $listAssignament->agent->name.' '.$listAssignament->agent->lastname ?? 'Sin Agente' }}</td>
-                                                        <td>{{ \Carbon\Carbon::parse($vista->date)->format('d/m/Y H:i:s') }}</td>
-                                                        <td>{{ $listAssignament->assignedBy->name.' '.$listAssignament->assignedBy->lastname ?? 'Sin Agente' }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($listAssignament->date)->format('d/m/Y H:i:s') }}</td>
+                                                        <td>{{ optional($listAssignament->asignadorAgente)->name.' '.optional($listAssignament->asignadorAgente)->lastname ?? 'Sin Agente' }}</td>
                                                         <td>{{ $listAssignament->comment }}</td>
                                                         <td>{{ $listAssignament->descripcion }}</td>
                                                     </tr>

@@ -33,17 +33,18 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($assistances as $assistance)
+            @foreach ($assistances as $row)
                 <tr>
-                    <td>{{ $assistance->date }}</td>
-                    <td>{{ $assistance->name }} {{ $assistance->lastname }}</td>
-                    <td>{{ $assistance->IN }}</td>
-                    <td>{{ $assistance->INBREAK }}</td>
-                    <td>{{ $assistance->OUTBREAK }}</td>
-                    <td>{{ $assistance->OUT }}</td>
+                    <td>{{ $row['date'] }}</td>
+                    <td>{{ $row['agent'] }}</td>
+                    <td>{!! $row['IN'] !!}</td>
+                    <td>{!! $row['INBREAK'] !!}</td>
+                    <td>{!! $row['OUTBREAK'] !!}</td>
+                    <td>{!! $row['OUT'] !!}</td>
                 </tr>
             @endforeach
         </tbody>
+        
     </table>
 </body>
 </html>
