@@ -600,6 +600,7 @@ class ClientService implements ClientInterface {
         $lastProvider = $this->providerService->getLastProviderByCustomer($dataCommunication);
         $providers = $this->providerService->getAllProvidersByCustomer($dataCommunication);
         $priorities = Priority::all();
+        // dd($priorities);
         // $listAssignaments = Assignment::with(['agent', 'customer', 'assignedBy'])->where('customer_id', $id)->orderBy('date', 'desc')->get();
         $asignaciones = Assignment::with(['agent', 'customer', 'assignedBy'])
                                     ->where('customer_id', $dataCustomer->id)

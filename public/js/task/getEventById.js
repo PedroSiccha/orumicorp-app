@@ -1,26 +1,24 @@
 function getEventById(id, modal) {
-    $.post(getEventByIdRoute, {id: id, _token: token}).done(function(data) {
-        var start = new Date(data.start);
-        var end = new Date(data.end);
-        var horaStart = start.getHours();
-        var minutosStart = start.getMinutes();
-        var horaEnd = end.getHours();
-        var minutosEnd = end.getMinutes();
-        var timeStart = horaStart + ':' + minutosStart;
-        var timeEnd = horaEnd + ':' + minutosEnd;
-        $('#id').val(data.id);
-        $('#dateEvent').val(data.date);
-        $('#nombreEvento').val(data.name);
-        $('#descripcionEvento').val(data.description);
-        $('#dniCustomer').val(data.customer.code);
-        $('#nameCustomer').val(data.customer.name + ' ' + data.customer.lastname);
-        $('#horaInicio').val(timeStart);
-        $('#horaFin').val(timeEnd);
-        $('#priority_id').val(data.priority_id);
-        $('#codeAgent').val(data.agent.code);
-        $('#nameAgent').val(data.agent.name + ' ' + data.agent.lastname);
-        $("#modalRegistrarEvento").modal("show");
+    $.post(getEventByIdRoute, { id: id, _token: token }).done(function(data) {
+        console.log('DATA RESPONSE', data);
+        console.log('DATA CLIENT', data.customer);
+        console.log('DATA AGENT', data.agent);
 
+        mostrarModalEditarEvento({
+            id: data.id,
+            date: data.date,
+            name: data.name,
+            description: data.description,
+            timeStart: new Date(data.start).toTimeString().slice(0,5),
+            timeEnd: new Date(data.end).toTimeString().slice(0,5),
+            priority_id: data.priority_id,
+            agent_code: data.agent.code,
+            agent_name: `${data.agent.name} ${data.agent.lastname}`,
+            customer_code: data.customer.code,
+            customer_name: `${data.customer.name} ${data.customer.lastname}`
+        });
+
+        $('#modalRegistrarEvento').modal('show');
     });
-
 }
+

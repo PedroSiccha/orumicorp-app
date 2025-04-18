@@ -1,3 +1,9 @@
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const baja = document.querySelector('#priority_id option[value="1"]');
+    if (baja) baja.disabled = false;
+});
+</script>
 <!-- Modal para crear comentario -->
 <div class="modal inmodal fade" id="modalNuevaTarea" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -46,7 +52,7 @@
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-primary ladda-button-agent-new-deposit" data-style="zoom-in" onclick="searchAgent({ inputcodeVoiso: '#codeAgent', inputName: '#nameAgent', alertError: '#alertErrorNuevoDeposito', alertErrorText: '#alertErrorTextNuevoDeposito', btnLadda: '.ladda-button-agent-new-deposit' })"><i class="fa fa-search"></i></button>
                             </div>
-                        </div>
+                        </div> 
                     </div>
                 </div>
                 <div class="form-group row">
@@ -59,13 +65,13 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Desde</label>
                     <div class="col-lg-9">
-                        <input type="time" placeholder="Desde" class="form-control" id='horaInicio'> 
+                        <input type="text" placeholder="Desde" class="form-control" id='horaInicio'> 
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Hasta</label>
                     <div class="col-lg-9">
-                        <input type="time" placeholder="Nombre del agenteHasta" class="form-control" id='horaFin'>
+                        <input type="text" placeholder="Nombre del agenteHasta" class="form-control" id='horaFin'>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -73,8 +79,9 @@
                     <div class="col-lg-9">
                         <select class="form-control m-b" name="priority_id" id="priority_id">
                             <option>Nivel de Prioridad</option>
+                            {{-- @dd($priorities) --}}
                             @foreach ($priorities as $priority)
-                                <option value="{{ $priority->id }}" class="{{ $priority->color }}">{{ $priority->name }}</option>
+                                <option value="{{ $priority->id }}" class='{{ $priority->color }}'>{{ $priority->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -88,3 +95,5 @@
         </div>
     </div>
 </div>
+
+    

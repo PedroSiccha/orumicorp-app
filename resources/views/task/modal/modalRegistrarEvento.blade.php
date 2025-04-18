@@ -72,13 +72,13 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Desde</label>
                     <div class="col-lg-9">
-                        <input type="time" placeholder="Desde" class="form-control" id='horaInicio'>
+                        <input type="text" placeholder="Desde" class="form-control" id='horaInicio'>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Hasta</label>
                     <div class="col-lg-9">
-                        <input type="time" placeholder="Nombre del agenteHasta" class="form-control" id='horaFin'>
+                        <input type="text" placeholder="Hasta" class="form-control" id='horaFin'>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -94,9 +94,9 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success " type="button" onclick="saveEvent('#id', '#dateEvent', '#nombreEvento', '#descripcionEvento', '#dniCustomer', '#codeAgent', '#horaInicio', '#horaFin', '#priority_id', '#modalRegistrarEvento', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
-                <button class="btn btn-warning " type="button" onclick="editEvent('#id', '#dateEvent', '#nombreEvento', '#descripcionEvento', '#dniCustomer', '#horaInicio', '#horaFin', '#priority_id', '#modalRegistrarEvento')"><i class="fa fa-pencil"></i> Modificar</button>
-                <button class="btn btn-danger " type="button" onclick="deleteEvent('#id', '#modalRegistrarEvento')"><i class="fa fa-trash"></i> Eliminar</button>
+                <button id="btnGuardarEvento" class="btn btn-success " type="button" onclick="saveEvent('#id', '#dateEvent', '#nombreEvento', '#descripcionEvento', '#dniCustomer', '#codeAgent', '#horaInicio', '#horaFin', '#priority_id', '#modalRegistrarEvento', '#tabClient')"><i class="fa fa-save"></i> Guardar</button>
+                <button id="btnEditarEvento" class="btn btn-warning " type="button" onclick="editEvent('#id', '#dateEvent', '#nombreEvento', '#descripcionEvento', '#dniCustomer', '#horaInicio', '#horaFin', '#priority_id', '#modalRegistrarEvento')"><i class="fa fa-pencil"></i> Modificar</button>
+                {{-- <button class="btn btn-danger " type="button" onclick="deleteEvent('#id', '#modalRegistrarEvento')"><i class="fa fa-trash"></i> Eliminar</button> --}}
                 <button class="btn btn-default" data-dismiss="modal" type="button"><i class="fa fa-close"></i> Cancelar</button>
             </div>
         </div>
