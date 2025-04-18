@@ -21,7 +21,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label">Cliente</label>
                     <div class="col-lg-9">
-                        <input type="text" placeholder="Nombre del agente" class="form-control" id='nameClient' readonly>
+                        <input type="text" placeholder="Nombre del cliente" class="form-control" id='nameClient' readonly>
                     </div>
                 </div>
                 <div class="form-group row">
