@@ -22,7 +22,7 @@
                       <td>
                           @if (isset($records[$type]))
                               @foreach ($records[$type] as $entry)
-                                  {{ $entry['hour'] }} <br>
+                                  {{ $entry['hour'] }} <br> 
                                   @if (!empty($entry['observation']))
                                       <span style="font-size: small;">{{ $entry['observation'] }}</span>
                                   @endif

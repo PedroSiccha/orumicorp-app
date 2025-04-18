@@ -41,7 +41,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/uploadImg', [App\Http\Controllers\AgentController::class, 'uploadImg'])->name('uploadImg');
     Route::post('/changePassword', [App\Http\Controllers\AgentController::class, 'changePassword'])->name('changePassword');
     Route::post('/agentsPagination', [App\Http\Controllers\AgentController::class, 'agentsPagination'])->name('agentsPagination');
+
+    Route::get('/agents/search', [App\Http\Controllers\AgentController::class, 'searchAjax'])->name('searchAgentAjax');
+
     Route::get('/agents/search', [App\Http\Controllers\AgentController::class, 'search'])->name('agents.search');
+
 
     Route::get('areas', [\App\Http\Controllers\AreaController::class, 'index'])->middleware('markAsSeen:areas')->name('areas');
     Route::post('/saveArea', [App\Http\Controllers\AreaController::class, 'saveArea'])->name('saveArea');
@@ -90,8 +94,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/parttime', [App\Http\Controllers\PartTimeController::class, 'index'])->middleware('markAsSeen:parttime')->name('partTime');
     Route::post('/registerAssistance', [App\Http\Controllers\PartTimeController::class, 'registerAssistance'])->name('registerAssistance');
     Route::post('/filterAssistance', [App\Http\Controllers\PartTimeController::class, 'filterAssistance'])->name('filterAssistance');
-    Route::get('/descargar-asistencia-pdf',  [App\Http\Controllers\PartTimeController::class, 'descargarReportePDF'])->name('descargar-asistencia-pdf');
+    // Route::get('/descargar-asistencia-pdf',  [App\Http\Controllers\PartTimeController::class, 'descargarReportePDF'])->name('descargar-asistencia-pdf');
+    // Route::get('/descargar-asistencia-excel', [App\Http\Controllers\PartTimeController::class, 'descargarReporteExcel'])->name('descargar-asistencia-excel');
     Route::get('/descargar-asistencia-excel', [App\Http\Controllers\PartTimeController::class, 'descargarReporteExcel'])->name('descargar-asistencia-excel');
+    Route::get('/descargar-asistencia-pdf', [App\Http\Controllers\PartTimeController::class, 'descargarReportePDF'])->name('descargar-asistencia-pdf');
     Route::post('/registerVacations', [App\Http\Controllers\PartTimeController::class, 'registerVacations'])->name('registerVacations');
 
 

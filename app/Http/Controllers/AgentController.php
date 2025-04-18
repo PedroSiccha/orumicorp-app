@@ -113,6 +113,30 @@ class AgentController extends Controller
         return response()->json(["view" => view('agent.list.listAgent', compact('agents'))->render()]);
     }
 
+    public function searchAjax(Request $request)
+    {
+        $search = $request->get('q');
+
+        $agents = Agent::where('status', true)
+            ->where(function ($query) use ($search) {
+                $query->where('name', 'LIKE', "%$search%")
+                    ->orWhere('lastname', 'LIKE', "%$search%")
+                    ->orWhere('code', 'LIKE', "%$search%")
+                    ->orWhere('code_voiso', 'LIKE', "%$search%");
+            })
+            ->limit(15)
+            ->get();
+
+        $results = $agents->map(function ($agent) {
+            return [
+                'id' => $agent->id,
+                'text' => "{$agent->name} {$agent->lastname} ({$agent->code})",
+            ];
+        });
+
+        return response()->json($results);
+    }
+
     public function search(Request $request)
     {
         $query = $request->get('term', '');
@@ -139,6 +163,5 @@ class AgentController extends Controller
             })
         ]);
     }
-
 
 }
