@@ -78,16 +78,33 @@ class VoisoController extends Controller
     public function initiateCall(Request $request)
     {
         $user_id = Auth::user()->id;
-        $codeVoiso = Agent::where('user_id', $user_id)->first();
+        $agent = Agent::where('user_id', $user_id)->first();
         $data = [
-            'agent' => $codeVoiso->code_voiso,
+            'agent' => $agent->code_voiso,
             'number' => $request->phone,
         ];
 
-        // $client = Customers::where('phone', $request->phone)->first();
+        if ($agent) {
+            $agent->status_voiso = 'EN LLAMADA...';
+            $agent->save();
+        }
+
+         // Obtener ID del cliente
+        if (!$request->customerId) {
+            $customer = Customers::where('phone', $request->phone)->first();
+        } else {
+            $customer = Customers::find($request->customerId);
+        }
+
+        if ($customer) {
+            // Toggle de call_init
+            // $customer->call_init = $customer->call_init == 1 ? 0 : 1;
+            $customer->call_init = true;
+            $customer->save();
+        }
 
         $dataCustomer = [
-            'customer_id' => $request->customerId,
+            'customer_id' => $customer->id ?? null,
             'description' => '',
             'comment' => ''
         ];
@@ -95,6 +112,7 @@ class VoisoController extends Controller
         $response = Http::post('https://cc-dal01.voiso.com/api/v1/2a517cb66609906663cf7e5bd337ff168286eeacb0364d1d/click2call', $data);
         if ($response->successful()) {
             $comunicationData = $this->comunicationService->saveComunication($dataCustomer);
+            // dd($comunicationData);
             return response()->json([
                 "errorMessage" => $response->json(),
                 "errorStatus" => "",

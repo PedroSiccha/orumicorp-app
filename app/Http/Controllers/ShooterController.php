@@ -208,14 +208,19 @@ class ShooterController extends Controller
         $message = "";
         $shooter = "0";
         $phone = "";
+        $view = false;
 
         $user_id = Auth::user()->id;
         $agent = Agent::where('user_id', $user_id)->first();
+        if ($agent->status_voiso === 'LIBRE') {
+            $view = true;
+        }
+
 
         $shooter = Shooter::where('status', 1)->first();
 
         if ($shooter) {
-            $clients = Customers::where('folder_id', $shooter->folder_id)->get();
+            $clients = Customers::where('folder_id', $shooter->folder_id)->where('call_init', 0)->get();
 
             if ($clients->isNotEmpty()) {
                 $randomClient = $clients->random();
@@ -227,7 +232,7 @@ class ShooterController extends Controller
 
         }
 
-        return response()->json(["type" => $type, "message" => $message, "shooter" => $shooter, "phone" => $phone]);
+        return response()->json(["type" => $type, "message" => $message, "shooter" => $shooter, "phone" => $phone, "view" => $view]);
 
     }
 }

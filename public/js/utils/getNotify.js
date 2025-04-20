@@ -5,12 +5,16 @@ function getNotify() {
     }
 
     $.post(notiffyShooterRoute, { _token: token }).done(function(data) {
+        // console.log("DATA NOTIFY", data);
         toastr.options.onclick = function() {
             initiateCall({ phone: data.phone, modal: '#modalCrearComentario', input: '#idComunication' });
-        };
 
-        if (data.shooter === "1") {
-            toastr[data.type](data.message);
+        };
+        // console.log('VIEW ' + data);
+        if (data.view) {
+            if (data.shooter === "1") {
+                toastr[data.type](data.message);
+            }    
         }
     }).fail(function(jqXHR, textStatus, errorThrown) {
         console.error("Error en la petición AJAX:", textStatus, errorThrown);

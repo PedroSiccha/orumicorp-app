@@ -305,6 +305,7 @@ class ClientService implements ClientInterface {
                 $client->status = true;
                 $client->user_id = $user->id;
                 $client->id_status = $statusClient->id;
+                $client->call_init = false;
 
                 if ($client->save()) {
                     return [

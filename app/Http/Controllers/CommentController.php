@@ -194,11 +194,21 @@ class CommentController extends Controller
             'comment' => $request->txtComentario,
             'customerStatusId' => $request->customerStatusId
         ];
-
+        // dd($request->customerStatusId);
         if ($request->customerStatusId) {
+            // dd($request);
             $comunication = Comunications::find($idComunication);
+            // dd($comunication);
+            if (!$comunication) {
+                $customers = $this->clientService->index();
+                return response()->json(["view"=>view('cliente.list.listCustomer', $customers)->render(), "title"=>"Error", "text"=>"Error con la comunicación VOISO", "status"=>"error"]);
+            }
 
             $customer = Customers::find($comunication->customer_id);
+            if (!$customer) {
+                $customers = $this->clientService->index();
+                return response()->json(["view"=>view('cliente.list.listCustomer', $customers)->render(), "title"=>"Error", "text"=>"Error con el contacto del cliente", "status"=>"error"]);
+            }
             $customer->id_status = $request->customerStatusId;
             $customer->save();
         }
@@ -247,7 +257,7 @@ class CommentController extends Controller
             $folder->save();
         }
 
-        $data = $this->comentarioService->updateComunication($dataCustomer);
+        $data = $this->comentarioService->updateComunication($dataCustomer); 
         $customers = $this->clientService->index();
         return response()->json(["view"=>view('cliente.list.listCustomer', $customers)->render(), "title"=>$data['title'], "text"=>$data['mensaje'], "status"=>$data['status']]);
     }

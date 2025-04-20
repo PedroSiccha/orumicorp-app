@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Interfaces\ComunicationInterface;
 use App\Models\Agent;
 use App\Models\Comunications;
+use App\Models\Customers;
 use App\Models\CustomerStatus;
 use App\Models\User;
 use Carbon\Carbon;
@@ -67,15 +68,33 @@ class ComunicationService implements ComunicationInterface {
 
             $user_id = Auth::user()->id;
             $agent = Agent::where('user_id', $user_id)->first();
+            if ($agent) {
+                $agent->status_voiso = 'LIBRE';
+                $agent->save();
+            }
 
             $comunication = Comunications::find($request['comunicationId']);
+            if (!$comunication) {
+                $title = "Error";
+                $mensaje = "La comunicación no se completó correctamente";
+                $status = "error";
+            }
             $comunication->comment = $request['comment'];
             $comunication->status = $statusCommunicationName;
 
             if ($comunication->save()) {
+
+                $customer = Customers::find($comunication->customer_id);
+                $customer->call_init = false;
+                $customer->save();
+
                 $title = "Correcto";
                 $mensaje = "Comunication Update";
                 $status = "success";
+            } else {
+                $title = "Error";
+                $mensaje = "Error de servidor, vuelva a intentarlo";
+                $status = "error";    
             }
 
         } catch (ValidationException $e) {
