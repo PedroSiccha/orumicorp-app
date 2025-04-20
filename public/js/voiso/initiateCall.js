@@ -16,7 +16,7 @@ function initiateCall(options) {
         } else {
             console.log("DATA RESPONSE", data.data);
             openOrFocusCallPage(phone, token, data.data);
-        }
+        } 
     });
 }
 
