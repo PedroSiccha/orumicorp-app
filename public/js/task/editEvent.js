@@ -10,6 +10,7 @@ function editEvent(inputId, inputDateEvent, inputNameEvent, inputDescriptionEven
     $.post(editEventRoute, {idEvent: idEvent, dateEvent: dateEvent, nameEvent: nameEvent, descriptionEvent: descriptionEvent, codCustomer: codCustomer, desde: desde, hasta: hasta, priorityEvent: priorityEvent, _token: token}).done(function(data) {
         $(modal).modal('hide');
         mostrarMensaje(data.title, data.text, data.status);
-        location.reload();
+        // location.reload();
+        window.calendar.refetchEvents();
     });
 }

@@ -33,12 +33,22 @@
     var getEventByIdRoute = '{{ route("getEventById") }}';
     var searchAgentRoute = '{{ route("searchAgent") }}';
     var token = '{{ csrf_token() }}';
+    document.addEventListener("DOMContentLoaded", function () {
+        flatpickr("#horaInicio", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i", // 24h formato HH:MM
+            time_24hr: true
+        });
+
+        flatpickr("#horaFin", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true
+        });
+    });
   </script>
   <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
   <script src="{{ asset('js/task/task.js') }}" defer></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        markNotificationsAsSeen('task');
-    });
-</script>
 @endsection

@@ -11,6 +11,7 @@ function saveEvent(inputId, inputDateEvent, inputNameEvent, inputDescriptionEven
     $.post(saveEventRoute, {idEvent: idEvent, dateEvent: dateEvent, nameEvent: nameEvent, descriptionEvent: descriptionEvent, codCustomer: codCustomer, codAgent: codAgent, desde: desde, hasta: hasta, priorityEvent: priorityEvent, _token: token}).done(function(data) {
         $(modal).modal('hide');
         mostrarMensaje(data.title, data.text, data.status);
+        window.calendar.refetchEvents();
         // location.reload();
     });
 }
