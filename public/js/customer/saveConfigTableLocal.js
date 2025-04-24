@@ -28,20 +28,36 @@ const resetConfigUrl = `/reset-table-config`;
 
 function loadTableConfig() {
     console.log("📥 Cargando configuración desde el servidor...");
-    
+
     fetch(configUrl)
         .then(response => response.json())
         .then(data => {
             console.log("✅ Configuración obtenida desde la BD:", data);
-            
-            if (data.config && data.config.length > 0) {
-                applyTableConfig(data.config);
-            } else {
-                console.warn("⚠️ No hay configuración guardada, mostrando todas las columnas.");
+
+            let visibleColumns = data.config;
+
+            // ✅ Si visibleColumns es string JSON, convertir a array
+            if (typeof visibleColumns === "string") {
+                try {
+                    visibleColumns = JSON.parse(visibleColumns);
+                } catch (e) {
+                    console.error("❌ Error al parsear visibleColumns:", visibleColumns);
+                    visibleColumns = [];
+                }
             }
+
+            // Validar que sea array
+            if (!Array.isArray(visibleColumns)) {
+                console.warn("⚠️ visibleColumns no es un array. Se usará []");
+                visibleColumns = [];
+            }
+
+            console.log("✅ Aplicando configuración:", visibleColumns);
+            applyTableConfig(visibleColumns);
         })
         .catch(error => console.error("❌ Error al obtener configuración:", error));
 }
+
 
 // function applyTableConfig(visibleColumns) {
 //     console.log("✅ Aplicando configuración:", visibleColumns);
@@ -69,29 +85,51 @@ function loadTableConfig() {
 // }
 
 function applyTableConfig(visibleColumns) {
-    console.log("✅ Aplicando configuración:", visibleColumns);
-    
-    document.querySelectorAll(".table th, .table td").forEach(el => {
-        el.style.display = "";
-    });
+    console.log("✅ Aplicando configuración (basado en clases):", visibleColumns);
 
-    document.querySelectorAll(".column-toggle").forEach(toggle => {
-        let columnIndex = toggle.dataset.column;
-        let isVisible = visibleColumns.length === 0 || visibleColumns.includes(columnIndex);
-        toggle.checked = isVisible;
-        
-        if (!isVisible) {
-            document.querySelectorAll(`.table thead th:nth-child(${parseInt(columnIndex) + 1}), 
-                                       .table tbody td:nth-child(${parseInt(columnIndex) + 1})`)
-                .forEach(el => el.style.display = "none");
+    const columnasFijas = ['column-0', 'column-22'];
+
+    // 🟢 Si el array viene vacío (sin configuración), mostrar todo lo que esté en el DOM
+    if (!Array.isArray(visibleColumns) || visibleColumns.length === 0) {
+        console.warn("🟡 No hay configuración guardada. Mostrando todas las columnas permitidas por permisos.");
+        document.querySelectorAll(".table th, .table td").forEach(el => {
+            el.style.display = "";
+        });
+
+        // Activar todos los checkboxes en el modal excepto los que no estén en DOM
+        document.querySelectorAll(".column-toggle").forEach(toggle => {
+            const columnClass = 'column-' + toggle.dataset.column;
+            const existe = document.querySelector(`.${columnClass}`) !== null;
+            toggle.checked = existe;
+        });
+
+        return;
+    }
+
+    const allVisible = new Set([...visibleColumns.map(n => 'column-' + n), ...columnasFijas]);
+
+    document.querySelectorAll(".table th, .table td").forEach(el => {
+        const clases = Array.from(el.classList);
+        const columnClass = clases.find(c => c.startsWith('column-'));
+        if (!columnClass) return;
+
+        if (allVisible.has(columnClass)) {
+            el.style.display = "";
+        } else {
+            el.style.display = "none";
         }
     });
 
+    document.querySelectorAll(".column-toggle").forEach(toggle => {
+        const columnClass = 'column-' + toggle.dataset.column;
+        toggle.checked = allVisible.has(columnClass);
+    });
+
     if ($.fn.DataTable) {
-        console.log("🔄 Redibujando DataTable...");
         $('.dataTables-example').DataTable().columns.adjust().draw();
     }
 }
+
 
 
 function saveTableConfig() {
@@ -109,7 +147,7 @@ function saveTableConfig() {
             "Content-Type": "application/json",
             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
         },
-        body: JSON.stringify({
+        body: JSON.stringify({ 
             table_name: tableName,
             visible_columns: selectedColumns,
             scope: scope,

@@ -152,7 +152,7 @@
                     Folder
                 </div>
             </th>
-            <th>Acción</th>
+            <th class="column-22">Acción</th>
         </tr>
     </thead>
     <tbody>
@@ -168,7 +168,9 @@
                         Sin Comunicación
                     @endif
                 </td>
+                @can('Perfil Cliente - Ver Codigo')
                 <td class="column-2">{{ $customer->code }}</td>
+                @endcan
                 <td class="column-3">{{  date("d/m/Y", strtotime($customer->date_admission)) }}</td>
                 <td class="column-4">
                     @if ($customer->latestComunication)
@@ -281,7 +283,7 @@
                         Sin Folder
                     @endif
                 </td>
-                <td>
+                <td class="column-22">
                     <div class="d-flex align-items-center">
                         @can('Asignar Folder')
                         <button class="btn btn-primary" type="button" onclick="changeFolder({customerId: '{{ $customer->id }}', folderId: '{{ $customer->folder_id }}', modal: '#modalChangeFolder'})"><i class="fa fa-refresh"></i> </button>
