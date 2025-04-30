@@ -46,7 +46,7 @@ class TableConfigController extends Controller
             'role_id' => 'nullable|integer'
         ]);
         // dd($request->role_id);
-        
+         
         $user = Auth::user();
         
         if ($request->scope === 'user') {

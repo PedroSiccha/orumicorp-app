@@ -20,7 +20,7 @@
                             @endcan
                         </select>
                     </div>
-                    <div class="form-group" id="roleSelector" style="display: none;">
+                    <div class="form-group" id="roleSelector" style="display: none;"> 
                         <label>Seleccionar Rol:</label>
                         <select id="roleSelectorId" class="form-control">
                             @foreach ($roles as $role)
